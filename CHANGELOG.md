@@ -5,6 +5,15 @@ All notable changes to Aero Dock are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Middle-clicking an app on the dock now closes it: every window it has open is
+  asked to close, as its own close button would, so an app with unsaved work still
+  asks first. It works for pinned and running apps alike. Muting an app, which
+  middle-click used to do, is in the icon's right-click menu.
+
 ## [1.3.2] - 2026-09-29
 
 ### Added

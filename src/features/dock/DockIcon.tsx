@@ -14,7 +14,9 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { magnifySpring, nearSide, playLaunch } from "../../engine/animation/presets";
 import { idleFloat, springs } from "../../engine/animation/springs";
 import { effectsBus } from "../../engine/effects/effectsBus";
+import { ipc } from "../../ipc/commands";
 import type { DockEdge } from "../../ipc/types";
+import { notify } from "../feedback/toastStore";
 import type { DockItemView } from "../../state/dockStore";
 import { exeKey, useAppAudio } from "../../state/audioStore";
 import { useSettings } from "../../state/settingsStore";
@@ -101,11 +103,10 @@ export function DockIcon({
   // way. They are a hover affordance, and a deliberate scroll outranks one.
   const previewMutedUntil = useRef(0);
 
-  // per-app audio: scroll to change, middle-click to mute
+  // per-app audio: scroll to change (muting is in the icon's menu)
   const audio = useAppAudio((a) => a.levels[exeKey(item.audioExe)]);
   const audioTick = useAppAudio((a) => a.tick);
   const nudgeVolume = useAppAudio((a) => a.nudge);
-  const toggleMute = useAppAudio((a) => a.toggleMute);
   // `audioTick` is read so the indicator re-renders when its timer runs out
   void audioTick;
   const adjusting = useAppAudio.getState().isVisible(item.audioExe) && audio !== undefined;
@@ -216,7 +217,20 @@ export function DockIcon({
       onAuxClick={(e) => {
         if (e.button !== 1) return;
         e.preventDefault();
-        void toggleMute(item.audioExe);
+        // Middle-click closes the app: every window it has open, asked to close
+        // the way its own close button would (one with unsaved work still asks
+        // first). The windows listed here are the ones this dock shows for the
+        // app, which for a pin or a running app alike is all of them; a pin that
+        // is not running, a stack or a folder has none, and nothing happens.
+        if (item.windows.length === 0) return;
+        clearTimeout(dwellTimer.current);
+        // a preview of the windows that are closing would be left pointing at nothing
+        const m = useMenu.getState();
+        if (m.kind === "windows" && m.item?.id === item.id) m.close();
+        playCue("close");
+        for (const w of item.windows) {
+          ipc.closeWindow(w.hwnd).catch(notify.on(`Could not close ${item.name}`));
+        }
       }}
       onMouseEnter={(e) => {
         setHovered(true);

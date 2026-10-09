@@ -60,8 +60,12 @@ const ICON =
  * @param {[number, number]} [o.viewport]
  * @param {(settings: object) => void} [o.settings]  change the settings the mock serves
  * @param {object} [o.status]    overrides for what `get_system_status` returns
+ * @param {object[]} [o.running] the windows `get_running` reports (default: one Notepad window)
  */
-export async function startHarness({ dist = join(projectRoot, "dist"), out, window = "menubar", viewport = [1920, 700], settings: patch, status = {} }) {
+export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running }) {
+  // absolute, because the browser reads its profile path from its own directory,
+  // not from this script's
+  const out = resolve(outFolder);
   mkdirSync(out, { recursive: true });
   const settings = defaultSettings(out);
   if (window === "menubar") settings.menuBar.enabled = true;
@@ -139,6 +143,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out, wind
     recycleBin: { items: 0, bytes: 0 },
   }, ${JSON.stringify(status)});
   const ICON = ${JSON.stringify(ICON)};
+  const RUNNING = ${JSON.stringify(running ?? [{ hwnd: 1, title: "Notes", exe: "notepad.exe", pid: 1, aumid: null, monitor: "" }])};
   window.__unknown = [];
   window.__calls = [];
   window.__reduceT = false;
@@ -153,7 +158,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out, wind
       switch (cmd) {
         case "get_settings": return JSON.parse(JSON.stringify(settings));
         case "set_settings": return args && args.settings ? args.settings : settings;
-        case "get_running": return { windows: [{ hwnd: 1, title: "Notes", exe: "notepad.exe", pid: 1, aumid: null, monitor: "" }], focused: 1 };
+        case "get_running": return { windows: RUNNING, focused: 1 };
         case "get_system_status": return status;
         case "get_system_accessibility": return { reduceMotion: false, reduceTransparency: !!window.__reduceT };
         case "widget_now_playing": return { active: true, title: "A song", artist: "An artist", album: "", playing: true, source: "Player" };
@@ -165,9 +170,15 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out, wind
         case "plugin:event|listen": return Math.floor(Math.random() * 1e6);
         case "plugin:event|unlisten": return null;
         case "get_user_idle": case "get_idle": return false;
+        case "dock_monitor": return "";
+        case "app_display_name": {
+          // the file's name without its folder or extension, capitalised (no backslashes here: this is inside a template literal)
+          const last = String(args && args.target || "").split(String.fromCharCode(92)).pop().split("/").pop().replace(".exe", "");
+          return last ? last.charAt(0).toUpperCase() + last.slice(1) : null;
+        }
         // commands with a real effect are acknowledged and recorded, never run
         case "resize_menubar": case "resize_dock": case "set_menubar_menu_open": case "activate_window":
-        case "set_dock_focusable": case "report_dock_bar": case "set_volume": case "set_radio":
+        case "set_dock_focusable": case "report_dock_bar": case "close_window": case "minimize_window": case "set_volume": case "set_radio":
         case "connect_wifi": case "disconnect_wifi": case "set_brightness": case "launch": return null;
         default:
           if (cmd.startsWith("list_")) return [];
@@ -205,10 +216,12 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out, wind
     rect: (selector) =>
       evalJs(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, left: r.left, top: r.top, width: r.width, height: r.height }; })()`),
     move: (x, y) => send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y, button: "none", buttons: 0 }),
-    async click(x, y) {
+    /** A click of the pointer's "left" (default), "middle" or "right" button. */
+    async click(x, y, button = "left") {
+      const held = { left: 1, right: 2, middle: 4 }[button];
       await api.move(x, y);
-      await send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", buttons: 1, clickCount: 1 });
-      await send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", buttons: 0, clickCount: 1 });
+      await send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button, buttons: held, clickCount: 1 });
+      await send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button, buttons: 0, clickCount: 1 });
     },
     /** Move the pointer from one place to another in small steps, as a hand does. */
     async sweep(from, to, steps = 8) {

@@ -78,6 +78,7 @@ real mouse is used.
 pnpm build
 node --experimental-websocket scripts/offscreen/menubar.mjs src-tauri/target/offscreen
 node --experimental-websocket scripts/offscreen/interrupt.mjs src-tauri/target/offscreen
+node --experimental-websocket scripts/offscreen/dock.mjs src-tauri/target/offscreen
 ```
 
 (The output folder is any folder; `src-tauri/target/` is git-ignored.)
@@ -160,6 +161,13 @@ Say plainly in a report when something native was not seen.
   never to take the keyboard, so `keyboard.rs` makes the window activatable for the
   visit and `set_dock_focusable(false)` restores it. Real focus is what lets
   keystrokes and screen readers work.
+- **Dock icon gestures:** click launches or focuses, scroll changes that app's volume,
+  **middle-click closes the app** (asks each of the icon's windows to close, as its close
+  button would, so an app with unsaved work still asks; nothing for a pin that is not
+  running). Muting an app is in the icon's right-click menu: middle-click used to mute, and
+  the README, the settings hint and the changelog were changed with it. With a dock on
+  each monitor and per-monitor windows on, an icon only lists (and so only closes) its own
+  screen's windows.
 - **Wired vs wireless** icon: `system.rs::read_link` asks `GetAdaptersAddresses`,
   keeps adapters that are up and have a gateway, takes the lowest metric, and skips
   virtual adapters by name.

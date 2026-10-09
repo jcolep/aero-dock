@@ -34,8 +34,8 @@ export function AudioCard({ settings, onStatus }: Props) {
     <section className="settings-card glass">
       <h2>App volume</h2>
       <p className="settings-note">
-        Scroll an app on the dock to change its volume, or middle-click to
-        mute it. Right-click an icon to pick an output.
+        Scroll an app on the dock to change its volume. Right-click an icon to
+        mute it or pick an output.
       </p>
 
       {apps.length === 0 ? (

@@ -62,7 +62,7 @@ Its last release was 2008.
 
 **Audio**
 
-- Scroll an app icon to set that app's volume, middle-click to mute
+- Scroll an app icon to set that app's volume, middle-click to close the app
 - Right-click to choose which output an app uses
 - The same knob the Windows volume mixer shows, so the two agree
 
@@ -169,7 +169,8 @@ the folder.
 | Reorder | Drag an icon along the dock |
 | Group into a stack | Right click an icon, then **Stack with previous item** |
 | Change one app's volume | Scroll its icon |
-| Mute one app | Middle-click its icon |
+| Close an app | Middle-click its icon (closes all its windows, as their close buttons would) |
+| Mute one app | Right click it, then **Mute** |
 | Choose an app's audio output | Right click it, then **Audio output** |
 | Switch modes | Click the mode tile on the dock |
 | Save your windows to a mode | Mode tile, then **Save windows to this mode** |
