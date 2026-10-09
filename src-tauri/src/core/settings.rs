@@ -1017,6 +1017,16 @@ mod tests {
         assert!(on.appearance.real_blur);
         assert!(on.appearance.pointer_light);
     }
+    /// Writes the default settings as JSON to the path in `AERO_FIXTURE_OUT`, for
+    /// the off-screen test harness in `scripts/offscreen`, which has no Rust of
+    /// its own to ask. Run by the harness; ignored in a normal `cargo test`.
+    #[test]
+    #[ignore]
+    fn write_default_settings() {
+        let out = std::env::var("AERO_FIXTURE_OUT").expect("AERO_FIXTURE_OUT names the file to write");
+        let json = serde_json::to_string_pretty(&Settings::default()).expect("settings serialise");
+        std::fs::write(out, json).expect("the fixture can be written");
+    }
     #[test]
     fn accessibility_defaults_follow_the_system_and_keep_sounds_off() {
         let s: Settings = serde_json::from_str(r#"{"dock":{"iconSize":40}}"#).expect("old file loads");

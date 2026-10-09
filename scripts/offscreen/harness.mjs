@@ -1,0 +1,257 @@
+// Off-screen test harness for Aero Dock's pages.
+//
+// It serves the built `dist` to a separate headless Edge (its own profile, no
+// window on screen), stands in for the Tauri backend with a mock, and drives
+// the page with the browser's own synthetic input over the Chrome DevTools
+// Protocol. No Aero Dock process runs, nothing appears on the desktop, and no
+// real mouse or keyboard is used, so it is safe to run while someone is working.
+//
+// What it cannot show is native behaviour (window regions, focus, activation,
+// the real blur, the taskbar): that needs a built exe on a real desktop.
+//
+// Needs Node 20+ with `--experimental-websocket`, and Microsoft Edge. Build the
+// page first (`pnpm build`). Scenarios in this folder are short scripts on top
+// of this; see them for examples.
+
+import { execFileSync, spawn } from "node:child_process";
+import { createServer } from "node:http";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, extname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const projectRoot = resolve(here, "..", "..");
+
+export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const EDGES = [
+  "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+];
+
+const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml" };
+
+/** The default settings, as the app itself makes them (asked of Rust once and kept). */
+function defaultSettings(out) {
+  const file = join(out, "default-settings.json");
+  if (!existsSync(file)) {
+    execFileSync(
+      "cargo",
+      ["test", "--manifest-path", join(projectRoot, "src-tauri", "Cargo.toml"), "write_default_settings", "--", "--ignored"],
+      { env: { ...process.env, AERO_FIXTURE_OUT: file }, stdio: "ignore" },
+    );
+  }
+  return JSON.parse(readFileSync(file, "utf8"));
+}
+
+/** A small icon, so the dock page has something for every target it asks about.
+ *  (A mock that answers `{}` makes the page ask again forever and freeze.) */
+const ICON =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="6" y="6" width="52" height="52" rx="14" fill="#3b82c4"/></svg>');
+
+/**
+ * Start a harness.
+ *
+ * @param {object} o
+ * @param {string} [o.dist]      the built page (default: `dist` of this project)
+ * @param {string} o.out         a folder for profiles and results
+ * @param {string} [o.window]    which window the page is: menubar | dock | settings | frame ...
+ * @param {[number, number]} [o.viewport]
+ * @param {(settings: object) => void} [o.settings]  change the settings the mock serves
+ * @param {object} [o.status]    overrides for what `get_system_status` returns
+ */
+export async function startHarness({ dist = join(projectRoot, "dist"), out, window = "menubar", viewport = [1920, 700], settings: patch, status = {} }) {
+  mkdirSync(out, { recursive: true });
+  const settings = defaultSettings(out);
+  if (window === "menubar") settings.menuBar.enabled = true;
+  patch?.(settings);
+
+  // ---- the page, served ----
+  const server = createServer((req, res) => {
+    let p = decodeURIComponent(req.url.split("?")[0]);
+    if (p === "/") p = "/index.html";
+    const f = join(dist, p);
+    if (!existsSync(f)) {
+      res.writeHead(404);
+      res.end();
+      return;
+    }
+    res.writeHead(200, { "content-type": TYPES[extname(f)] ?? "application/octet-stream" });
+    res.end(readFileSync(f));
+  });
+  const port = Number(process.env.AERO_PAGE_PORT ?? 4173);
+  await new Promise((r) => server.listen(port, "127.0.0.1", r));
+
+  // ---- a headless Edge of its own ----
+  const edgePath = EDGES.find(existsSync);
+  if (!edgePath) throw new Error("Microsoft Edge was not found");
+  const debugPort = Number(process.env.AERO_CDP_PORT ?? 9333);
+  const edge = spawn(
+    edgePath,
+    ["--headless=new", `--remote-debugging-port=${debugPort}`, `--user-data-dir=${join(out, "profile")}`, `--window-size=${viewport[0]},${viewport[1]}`, "--disable-gpu", "--no-first-run", "--no-default-browser-check", "about:blank"],
+    { stdio: "ignore" },
+  );
+  let page;
+  for (let i = 0; i < 60 && !page; i++) {
+    try {
+      page = (await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json()).find((t) => t.type === "page");
+    } catch {}
+    if (!page) await sleep(200);
+  }
+  if (!page) throw new Error("the browser did not start");
+  const ws = new WebSocket(page.webSocketDebuggerUrl);
+  await new Promise((r) => ws.addEventListener("open", r, { once: true }));
+  let nextId = 0;
+  const pending = new Map();
+  ws.addEventListener("message", (e) => {
+    const m = JSON.parse(e.data);
+    if (m.id && pending.has(m.id)) {
+      pending.get(m.id)(m);
+      pending.delete(m.id);
+    }
+  });
+  // every call has a timeout: a stuck page otherwise hangs the script silently
+  const send = (method, params = {}, ms = 15000) =>
+    new Promise((resolveCall, reject) => {
+      const id = ++nextId;
+      const timer = setTimeout(() => reject(new Error(`${method} timed out`)), ms);
+      pending.set(id, (m) => {
+        clearTimeout(timer);
+        resolveCall(m);
+      });
+      ws.send(JSON.stringify({ id, method, params }));
+    });
+  const evalJs = async (expression) => {
+    const r = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
+    if (r.result.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text));
+    return r.result.result.value;
+  };
+
+  // ---- the backend, mocked ----
+  const mock = `
+(() => {
+  const settings = ${JSON.stringify(settings)};
+  const status = Object.assign({
+    battery: { present: true, percent: 80, charging: false },
+    internet: true, link: "wifi",
+    volume: { available: true, level: 55, muted: false },
+    recycleBin: { items: 0, bytes: 0 },
+  }, ${JSON.stringify(status)});
+  const ICON = ${JSON.stringify(ICON)};
+  window.__unknown = [];
+  window.__calls = [];
+  window.__reduceT = false;
+  const callbacks = {};
+  window.__TAURI_INTERNALS__ = {
+    metadata: { currentWindow: { label: ${JSON.stringify(window)} }, currentWebview: { windowLabel: ${JSON.stringify(window)}, label: ${JSON.stringify(window)} } },
+    transformCallback(cb) { const i = Math.floor(Math.random() * 1e9); callbacks[i] = cb; return i; },
+    unregisterCallback(i) { delete callbacks[i]; },
+    convertFileSrc: (p) => p,
+    async invoke(cmd, args) {
+      window.__calls.push({ cmd, args });
+      switch (cmd) {
+        case "get_settings": return JSON.parse(JSON.stringify(settings));
+        case "set_settings": return args && args.settings ? args.settings : settings;
+        case "get_running": return { windows: [{ hwnd: 1, title: "Notes", exe: "notepad.exe", pid: 1, aumid: null, monitor: "" }], focused: 1 };
+        case "get_system_status": return status;
+        case "get_system_accessibility": return { reduceMotion: false, reduceTransparency: !!window.__reduceT };
+        case "widget_now_playing": return { active: true, title: "A song", artist: "An artist", album: "", playing: true, source: "Player" };
+        case "get_radios": return [{ kind: "wifi", name: "Wi-Fi", on: true, switchable: true }, { kind: "bluetooth", name: "Bluetooth", on: true, switchable: true }];
+        case "list_wifi": return [{ ssid: "Office", signal: 80, secured: true, connected: true, known: true }, { ssid: "Guest", signal: 45, secured: false, connected: false, known: false }];
+        case "list_bluetooth": return [{ name: "Headphones", sort: "audio", connected: true }];
+        case "get_brightness": return { available: true, percent: 70 };
+        case "resolve_icons": { const out = {}; for (const t of (args && args.targets) || []) out[t] = ICON; return out; }
+        case "plugin:event|listen": return Math.floor(Math.random() * 1e6);
+        case "plugin:event|unlisten": return null;
+        case "get_user_idle": case "get_idle": return false;
+        // commands with a real effect are acknowledged and recorded, never run
+        case "resize_menubar": case "resize_dock": case "set_menubar_menu_open": case "activate_window":
+        case "set_dock_focusable": case "report_dock_bar": case "set_volume": case "set_radio":
+        case "connect_wifi": case "disconnect_wifi": case "set_brightness": case "launch": return null;
+        default:
+          if (cmd.startsWith("list_")) return [];
+          window.__unknown.push(cmd);
+          return null;
+      }
+    },
+  };
+})();`;
+  await send("Page.enable");
+  await send("Runtime.enable");
+  await send("Page.addScriptToEvaluateOnNewDocument", { source: mock });
+  await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: viewport[1], deviceScaleFactor: 1, mobile: false });
+
+  const api = {
+    out,
+    settings,
+    send,
+    eval: evalJs,
+    sleep,
+    /** Open the page and wait for something in it (a selector). */
+    async open(ready = ".menubar", query = "") {
+      await send("Page.navigate", { url: `http://127.0.0.1:${port}/index.html?window=${window}${query}` });
+      for (let i = 0; i < 60; i++) {
+        if (await evalJs(`!!document.querySelector(${JSON.stringify(ready)})`)) break;
+        await sleep(200);
+      }
+      await sleep(500);
+    },
+    /** A dark, slightly blue backdrop under the transparent page, like a desktop. */
+    async desktop(css = "linear-gradient(120deg,#12182e,#2b3a66)") {
+      await evalJs(`document.documentElement.style.background = ${JSON.stringify(css)}; document.body.style.background = "transparent"`);
+    },
+    /** The middle of an element, in page coordinates. */
+    rect: (selector) =>
+      evalJs(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, left: r.left, top: r.top, width: r.width, height: r.height }; })()`),
+    move: (x, y) => send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y, button: "none", buttons: 0 }),
+    async click(x, y) {
+      await api.move(x, y);
+      await send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", buttons: 1, clickCount: 1 });
+      await send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", buttons: 0, clickCount: 1 });
+    },
+    /** Move the pointer from one place to another in small steps, as a hand does. */
+    async sweep(from, to, steps = 8) {
+      for (let i = 1; i <= steps; i++) {
+        await api.move(from.x + ((to.x - from.x) * i) / steps, from.y + ((to.y - from.y) * i) / steps);
+        await sleep(12);
+      }
+    },
+    key: (key) => send("Input.dispatchKeyEvent", { type: "keyDown", key, code: key }).then(() => send("Input.dispatchKeyEvent", { type: "keyUp", key, code: key })),
+    /** A screenshot of part of the page, as base64 (page coordinates, not viewport). */
+    async shot(x, y, w, h, scale = 1) {
+      return (await send("Page.captureScreenshot", { format: "png", clip: { x, y, width: w, height: h, scale } })).result.data;
+    },
+    /** Record a property of an element on every animation frame, to read afterwards. */
+    async record(name, expression) {
+      await evalJs(`window.__rec_${name} = []; (function tick(){ try { window.__rec_${name}.push({ t: Math.round(performance.now()), v: (${expression}) }); } catch (e) {} requestAnimationFrame(tick); })()`);
+    },
+    recorded: (name) => evalJs(`window.__rec_${name}`),
+    /** The commands the page called that the mock did not know. */
+    unknownCalls: () => evalJs("window.__unknown"),
+    /** Commands the page called, in order. */
+    calls: () => evalJs("window.__calls"),
+    /** Lay screenshots side by side in one image (file in `out`). */
+    async sheet(shots, name = "sheet", height = 800) {
+      const html =
+        `<!doctype html><body style="margin:0;background:#1a1d2b;font:12px sans-serif;color:#fff"><div style="display:flex;gap:8px;padding:6px;flex-wrap:wrap">` +
+        Object.entries(shots).map(([k, v]) => `<div><b>${k}</b><br><img style="border:1px solid #666" src="data:image/png;base64,${v}"></div>`).join("") +
+        `</div></body>`;
+      writeFileSync(join(out, `${name}.html`), html);
+      await send("Page.navigate", { url: "file:///" + join(out, `${name}.html`).replaceAll("\\", "/") });
+      await sleep(1000);
+      await send("Emulation.setDeviceMetricsOverride", { width: 2200, height, deviceScaleFactor: 1, mobile: false });
+      const png = join(out, `${name}.png`);
+      writeFileSync(png, Buffer.from((await send("Page.captureScreenshot", { format: "png" })).result.data, "base64"));
+      return png;
+    },
+    close() {
+      try {
+        ws.close();
+      } catch {}
+      edge.kill();
+      server.close();
+    },
+  };
+  return api;
+}
