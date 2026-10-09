@@ -403,6 +403,11 @@ pub struct MenuBarSettings {
     pub show_privacy: bool,
     /// A small load graph in the bar, opening a popover of what is using the machine.
     pub show_stats: bool,
+    /// The Now Playing card takes its colours from the cover.
+    pub media_tint: bool,
+    /// The card draws the sound that is playing as moving bars. This listens to the
+    /// output (a loopback capture; nothing is recorded or kept).
+    pub media_spectrum: bool,
 }
 
 impl Default for MenuBarSettings {
@@ -427,6 +432,8 @@ impl Default for MenuBarSettings {
             close_on_leave: true,
             show_privacy: true,
             show_stats: true,
+            media_tint: true,
+            media_spectrum: true,
         }
     }
 }
@@ -1046,6 +1053,7 @@ mod tests {
     fn the_new_bar_and_dock_switches_default_on_and_an_unknown_effect_falls_back() {
         let s: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true},"dock":{"iconSize":40}}"#).expect("old file loads");
         assert!(s.menu_bar.show_privacy && s.menu_bar.show_stats);
+        assert!(s.menu_bar.media_tint && s.menu_bar.media_spectrum);
         assert!(s.dock.attention_bounce);
         assert_eq!(s.dock.minimize_effect, "genie");
         let mut s = Settings::default();

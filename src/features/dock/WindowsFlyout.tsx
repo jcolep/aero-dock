@@ -5,6 +5,7 @@
  * Click a preview to focus that window; ✕ closes it.
  */
 
+import { layoutRect } from "./layoutRect";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { ipc } from "../../ipc/commands";
@@ -19,25 +20,6 @@ const SLOT_W = 200;
 const SLOT_H = 120;
 const COLS_MAX = 2;
 
-/** An element's box in the page, from layout offsets so that ancestors'
- *  transforms (the entrance animation) do not move or shrink it. */
-function layoutRect(el: HTMLElement) {
-  let left = 0;
-  let top = 0;
-  let node: HTMLElement | null = el;
-  while (node) {
-    left += node.offsetLeft;
-    top += node.offsetTop;
-    const parent = node.offsetParent as HTMLElement | null;
-    // offsets are measured from the parent's padding edge, inside its border
-    if (parent) {
-      left += parent.clientLeft;
-      top += parent.clientTop;
-    }
-    node = parent;
-  }
-  return { left, top, width: el.offsetWidth, height: el.offsetHeight };
-}
 
 interface WindowsFlyoutProps {
   edge: Settings["dock"]["edge"];

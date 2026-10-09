@@ -64,8 +64,10 @@ const ICON =
  * @param {object} [o.status]    overrides for what `get_system_status` returns
  * @param {object[]} [o.privacy] the apps `get_privacy_use` reports (microphone/camera in use)
  * @param {object[]} [o.running] the windows `get_running` reports (default: one Notepad window)
+ * @param {object} [o.media]     overrides for what `widget_now_playing` reports (the session starts as a seekable track)
+ * @param {string} [o.art]       the cover `media_artwork` returns (a data: address), or none
  */
-export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running, privacy = [] }) {
+export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running, privacy = [], media = {}, art = null }) {
   // absolute, because the browser reads its profile path from its own directory,
   // not from this script's
   const out = resolve(outFolder);
@@ -149,6 +151,13 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
   const RUNNING = ${JSON.stringify(running ?? [{ hwnd: 1, title: "Notes", exe: "notepad.exe", pid: 1, aumid: null, monitor: "" }])};
   window.__unknown = [];
   window.__calls = [];
+  // the media session: commands change it, and reading it moves a playing track on
+  window.__media = Object.assign({
+    active: true, title: "A song", artist: "An artist", album: "", playing: true, source: "Player", sourceName: "Player",
+    sourceTarget: "", sourceHwnd: 0, key: "k1", hasArtwork: false, positionMs: 42000, durationMs: 215000, canSeek: true,
+    canPrevious: true, canNext: true, shuffle: false, repeat: "none", players: [],
+  }, ${JSON.stringify(media)});
+  window.__art = ${JSON.stringify(art)};
   window.__reduceT = false;
   const callbacks = {};
   const listeners = {};
@@ -167,7 +176,25 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "get_running": return { windows: RUNNING, focused: 1 };
         case "get_system_status": return status;
         case "get_system_accessibility": return { reduceMotion: false, reduceTransparency: !!window.__reduceT };
-        case "widget_now_playing": return { active: true, title: "A song", artist: "An artist", album: "", playing: true, source: "Player" };
+        case "widget_now_playing": {
+          const m = window.__media, now = Date.now();
+          if (m.playing) m.positionMs = Math.min(m.durationMs || 1e12, m.positionMs + (now - (m._at || now)));
+          m._at = now;
+          return JSON.parse(JSON.stringify(m));
+        }
+        case "widget_media_control": {
+          const m = window.__media;
+          if (args.action === "playpause") m.playing = !m.playing;
+          else { m.title = args.action === "next" ? "The next song" : "The song before"; m.key = "k" + Date.now(); m.positionMs = 0; }
+          return true;
+        }
+        case "media_artwork": return window.__art;
+        case "media_seek": window.__media.positionMs = args.positionMs; return true;
+        case "media_seek_by": window.__media.positionMs = Math.max(0, window.__media.positionMs + args.deltaMs); return true;
+        case "media_shuffle": window.__media.shuffle = args.on; return true;
+        case "media_repeat": window.__media.repeat = args.mode; return true;
+        case "media_select": window.__media.players.forEach((p) => { p.current = p.id === args.id; }); return null;
+        case "media_spectrum": case "media_focus_source": return null;
         case "get_radios": return [{ kind: "wifi", name: "Wi-Fi", on: true, switchable: true }, { kind: "bluetooth", name: "Bluetooth", on: true, switchable: true }];
         case "list_wifi": return [{ ssid: "Office", signal: 80, secured: true, connected: true, known: true }, { ssid: "Guest", signal: 45, secured: false, connected: false, known: false }];
         case "list_bluetooth": return [{ name: "Headphones", sort: "audio", connected: true }];

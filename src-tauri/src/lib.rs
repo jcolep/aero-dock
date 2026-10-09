@@ -256,6 +256,14 @@ pub fn run() {
             commands::widgets::widget_system_load,
             commands::widgets::widget_now_playing,
             commands::widgets::widget_media_control,
+            commands::widgets::media_artwork,
+            commands::widgets::media_seek,
+            commands::widgets::media_seek_by,
+            commands::widgets::media_shuffle,
+            commands::widgets::media_repeat,
+            commands::widgets::media_select,
+            commands::widgets::media_focus_source,
+            commands::widgets::media_spectrum,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Aero Dock")

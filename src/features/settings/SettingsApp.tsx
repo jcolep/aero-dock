@@ -375,6 +375,18 @@ export function SettingsApp() {
                 onChange={(v) => set((d) => void (d.menuBar.showPrivacy = v))}
               />
               <AeroToggle
+                label="Now Playing takes its colours from the cover"
+                checked={settings.menuBar.mediaTint}
+                hint="The card in the Control Center is tinted with the album art, or a video's thumbnail from a browser"
+                onChange={(v) => set((d) => void (d.menuBar.mediaTint = v))}
+              />
+              <AeroToggle
+                label="Show the sound wave while music plays"
+                checked={settings.menuBar.mediaSpectrum}
+                hint="Moving bars in the Now Playing card. This listens to what is coming out of the speakers while the card is open; nothing is recorded or kept. Off while Reduce motion is on"
+                onChange={(v) => set((d) => void (d.menuBar.mediaSpectrum = v))}
+              />
+              <AeroToggle
                 label="CPU, memory and network readout"
                 checked={settings.menuBar.showStats}
                 hint="A live readout in the bar. Click it for the busiest apps"

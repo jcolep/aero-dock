@@ -82,6 +82,7 @@ node --experimental-websocket scripts/offscreen/dock.mjs src-tauri/target/offscr
 node --experimental-websocket scripts/offscreen/insight.mjs src-tauri/target/offscreen    # privacy dots, stats
 node --experimental-websocket scripts/offscreen/attention.mjs src-tauri/target/offscreen  # attention bounce
 node --experimental-websocket scripts/offscreen/mission.mjs src-tauri/target/offscreen    # Mission Control
+node --experimental-websocket scripts/offscreen/media.mjs src-tauri/target/offscreen      # Now Playing card
 ```
 
 (The output folder is any folder; `src-tauri/target/` is git-ignored.)
@@ -181,6 +182,21 @@ Say plainly in a report when something native was not seen.
   effect at a time (`BUSY`); any failure falls back to the plain call. Off for
   reduced motion or `dock.minimizeEffect = "off"`. An icon above the window's middle
   gets the plain shrink, not the pour.
+- **Now Playing** (`media.rs`, `MediaCard.tsx`): everything comes from the system media session
+  (SMTC). Cover = the session's thumbnail (a browser hands over the video thumbnail; a
+  YouTube *channel* icon is not in the session and cannot be had), re-encoded to 360 px JPEG
+  and fetched once per track by a separate command, not in the 2 s poll. Position is
+  extrapolated from the report time (`position_now`) and ticked locally in the page. The
+  card tints from the cover (`tint.ts`; the backdrop is a 5 px copy stretched, because a
+  real blur on that surface is slow in software rendering). `seek`/skip-10s need the player
+  to enable position (Apple Music does not: the buttons dim). The session is matched to a
+  running window by app id (`source_matches`) and, for browsers, by the tab title containing
+  the track title; "Live view" draws that window with a DWM thumbnail (the whole window, not
+  just the video). WinRT futures are not `Send`: media commands run through `on_own_thread`.
+- **Sound wave** (`spectrum.rs`): a WASAPI loopback capture of the default output (no
+  permission, not the microphone), FFT into 24 bands, `media://spectrum` at ~30 Hz to the menu
+  bar window only. It runs while the card calls `media_spectrum(true)` every ~1.2 s and stops
+  3.5 s after the calls stop. It hears everything playing, not one program.
 - **Keyboard access** is by global hotkey (Ctrl+Alt+M menu bar, Ctrl+Alt+D dock,
   Ctrl+Alt+W Mission Control;
   `hotkeys.rs`, the system's hotkey registration, not a hook). The bars are built
@@ -209,7 +225,9 @@ Read from the real machine and known to work: Wi-Fi and Bluetooth radio state,
 Wi-Fi networks in range, DDC brightness reads on external monitors.
 
 **Never exercised natively** (needs the owner to try, or a native test they have
-agreed to): the genie minimise and restore (capture, overlay, timing, windows that
+agreed to): the Now Playing card while sound is playing (the sound wave with real audio, the
+live view of a real window, seeking in a player that allows it; the session read itself works,
+checked against Apple Music), the genie minimise and restore (capture, overlay, timing, windows that
 refuse `PrintWindow`), Mission Control (the hotkey taking focus, live thumbnails in
 the overlay), the flash notice reaching the dock, the privacy registry reads with a
 real app on the microphone or camera, switching a radio, setting a brightness, joining a network, the global

@@ -16,7 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { playCue } from "../../engine/sound/ui";
 import { normalizeHex } from "../../engine/themes/accent";
 import { ipc } from "../../ipc/commands";
-import type { BluetoothDevice, BrightnessInfo, NowPlaying, RadioInfo, WifiNetwork } from "../../ipc/types";
+import type { BluetoothDevice, BrightnessInfo, RadioInfo, WifiNetwork } from "../../ipc/types";
 import { useSettings } from "../../state/settingsStore";
 import { useSystem } from "../../state/systemStore";
 import { notify } from "../feedback/toastStore";
@@ -33,6 +33,7 @@ import {
   VolumeGlyph,
 } from "../widgets/SystemGlyphs";
 import { ElasticSlider } from "./ElasticSlider";
+import { MediaCard } from "./MediaCard";
 
 /** Open a Windows settings page. */
 function openSettingsPage(uri: string): void {
@@ -57,7 +58,6 @@ type Section = "wifi" | "bluetooth";
 export function ControlCenter() {
   const status = useSystem((s) => s.status);
   const menuBar = useSettings((s) => s.settings?.menuBar);
-  const [playing, setPlaying] = useState<NowPlaying | null>(null);
   // the sliders follow the system, except while they are being dragged
   const [dragging, setDragging] = useState(false);
   // starts at the volume the system last reported, not at nothing
@@ -73,22 +73,6 @@ export function ControlCenter() {
   useEffect(() => {
     if (!dragging && status?.volume.available) setLevel(status.volume.level);
   }, [status?.volume.level, status?.volume.available, dragging]);
-
-  // what is playing is read only while the panel is open
-  useEffect(() => {
-    let alive = true;
-    const read = () =>
-      ipc
-        .widgetNowPlaying()
-        .then((p) => alive && setPlaying(p))
-        .catch(() => undefined);
-    void read();
-    const timer = setInterval(read, 2000);
-    return () => {
-      alive = false;
-      clearInterval(timer);
-    };
-  }, []);
 
   // the radios, the network joined and the screen's brightness, read when the
   // panel opens (each waits on the system, so none is polled)
@@ -172,12 +156,6 @@ export function ControlCenter() {
       140,
     );
   };
-
-  const media = (action: "playpause" | "next" | "previous") =>
-    ipc
-      .widgetMediaControl(action)
-      .then(() => ipc.widgetNowPlaying().then(setPlaying))
-      .catch(notify.on("Could not control the player"));
 
   const online = status?.internet ?? false;
   const wired = status?.link === "ethernet";
@@ -355,33 +333,8 @@ export function ControlCenter() {
         </div>
       )}
 
-      {playing?.active && (
-        <div className="cc-card">
-          <div className="cc-card-title">Now Playing</div>
-          <div className="cc-playing">
-            <div className="cc-playing-text">
-              <strong>{playing.title || "Unknown"}</strong>
-              <small>{playing.artist || playing.source}</small>
-            </div>
-            <div className="cc-playing-controls">
-              <button className="cc-icon-button" title="Previous" aria-label="Previous track" onClick={() => media("previous")}>
-                ⏮
-              </button>
-              <button
-                className="cc-icon-button"
-                title={playing.playing ? "Pause" : "Play"}
-                aria-label={playing.playing ? "Pause" : "Play"}
-                onClick={() => media("playpause")}
-              >
-                {playing.playing ? "⏸" : "▶"}
-              </button>
-              <button className="cc-icon-button" title="Next" aria-label="Next track" onClick={() => media("next")}>
-                ⏭
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* what is playing: the card reads the system's media session while the panel is open */}
+      <MediaCard />
 
       {status?.battery.present && (
         <div className="cc-card cc-battery">

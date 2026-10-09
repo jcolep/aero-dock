@@ -1,0 +1,547 @@
+/* The Now Playing card (see MediaCard.tsx). Colours come from the cover when
+   there is one: --np-a, --np-b and --np-accent are set on the card, and
+   without them it is the plain glass of the cards around it. */
+
+.np {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 10px 12px 11px;
+  overflow: hidden;
+  isolation: isolate;
+  --np-accent: rgba(255, 255, 255, 0.9);
+}
+
+/* The cover, shrunk to a few pixels and stretched across the card: the blur is
+   the stretching, which costs nothing, and a scrim keeps white text readable on
+   a pale cover. A new track's layer fades in over the last one. */
+.np-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: 100% 100%;
+  image-rendering: auto;
+  background-position: center;
+  animation: np-fade 700ms ease-out both;
+}
+
+.np-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 10, 18, 0.34), rgba(8, 10, 18, 0.56)),
+    radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.1), transparent 60%);
+}
+
+@keyframes np-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.np[data-tinted] {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 6px 18px color-mix(in srgb, var(--np-a) 55%, transparent);
+}
+
+/* ---- the program ---- */
+
+.np-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 18px;
+}
+
+.np-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 2px 8px 2px 3px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.82);
+  font: inherit;
+  font-size: 0.86em;
+  font-weight: 600;
+  cursor: default;
+  transition:
+    background-color 140ms ease-out,
+    color 140ms ease-out;
+}
+
+.np-source:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.np-source img,
+.np-source svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.np-source span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.np-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px 2px 8px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font: inherit;
+  font-size: 0.82em;
+  font-weight: 700;
+  cursor: default;
+}
+
+.np-head-end {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.np-view-btn {
+  padding: 3px 6px;
+}
+
+.np-view-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.np-view-btn[data-on] {
+  background: rgba(255, 255, 255, 0.9);
+  color: #11151f;
+}
+
+/* where the live picture of the window goes; the compositor fills it */
+.np-view {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85em;
+}
+
+.np-more:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.np-more svg {
+  width: 11px;
+  height: 11px;
+  transition: transform 200ms ease-out;
+}
+
+.np-more[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.np-players {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.26);
+}
+
+.np-players button {
+  display: grid;
+  grid-template-columns: 10px auto 1fr;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.np-players button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.np-players button[data-current] {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.np-players small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.np-player-name {
+  font-weight: 600;
+}
+
+.np-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.np-dot[data-playing] {
+  background: var(--np-accent);
+  box-shadow: 0 0 6px var(--np-accent);
+}
+
+/* ---- the track ---- */
+
+.np-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.np-art {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.38),
+    0 0 0 0.5px rgba(255, 255, 255, 0.22);
+}
+
+.np-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: np-fade 500ms ease-out both;
+}
+
+.np-art[data-empty] img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
+.np-art svg {
+  width: 34px;
+  height: 34px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.np-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 1px;
+  line-height: 1.3;
+}
+
+.np-title {
+  overflow: hidden;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 1.08em;
+  /* a long title fades out at the edge instead of being cut */
+  mask-image: linear-gradient(90deg, #000 calc(100% - 14px), transparent);
+}
+
+.np-title[data-scroll] > span {
+  display: inline-block;
+  animation: np-marquee 9s ease-in-out 1.6s infinite alternate;
+}
+
+@keyframes np-marquee {
+  0%,
+  12% {
+    transform: translateX(0);
+  }
+  88%,
+  100% {
+    transform: translateX(calc(-1 * var(--np-over)));
+  }
+}
+
+.np-title:not([data-scroll]) > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.np-artist {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* the sound wave: it takes no room when there is no sound to draw */
+.np-wave {
+  display: none;
+  width: 100%;
+  height: 22px;
+  margin-top: 4px;
+}
+
+.np-wave[data-on] {
+  display: block;
+}
+
+/* ---- the scrubber ---- */
+
+.np-scrub {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.np-time {
+  min-width: 2.6em;
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.np-time-end {
+  text-align: right;
+}
+
+.np-track {
+  position: relative;
+  height: 18px;
+  outline: none;
+  touch-action: none;
+}
+
+.np-track[data-seek] {
+  cursor: pointer;
+}
+
+/* the line is thin until it is touched, then swells under the finger */
+.np-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.24);
+  transition:
+    height 160ms ease-out,
+    margin-top 160ms ease-out;
+}
+
+.np-track[data-seek]:hover .np-rail,
+.np-track[data-held] .np-rail,
+.np-track:focus-visible .np-rail {
+  height: 8px;
+  margin-top: -4px;
+}
+
+.np-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #fff;
+  transform-origin: left center;
+  transform: scaleX(var(--p, 0));
+  transition: transform 260ms linear;
+}
+
+.np-track[data-held] .np-fill {
+  transition: none;
+}
+
+.np-knob {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--p, 0) * 100%);
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    left 260ms linear,
+    opacity 140ms ease-out,
+    transform 220ms var(--mb-settle, ease-out);
+}
+
+.np-track:hover .np-knob,
+.np-track[data-held] .np-knob,
+.np-track:focus-visible .np-knob {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.np-track[data-held] .np-knob {
+  left: calc(var(--p, 0) * 100%);
+  transition-property: opacity, transform;
+  box-shadow:
+    0 1px 5px rgba(0, 0, 0, 0.45),
+    0 0 0 6px color-mix(in srgb, var(--np-accent) 30%, transparent);
+}
+
+.np-live {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.82em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.np-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.np-live-dot[data-playing] {
+  background: #ff5a5f;
+  box-shadow: 0 0 7px #ff5a5f;
+}
+
+/* ---- the buttons ---- */
+
+.np-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.np-btn,
+.np-spacer {
+  flex: none;
+  width: 34px;
+  height: 34px;
+}
+
+.np-btn {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.92);
+  cursor: default;
+  transition:
+    background-color 140ms ease-out,
+    color 140ms ease-out,
+    opacity 140ms ease-out,
+    transform 320ms var(--mb-settle, ease-out);
+}
+
+.np-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.np-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: scale(1.08);
+}
+
+.np-btn:active {
+  transform: scale(0.88);
+  transition-duration: 80ms, 80ms, 80ms, 100ms;
+}
+
+.np-btn[aria-disabled="true"] {
+  opacity: 0.32;
+}
+
+.np-btn[aria-disabled="true"]:hover {
+  background: transparent;
+  transform: none;
+}
+
+/* the play button is the one thing on the card that is a solid shape */
+.np-btn[data-size="big"] {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #11151f;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.32);
+}
+
+.np-btn[data-size="big"]:hover {
+  background: #fff;
+}
+
+.np-btn[data-size="big"] svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* shuffle and repeat, when switched on, are lit and marked with a dot */
+.np-btn[data-on] {
+  color: var(--np-accent);
+  position: relative;
+}
+
+.np-btn[data-on]::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .np-bg,
+  .np-art img {
+    animation: none;
+  }
+  .np-fill,
+  .np-knob {
+    transition: none;
+  }
+}

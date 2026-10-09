@@ -413,15 +413,80 @@ pub async fn widget_system_load() -> AeroResult<crate::platform::windows::syssta
 }
 
 #[tauri::command]
+/// Run a piece of system media work on a thread of its own. Its futures hold
+/// system objects that cannot be handed between the runtime's threads mid-way,
+/// so each call is driven to the end on one.
+async fn on_own_thread<T, F, Fut>(make: F) -> Option<T>
+where
+    T: Send + 'static,
+    F: FnOnce() -> Fut + Send + 'static,
+    Fut: std::future::Future<Output = T>,
+{
+    tauri::async_runtime::spawn_blocking(move || tauri::async_runtime::block_on(make())).await.ok()
+}
+
+#[tauri::command]
 pub async fn widget_now_playing() -> crate::platform::windows::media::NowPlaying {
-    crate::platform::windows::media::now_playing().await
+    on_own_thread(crate::platform::windows::media::now_playing).await.unwrap_or_default()
 }
 
 #[tauri::command]
 pub async fn widget_media_control(
     action: crate::platform::windows::media::MediaAction,
 ) -> bool {
-    crate::platform::windows::media::control(action).await
+    on_own_thread(move || crate::platform::windows::media::control(action)).await.unwrap_or(false)
+}
+
+/// The current cover as a `data:` address; `fresh` reads it again.
+#[tauri::command]
+pub async fn media_artwork(fresh: bool) -> Option<String> {
+    on_own_thread(move || crate::platform::windows::media::artwork(fresh)).await.flatten()
+}
+
+/// Move to a point in the track (milliseconds from its start).
+#[tauri::command]
+pub async fn media_seek(position_ms: i64) -> bool {
+    on_own_thread(move || crate::platform::windows::media::seek(position_ms)).await.unwrap_or(false)
+}
+
+/// Move forward (positive) or back (negative) from where the track is.
+#[tauri::command]
+pub async fn media_seek_by(delta_ms: i64) -> bool {
+    on_own_thread(move || crate::platform::windows::media::seek_by(delta_ms)).await.unwrap_or(false)
+}
+
+#[tauri::command]
+pub async fn media_shuffle(on: bool) -> bool {
+    on_own_thread(move || crate::platform::windows::media::set_shuffle(on)).await.unwrap_or(false)
+}
+
+/// `none`, `track` or `list`.
+#[tauri::command]
+pub async fn media_repeat(mode: String) -> bool {
+    on_own_thread(move || async move { crate::platform::windows::media::set_repeat(&mode).await }).await.unwrap_or(false)
+}
+
+/// Follow one player (by its id), or the system's choice when none is given.
+#[tauri::command]
+pub fn media_select(id: Option<String>) {
+    crate::platform::windows::media::select(id);
+}
+
+/// The Now Playing card is open and wants the sound wave; call again every
+/// second or so while it does. Listening stops by itself when the calls stop.
+#[tauri::command]
+pub fn media_spectrum(app: AppHandle, on: bool) {
+    if on {
+        crate::platform::windows::spectrum::keep_alive(&app);
+    } else {
+        crate::platform::windows::spectrum::stop();
+    }
+}
+
+/// Bring the program that is playing to the front.
+#[tauri::command]
+pub fn media_focus_source(hwnd: isize) {
+    crate::platform::windows::running::activate_window(hwnd);
 }
 
 #[cfg(test)]

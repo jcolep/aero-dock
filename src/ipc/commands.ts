@@ -169,6 +169,14 @@ export const ipc = {
   widgetNowPlaying: () => invoke<NowPlaying>("widget_now_playing"),
   widgetMediaControl: (action: MediaAction) =>
     invoke<boolean>("widget_media_control", { action }),
+  mediaArtwork: (fresh: boolean) => invoke<string | null>("media_artwork", { fresh }),
+  mediaSeek: (positionMs: number) => invoke<boolean>("media_seek", { positionMs }),
+  mediaSeekBy: (deltaMs: number) => invoke<boolean>("media_seek_by", { deltaMs }),
+  mediaShuffle: (on: boolean) => invoke<boolean>("media_shuffle", { on }),
+  mediaRepeat: (mode: "none" | "track" | "list") => invoke<boolean>("media_repeat", { mode }),
+  mediaSelect: (id: string | null) => invoke<void>("media_select", { id }),
+  mediaFocusSource: (hwnd: number) => invoke<void>("media_focus_source", { hwnd }),
+  mediaSpectrum: (on: boolean) => invoke<void>("media_spectrum", { on }),
 
   // dock window
   /** `width`/`height` size the OS window; `visible*` is the part of it that

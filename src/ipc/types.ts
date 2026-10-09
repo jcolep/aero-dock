@@ -222,13 +222,43 @@ export interface SystemLoad {
   uptimeSeconds: number;
 }
 
+/** One of the players, when there is more than one. */
+export interface PlayerBrief {
+  id: string;
+  name: string;
+  title: string;
+  playing: boolean;
+  current: boolean;
+}
+
 export interface NowPlaying {
   active: boolean;
   title: string;
   artist: string;
   album: string;
   playing: boolean;
+  /** The player's app id. */
   source: string;
+  /** The program's own name. */
+  sourceName: string;
+  /** What to ask the icon cache for, or empty. */
+  sourceTarget: string;
+  /** A window of the program (the one showing this track if it can tell), or 0. */
+  sourceHwnd: number;
+  /** Changes with the track. */
+  key: string;
+  hasArtwork: boolean;
+  positionMs: number;
+  /** 0 for a live stream. */
+  durationMs: number;
+  canSeek: boolean;
+  canPrevious: boolean;
+  canNext: boolean;
+  /** Null when the player has no shuffle. */
+  shuffle: boolean | null;
+  /** Null when the player has no repeat. */
+  repeat: "none" | "track" | "list" | null;
+  players: PlayerBrief[];
 }
 
 export type MediaAction = "playpause" | "next" | "previous";
@@ -273,6 +303,10 @@ export interface MenuBarSettings {
   showPrivacy: boolean;
   /** A load graph that opens a popover of what is using the machine. */
   showStats: boolean;
+  /** The Now Playing card takes its colours from the cover. */
+  mediaTint: boolean;
+  /** The card draws what is playing as moving bars (listens to the output). */
+  mediaSpectrum: boolean;
 }
 
 /** Which animation each kind of thing uses: the id of a preset in
