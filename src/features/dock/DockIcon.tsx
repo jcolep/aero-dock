@@ -4,19 +4,22 @@
  */
 
 import {
-  animate,
   motion,
   useMotionValue,
   useSpring,
   useTransform,
   type MotionValue,
 } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { springs } from "../../engine/animation/springs";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { magnifySpring, nearSide, playLaunch } from "../../engine/animation/presets";
+import { idleFloat, springs } from "../../engine/animation/springs";
 import { effectsBus } from "../../engine/effects/effectsBus";
 import type { DockEdge } from "../../ipc/types";
 import type { DockItemView } from "../../state/dockStore";
 import { exeKey, useAppAudio } from "../../state/audioStore";
+import { useSettings } from "../../state/settingsStore";
+import { playCue } from "../../engine/sound/ui";
+import { SpeakerShape } from "../widgets/SystemGlyphs";
 import { useMenu } from "./menuStore";
 
 interface DockIconProps {
@@ -37,41 +40,24 @@ interface DockIconProps {
   onHoverPreview: (item: DockItemView, target: HTMLElement) => void;
 }
 
+/** How far round the idle float's cycle each icon sits from the one before,
+ *  in radians: 0.9s of its 5.2s period. */
+const FLOAT_STEP = (2 * Math.PI * idleFloat.stagger) / idleFloat.period;
+
 const PREVIEW_DWELL_MS = 550;
 /** How long a scroll keeps the window previews away. Matches the volume
  *  indicator's own lifetime so the two never overlap. */
 const VOLUME_PREVIEW_MUTE_MS = 1500;
 
-/** Speaker with the waves dropped when muted, drawn to match the glass
- *  controls rather than a font glyph. */
-function Speaker({ muted }: { muted: boolean }) {
+/** The speaker with as many waves as the volume lights, or a cross when muted:
+ *  the same drawing as the status glyph, in the surrounding text's colour. */
+function Speaker({ level, muted }: { level: number; muted: boolean }) {
   return (
-    <svg viewBox="0 0 16 16" className="dock-volume-icon" aria-hidden>
-      <path
-        d="M3.4 6.2h2.2L8.4 3.6v8.8L5.6 9.8H3.4z"
-        fill="currentColor"
-        stroke="currentColor"
-        strokeWidth="1.1"
-        strokeLinejoin="round"
-      />
-      {muted ? (
-        <path
-          d="M10.6 6.2l3.2 3.6M13.8 6.2l-3.2 3.6"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          fill="none"
-        />
-      ) : (
-        <>
-          <path d="M10.5 5.9a3 3 0 0 1 0 4.2" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" />
-          <path d="M12.4 4.3a5.6 5.6 0 0 1 0 7.4" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" />
-        </>
-      )}
+    <svg viewBox="0 0 24 24" className="dock-volume-icon" aria-hidden>
+      <SpeakerShape level={level} muted={muted} ink="currentColor" alert="currentColor" />
     </svg>
   );
 }
-
 /** Tooltip entrance offset: the pill drifts in from the dock's edge.
  * Centering lives in CSS `translate` because motion owns `transform`. */
 function labelFrom(edge: DockEdge): { x: number; y: number } {
@@ -106,6 +92,10 @@ export function DockIcon({
   // a flyout already names what you're pointing at, and the pill would
   // otherwise float over its bottom edge
   const flyoutOpen = useMenu((m) => m.item !== null);
+  // chosen under Settings > Animations; read as plain strings so this
+  // re-renders only when the choice changes
+  const launchPreset = useSettings((s) => s.settings?.animations?.launch ?? "bounce");
+  const magnifyFeel = useSettings((s) => s.settings?.animations?.magnify ?? "soft");
   const dwellTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // While the volume is being adjusted the window previews stay out of the
   // way. They are a hover affordance, and a deliberate scroll outranks one.
@@ -136,7 +126,19 @@ export function DockIcon({
     iconSize * peak,
     iconSize,
   ]);
-  const width = useSpring(targetWidth, springs.magnify);
+  const width = useSpring(targetWidth, magnifySpring(magnifyFeel));
+
+  // A new icon grows into its place instead of appearing whole, so the ones
+  // beside it ease apart to make room rather than jumping. Done before the
+  // first paint, so there is no frame of it at full size first. Nothing is
+  // measured from the DOM to size the window, so this changes no geometry.
+  useLayoutEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    width.jump(0);
+    width.set(targetWidth.get());
+    // once, on arrival
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // When a drag starts, every icon springs back to its base size. Letting
   // that animate resizes tiles under the cursor mid-drag, which is a big
@@ -150,13 +152,14 @@ export function DockIcon({
   const bounce = useMotionValue(0);
   const y = useTransform(bounce, (b) => (vertical ? 0 : b));
   const x = useTransform(bounce, (b) => (vertical ? b : 0));
+  // squash and stretch, for the launch animations that use them
+  const squashX = useMotionValue(1);
+  const squashY = useMotionValue(1);
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      // water-drop bounce away from the edge, then settle
-      animate(bounce, vertical ? -14 : -22, springs.bounce).then(() =>
-        animate(bounce, 0, springs.bounce),
-      );
+      // what the icon does on launch: Settings > Animations > Launch
+      void playLaunch(launchPreset, { lift: bounce, squashX, squashY }, vertical);
       const r = e.currentTarget.getBoundingClientRect();
       const cx = r.left + r.width / 2;
       const win = { winW: window.innerWidth, winH: window.innerHeight };
@@ -166,7 +169,7 @@ export function DockIcon({
       }
       onLaunch(item, e.currentTarget);
     },
-    [bounce, item, onLaunch, vertical],
+    [bounce, squashX, squashY, launchPreset, item, onLaunch, vertical],
   );
 
   const initial = item.name.trim().charAt(0).toUpperCase() || "?";
@@ -175,7 +178,19 @@ export function DockIcon({
     <motion.button
       ref={ref}
       className="dock-icon"
-      style={vertical ? { height: width, width: "var(--icon-size)", x, y } : { width, x, y }}
+      style={
+        vertical
+          ? {
+              height: width,
+              width: "var(--icon-size)",
+              x,
+              y,
+              scaleX: squashX,
+              scaleY: squashY,
+              transformOrigin: nearSide(edge),
+            }
+          : { width, x, y, scaleX: squashX, scaleY: squashY, transformOrigin: nearSide(edge) }
+      }
       onClick={handleClick}
       onContextMenu={(e) => {
         e.preventDefault();
@@ -185,6 +200,7 @@ export function DockIcon({
         // one notch per detent, up scrolls louder
         const notches = -Math.sign(e.deltaY);
         if (notches === 0) return;
+        playCue("notch", notches);
         // a preview opened by hovering would sit right on top of the
         // readout, so retire it and keep it away while the pill is up
         clearTimeout(dwellTimer.current);
@@ -204,6 +220,8 @@ export function DockIcon({
       }}
       onMouseEnter={(e) => {
         setHovered(true);
+        // a note for each icon the pointer crosses
+        playCue("hover", index);
         const m = useMenu.getState();
         if (m.kind === "windows" && m.item?.id === item.id) {
           // back onto the icon that owns the open preview: keep it
@@ -226,7 +244,9 @@ export function DockIcon({
           m.scheduleClose(450);
         }
       }}
-      aria-label={item.name}
+      aria-label={item.windows.length > 0 ? `, ${item.windows.length} open window${item.windows.length === 1 ? "" : "s"}` : item.name}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
     >
       {adjusting && audio ? (
         <motion.span
@@ -236,7 +256,7 @@ export function DockIcon({
           animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
           transition={springs.bloom}
         >
-          <Speaker muted={audio.muted} />
+          <Speaker level={audio.volume} muted={audio.muted} />
           <span className="dock-volume-value">
             {audio.muted ? "Muted" : `${audio.volume}%`}
           </span>
@@ -264,7 +284,12 @@ export function DockIcon({
       )}
       <span
         className="dock-icon-float"
-        style={{ animationDelay: `${(index * -0.9).toFixed(2)}s` }}
+        // each icon a step further round the cycle than the one before
+        style={{
+          ["--float-phase" as string]: (index * FLOAT_STEP).toFixed(3),
+          // for the Cascade way of appearing: how far along the dock it is
+          ["--i" as string]: index,
+        }}
       >
         {item.kind === "stack" ? (
           <span className="dock-stack">
@@ -284,7 +309,7 @@ export function DockIcon({
       </span>
       {audio?.muted && (
         <span className="dock-muted-badge" title={`${item.name} is muted`}>
-          <Speaker muted />
+          <Speaker level={0} muted />
         </span>
       )}
       {item.windows.length > 0 && (

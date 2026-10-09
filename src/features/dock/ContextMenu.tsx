@@ -5,13 +5,14 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { springs } from "../../engine/animation/springs";
 import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
-import type { AudioDevice, Settings } from "../../ipc/types";
+import type { AudioDevice, Settings, StackView } from "../../ipc/types";
 import { exeKey, useAppAudio } from "../../state/audioStore";
 import type { DockItemView } from "../../state/dockStore";
-import { bloomOffset, flyoutStyle, useMenu } from "./menuStore";
+import { flyoutStyle, useMenu } from "./menuStore";
+import { usePanelMotion } from "./usePanelMotion";
+import { pinRunningItem } from "./pinRunning";
 import "./contextmenu.css";
 
 const MENU_WIDTH = 240;
@@ -72,12 +73,41 @@ async function unstack(settings: Settings, stackId: string): Promise<unknown> {
   return ipc.setSettings(next);
 }
 
+/** Choose how a stack opens. */
+async function setStackView(
+  settings: Settings,
+  stackId: string,
+  view: StackView,
+): Promise<unknown> {
+  const next = structuredClone(settings);
+  const stack = next.pinned.find((p) => p.id === stackId);
+  if (!stack) return;
+  stack.view = view;
+  return ipc.setSettings(next);
+}
+
 function buildActions(item: DockItemView, settings: Settings): Action[] {
   const actions: Action[] = [];
 
   // stacks have their own compact menu
   if (item.kind === "stack") {
-    actions.push({ label: "Unstack", run: () => unstack(settings, item.id) });
+    const current = settings.pinned.find((p) => p.id === item.id)?.view ?? "grid";
+    const views: [StackView, string][] = [
+      ["fan", "Fan"],
+      ["grid", "Grid"],
+      ["list", "List"],
+    ];
+    for (const [view, name] of views) {
+      actions.push({
+        label: `${current === view ? "✓ " : ""}View as ${name}`,
+        run: () => setStackView(settings, item.id, view),
+      });
+    }
+    actions.push({
+      label: "Unstack",
+      separatorAbove: true,
+      run: () => unstack(settings, item.id),
+    });
     actions.push({
       label: "Unpin from Dock",
       run: () => ipc.unpinItem(item.id),
@@ -123,18 +153,7 @@ function buildActions(item: DockItemView, settings: Settings): Action[] {
     actions.push({
       label: "Pin to Dock",
       separatorAbove: true,
-      run: () =>
-        ipc.pinItem(
-          {
-            id: `pin-${crypto.randomUUID()}`,
-            kind: "app",
-            path: item.target,
-            name: item.name,
-            icon: null,
-            children: [],
-          },
-          settings.pinned.length,
-        ),
+      run: () => pinRunningItem(item, settings.pinned.length),
     });
   }
 
@@ -220,18 +239,18 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
   }, [item, close]);
 
   const style = anchor ? flyoutStyle(edge, anchor, MENU_WIDTH, 12, 360) : {};
-  const bloomFrom = bloomOffset(edge);
+  const pm = usePanelMotion(edge);
 
   return (
     <AnimatePresence>
       {item && anchor && (
         <motion.div
           className="aero-menu glass"
-          style={style}
-          initial={{ opacity: 0, scale: 0.82, ...bloomFrom }}
-          animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-          exit={{ opacity: 0, scale: 0.94, filter: "blur(6px)", transition: { duration: 0.18 } }}
-          transition={springs.bloom}
+          style={{ ...style, transformOrigin: pm.origin }}
+          initial={pm.initial}
+          animate={pm.animate}
+          exit={pm.exit}
+          transition={pm.transition}
         >
           {item.windows.length > 1 && (
             <div className="aero-menu-windows">

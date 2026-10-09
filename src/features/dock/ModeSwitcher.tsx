@@ -10,13 +10,13 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { create } from "zustand";
-import { springs } from "../../engine/animation/springs";
 import { ipc } from "../../ipc/commands";
 import type { DockEdge, Settings } from "../../ipc/types";
 import { notify } from "../feedback/toastStore";
 // the glyph rules are shared with the settings picker so both ends agree
 import { isPictorial, resolveGlyph } from "../settings/ModeIconPicker";
-import { bloomOffset, flyoutStyle, type MenuAnchor, anchorFor } from "./menuStore";
+import { flyoutStyle, type MenuAnchor, anchorFor } from "./menuStore";
+import { usePanelMotion } from "./usePanelMotion";
 import "./modes.css";
 
 /** Width of the flyout, and the room the dock window has to reserve. */
@@ -60,6 +60,7 @@ export function ModeSwitcher({ settings, edge }: { settings: Settings; edge: Doc
   const { open, anchor, setOpen } = useModeSwitcher();
   const ref = useRef<HTMLButtonElement>(null);
   const [busy, setBusy] = useState(false);
+  const pm = usePanelMotion(edge);
 
   const active = settings.modes.modes.find((m) => m.id === settings.modes.activeId);
 
@@ -120,11 +121,14 @@ export function ModeSwitcher({ settings, edge }: { settings: Settings; edge: Doc
         {open && anchor && (
           <motion.div
             className="mode-flyout glass"
-            style={flyoutStyle(edge, anchor, MODE_FLYOUT_WIDTH, 12, MODE_FLYOUT_HEIGHT)}
-            initial={{ opacity: 0, scale: 0.86, ...bloomOffset(edge) }}
-            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, scale: 0.94, filter: "blur(6px)", transition: { duration: 0.16 } }}
-            transition={springs.bloom}
+            style={{
+              ...flyoutStyle(edge, anchor, MODE_FLYOUT_WIDTH, 12, MODE_FLYOUT_HEIGHT),
+              transformOrigin: pm.origin,
+            }}
+            initial={pm.initial}
+            animate={pm.animate}
+            exit={pm.exit}
+            transition={pm.transition}
           >
             <div className="mode-flyout-title">Modes</div>
             {settings.modes.modes.map((mode) => (

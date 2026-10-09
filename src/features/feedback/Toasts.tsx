@@ -32,7 +32,7 @@ export function Toasts({ edge }: { edge: DockEdge }) {
             data-tone={toast.tone}
             initial={{ opacity: 0, scale: 0.86, ...bloomOffset(edge) }}
             animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, scale: 0.94, filter: "blur(5px)", transition: { duration: 0.2 } }}
+            exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.2 } }}
             transition={springs.bloom}
             onClick={() => dismiss(toast.id)}
             title="Dismiss"

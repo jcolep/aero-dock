@@ -1,0 +1,297 @@
+/* ==================================================================== */
+/* Clear                                                                */
+/*                                                                      */
+/* Neutral, colourless glass after Apple's Liquid Glass. Where `liquid` */
+/* in surfaces.css keeps the Aero palette and only thins it, this drops */
+/* the blue altogether: the body is a faint veil and the material is    */
+/* carried by its edge.                                                 */
+/*                                                                      */
+/*   shape        larger, continuous corners; the dock is nearly a      */
+/*                capsule so the icons sit concentric inside it         */
+/*   specular     a bright edge on the lit corner (top left) and a      */
+/*                fainter one on the opposite corner, the way a lens    */
+/*                catches light from one side                           */
+/*   illumination a soft inner glow all the way round                   */
+/*   no gloss     no Vista cap, no reflections, no green droplet        */
+/*                                                                      */
+/* Themes reach this material through three tokens, set per theme in    */
+/* themes.ts. The default is plain white, which is what the Aero theme  */
+/* gets, so it stays neutral; the others tint the veil.                 */
+/*                                                                      */
+/*   --clear-tint      "r, g, b" of the veil                            */
+/*   --clear-glow      "r, g, b" of the inner light and the running dot */
+/*   --clear-strength  scales the veil's opacity; dark themes want more */
+/*                                                                      */
+/* Backgrounds are written out here instead of read from the --glass-   */
+/* tint tokens, because wallpaper sync rewrites those inline and would  */
+/* colour the glass. The dock window cannot sample the desktop (see the */
+/* note on `liquid` in surfaces.css), so the veil is the whole body     */
+/* there.                                                               */
+/* ==================================================================== */
+
+[data-surface="clear"] {
+  --clear-tint: 255, 255, 255;
+  --clear-glow: 255, 255, 255;
+  --clear-strength: 1;
+
+  --glass-radius: 26px;
+  --glass-blur: 28px;
+  --glass-saturate: 1.15;
+  --gloss-strength: 0;
+  --shadow-icon: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.28));
+  --reflection-strength: 0;
+  --bloom-color: rgba(255, 255, 255, 0.55);
+  --bloom-soft: rgba(255, 255, 255, 0.18);
+  --aero-control-ink: #26333f;
+  --aero-glyph: #f4f7fa;
+}
+
+[data-surface="clear"] .glass {
+  background: rgba(var(--clear-tint), calc(0.22 * var(--clear-strength)));
+  backdrop-filter: blur(calc(var(--glass-blur) * var(--glass-intensity)))
+    saturate(var(--glass-saturate)) brightness(1.06);
+  /* kept (transparent, not removed) so the dock's height still matches
+     the strip reserved for it */
+  border: 1px solid transparent;
+  box-shadow:
+    /* separation: one wide soft drop and one tight contact shadow */
+    0 18px 40px rgba(0, 0, 0, 0.26),
+    0 2px 6px rgba(0, 0, 0, 0.16),
+    /* specular edge: bright on the lit corner, fainter opposite. White in
+       every theme: a lens catches white light whatever it is tinted */
+    inset 1.5px 1.5px 0.5px -0.5px rgba(255, 255, 255, 0.95),
+    inset -1.5px -1.5px 0.5px -0.5px rgba(255, 255, 255, 0.5),
+    /* a hairline all round so the shape never dissolves */
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    /* illumination: the body is lit from inside, in the theme's light */
+    inset 0 0 22px rgba(var(--clear-glow), 0.16);
+}
+
+/* The only sheen is a diagonal wash from the lit corner, fading out with
+   no seam. There is no cap to read as plastic. */
+[data-surface="clear"] .glass::before {
+  inset: 1px;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 38%),
+    linear-gradient(315deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 30%);
+}
+
+/* Light that crosses the glass forever is an Aero habit. */
+[data-surface="clear"] .glass:not(.glass-open)::after,
+[data-surface="clear"] .glass-sweep::after {
+  animation: none;
+  opacity: 0;
+}
+
+/* ---- the dock ------------------------------------------------------- */
+
+/* Rounded to just under a capsule: concentric with the icon tiles rather
+   than a pill that would crowd the end icons. */
+[data-surface="clear"] .dock-bar.glass {
+  border-radius: var(--dock-radius, calc(var(--icon-size) * 0.46 + var(--dock-pad-y)));
+}
+
+/* With nothing behind it to refract, the veil has to hold the shape on a
+   bright wallpaper, so it is a touch denser here than in settings. */
+[data-surface="clear"][data-window="dock"] .glass {
+  /* the picked colour, flat: the same strength all the way across, so what
+     is picked is what the dock is */
+  background: rgba(var(--clear-tint), calc(0.34 * var(--clear-strength)));
+}
+
+[data-surface="clear"] .dock-indicator {
+  background: radial-gradient(
+    circle at 35% 30%,
+    #ffffff,
+    rgb(var(--clear-glow)) 60%,
+    rgb(var(--clear-tint))
+  );
+  box-shadow: 0 0 6px 1px rgba(var(--clear-glow), 0.75);
+}
+
+[data-surface="clear"] .dock-indicator[data-focused="true"] {
+  box-shadow: 0 0 10px 2px rgba(var(--clear-glow), 0.95);
+}
+
+[data-surface="clear"] .dock-divider {
+  width: 1.5px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(255, 255, 255, 0.7) 30%,
+    rgba(255, 255, 255, 0.7) 70%,
+    transparent
+  );
+  box-shadow: none;
+}
+
+[data-surface="clear"] .dock-bar[data-vertical="true"] .dock-divider {
+  width: auto;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.7) 30%,
+    rgba(255, 255, 255, 0.7) 70%,
+    transparent
+  );
+}
+
+/* Reflections belong to the Aero look. */
+[data-surface="clear"] .dock-icon img,
+[data-surface="clear"] .dock-icon .dock-icon-glyph {
+  -webkit-box-reflect: none;
+}
+
+/* the fallback letter tile: the theme's accent, washed toward grey so it
+   sits on glass instead of shouting */
+[data-surface="clear"] .dock-icon-glyph {
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--aero-accent) 55%, #9aa6b2),
+    color-mix(in srgb, var(--aero-accent-deep) 55%, #5a6674)
+  );
+}
+
+[data-surface="clear"] .dock-stack {
+  background: rgba(var(--clear-tint), calc(0.28 * var(--clear-strength)));
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.8),
+    0 3px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* ---- furniture ------------------------------------------------------ */
+
+[data-surface="clear"] .dock-control-btn {
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+
+[data-surface="clear"] .mode-tile {
+  background: linear-gradient(
+    155deg,
+    rgba(var(--clear-tint), calc(0.5 * var(--clear-strength))),
+    rgba(var(--clear-tint), calc(0.24 * var(--clear-strength)))
+  );
+  backdrop-filter: blur(14px) saturate(1.2);
+  border: none;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.22),
+    inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.95),
+    inset -1px -1px 0.5px -0.5px rgba(255, 255, 255, 0.45),
+    inset 0 0 10px rgba(var(--clear-glow), 0.18);
+}
+
+[data-surface="clear"] .mode-tile {
+  border-radius: 13px;
+}
+
+/* A tooltip is dark glass so white text stays readable on any wallpaper.
+   The theme shows through as a hint of its deep colour. */
+[data-surface="clear"] .dock-label {
+  background: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--aero-accent-deep) 35%, #1b1f27) 66%,
+    transparent
+  );
+  backdrop-filter: blur(18px) saturate(1.3);
+  border: none;
+  border-radius: 14px;
+  text-shadow: none;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.32),
+    inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+[data-surface="clear"] .aero-button {
+  background: linear-gradient(
+    155deg,
+    rgba(var(--clear-tint), calc(0.46 * var(--clear-strength))),
+    rgba(var(--clear-tint), calc(0.2 * var(--clear-strength)))
+  );
+  backdrop-filter: blur(12px) saturate(1.2);
+  border: none;
+  box-shadow:
+    0 3px 9px rgba(0, 0, 0, 0.18),
+    inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.9),
+    inset -1px -1px 0.5px -0.5px rgba(255, 255, 255, 0.4);
+}
+
+[data-surface="clear"] .aero-button:hover:not(:disabled) {
+  background: linear-gradient(
+    155deg,
+    rgba(var(--clear-tint), calc(0.62 * var(--clear-strength))),
+    rgba(var(--clear-tint), calc(0.3 * var(--clear-strength)))
+  );
+}
+
+[data-surface="clear"] .ctl-text {
+  background: rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- settings chrome ------------------------------------------------ */
+
+[data-surface="clear"] .settings-card {
+  border-radius: 22px;
+}
+
+/* The settings window softens its own sky behind each card, so the body gets
+   out of the way and the edge does the work.
+
+   A card is large, and a backdrop filter is paid for again every frame
+   anything inside the card changes: scrolling, a slider being dragged, the
+   hover on a button. A refracting backdrop (an SVG displacement map, three
+   passes of it) cost 55ms a frame in the software renderer the dock's web
+   views use, which is scrolling at about fifteen frames a second. The sky
+   behind the cards is a smooth gradient with a few soft discs, so bending it
+   at the rim was close to invisible, and a plain blur looks the same for a
+   tenth of the cost. */
+[data-surface="clear"] .settings-card.glass {
+  backdrop-filter: blur(10px);
+  background: rgba(var(--clear-tint), calc(0.08 * var(--clear-strength)));
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.22),
+    inset 1.5px 1.5px 0.5px -0.5px rgba(255, 255, 255, 0.95),
+    inset -1.5px -1.5px 0.5px -0.5px rgba(255, 255, 255, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 0 18px rgba(var(--clear-glow), 0.12);
+}
+
+[data-surface="clear"] .mode-card,
+[data-surface="clear"] .icon-picker-option,
+[data-surface="clear"] .aero-menu-devices {
+  background: rgba(var(--clear-tint), calc(0.12 * var(--clear-strength)));
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+[data-surface="clear"] .icon-picker-option:hover {
+  background: rgba(var(--clear-tint), calc(0.26 * var(--clear-strength)));
+}
+
+/* Same reason as under `liquid`: the blur needs something to soften, and
+   anything moving behind it makes every card re-raster each frame. */
+[data-surface="clear"] .settings-bubble {
+  animation: none;
+  opacity: 0.45;
+  bottom: auto;
+  top: calc(4% + var(--i) * 17%);
+  width: calc(90px + var(--i) * 34px);
+  height: calc(90px + var(--i) * 34px);
+  border-color: rgba(255, 255, 255, 0.5);
+  background: radial-gradient(
+    circle at 32% 28%,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.16) 44%,
+    rgba(255, 255, 255, 0.03) 72%
+  );
+}
+
+[data-surface="clear"] .settings-card h2,
+[data-surface="clear"] .ctl-label,
+[data-surface="clear"] .mode-card-title strong {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}

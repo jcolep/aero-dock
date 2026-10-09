@@ -278,7 +278,7 @@ already isolated behind `src-tauri/src/platform/`.
 
 [Tauri 2](https://tauri.app), Rust with
 [windows-rs](https://github.com/microsoft/windows-rs), React 19, TypeScript,
-Vite, [motion](https://motion.dev), [PixiJS](https://pixijs.com),
+Vite, [motion](https://motion.dev),
 [zustand](https://github.com/pmndrs/zustand)
 
 ## License

@@ -71,10 +71,34 @@ pub async fn resolve_icons(
 /// Launch an app (or open a file/folder) through the shell, detached from
 /// our process, with optional arguments and working directory.
 #[tauri::command]
-pub async fn launch(target: String, args: Option<String>) -> AeroResult<()> {
+pub async fn launch(app: tauri::AppHandle, target: String, args: Option<String>) -> AeroResult<()> {
+    // Aero Dock pinned to itself means its settings window. Starting the
+    // exe again would only hit the single-instance guard, which just shows
+    // the dock.
+    if is_own_exe(&target) {
+        return crate::commands::settings::open_settings(app).await;
+    }
+    // the shell will not reliably foreground what we start from here, so
+    // ask the running-app tracker to do it when the new window appears
+    #[cfg(windows)]
+    crate::platform::windows::running::focus_next_new_window();
     tauri::async_runtime::spawn_blocking(move || launch_blocking(&target, args.as_deref()))
         .await
         .map_err(|e| AeroError::other(format!("launch task failed: {e}")))?
+}
+
+/// True when `target` is the executable that is running right now.
+fn is_own_exe(target: &str) -> bool {
+    let Ok(own) = std::env::current_exe() else {
+        return false;
+    };
+    let same = |a: &std::path::Path, b: &std::path::Path| {
+        match (std::fs::canonicalize(a), std::fs::canonicalize(b)) {
+            (Ok(a), Ok(b)) => a == b,
+            _ => a.to_string_lossy().eq_ignore_ascii_case(&b.to_string_lossy()),
+        }
+    };
+    same(std::path::Path::new(target), &own)
 }
 
 fn shell_execute(verb: &str, target: &str, args: Option<&str>) -> AeroResult<()> {
@@ -129,12 +153,32 @@ fn launch_blocking(target: &str, args: Option<&str>) -> AeroResult<()> {
     // packaged apps (Settings, Store apps…) activate by AUMID through
     // the activation manager — ShellExecuteW silently no-ops on these
     if let Some(aumid) = target.strip_prefix("shell:AppsFolder\\") {
-        return activate_aumid(aumid);
+        return activate_aumid(aumid, args);
+    }
+    // An app pinned by the exe in its WindowsApps install folder (as every
+    // packaged app that runs in a process of its own used to be, and as a
+    // dropped exe still is) cannot be run from there: the folder is not
+    // executable by ordinary programs, so the shell answers "access denied" or
+    // does nothing at all. The app is started by its AUMID instead, which the
+    // package's own manifest gives.
+    if crate::platform::windows::packaged::is_packaged_path(target) {
+        if let Some(app) = crate::platform::windows::packaged::app_target_for_path(target) {
+            if let Some(aumid) = app.strip_prefix("shell:AppsFolder\\") {
+                return activate_aumid(aumid, args);
+            }
+        }
+        // The package folder is named for a version, so an update removes it
+        // and leaves any pin made from it pointing at nothing.
+        if !std::path::Path::new(target).exists() {
+            return Err(AeroError::other(
+                "this app has been updated since it was pinned; unpin it and pin it again",
+            ));
+        }
     }
     shell_execute("open", target, args)
 }
 
-fn activate_aumid(aumid: &str) -> AeroResult<()> {
+fn activate_aumid(aumid: &str, args: Option<&str>) -> AeroResult<()> {
     use windows::core::PCWSTR;
     use windows::Win32::System::Com::{CoCreateInstance, CLSCTX_LOCAL_SERVER};
     use windows::Win32::UI::Shell::{
@@ -147,8 +191,40 @@ fn activate_aumid(aumid: &str) -> AeroResult<()> {
     let manager: IApplicationActivationManager =
         unsafe { CoCreateInstance(&ApplicationActivationManager, None, CLSCTX_LOCAL_SERVER)? };
     let wide = to_wide(aumid);
-    unsafe { manager.ActivateApplication(PCWSTR(wide.as_ptr()), PCWSTR::null(), AO_NONE)? };
+    let args_w = args.filter(|a| !a.is_empty()).map(to_wide);
+    unsafe {
+        manager.ActivateApplication(
+            PCWSTR(wide.as_ptr()),
+            args_w.as_ref().map_or(PCWSTR::null(), |a| PCWSTR(a.as_ptr())),
+            AO_NONE,
+        )?
+    };
     Ok(())
+}
+
+/// The name an app should go by when it is pinned: its own, not the title of
+/// whichever window it happens to have open (which is all a running app's
+/// entry has, so "Mail - Jake Pascoe - Outlook" got pinned as that). A
+/// packaged app's is its Start menu name; any other program's is the
+/// description in its version information. None if neither is to be had.
+pub fn display_name_for(target: &str) -> Option<String> {
+    if target.to_ascii_lowercase().starts_with("shell:appsfolder\\") {
+        let apps = scan_apps_cached(false).ok()?;
+        return apps
+            .into_iter()
+            .find(|a| a.target_path.eq_ignore_ascii_case(target))
+            .map(|a| a.name)
+            .filter(|n| !n.trim().is_empty());
+    }
+    crate::platform::windows::apps::file_description(target)
+}
+
+/// Ask for an app's proper name (see [`display_name_for`]).
+#[tauri::command]
+pub async fn app_display_name(target: String) -> AeroResult<Option<String>> {
+    tauri::async_runtime::spawn_blocking(move || display_name_for(&target))
+        .await
+        .map_err(|e| AeroError::other(format!("name lookup failed: {e}")))
 }
 
 /// Launch elevated (UAC prompt) — the "Run as administrator" menu action.

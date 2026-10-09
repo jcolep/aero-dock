@@ -5,12 +5,12 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { springs } from "../../engine/animation/springs";
 import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
 import type { Settings } from "../../ipc/types";
 import { useDockIcons } from "../../state/dockStore";
-import { bloomOffset, flyoutStyle, useMenu } from "./menuStore";
+import { flyoutStyle, useMenu } from "./menuStore";
+import { usePanelMotion } from "./usePanelMotion";
 import "./folderflyout.css";
 
 const FLYOUT_WIDTH = 340;
@@ -84,18 +84,18 @@ export function FolderFlyout({ edge }: FolderFlyoutProps) {
   }, [active, close]);
 
   const style = anchor ? flyoutStyle(edge, anchor, FLYOUT_WIDTH, 14, 320) : {};
-  const from = bloomOffset(edge);
+  const pm = usePanelMotion(edge);
 
   return (
     <AnimatePresence>
       {active && item && (
         <motion.div
           className="folder-flyout glass"
-          style={style}
-          initial={{ opacity: 0, scale: 0.8, ...from }}
-          animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, filter: "blur(6px)", transition: { duration: 0.16 } }}
-          transition={springs.bloom}
+          style={{ ...style, transformOrigin: pm.origin }}
+          initial={pm.initial}
+          animate={pm.animate}
+          exit={pm.exit}
+          transition={pm.transition}
         >
           <div className="folder-flyout-header">
             <span className="folder-flyout-title">{item.name}</span>
@@ -125,9 +125,7 @@ export function FolderFlyout({ edge }: FolderFlyoutProps) {
               <motion.button
                 key={entry.path}
                 className="folder-flyout-item"
-                initial={{ opacity: 0, y: 10, scale: 0.85 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ ...springs.bloom, delay: Math.min(i * 0.022, 0.35) }}
+                {...pm.item(i, 0.022, 0.35)}
                 onClick={() => {
                   ipc.launch(entry.path).catch(notify.on(`Could not open ${entry.name}`));
                   close();

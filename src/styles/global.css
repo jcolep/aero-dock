@@ -1,5 +1,7 @@
 @import "./tokens.css";
 @import "./surfaces.css";
+@import "./clear.css";
+@import "./dockshadow.css";
 
 * {
   margin: 0;
@@ -17,7 +19,12 @@ body,
 }
 
 body {
-  font-family: "Segoe UI Variable Display", "Segoe UI", "Frutiger", system-ui, sans-serif;
+  /* SF Pro first: "SF Pro" is the variable family, "Display" and "Text" are
+     the optical sizes Apple ships for large and small type. Everything
+     else is the old stack, for a machine without it. */
+  font-family:
+    "SF Pro Text", "SF Pro Display", "SF Pro", "Segoe UI Variable Display", "Segoe UI",
+    "Frutiger", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   color: var(--aero-text);
   user-select: none;
@@ -97,7 +104,12 @@ img {
     rgba(255, 255, 255, 0.04) 60%,
     transparent
   );
-  animation: glass-sweep calc(14s / var(--anim-speed)) ease-in-out infinite;
+  /* Stepped, about 30 a second, not smooth. A smooth animation makes the page
+     draw a frame at the display's refresh rate for as long as it plays (165 a
+     second on a fast monitor, each one done in software), while a stepped one
+     only draws when a step lands. The band is a soft gradient moving a few
+     pixels a step, which is as smooth as it looks. */
+  animation: glass-sweep calc(14s / var(--anim-speed)) steps(180, end) infinite;
   will-change: transform;
   pointer-events: none;
   z-index: 1;
@@ -111,6 +123,32 @@ img {
   overflow: hidden;
   pointer-events: none;
   z-index: 1;
+  /* the fine grain over the glass, which keeps its gradients from banding */
+  background-image: var(--grain);
+}
+
+html[data-grain="off"] .glass-sweep {
+  background-image: none;
+}
+
+/* Light that follows the pointer across the glass: a soft highlight placed by
+   --lx and --ly (written on the bar as the pointer moves, see
+   usePointerLight), there while the pointer is over the bar. */
+.glass-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(
+    190px circle at var(--lx, -999px) var(--ly, -999px),
+    rgba(255, 255, 255, 0.22),
+    transparent 70%
+  );
+  transition: opacity 220ms ease-out;
+}
+
+html[data-pointer-light="on"] .dock-bar:hover .glass-sweep::before {
+  opacity: 1;
 }
 
 @keyframes glass-sweep {
@@ -148,8 +186,14 @@ img {
 }
 
 /* Buttons should feel pressable everywhere, not only on the dock. */
-button {
+button,
+input,
+textarea,
+select {
   font-family: inherit;
+}
+
+button {
   color: inherit;
 }
 
@@ -180,4 +224,66 @@ button {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion and reduced transparency (Settings > Accessibility,  */
+/* or Windows' own switches). applyAppearance writes the answer on the */
+/* page, and nothing below applies unless it says "on".                */
+/* ------------------------------------------------------------------ */
+
+/* Nothing moves between its before and its after: everything arrives at once.
+   A change is still shown, only not travelled to. */
+html[data-reduce-motion="on"] *,
+html[data-reduce-motion="on"] *::before,
+html[data-reduce-motion="on"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+/* The sweep of light across the glass and the light that follows the pointer
+   are only movement. */
+html[data-reduce-motion="on"] .glass-sweep::after,
+html[data-reduce-motion="on"] .glass-sweep::before,
+html[data-reduce-motion="on"] .menubar::before {
+  display: none;
+}
+
+/* Glass becomes a solid body in the theme's colour, without the blur behind it
+   or the gloss on it. Windows is asked for no blur panes too (see glass.rs). */
+html[data-reduce-transparency="on"] {
+  --solid-glass: color-mix(in srgb, rgb(var(--clear-tint)) 62%, #0a101c);
+}
+
+html[data-reduce-transparency="on"] *,
+html[data-reduce-transparency="on"] *::before,
+html[data-reduce-transparency="on"] *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html[data-reduce-transparency="on"] .glass,
+html[data-reduce-transparency="on"] .menubar,
+html[data-reduce-transparency="on"] .mb-menu,
+html[data-reduce-transparency="on"] .mb-panel,
+html[data-reduce-transparency="on"] .dock-control-btn,
+html[data-reduce-transparency="on"] .cc-tile,
+html[data-reduce-transparency="on"] .cc-card {
+  background: var(--solid-glass) !important;
+}
+
+html[data-reduce-transparency="on"] .glass::before,
+html[data-reduce-transparency="on"] .glass-sweep,
+html[data-reduce-transparency="on"] .menubar::after,
+html[data-reduce-transparency="on"] .mb-lens::after {
+  display: none;
+}
+
+/* the lens, with nothing to refract, is an outlined capsule */
+html[data-reduce-transparency="on"] .mb-lens {
+  background: rgba(255, 255, 255, 0.18) !important;
 }

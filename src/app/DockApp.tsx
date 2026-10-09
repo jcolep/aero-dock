@@ -4,13 +4,17 @@
  * and renders the bar.
  */
 
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useEffect, useMemo } from "react";
 import { DockBar } from "../features/dock/DockBar";
 import { EffectsLayer } from "../engine/effects/EffectsLayer";
 import { applyAppearance } from "../engine/themes/applyTheme";
 import { notify } from "../features/feedback/toastStore";
+import { useSearch } from "../features/search/SearchOverlay";
 import { ipc } from "../ipc/commands";
+import { EVENTS } from "../ipc/types";
 import { useAppAudio } from "../state/audioStore";
 import { buildDockItems, useDockIcons, type DockItemView } from "../state/dockStore";
 import { useFileDrag } from "../state/dragStore";
@@ -22,6 +26,32 @@ export function DockApp() {
   const { settings, hydrate } = useSettings();
   const { windows, focused, hydrate: hydrateRunning } = useRunning();
   const { iconUrls, resolveIcons } = useDockIcons();
+
+  // With a dock on every monitor there is one of these per window. The first
+  // dock does the things that must happen once (the welcome card, switching
+  // modes); the rest only draw.
+  const isPrimary = useMemo(() => getCurrentWindow().label === "dock", []);
+
+  // Which monitor this dock is on, so it can list that screen's windows.
+  const [myMonitor, setMyMonitor] = useState<string | null>(null);
+  useEffect(() => {
+    ipc
+      .dockMonitor()
+      .then(setMyMonitor)
+      .catch(() => setMyMonitor(null));
+  }, [settings?.dock.monitor, settings?.dock.allMonitors]);
+
+  // With "each dock shows only its own screen's windows", the windows on
+  // other screens are left out. A window whose screen is not known is shown
+  // everywhere rather than nowhere.
+  const perScreen = settings?.dock.allMonitors && settings.dock.perMonitorWindows;
+  const shownWindows = useMemo(
+    () =>
+      perScreen && myMonitor
+        ? windows.filter((w) => !w.monitor || w.monitor === myMonitor)
+        : windows,
+    [perScreen, myMonitor, windows],
+  );
 
   useEffect(() => {
     hydrate();
@@ -39,7 +69,7 @@ export function DockApp() {
   // Auto-switching: when the foreground app changes, ask Rust whether a
   // mode claims it. Rust owns the decision so the rules live in exactly
   // one place, and it answers null when nothing should happen.
-  const autoSwitch = settings?.modes.enabled && settings.modes.autoSwitch;
+  const autoSwitch = isPrimary && settings?.modes.enabled && settings.modes.autoSwitch;
   const focusedExe = useMemo(
     () => windows.find((w) => w.hwnd === focused)?.exe ?? "",
     [windows, focused],
@@ -65,6 +95,16 @@ export function DockApp() {
       clearTimeout(timer);
     };
   }, [autoSwitch, focusedExe]);
+
+  // the menu bar's search button asks for the search, which lives here, in
+  // the first dock (the others would each open their own copy)
+  useEffect(() => {
+    if (!isPrimary) return;
+    const unlisten = listen(EVENTS.searchOpen, () => useSearch.getState().setOpen(true));
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, [isPrimary]);
 
   // pin files/shortcuts dropped onto the dock from Explorer
   useEffect(() => {
@@ -133,13 +173,14 @@ export function DockApp() {
       settings
         ? buildDockItems(
             settings.pinned,
-            windows,
+            shownWindows,
             focused,
             iconUrls,
             settings.dock.showRunningApps,
+            settings.dock.runningOrder,
           )
         : [],
-    [settings, windows, focused, iconUrls],
+    [settings, shownWindows, focused, iconUrls],
   );
 
   // resolve icons for everything visible (pinned + running + stack children)
@@ -160,12 +201,16 @@ export function DockApp() {
       ipc.launch(item.target, item.args).catch(notify.on(`Could not open ${item.name}`));
       return;
     }
-    // running: focus it; if already focused, cycle windows (or minimize a single one)
+    // one window: behave like the taskbar (restore / minimize / focus),
+    // decided in Rust from live window state
+    if (item.windows.length === 1) {
+      ipc.toggleWindow(item.windows[0].hwnd).catch(notify.on("Could not switch to that window"));
+      return;
+    }
+    // several windows: focus the first, or cycle if one is already focused
     const focusedIdx = item.windows.findIndex((w) => w.hwnd === focused);
     if (focusedIdx === -1) {
       ipc.activateWindow(item.windows[0].hwnd).catch(notify.on("Could not focus that window"));
-    } else if (item.windows.length === 1) {
-      ipc.minimizeWindow(item.windows[0].hwnd).catch(notify.on("Could not minimize that window"));
     } else {
       const next = item.windows[(focusedIdx + 1) % item.windows.length];
       ipc.activateWindow(next.hwnd).catch(notify.on("Could not focus that window"));
@@ -174,8 +219,8 @@ export function DockApp() {
 
   return (
     <>
-      <EffectsLayer settings={settings} />
-      <DockBar settings={settings} items={items} onLaunch={activate} />
+      <EffectsLayer settings={settings} wallpaperAccent={accent} />
+      <DockBar settings={settings} items={items} onLaunch={activate} primary={isPrimary} />
     </>
   );
 }

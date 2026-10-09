@@ -9,10 +9,10 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { create } from "zustand";
-import { springs } from "../../engine/animation/springs";
 import { ipc } from "../../ipc/commands";
 import type { AppEntry, DockEdge, RecentFile } from "../../ipc/types";
-import { bloomOffset, edgePanelStyle } from "../dock/menuStore";
+import { edgePanelStyle } from "../dock/menuStore";
+import { usePanelMotion } from "../dock/usePanelMotion";
 import { useDockIcons } from "../../state/dockStore";
 import { notify } from "../feedback/toastStore";
 import "./search.css";
@@ -79,6 +79,7 @@ function filterResults(query: string, apps: AppEntry[], recent: RecentFile[]): R
 export function SearchOverlay({ edge }: { edge: DockEdge }) {
   const { open, setOpen } = useSearch();
   const { iconUrls, resolveIcons } = useDockIcons();
+  const pm = usePanelMotion(edge);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const [apps, setApps] = useState<AppEntry[]>([]);
@@ -175,16 +176,12 @@ export function SearchOverlay({ edge }: { edge: DockEdge }) {
             ...edgePanelStyle(edge, "calc(var(--icon-size) * 1.2 + 44px)"),
             width: 440,
             zIndex: 110,
+            transformOrigin: pm.origin,
           }}
-          initial={{ opacity: 0, scale: 0.86, ...bloomOffset(edge) }}
-          animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-          exit={{
-            opacity: 0,
-            scale: 0.93,
-            filter: "blur(6px)",
-            transition: { duration: 0.16 },
-          }}
-          transition={springs.bloom}
+          initial={pm.initial}
+          animate={pm.animate}
+          exit={pm.exit}
+          transition={pm.transition}
         >
           <input
             ref={inputRef}

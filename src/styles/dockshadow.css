@@ -1,0 +1,39 @@
+/* ==================================================================== */
+/* Dock bar shadow                                                      */
+/*                                                                      */
+/* Each material writes its own box-shadow list for glass, with a large */
+/* soft drop shadow first. On the dock bar that drop is a dark haze     */
+/* reaching tens of pixels past both ends, so here the bar gets its own */
+/* copy of each list with that layer swapped for --dock-drop-shadow     */
+/* (see dockDropShadow in applyTheme.ts), which is tight and can be     */
+/* switched off. Flyouts, menus and the settings window keep theirs.    */
+/*                                                                      */
+/* The inset layers below are copies of each material's own, so if one  */
+/* of those changes in global.css, surfaces.css or clear.css, change it */
+/* here too.                                                            */
+/* ==================================================================== */
+
+[data-surface="aero"] .dock-bar.glass {
+  box-shadow:
+    var(--dock-drop-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 12px rgba(140, 210, 255, 0.18);
+}
+
+[data-surface="liquid"][data-window="dock"] .dock-bar.glass {
+  box-shadow:
+    var(--dock-drop-shadow),
+    0 0 0 0.5px rgba(255, 255, 255, 0.34),
+    inset 0 0 6px 0 rgba(255, 255, 255, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -14px 30px rgba(150, 215, 255, 0.14);
+}
+
+[data-surface="clear"] .dock-bar.glass {
+  box-shadow:
+    var(--dock-drop-shadow),
+    inset 1.5px 1.5px 0.5px -0.5px rgba(255, 255, 255, 0.95),
+    inset -1.5px -1.5px 0.5px -0.5px rgba(255, 255, 255, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    inset 0 0 22px rgba(var(--clear-glow), 0.16);
+}

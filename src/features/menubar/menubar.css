@@ -1,0 +1,1406 @@
+/* The menu bar. The window is much taller than the strip and Rust clips all
+   of it but the strip until a menu is open, so everything here is laid out
+   from the top of the window. Colours come from the dock's own tokens
+   (--clear-tint, --aero-accent and friends), so the bar, its menus and the
+   Control Center all follow the colour picked in settings.
+
+   The look is tunable from settings through a few variables set on the root:
+     --menubar-height  height of the bar
+     --mb-gap          space between the bar and the screen's top and sides
+     --mb-radius       corner radius
+     --mb-tint         how strongly the theme colour tints the bar (1 = default)
+     --mb-spacing      space between items
+     --mb-font         text size */
+
+.menubar-root {
+  --mb-hover: color-mix(in srgb, var(--aero-accent) 55%, rgba(255, 255, 255, 0.22));
+  /* The body of menus and panels: the theme colour, pulled toward a deep
+     blue-black so white text stays readable whatever was picked and whatever
+     is behind the window, then made a little see-through. */
+  --mb-surface: color-mix(in srgb, rgb(var(--clear-tint)) 52%, rgb(9 13 22));
+  --mb-body: color-mix(in srgb, var(--mb-surface) 84%, transparent);
+  /* the spring-like ease used for things that settle */
+  --mb-settle: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  position: fixed;
+  inset: 0;
+  font-size: var(--mb-font, 13px);
+  color: var(--aero-text-on-glass);
+  user-select: none;
+}
+
+/* catches clicks anywhere in the window outside the bar and the open menu */
+.mb-backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.menubar {
+  position: absolute;
+  top: var(--mb-gap, 0px);
+  left: var(--mb-gap, 0px);
+  right: var(--mb-gap, 0px);
+  height: var(--menubar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  /* the picked colour, flat: the same idea as the dock's glass body */
+  background: rgba(var(--clear-tint), calc(0.5 * var(--clear-strength) * var(--mb-tint, 1)));
+  /* touching the top of the screen it is rounded below only; floating it is
+     rounded all round */
+  border-radius: 0 0 var(--mb-radius, 12px) var(--mb-radius, 12px);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  /* glyph size for the status icons inside the bar */
+  --status-glyph-size: 16px;
+}
+
+.menubar[data-floating="true"] {
+  border-radius: var(--mb-radius, 12px);
+}
+
+/* the hairline of light along the edge. Inset shadows rather than a border,
+   so the bar is exactly as big as the scene drawn inside it. */
+.menubar[data-rim="true"] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.menubar[data-rim="true"][data-floating="true"] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+    inset 1px 0 0 rgba(255, 255, 255, 0.16),
+    inset -1px 0 0 rgba(255, 255, 255, 0.16);
+}
+
+/* The ambient scene: a canvas exactly the size of the bar, behind its items.
+   The bar's own box is the scene's bounding box, so nothing drifts out of it. */
+.mb-fx {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  /* follows the bar's own corners, so nothing shows outside its shape */
+  border-radius: inherit;
+}
+
+/* Light that follows the pointer across the bar, and the fine grain over its
+   glass. Both are layers of the bar's own box, behind its buttons. The light
+   is placed by --lx and --ly, written as the pointer moves (see
+   usePointerLight). */
+.menubar::before,
+.menubar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.menubar::before {
+  opacity: 0;
+  background: radial-gradient(
+    170px circle at var(--lx, -999px) var(--ly, -999px),
+    rgba(255, 255, 255, 0.2),
+    transparent 70%
+  );
+  transition: opacity 220ms ease-out;
+}
+
+html[data-pointer-light="on"] .menubar:hover::before {
+  opacity: 1;
+}
+
+.menubar::after {
+  background-image: var(--grain);
+}
+
+html[data-grain="off"] .menubar::after {
+  display: none;
+}
+
+/* positioned, so the items paint above the scene that sits under them */
+.mb-side {
+  z-index: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--mb-spacing, 2px);
+  height: 100%;
+}
+
+.mb-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: calc(100% - 6px);
+  padding: 0 9px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0);
+  color: inherit;
+  font: inherit;
+  text-shadow: inherit;
+  white-space: nowrap;
+  cursor: default;
+  /* the highlight eases in and out rather than snapping, which is most of
+     what makes a row of menu items feel soft */
+  transition:
+    background-color 110ms ease-out,
+    transform 260ms var(--mb-settle);
+}
+
+/* The highlight under a button is not the button's own: it is the sliding lens
+   (see Lens.tsx), one blob of glass that travels to whichever button is
+   hovered or open. The button under it is enlarged a little, as if seen
+   through it. */
+.mb-item[data-lensed="true"] {
+  transform: scale(var(--mb-lens-scale, 1.07));
+}
+
+.mb-item:active {
+  transform: scale(0.95);
+  transition-duration: 40ms, 60ms;
+}
+
+/* Liquid glass, not frosted glass. It is clear: the only body it has is a
+   faint sheen, and what makes it glass is that it bends what is under it. The
+   backdrop filter (set in Lens.tsx) pushes the pixels near its rim inward, so
+   the button's symbol and its neighbours warp round the edge, as they do
+   through a drop of water. The rim is a bright line that thickens at the upper
+   left and thins at the lower right, which is how light sits on an edge. It is
+   above the buttons, not behind them, so it has them to bend, and takes no
+   clicks. */
+.mb-lens {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.07));
+  box-shadow:
+    inset 1.6px 1.6px 1px -0.6px rgba(255, 255, 255, 0.95),
+    inset -1px -1px 1px -0.6px rgba(255, 255, 255, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.16),
+    0 4px 14px rgba(0, 0, 0, 0.2);
+  /* pressing it draws it in; `scale` is its own property, so it does not fight
+     the stretch that is set on `transform` */
+  transition: scale 140ms var(--mb-settle);
+}
+
+/* the light caught on the upper left of the edge */
+.mb-lens::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120% 140% at 14% -12%, rgba(255, 255, 255, 0.3), transparent 55%);
+}
+.mb-lens[data-pressed="true"] {
+  scale: 0.94;
+}
+
+.mb-logo {
+  /* the orb takes the colour of the theme */
+  color: var(--aero-accent);
+  padding: 0 10px;
+}
+
+.mb-app {
+  font-weight: 700;
+}
+
+.mb-battery {
+  font-size: 0.92em;
+  font-variant-numeric: tabular-nums;
+}
+
+.mb-clock {
+  font-variant-numeric: tabular-nums;
+  padding-left: 11px;
+}
+
+/* ---- glass for menus and panels ---- */
+
+/* A dropdown and the Control Center are drawn as one material: the theme's
+   colour as a deep, slightly see-through body, a soft sheen across the top,
+   a glow in one corner, and a rim that is bright where the light catches it
+   and faint elsewhere. Nothing here blurs what is behind the window (a web
+   page cannot see the desktop), so the body does the work of keeping text
+   readable and the highlights do the work of looking like glass. */
+.mb-menu,
+.mb-panel {
+  position: absolute;
+  isolation: isolate;
+  color: var(--aero-text-on-glass);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.05) 36%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    radial-gradient(120% 70% at 14% 0%, rgba(var(--clear-glow), 0.26), transparent 62%),
+    var(--mb-body);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.42),
+    0 3px 10px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 24px rgba(var(--clear-glow), 0.1);
+}
+
+/* the rim: a 1px ring painted with a gradient, so it fades round the shape */
+.mb-menu::after,
+.mb-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 255, 255, 0.1) 36%,
+    rgba(255, 255, 255, 0.05) 62%,
+    rgba(255, 255, 255, 0.34)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+/* the glare: a soft diagonal band, behind the content but over the body */
+.mb-menu::before,
+.mb-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    118deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0) 32%,
+    rgba(255, 255, 255, 0) 68%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+}
+
+/* ---- dropdown menus ---- */
+
+.mb-menu {
+  top: calc(var(--mb-gap, 0px) + var(--menubar-height) + 4px);
+  min-width: 232px;
+  padding: 6px;
+  border-radius: 12px;
+}
+
+.mb-menu-item {
+  display: block;
+  width: 100%;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+  transition: background-color 90ms ease-out;
+}
+
+.mb-menu-item:hover {
+  background: var(--mb-hover);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.mb-menu-item:active {
+  background: color-mix(in srgb, var(--aero-accent) 70%, rgba(255, 255, 255, 0.28));
+}
+
+/* ---- entrance and exit ---- */
+
+/* Which animation a menu uses is chosen in settings and arrives as
+   `data-anim` on the root (goo, spring, unfurl, reveal, drift, fade or none).
+   Each preset below gives a dropdown and the Control Center an entrance and an
+   exit. The point a menu grows from is set on the element (see MenuBarApp):
+   its `transform-origin`, and `--ox`, the same distance from its left edge.
+   Every duration is divided by `--anim-speed`, the global speed setting.
+   Sliding along the bar from one menu to the next skips them all, as menus do
+   on the Mac. The window keeps the room a menu needs until its exit is over
+   (see `menuExitMs` in presets.ts, which has to match the durations here). */
+.mb-menu {
+  transform-origin: top left;
+}
+
+.mb-panel {
+  transform-origin: top right;
+}
+
+/* ---- Goo ----
+   A dropdown or the Control Center swells out of the item that opened it like
+   a drop of something thick: it starts as a small, round, squashed blob, shoots
+   past its size a little taller than wide, then wobbles back and forth with
+   each swing smaller than the last until it is still. Its corners start
+   rounder and tighten to their real radius as it settles. Closing is the
+   opening played backwards: the same wobble, but building instead of dying
+   away, then a last swell and a pinch back into the item it came from. */
+.menubar-root[data-anim="goo"] .mb-menu {
+  animation: mb-goo-menu calc(560ms / var(--anim-speed, 1)) both;
+}
+.menubar-root[data-anim="goo"] .mb-panel {
+  animation: mb-goo-panel calc(680ms / var(--anim-speed, 1)) both;
+}
+.menubar-root[data-anim="goo"] .mb-menu[data-leaving="true"] {
+  animation: mb-goo-menu-out calc(340ms / var(--anim-speed, 1)) both;
+}
+.menubar-root[data-anim="goo"] .mb-panel[data-leaving="true"] {
+  animation: mb-goo-panel-out calc(400ms / var(--anim-speed, 1)) both;
+}
+
+/* ---- Spring ----
+   A quick pop: rises a few pixels while it grows, overshoots by a hair and
+   settles. The exit is a small anticipation and a shrink back up. */
+.menubar-root[data-anim="spring"] .mb-menu,
+.menubar-root[data-anim="spring"] .mb-panel {
+  animation: mb-spring-in calc(440ms / var(--anim-speed, 1)) backwards;
+}
+.menubar-root[data-anim="spring"] .mb-menu[data-leaving="true"],
+.menubar-root[data-anim="spring"] .mb-panel[data-leaving="true"] {
+  animation: mb-spring-out calc(240ms / var(--anim-speed, 1)) both;
+}
+
+/* ---- Unfurl ----
+   Folds down from the bar about its top edge, as a flap on a hinge, with the
+   perspective that makes it read as depth and a slight swing past flat. Light
+   falls on it as it opens (the sheen in `::before`). */
+.menubar-root[data-anim="unfurl"] .mb-menu,
+.menubar-root[data-anim="unfurl"] .mb-panel {
+  animation: mb-unfurl-in calc(540ms / var(--anim-speed, 1)) backwards;
+}
+.menubar-root[data-anim="unfurl"] .mb-menu[data-leaving="true"],
+.menubar-root[data-anim="unfurl"] .mb-panel[data-leaving="true"] {
+  animation: mb-unfurl-out calc(280ms / var(--anim-speed, 1)) both;
+}
+
+/* ---- Reveal ----
+   A circle opens from the button it belongs to and uncovers the menu, which
+   settles from a few pixels above as it does. Closing is the circle shutting
+   back into the button. */
+.menubar-root[data-anim="reveal"] .mb-menu,
+.menubar-root[data-anim="reveal"] .mb-panel {
+  animation: mb-reveal-in calc(560ms / var(--anim-speed, 1)) cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.menubar-root[data-anim="reveal"] .mb-menu[data-leaving="true"],
+.menubar-root[data-anim="reveal"] .mb-panel[data-leaving="true"] {
+  animation: mb-reveal-out calc(320ms / var(--anim-speed, 1)) cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+
+/* ---- Drift ----
+   Glides down a few pixels while it fades up, on a curve that spends almost
+   all of the distance at the start and then takes a long time to arrive. No
+   overshoot at all. */
+.menubar-root[data-anim="drift"] .mb-menu,
+.menubar-root[data-anim="drift"] .mb-panel {
+  animation: mb-drift-in calc(460ms / var(--anim-speed, 1)) cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.menubar-root[data-anim="drift"] .mb-menu[data-leaving="true"],
+.menubar-root[data-anim="drift"] .mb-panel[data-leaving="true"] {
+  animation: mb-drift-out calc(240ms / var(--anim-speed, 1)) cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+
+/* ---- Fade ---- */
+.menubar-root[data-anim="fade"] .mb-menu,
+.menubar-root[data-anim="fade"] .mb-panel {
+  animation: mb-fade calc(170ms / var(--anim-speed, 1)) ease-out backwards;
+}
+.menubar-root[data-anim="fade"] .mb-menu[data-leaving="true"],
+.menubar-root[data-anim="fade"] .mb-panel[data-leaving="true"] {
+  animation: mb-fade-out calc(130ms / var(--anim-speed, 1)) ease-in both;
+}
+
+/* ---- None: no rule, so nothing plays ---- */
+
+/* sliding along the bar from one menu to the next: in place, with no entrance
+   (but still an exit, when it is the last one and closes) */
+.menubar-root[data-anim] .mb-menu[data-instant="true"]:not([data-leaving="true"]),
+.menubar-root[data-anim] .mb-panel[data-instant="true"]:not([data-leaving="true"]) {
+  animation: none;
+}
+
+/* a leaving menu takes no clicks */
+.mb-menu[data-leaving="true"],
+.mb-panel[data-leaving="true"] {
+  pointer-events: none;
+}
+
+/* Each stretch is eased out, so the motion is quick off the mark and
+   settles into each swing, which is most of what makes it read as springy. */
+@keyframes mb-goo-menu {
+  0% {
+    opacity: 0;
+    transform: scale(0.4, 0.2);
+    border-radius: 40px;
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+  28% {
+    opacity: 1;
+    transform: scale(1.04, 1.1);
+    border-radius: 10px;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  50% {
+    transform: scale(0.985, 0.95);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  70% {
+    transform: scale(1.01, 1.025);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  86% {
+    transform: scale(0.996, 0.992);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    border-radius: 12px;
+  }
+}
+
+@keyframes mb-goo-panel {
+  0% {
+    opacity: 0;
+    transform: scale(0.3, 0.14);
+    border-radius: 90px;
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+  26% {
+    opacity: 1;
+    transform: scale(1.05, 1.1);
+    border-radius: 18px;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  46% {
+    transform: scale(0.98, 0.95);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  64% {
+    transform: scale(1.015, 1.03);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  82% {
+    transform: scale(0.995, 0.99);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    border-radius: 22px;
+  }
+}
+
+/* Each stretch uses the opening's curve mirrored in time: slow to start and
+   quick to finish, so every swing gathers speed, and the last one, the pinch
+   into the item, is the fastest thing in it. The opacity holds until the
+   pinch has begun, so what is seen shrinking is still solid. */
+@keyframes mb-goo-menu-out {
+  0% {
+    opacity: 1;
+    transform: none;
+    border-radius: 12px;
+    animation-timing-function: cubic-bezier(0.7, 0, 0.6, 1);
+  }
+  14% {
+    transform: scale(0.996, 0.992);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.6, 1);
+  }
+  28% {
+    transform: scale(1.01, 1.025);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.6, 1);
+  }
+  44% {
+    transform: scale(0.985, 0.95);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.6, 1);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04, 1.1);
+    border-radius: 10px;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.45);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.4, 0.2);
+    border-radius: 40px;
+  }
+}
+
+@keyframes mb-goo-panel-out {
+  0% {
+    opacity: 1;
+    transform: none;
+    border-radius: 22px;
+    animation-timing-function: cubic-bezier(0.7, 0, 0.6, 1);
+  }
+  15% {
+    transform: scale(0.995, 0.99);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.6, 1);
+  }
+  30% {
+    transform: scale(1.015, 1.03);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.6, 1);
+  }
+  46% {
+    transform: scale(0.98, 0.95);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.6, 1);
+  }
+  62% {
+    opacity: 1;
+    transform: scale(1.05, 1.1);
+    border-radius: 18px;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.45);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3, 0.14);
+    border-radius: 90px;
+  }
+}
+
+/* ---- Spring ---- */
+@keyframes mb-spring-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.88);
+    animation-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(1px) scale(1.035);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  72% {
+    transform: scale(0.99);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mb-spring-out {
+  0% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(1px) scale(1.02);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.4);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.9);
+  }
+}
+
+/* ---- Unfurl ----
+   The perspective is in the transform itself, so no parent needs one. */
+@keyframes mb-unfurl-in {
+  0% {
+    opacity: 0;
+    transform: perspective(760px) rotateX(-74deg) scaleY(0.6);
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+  55% {
+    opacity: 1;
+    transform: perspective(760px) rotateX(9deg) scaleY(1.02);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  80% {
+    transform: perspective(760px) rotateX(-2.5deg) scaleY(1);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.3, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(760px) rotateX(0deg) scaleY(1);
+  }
+}
+
+@keyframes mb-unfurl-out {
+  0% {
+    opacity: 1;
+    transform: perspective(760px) rotateX(0deg) scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: perspective(760px) rotateX(-70deg) scaleY(0.55);
+  }
+}
+
+/* ---- Reveal ----
+   `--ox` is how far from the menu's left edge the button is. The circle's
+   radius ends far past any menu, so nothing is cut off when it is open. */
+@keyframes mb-reveal-in {
+  0% {
+    opacity: 0.2;
+    clip-path: circle(0px at var(--ox, 50%) 0px);
+    transform: translateY(-6px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    clip-path: circle(1400px at var(--ox, 50%) 0px);
+    transform: none;
+  }
+}
+
+@keyframes mb-reveal-out {
+  0% {
+    opacity: 1;
+    clip-path: circle(1400px at var(--ox, 50%) 0px);
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    clip-path: circle(0px at var(--ox, 50%) 0px);
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+/* ---- Drift ---- */
+@keyframes mb-drift-in {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mb-drift-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.99);
+  }
+}
+
+.mb-separator {
+  height: 1px;
+  margin: 5px 8px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ---- Control Center ---- */
+
+.mb-panel {
+  top: calc(var(--mb-gap, 0px) + var(--menubar-height) + 6px);
+  right: calc(var(--mb-gap, 0px) + 8px);
+  width: 340px;
+  padding: 12px;
+  border-radius: 22px;
+}
+
+.cc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* What is inside arrives a beat after the panel, one thing after another.
+   Goo has the cards pop in, each squashing as it lands, and the rows of a
+   dropdown drop in the same way, only lighter. Spring, Unfurl and Drift have
+   them rise and fade in, which suits something that does not wobble. Reveal,
+   Fade and None leave the contents alone: the reveal is the effect. */
+.menubar-root[data-anim="goo"] .mb-panel:not([data-instant="true"]) .cc > * {
+  animation: cc-rise calc(560ms / var(--anim-speed, 1)) cubic-bezier(0.3, 0, 0.2, 1) both;
+  animation-delay: calc((var(--i, 0) * 45ms + 90ms) / var(--anim-speed, 1));
+}
+
+.menubar-root[data-anim="goo"] .mb-menu:not([data-instant="true"]):not([data-leaving="true"]) > div {
+  animation: mb-row-in calc(380ms / var(--anim-speed, 1)) cubic-bezier(0.3, 0, 0.2, 1) both;
+  animation-delay: calc((var(--i, 0) * 22ms + 60ms) / var(--anim-speed, 1));
+}
+
+.menubar-root:is([data-anim="spring"], [data-anim="unfurl"], [data-anim="drift"])
+  .mb-panel:not([data-instant="true"]) .cc > * {
+  animation: mb-up calc(380ms / var(--anim-speed, 1)) cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+  animation-delay: calc((var(--i, 0) * 40ms + 100ms) / var(--anim-speed, 1));
+}
+
+.menubar-root:is([data-anim="spring"], [data-anim="unfurl"], [data-anim="drift"])
+  .mb-menu:not([data-instant="true"]):not([data-leaving="true"]) > div {
+  animation: mb-up calc(320ms / var(--anim-speed, 1)) cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+  animation-delay: calc((var(--i, 0) * 24ms + 70ms) / var(--anim-speed, 1));
+}
+
+@keyframes mb-up {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cc > :nth-child(1) { --i: 0; }
+.cc > :nth-child(2) { --i: 1; }
+.cc > :nth-child(3) { --i: 2; }
+.cc > :nth-child(4) { --i: 3; }
+.cc > :nth-child(5) { --i: 4; }
+.cc > :nth-child(6) { --i: 5; }
+.cc > :nth-child(7) { --i: 6; }
+.cc > :nth-child(8) { --i: 7; }
+.cc > :nth-child(9) { --i: 8; }
+
+@keyframes cc-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.92, 0.8);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.02, 1.045);
+  }
+  80% {
+    transform: translateY(0.5px) scale(0.996, 0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mb-row-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96, 0.85);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(1px) scale(1.008, 1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cc-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cc-tile,
+.cc-card {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.11);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.cc-tile {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+  /* the colour comes in quickly; the lift settles with a little overshoot */
+  transition:
+    background-color 160ms ease-out,
+    border-color 160ms ease-out,
+    box-shadow 220ms ease-out,
+    transform 360ms var(--mb-settle);
+}
+
+/* Hovering a tile floods it with the theme colour and lifts it; pressing it
+   pushes it back in. */
+.cc-tile:hover {
+  background: var(--mb-hover);
+  border-color: color-mix(in srgb, var(--aero-accent) 55%, rgba(255, 255, 255, 0.4));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 8px 18px rgba(0, 0, 0, 0.28),
+    0 0 20px color-mix(in srgb, var(--aero-accent) 38%, transparent);
+  transform: translateY(-1px) scale(1.025);
+}
+
+.cc-tile:active {
+  transform: scale(0.965);
+  transition-duration: 80ms, 80ms, 80ms, 120ms;
+}
+/* The tile is a container now: its main part switches the radio, and a small
+   chevron at its end opens the list of what the radio sees. */
+.cc-tile-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.cc-chevron {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  cursor: default;
+  transition:
+    background-color 140ms ease-out,
+    transform 320ms var(--mb-settle);
+}
+
+.cc-chevron:hover {
+  background: rgba(255, 255, 255, 0.26);
+  transform: scale(1.12);
+}
+
+.cc-chevron-glyph {
+  width: 14px;
+  height: 14px;
+  transition: transform 300ms var(--mb-settle);
+}
+
+.cc-chevron-glyph[data-open="true"] {
+  transform: rotate(180deg);
+}
+
+/* the lists of networks and devices */
+.cc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 176px;
+  overflow-y: auto;
+  margin: 0 -4px;
+  padding: 0 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.cc-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 30px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+  transition: background-color 120ms ease-out, transform 260ms var(--mb-settle);
+}
+
+.cc-row:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.cc-row:active {
+  transform: scale(0.98);
+}
+
+.cc-row[data-connected="true"] {
+  font-weight: 700;
+}
+
+.cc-row-glyph {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+.cc-row-mark {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+}
+
+.cc-row-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cc-row-note {
+  flex: none;
+  color: rgba(244, 247, 251, 0.65);
+  font-size: 0.86em;
+}
+
+.cc-empty {
+  padding: 8px;
+  color: rgba(244, 247, 251, 0.65);
+  font-size: 0.92em;
+}
+
+/* a symbol in the place of a button, for a slider's icon that does nothing */
+.cc-icon-static {
+  pointer-events: none;
+}
+
+.cc-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.cc-tile-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transition:
+    background-color 160ms ease-out,
+    transform 420ms var(--mb-settle);
+}
+
+/* --cc-on and --cc-hover are the colours chosen for a circle in settings; left
+   unset it follows the colour of the theme */
+.cc-tile-icon[data-on="true"] {
+  background: var(--cc-on, color-mix(in srgb, var(--aero-accent) 86%, white));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* The tile is flooded with the theme colour on hover, so the bubble goes
+   darker than the tile, with a ring, to stay distinct from it. */
+.cc-tile:hover .cc-tile-icon {
+  background: var(--cc-hover, color-mix(in srgb, var(--aero-accent) 72%, black));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.38),
+    0 3px 10px rgba(0, 0, 0, 0.3);
+  transform: scale(1.12);
+}
+
+.cc-tile-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.cc-tile-text small,
+.cc-playing-text small {
+  color: rgba(244, 247, 251, 0.65);
+  font-size: 0.88em;
+  transition: color 160ms ease-out;
+}
+
+.cc-tile:hover .cc-tile-text small {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.cc-card {
+  padding: 10px 12px;
+}
+
+.cc-card-title {
+  margin-bottom: 6px;
+  font-size: 0.92em;
+  font-weight: 700;
+  color: rgba(244, 247, 251, 0.8);
+}
+
+.cc-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cc-icon-button {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  color: inherit;
+  font: inherit;
+  cursor: default;
+  transition:
+    background-color 140ms ease-out,
+    box-shadow 200ms ease-out,
+    transform 320ms var(--mb-settle);
+}
+
+.cc-icon-button:hover {
+  background: var(--mb-hover);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 14px color-mix(in srgb, var(--aero-accent) 40%, transparent);
+  transform: scale(1.1);
+}
+
+.cc-icon-button:active {
+  transform: scale(0.9);
+  transition-duration: 80ms, 80ms, 100ms;
+}
+
+/* ---- the volume slider (see ElasticSlider.tsx) ---- */
+
+.es {
+  position: relative;
+  flex: 1;
+  height: 28px;
+  outline: none;
+  cursor: default;
+  touch-action: none;
+}
+
+/* the pill; it stretches when the knob is pulled past an end */
+.es-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 2px;
+  height: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+  transition: background-color 160ms ease-out;
+}
+
+.es:hover .es-track,
+.es[data-held="true"] .es-track {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* filled to the middle of the knob; nothing at all when muted (its width is
+   driven by the component, which takes it to zero) */
+.es-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff, rgba(255, 255, 255, 0.9));
+}
+
+.es-knob {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #fff 0%, #fff 45%, #eef1f6 100%);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 0 0.5px rgba(0, 0, 0, 0.1),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.12);
+  transition:
+    opacity 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+
+/* muted: the knob stays where the volume is, quieter */
+.es[data-muted="true"] .es-knob {
+  opacity: 0.72;
+}
+
+.es[data-held="true"] .es-knob {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.45),
+    0 0 0 0.5px rgba(0, 0, 0, 0.1),
+    0 0 0 6px color-mix(in srgb, var(--aero-life) 28%, transparent);
+}
+
+.es:focus-visible .es-knob {
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 0 3px color-mix(in srgb, var(--aero-life) 75%, transparent);
+}
+
+.cc-playing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cc-playing-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.cc-playing-text strong,
+.cc-playing-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cc-playing-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.cc-battery {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cc-battery .cc-card-title {
+  margin: 0;
+  flex: 1;
+}
+
+.cc-battery-value {
+  font-variant-numeric: tabular-nums;
+  color: rgba(244, 247, 251, 0.85);
+}
+
+.cc-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.cc-links button {
+  padding: 5px 6px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: rgba(244, 247, 251, 0.85);
+  font: inherit;
+  text-align: left;
+  cursor: default;
+  transition:
+    background-color 120ms ease-out,
+    color 120ms ease-out,
+    transform 260ms var(--mb-settle);
+}
+
+.cc-links button:hover {
+  background: var(--mb-hover);
+  color: #fff;
+  transform: translateX(2px);
+}
+
+.cc-links button:active {
+  transform: scale(0.98);
+  transition-duration: 60ms;
+}
+
+/* for anyone who asks the system for less motion: appear, no wobble */
+@media (prefers-reduced-motion: reduce) {
+  /* `!important` because the presets above are more specific than these */
+  .mb-menu,
+  .mb-panel {
+    animation: mb-fade 120ms ease-out both !important;
+    clip-path: none !important;
+  }
+
+  .mb-menu[data-leaving="true"],
+  .mb-panel[data-leaving="true"] {
+    animation: mb-fade-out 120ms ease-in both !important;
+  }
+
+  .mb-panel .cc > *,
+  .mb-menu > div {
+    animation: none !important;
+  }
+}
+
+@keyframes mb-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mb-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ---- the calendar ---- */
+
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 8px 14px;
+}
+
+.cal-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 1.15em;
+}
+
+.cal-title span {
+  color: rgba(244, 247, 251, 0.6);
+  font-weight: 600;
+}
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cal-nav .cc-icon-button {
+  min-width: 28px;
+  height: 28px;
+  font-size: 1.1em;
+  font-weight: 700;
+}
+
+.cal-today {
+  border-radius: 14px !important;
+  padding: 0 10px !important;
+  font-size: 0.86em;
+  font-weight: 600;
+}
+
+.cal-today:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.cal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 8px 10px;
+}
+
+.cal-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cal-weekday {
+  padding-bottom: 4px;
+  text-align: center;
+  color: rgba(244, 247, 251, 0.55);
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+.cal-day {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 120ms ease-out, transform 260ms var(--mb-settle);
+}
+
+.cal-day:not([data-blank="true"]):hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: scale(1.08);
+}
+
+/* today is the theme's colour, filled, as the Control Center's circles are */
+.cal-day[data-today="true"] {
+  background: color-mix(in srgb, var(--aero-accent) 86%, white);
+  color: var(--aero-text-on-glass, #fff);
+  font-weight: 800;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* ---- turning back mid-entrance (see interrupt.ts) ---- */
+
+/* the stylesheet's own animations stand down: copies of them, held by script,
+   are playing backwards instead */
+.menubar-root [data-interrupted="true"],
+.menubar-root [data-interrupted="true"] *,
+.menubar-root [data-interrupted="true"] *::before,
+.menubar-root [data-interrupted="true"] *::after {
+  animation: none !important;
+}
+
+/* ---- the keyboard's place (the shortcut brings real focus here) ---- */
+
+.menubar-root[data-kbd="true"] .mb-menu-item:focus,
+.menubar-root[data-kbd="true"] .mb-panel button:focus,
+.menubar-root[data-kbd="true"] .mb-panel [role="slider"]:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.92);
+  outline-offset: 2px;
+}
+
+.menubar-root[data-kbd="true"] .mb-menu-item:focus {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.menubar-root[data-kbd="true"] .mb-item:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.92);
+  outline-offset: -2px;
+}

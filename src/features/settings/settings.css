@@ -63,6 +63,11 @@
   }
 }
 
+/* resting while the window is not in front (see SettingsApp) */
+[data-active="false"] .settings-bubble {
+  animation-play-state: paused;
+}
+
 /* ---- header with the Aero orb ---- */
 
 .settings-header {

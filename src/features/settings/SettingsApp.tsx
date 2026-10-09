@@ -6,9 +6,10 @@
 
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { useEffect, useRef, useState } from "react";
-import { useLiquidGlass } from "../../engine/glass/useLiquidGlass";
 import { applyAppearance } from "../../engine/themes/applyTheme";
-import { THEMES } from "../../engine/themes/themes";
+import { accentForTheme, normalizeHex } from "../../engine/themes/accent";
+import { BubbleColor } from "./BubbleColor";
+import { ColorSpectrum } from "./ColorSpectrum";
 import { ipc } from "../../ipc/commands";
 import type {
   DockEdge,
@@ -22,6 +23,21 @@ import { KOFI_URL, REPO_URL } from "../../links";
 import { AudioCard } from "./AudioCard";
 import { ModesCard } from "./ModesCard";
 import { WidgetsCard } from "./WidgetsCard";
+import {
+  FLYOUT_ANIMS,
+  LAUNCH_ANIMS,
+  MAGNIFY_FEELS,
+  MENU_ANIMS,
+  REVEAL_ANIMS,
+} from "../../engine/animation/presets";
+import {
+  AnimationPicker,
+  FlyoutPreview,
+  LaunchPreview,
+  MagnifyPreview,
+  MenuPreview,
+  RevealPreview,
+} from "./AnimationPicker";
 import { AeroSegmented, AeroSlider, AeroToggle } from "./controls";
 import "./settings.css";
 
@@ -63,8 +79,21 @@ export function SettingsApp() {
     if (settings) applyAppearance(settings, null, "settings");
   }, [settings]);
 
-  // the refracting backdrop, sized per card
-  useLiquidGlass(settings?.appearance.settingsSurface === "liquid");
+  // The Classic material's bubbles rise behind the glass cards, which makes
+  // every card re-draw its backdrop on every frame. Nobody is looking at them
+  // while the window is behind another one, so they rest until it is in front.
+  useEffect(() => {
+    const mark = () => {
+      document.documentElement.dataset.active = document.hasFocus() ? "true" : "false";
+    };
+    mark();
+    window.addEventListener("focus", mark);
+    window.addEventListener("blur", mark);
+    return () => {
+      window.removeEventListener("focus", mark);
+      window.removeEventListener("blur", mark);
+    };
+  }, []);
 
   // The window paints its sky immediately; this is what fills it until
   // settings arrive from Rust (or says so if they never do).
@@ -152,25 +181,27 @@ export function SettingsApp() {
       </header>
 
       <main className="settings-scroll">
-        {/* ---- themes ---- */}
+        {/* ---- colour ---- */}
         <section className="settings-card glass">
-          <h2>Theme</h2>
-          <div className="theme-grid">
-            {THEMES.map((t) => (
-              <button
-                key={t.id}
-                className="theme-swatch"
-                data-active={appearance.theme === t.id}
-                onClick={() => set((d) => void (d.appearance.theme = t.id))}
-              >
-                <span
-                  className="theme-swatch-preview"
-                  style={{ background: `linear-gradient(150deg, ${t.preview[0]}, ${t.preview[1]})` }}
-                />
-                <span className="theme-swatch-name">{t.name}</span>
-              </button>
-            ))}
-          </div>
+          <h2>Colour</h2>
+          <ColorSpectrum
+            value={normalizeHex(appearance.accent) ?? accentForTheme(appearance.theme)}
+            onChange={(hex) =>
+              set((d) => {
+                d.appearance.accent = hex;
+                // With "tint from wallpaper" on, the wallpaper's colour is
+                // used in place of this one, which would make the picker
+                // look broken. Choosing a colour is choosing it over that.
+                d.appearance.wallpaperSync = false;
+              })
+            }
+          />
+          <p className="settings-note">
+            Pick any colour and the whole dock is tinted from it. A dark colour makes dark
+            glass with light text; a pale or bright one makes light glass.
+            {appearance.wallpaperSync &&
+              " Tint from wallpaper is on, so the wallpaper's colour is being used instead. Choosing a colour here turns it off."}
+          </p>
 
           <AeroSegmented<SurfaceStyle>
             label="Dock material"
@@ -178,6 +209,7 @@ export function SettingsApp() {
             options={[
               { value: "aero", label: "Classic" },
               { value: "liquid", label: "Liquid" },
+              { value: "clear", label: "Clear" },
             ]}
             onChange={(v) => set((d) => void (d.appearance.dockSurface = v))}
           />
@@ -187,15 +219,223 @@ export function SettingsApp() {
             options={[
               { value: "aero", label: "Classic" },
               { value: "liquid", label: "Liquid" },
+              { value: "clear", label: "Clear" },
             ]}
             onChange={(v) => set((d) => void (d.appearance.settingsSurface = v))}
           />
           <p className="settings-note">
             Classic is the glossy Aero panel. Liquid keeps the same colours but
             renders as thin glass: less tint in the body, the light moved to the
-            rim. The two windows are set separately, so you can mix them.
+            rim. Clear drops the colour altogether for neutral, Apple-style
+            glass with a bright specular edge. The two windows are set
+            separately, so you can mix them.
           </p>
 
+        </section>
+
+        {/* ---- menu bar ---- */}
+        <section className="settings-card glass">
+          <h2>Menu bar</h2>
+          <AeroToggle
+            label="Show a menu bar along the top"
+            checked={settings.menuBar.enabled}
+            hint="After the macOS one: the Aero menu and the app in front on the left, status items, search, the Control Center and the clock on the right. Windows stop below it"
+            onChange={(v) => set((d) => void (d.menuBar.enabled = v))}
+          />
+          {settings.menuBar.enabled && (
+            <>
+              <AeroSlider
+                label="Height"
+                value={settings.menuBar.height}
+                min={22}
+                max={44}
+                step={1}
+                format={(v) => `${v}px`}
+                // Each change makes Rust re-claim the bar's strip of screen
+                // and re-place the docks around it, so it is applied when
+                // the slider is let go, not on every step of the drag.
+                commitOnRelease
+                onChange={(v) => set((d) => void (d.menuBar.height = v))}
+              />
+              <AeroSlider
+                label="Gap from the screen edge"
+                value={settings.menuBar.gap}
+                min={0}
+                max={24}
+                step={1}
+                format={(v) => (v === 0 ? "Flush" : `${v}px`)}
+                // like the height, this changes the strip of screen the bar
+                // claims, so it is applied when the slider is let go
+                commitOnRelease
+                onChange={(v) => set((d) => void (d.menuBar.gap = v))}
+              />
+              <AeroSlider
+                label="Corner radius"
+                value={settings.menuBar.cornerRadius}
+                min={0}
+                max={24}
+                step={1}
+                format={(v) => `${v}px`}
+                onChange={(v) => set((d) => void (d.menuBar.cornerRadius = v))}
+              />
+              <AeroSlider
+                label="Tint"
+                value={settings.menuBar.tint}
+                min={0.2}
+                max={2}
+                step={0.05}
+                format={(v) => `${Math.round(v * 100)}%`}
+                onChange={(v) => set((d) => void (d.menuBar.tint = v))}
+              />
+              <AeroSlider
+                label="Item spacing"
+                value={settings.menuBar.itemSpacing}
+                min={0}
+                max={16}
+                step={1}
+                format={(v) => `${v}px`}
+                onChange={(v) => set((d) => void (d.menuBar.itemSpacing = v))}
+              />
+              <AeroSlider
+                label="Text size"
+                value={settings.menuBar.fontSize}
+                min={11}
+                max={17}
+                step={1}
+                format={(v) => `${v}px`}
+                onChange={(v) => set((d) => void (d.menuBar.fontSize = v))}
+              />
+              <AeroToggle
+                label="Light along the bar's edge"
+                checked={settings.menuBar.edgeHighlight}
+                hint="The thin bright rim that makes the bar read as glass"
+                onChange={(v) => set((d) => void (d.menuBar.edgeHighlight = v))}
+              />
+              <AeroSlider
+                label="Lens size"
+                value={settings.menuBar.lensGrow}
+                min={0}
+                max={10}
+                step={1}
+                format={(v) => (v === 0 ? "Snug" : `+${v}px`)}
+                onChange={(v) => set((d) => void (d.menuBar.lensGrow = v))}
+              />
+              <AeroSlider
+                label="Lens magnification"
+                value={settings.menuBar.lensMagnify}
+                min={1}
+                max={1.3}
+                step={0.01}
+                format={(v) => (v <= 1.001 ? "None" : `${Math.round((v - 1) * 100)}%`)}
+                onChange={(v) => set((d) => void (d.menuBar.lensMagnify = v))}
+              />
+              <AeroSlider
+                label="Lens warp"
+                value={settings.menuBar.lensWarp}
+                min={0}
+                max={2}
+                step={0.05}
+                format={(v) => (v < 0.02 ? "Clear" : `${Math.round(v * 100)}%`)}
+                onChange={(v) => set((d) => void (d.menuBar.lensWarp = v))}
+              />
+              <p className="settings-note">
+                The glass that slides between the menu bar&apos;s buttons. Size is how far it reaches past a
+                button, magnification is how much the button under it swells, and warp is how much it bends
+                what is beneath its edge.
+              </p>
+              <BubbleColor
+                label="Wi-Fi circle in the Control Center"
+                value={settings.menuBar.wifiColor}
+                themeColor={normalizeHex(appearance.accent) ?? accentForTheme(appearance.theme)}
+                onChange={(hex) => set((d) => void (d.menuBar.wifiColor = hex))}
+              />
+              <BubbleColor
+                label="Bluetooth circle in the Control Center"
+                value={settings.menuBar.bluetoothColor}
+                themeColor={normalizeHex(appearance.accent) ?? accentForTheme(appearance.theme)}
+                onChange={(hex) => set((d) => void (d.menuBar.bluetoothColor = hex))}
+              />
+              <AeroToggle
+                label="Close menus when the pointer moves away"
+                checked={settings.menuBar.closeOnLeave}
+                hint="A menu or the Control Center goes when you move off it, instead of staying until you click somewhere else. Opened from the keyboard, they stay until you choose or press Escape"
+                onChange={(v) => set((d) => void (d.menuBar.closeOnLeave = v))}
+              />
+              <AeroToggle
+                label="Clock and status icons live in the bar, not the dock"
+                checked={settings.menuBar.takesOverDockStatus}
+                hint="The dock keeps to apps. Turn off to show them in both"
+                onChange={(v) => set((d) => void (d.menuBar.takesOverDockStatus = v))}
+              />
+              <AeroToggle
+                label="Show the date beside the time"
+                checked={settings.menuBar.showDate}
+                onChange={(v) => set((d) => void (d.menuBar.showDate = v))}
+              />
+              <AeroToggle
+                label="Play the ambient scene in the bar"
+                checked={settings.menuBar.ambient}
+                hint="The scene chosen under Glass & Light (dust, rain, snow, ocean or aurora), drawn inside the bar and kept to it. It rests while you are away from the keyboard. Needs a scene other than None"
+                onChange={(v) => set((d) => void (d.menuBar.ambient = v))}
+              />
+            </>
+          )}
+        </section>
+
+        {/* ---- window frame ---- */}
+        <section className="settings-card glass">
+          <h2>Window frame</h2>
+          <AeroToggle
+            label="Hold maximized apps inside a frame of glass"
+            checked={settings.frame.enabled}
+            hint="A margin of tinted glass round the free space on every monitor, between the menu bar and the dock. Maximized apps sit inside it with rounded corners, and the scene from Glass & Light drifts in the margin. It takes that margin off the screen, as the menu bar does, and steps aside for full-screen games and video"
+            onChange={(v) => set((d) => void (d.frame.enabled = v))}
+          />
+          {settings.frame.enabled && (
+            <>
+              <AeroSlider
+                label="Padding"
+                value={settings.frame.padding}
+                min={4}
+                max={64}
+                step={1}
+                format={(v) => `${v}px`}
+                // every change makes Windows re-lay-out every maximized window,
+                // so it is applied when the slider is let go
+                commitOnRelease
+                onChange={(v) => set((d) => void (d.frame.padding = v))}
+              />
+              <AeroSlider
+                label="Corner radius"
+                value={settings.frame.cornerRadius}
+                min={0}
+                max={48}
+                step={1}
+                format={(v) => (v === 0 ? "Square" : `${v}px`)}
+                onChange={(v) => set((d) => void (d.frame.cornerRadius = v))}
+              />
+              <AeroSlider
+                label="Tint (relative to the menu bar)"
+                value={settings.frame.tint}
+                min={0.2}
+                max={2}
+                step={0.05}
+                format={(v) => `${Math.round(v * 100)}%`}
+                onChange={(v) => set((d) => void (d.frame.tint = v))}
+              />
+              <AeroToggle
+                label="Play the ambient scene in the margin"
+                checked={settings.frame.ambient}
+                hint="The scene chosen under Glass & Light, drawn only inside the margin. It rests while you are away from the keyboard. Needs a scene other than None"
+                onChange={(v) => set((d) => void (d.frame.ambient = v))}
+              />
+              <p className="settings-note">
+                Maximized apps are given rounded corners by shaping their windows, so the glass shows
+                through the cut corners. An app running as administrator cannot be shaped by Aero Dock
+                and keeps its square corners.
+              </p>
+            </>
+          )}
         </section>
 
         {/* ---- dock ---- */}
@@ -213,24 +453,49 @@ export function SettingsApp() {
             onChange={(edge) => set((d) => void (d.dock.edge = edge))}
           />
           {monitors.length > 1 && (
-            <AeroSegmented<string>
-              label="Monitor"
-              value={dock.monitor ?? ""}
-              options={monitors.map((m) => ({
-                value: m.isPrimary ? "" : m.name,
-                label: `${m.name.replace(/^\\\\\.\\/, "")}${m.isPrimary ? " (primary)" : ""}`,
-              }))}
-              onChange={(name) => set((d) => void (d.dock.monitor = name || null))}
-            />
+            <>
+              <AeroSegmented<string>
+                label={dock.allMonitors ? "Main monitor" : "Monitor"}
+                value={dock.monitor ?? ""}
+                options={monitors.map((m) => ({
+                  value: m.isPrimary ? "" : m.name,
+                  label: `${m.name.replace(/^\\\\\.\\/, "")}${m.isPrimary ? " (primary)" : ""}`,
+                }))}
+                onChange={(name) => set((d) => void (d.dock.monitor = name || null))}
+              />
+              <AeroToggle
+                label="A dock on every monitor"
+                checked={dock.allMonitors}
+                hint="Each screen gets its own dock, with the same apps and settings"
+                onChange={(v) => set((d) => void (d.dock.allMonitors = v))}
+              />
+              {dock.allMonitors && (
+                <AeroToggle
+                  label="Each dock shows only its own screen's windows"
+                  checked={dock.perMonitorWindows}
+                  hint="A window appears on the dock of the screen it is on. Off, every dock lists every window"
+                  onChange={(v) => set((d) => void (d.dock.perMonitorWindows = v))}
+                />
+              )}
+            </>
           )}
           <AeroSlider
             label="Icon size"
             value={dock.iconSize}
-            min={32}
+            min={16}
             max={80}
             step={2}
             format={(v) => `${v}px`}
             onChange={(v) => set((d) => void (d.dock.iconSize = v))}
+          />
+          <AeroSlider
+            label="Icon spacing"
+            value={dock.iconSpacing}
+            min={0}
+            max={32}
+            step={1}
+            format={(v) => `${v}px`}
+            onChange={(v) => set((d) => void (d.dock.iconSpacing = v))}
           />
           <AeroToggle
             label="Magnification"
@@ -248,10 +513,77 @@ export function SettingsApp() {
               onChange={(v) => set((d) => void (d.dock.magnificationScale = v))}
             />
           )}
+          <AeroSlider
+            label="Dock padding"
+            value={dock.padding}
+            min={2}
+            max={24}
+            step={1}
+            format={(v) => `${v}px`}
+            onChange={(v) => set((d) => void (d.dock.padding = v))}
+          />
+          {dock.showRunningApps && (
+            <AeroSlider
+              label="Running dot gap"
+              value={dock.indicatorGap}
+              min={0}
+              max={16}
+              step={1}
+              format={(v) => `${v}px`}
+              onChange={(v) => set((d) => void (d.dock.indicatorGap = v))}
+            />
+          )}
+          <AeroToggle
+            label="Custom corner radius"
+            checked={dock.cornerRadius !== null}
+            hint="Off uses the rounding that belongs to the dock material"
+            onChange={(on) =>
+              set((d) => {
+                // start from what the material gives the bar now, so
+                // switching this on does not change how it looks
+                const surface = d.appearance.dockSurface;
+                d.dock.cornerRadius = on
+                  ? surface === "clear"
+                    ? Math.round(d.dock.iconSize * 0.46 + d.dock.padding)
+                    : surface === "liquid"
+                      ? 26
+                      : 20
+                  : null;
+              })
+            }
+          />
+          {dock.cornerRadius !== null && (
+            <AeroSlider
+              label="Corner radius"
+              value={dock.cornerRadius}
+              min={0}
+              max={48}
+              step={1}
+              format={(v) => `${v}px`}
+              onChange={(v) => set((d) => void (d.dock.cornerRadius = v))}
+            />
+          )}
           <AeroToggle
             label="Floating (detached from edge)"
             checked={dock.floating}
             onChange={(v) => set((d) => void (d.dock.floating = v))}
+          />
+          {dock.floating && (
+            <AeroSlider
+              label="Edge gap"
+              value={dock.floatingMargin}
+              min={0}
+              max={32}
+              step={1}
+              format={(v) => `${v}px`}
+              onChange={(v) => set((d) => void (d.dock.floatingMargin = v))}
+            />
+          )}
+          <AeroToggle
+            label="Reserve screen space"
+            checked={dock.reserveSpace}
+            hint="Maximised windows stop at the dock, like the Windows taskbar. Ignored while auto-hide is on"
+            onChange={(v) => set((d) => void (d.dock.reserveSpace = v))}
           />
           <AeroToggle
             label="Show running applications"
@@ -286,6 +618,12 @@ export function SettingsApp() {
             onChange={(v) => set((d) => void (d.dock.showSearchButton = v))}
           />
           <AeroToggle
+            label="Reveal Search and Settings on hover"
+            checked={dock.revealControls}
+            hint="They stay hidden until you move to the left end (Search) or the clock end (Settings) of the dock. Horizontal docks only"
+            onChange={(v) => set((d) => void (d.dock.revealControls = v))}
+          />
+          <AeroToggle
             label="Settings button"
             checked={dock.showSettingsButton}
             onChange={(v) => set((d) => void (d.dock.showSettingsButton = v))}
@@ -300,11 +638,40 @@ export function SettingsApp() {
             checked={dock.showSystemStatus}
             onChange={(v) => set((d) => void (d.dock.showSystemStatus = v))}
           />
+          {dock.showSystemStatus && (
+            <AeroSlider
+              label="Status icon size"
+              value={dock.statusIconSize}
+              min={10}
+              max={32}
+              step={1}
+              format={(v) => `${v}px`}
+              onChange={(v) => set((d) => void (d.dock.statusIconSize = v))}
+            />
+          )}
         </section>
 
         {/* ---- appearance ---- */}
         <section className="settings-card glass">
           <h2>Glass &amp; Light</h2>
+          <AeroToggle
+            label="Frosted glass: blur what is behind the dock, menu bar and frame"
+            checked={appearance.realBlur}
+            hint="Windows blurs your wallpaper and windows behind the glass, instead of the glass only being tinted. Depends on how Windows draws it on your machine, so it is off until you choose it; turn it off again if anything looks wrong"
+            onChange={(v) => set((d) => void (d.appearance.realBlur = v))}
+          />
+          <AeroToggle
+            label="Light that follows the pointer"
+            checked={appearance.pointerLight}
+            hint="A soft highlight drifts across the dock and the menu bar under the pointer"
+            onChange={(v) => set((d) => void (d.appearance.pointerLight = v))}
+          />
+          <AeroToggle
+            label="Fine grain on the glass"
+            checked={appearance.glassGrain}
+            hint="A barely-there texture that keeps soft gradients from banding, as real glass and Apple's materials have"
+            onChange={(v) => set((d) => void (d.appearance.glassGrain = v))}
+          />
           <AeroSlider
             label="Opacity"
             value={appearance.transparency}
@@ -336,6 +703,15 @@ export function SettingsApp() {
             max={1}
             format={pctFmt}
             onChange={(v) => set((d) => void (d.appearance.reflectionStrength = v))}
+          />
+          <AeroSlider
+            label="Dock shadow"
+            value={appearance.dockShadow}
+            min={0}
+            max={1}
+            step={0.05}
+            format={(v) => (v < 0.01 ? "Off" : pctFmt(v))}
+            onChange={(v) => set((d) => void (d.appearance.dockShadow = v))}
           />
           <AeroSegmented<string>
             label="Ambient scene"
@@ -374,7 +750,115 @@ export function SettingsApp() {
           />
         </section>
 
+        {/* ---- animations ---- */}
+        <section className="settings-card glass">
+          <h2>Animations</h2>
+          <p className="settings-note">
+            Pick how things open, close and arrive. Each stage plays the choice as you make it; click
+            one to see it again. The speed slider under Glass &amp; Light scales all of them.
+          </p>
+          <AnimationPicker
+            label="Menu bar menus"
+            summary="The menus and the Control Center"
+            value={settings.animations.menu}
+            options={MENU_ANIMS}
+            onChange={(id) => set((d) => void (d.animations.menu = id))}
+            preview={(id, run) => (
+              <MenuPreview key={`${id}-${run}`} preset={id} run={run} speed={appearance.animationSpeed} />
+            )}
+          />
+          <AnimationPicker
+            label="Dock appears"
+            summary="At launch, and with auto-hide"
+            value={settings.animations.dockReveal}
+            options={REVEAL_ANIMS}
+            onChange={(id) => set((d) => void (d.animations.dockReveal = id))}
+            preview={(id, run) => (
+              <RevealPreview preset={id} run={run} speed={appearance.animationSpeed} />
+            )}
+          />
+          <AnimationPicker
+            label="Dock flyouts"
+            summary="Window previews, menus, folders, search"
+            value={settings.animations.flyout}
+            options={FLYOUT_ANIMS}
+            onChange={(id) => set((d) => void (d.animations.flyout = id))}
+            preview={(id, run) => (
+              <FlyoutPreview preset={id} run={run} speed={appearance.animationSpeed} />
+            )}
+          />
+          <AnimationPicker
+            label="Launching an app"
+            summary="What the icon does when you click it"
+            value={settings.animations.launch}
+            options={LAUNCH_ANIMS}
+            onChange={(id) => set((d) => void (d.animations.launch = id))}
+            preview={(id, run) => <LaunchPreview preset={id} run={run} />}
+          />
+          <AnimationPicker
+            label="Icon magnification"
+            summary="How icons swell under the pointer"
+            value={settings.animations.magnify}
+            options={MAGNIFY_FEELS}
+            onChange={(id) => set((d) => void (d.animations.magnify = id))}
+            preview={(id, run) => <MagnifyPreview feel={id} run={run} />}
+          />
+        </section>
+
         {/* ---- behavior ---- */}
+        {/* ---- accessibility and feel ---- */}
+        <section className="settings-card glass">
+          <h2>Accessibility &amp; feel</h2>
+          <AeroSegmented<"system" | "on" | "off">
+            label="Reduce motion"
+            value={settings.accessibility.reduceMotion}
+            options={[
+              { value: "system", label: "Follow Windows" },
+              { value: "on", label: "Always" },
+              { value: "off", label: "Never" },
+            ]}
+            onChange={(v) => set((d) => void (d.accessibility.reduceMotion = v))}
+          />
+          <AeroSegmented<"system" | "on" | "off">
+            label="Reduce transparency"
+            value={settings.accessibility.reduceTransparency}
+            options={[
+              { value: "system", label: "Follow Windows" },
+              { value: "on", label: "Always" },
+              { value: "off", label: "Never" },
+            ]}
+            onChange={(v) => set((d) => void (d.accessibility.reduceTransparency = v))}
+          />
+          <p className="settings-note">
+            Reduced motion lets things arrive without travelling: no sliding lens, no particles, no
+            bounces. Reduced transparency makes the glass solid and turns the frosted blur off. Follow
+            Windows uses the Animation effects and Transparency effects switches in Windows
+            Settings &gt; Accessibility &gt; Visual effects.
+          </p>
+          <AeroToggle
+            label="Keyboard shortcuts for the menu bar and the dock"
+            checked={settings.accessibility.keyboardShortcuts}
+            hint="Ctrl+Alt+M opens the menu bar and Ctrl+Alt+D the dock, and gives them the keyboard: arrow keys move, Enter chooses, Shift+F10 opens an icon's menu, Escape gives the keyboard back. Screen readers can reach them this way too"
+            onChange={(v) => set((d) => void (d.accessibility.keyboardShortcuts = v))}
+          />
+          <AeroToggle
+            label="Soft interface sounds"
+            checked={settings.accessibility.uiSounds}
+            hint="Quiet tones for menus opening and closing, switches, the lens and launching an app. Off unless you want them"
+            onChange={(v) => set((d) => void (d.accessibility.uiSounds = v))}
+          />
+          {settings.accessibility.uiSounds && (
+            <AeroSlider
+              label="Sound volume"
+              value={settings.accessibility.uiSoundVolume}
+              min={0}
+              max={1}
+              step={0.05}
+              format={(v) => `${Math.round(v * 100)}%`}
+              onChange={(v) => set((d) => void (d.accessibility.uiSoundVolume = v))}
+            />
+          )}
+        </section>
         <section className="settings-card glass">
           <h2>Behavior</h2>
           <AeroToggle
@@ -517,7 +1001,7 @@ export function SettingsApp() {
         </section>
 
         <footer className="settings-footer">
-          Aero Dock {__APP_VERSION__} — made with light, water, and glass.
+          Aero Dock {__APP_VERSION__} - made with light, water, and glass.
         </footer>
       </main>
     </div>

@@ -10,9 +10,12 @@ import { useEffect, useState } from "react";
 import { ipc } from "../../ipc/commands";
 import { useSystem } from "../../state/systemStore";
 import { notify } from "../feedback/toastStore";
+import { BatteryGlyph, BinGlyph, NetworkGlyph, TrayGlyph, VolumeGlyph } from "./SystemGlyphs";
 import "./widgets.css";
 
-function useClock(): Date {
+export { BatteryGlyph };
+
+export function useClock(): Date {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     // tick exactly on the minute
@@ -27,75 +30,6 @@ function useClock(): Date {
     return () => clearTimeout(timer);
   }, []);
   return now;
-}
-
-/** Glyph colors come from theme tokens so every theme stays legible. */
-const GLYPH = "var(--aero-glyph)";
-const ALERT = "var(--aero-glyph-alert)";
-
-function BatteryGlyph({ percent, charging }: { percent: number; charging: boolean }) {
-  const fill = Math.max(0.06, percent / 100);
-  const color = percent <= 20 && !charging ? ALERT : GLYPH;
-  return (
-    <svg viewBox="0 0 24 24" className="widget-glyph">
-      <rect x="2" y="7" width="18" height="10" rx="2.5" fill="none" stroke={color} strokeWidth="1.6" />
-      <rect x="21" y="10" width="2" height="4" rx="1" fill={color} />
-      <rect x="4" y="9" width={14 * fill} height="6" rx="1.5" fill={color} opacity="0.9" />
-      {charging && (
-        <path d="M13 4 L8 13 h3 l-1 7 5-9 h-3 z" fill="#fff" stroke="rgba(20,90,150,.6)" strokeWidth="0.6" />
-      )}
-    </svg>
-  );
-}
-
-function NetworkGlyph({ online }: { online: boolean }) {
-  const color = online ? GLYPH : "color-mix(in srgb, var(--aero-glyph) 35%, transparent)";
-  return (
-    <svg viewBox="0 0 24 24" className="widget-glyph">
-      {[0, 1, 2].map((i) => (
-        <path
-          key={i}
-          d={`M ${12 - (i + 1.6) * 3} ${13 - (i + 1.6) * 2.2} A ${(i + 1.6) * 4} ${(i + 1.6) * 4} 0 0 1 ${12 + (i + 1.6) * 3} ${13 - (i + 1.6) * 2.2}`}
-          fill="none"
-          stroke={color}
-          strokeWidth="1.7"
-          strokeLinecap="round"
-          opacity={online ? 1 - i * 0.18 : 0.6}
-        />
-      ))}
-      <circle cx="12" cy="17.5" r="1.9" fill={online ? GLYPH : color} />
-      {!online && <line x1="4" y1="21" x2="20" y2="4" stroke={ALERT} strokeWidth="1.8" strokeLinecap="round" />}
-    </svg>
-  );
-}
-
-function VolumeGlyph({ level, muted }: { level: number; muted: boolean }) {
-  const color = muted ? "color-mix(in srgb, var(--aero-glyph) 40%, transparent)" : GLYPH;
-  return (
-    <svg viewBox="0 0 24 24" className="widget-glyph">
-      <path d="M4 9 h4 l5 -4.5 v15 L8 15 H4 z" fill={color} />
-      {!muted && level > 0 && (
-        <path d="M15.5 8.5 a5 5 0 0 1 0 7" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" />
-      )}
-      {!muted && level > 55 && (
-        <path d="M18 6.5 a8.5 8.5 0 0 1 0 11" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" opacity="0.85" />
-      )}
-      {muted && <line x1="15" y1="9" x2="21" y2="15" stroke={ALERT} strokeWidth="1.8" strokeLinecap="round" />}
-      {muted && <line x1="21" y1="9" x2="15" y2="15" stroke={ALERT} strokeWidth="1.8" strokeLinecap="round" />}
-    </svg>
-  );
-}
-
-function BinGlyph({ full }: { full: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" className="widget-glyph widget-glyph-bin">
-      <path d="M5.5 8 h13 l-1.2 12.2 a1.8 1.8 0 0 1 -1.8 1.6 H8.5 a1.8 1.8 0 0 1 -1.8 -1.6 z"
-        fill={full ? "rgba(190,235,255,0.75)" : "rgba(190,235,255,0.32)"}
-        stroke={GLYPH} strokeWidth="1.3" />
-      <ellipse cx="12" cy="8" rx="6.8" ry="1.9" fill="rgba(230,248,255,0.85)" stroke={GLYPH} strokeWidth="1.1" />
-      {full && <path d="M9 6.8 l1.4 -2.6 M12.4 6.5 l.4 -3 M15 6.9 l-0.7 -2.4" stroke={GLYPH} strokeWidth="1.4" strokeLinecap="round" fill="none" />}
-    </svg>
-  );
 }
 
 interface WidgetClusterProps {
@@ -123,7 +57,7 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
   const binTooltip = status
     ? status.recycleBin.items === 0
       ? "Recycle Bin (empty)"
-      : `Recycle Bin — ${status.recycleBin.items} item${status.recycleBin.items === 1 ? "" : "s"}`
+      : `Recycle Bin - ${status.recycleBin.items} item${status.recycleBin.items === 1 ? "" : "s"}`
     : "Recycle Bin";
 
   if (!showClock && !showStatus) return null;
@@ -131,17 +65,38 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
   return (
     <div className="widget-cluster">
       {showClock && (
-      <div className="widget-clock" title={date}>
+      <button
+        className="widget-clock widget-clock-button"
+        title={`${date} - click for notifications and the calendar`}
+        onClick={() => ipc.openNotificationCenter().catch(notify.on("Could not open the calendar"))}
+      >
         <span className="widget-time">{time}</span>
         <span className="widget-date">{date}</span>
-      </div>
+      </button>
       )}
       {showStatus && (
       <div className="widget-glyphs">
+        <button
+          className="widget-chip widget-chip-button"
+          title="Show hidden icons"
+          onClick={(e) => {
+            // the flyout opens centred above this button
+            const r = e.currentTarget.getBoundingClientRect();
+            const scale = window.devicePixelRatio;
+            ipc
+              .openTrayOverflow(Math.round((r.left + r.width / 2) * scale), Math.round(r.top * scale))
+              .then((opened) => {
+                if (!opened) notify.error("Could not open the hidden icons");
+              })
+              .catch(notify.on("Could not open the hidden icons"));
+          }}
+        >
+          <TrayGlyph />
+        </button>
         {status?.battery.present && (
           <button
             className="widget-chip widget-chip-button"
-            title={`Battery ${status.battery.percent}%${status.battery.charging ? " (charging)" : ""} — click for power settings`}
+            title={`Battery ${status.battery.percent}%${status.battery.charging ? " (charging)" : ""} - click for power settings`}
             onClick={() =>
               ipc
                 .launch("ms-settings:batterysaver")
@@ -153,17 +108,17 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
         )}
         <button
           className="widget-chip widget-chip-button"
-          title={`${status?.internet ? "Connected" : "No internet"} — click for network settings`}
+          title={`${status?.internet ? (status.link === "ethernet" ? "Connected by Ethernet" : "Connected") : "No internet"} - click for network settings`}
           onClick={() =>
             ipc.launch("ms-settings:network").catch(notify.on("Could not open network settings"))
           }
         >
-          <NetworkGlyph online={status?.internet ?? false} />
+          <NetworkGlyph online={status?.internet ?? false} link={status?.link} />
         </button>
         {status?.volume.available && (
           <button
             className="widget-chip widget-chip-button"
-            title={`Volume ${status.volume.level}%${status.volume.muted ? " (muted)" : ""} — scroll to adjust, click to mute`}
+            title={`Volume ${status.volume.level}%${status.volume.muted ? " (muted)" : ""} - scroll to adjust, click to mute`}
             onWheel={onVolumeWheel}
             onClick={() =>
               ipc
@@ -176,7 +131,7 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
         )}
         <button
           className="widget-chip widget-chip-button"
-          title={`${binTooltip} — click to open, right-click to empty`}
+          title={`${binTooltip} - click to open, right-click to empty`}
           onClick={() => ipc.openRecycleBin().catch(notify.on("Could not open the Recycle Bin"))}
           onContextMenu={(e) => {
             e.preventDefault();

@@ -2,6 +2,7 @@ pub mod error;
 pub mod names;
 pub mod paths;
 pub mod settings;
+pub mod trace;
 pub mod widgets;
 pub mod workspace;
 

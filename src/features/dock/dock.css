@@ -10,12 +10,22 @@
   justify-content: center;
 }
 
-.dock-viewport[data-edge="top"] {
-  align-items: flex-start;
+/* The window runs right to the screen edge, and the bar is held --edge-gap
+   in from it by padding on the side facing the edge. The gap is therefore
+   still inside the dock window, so a pointer crossing it on its way to the
+   screen edge is still over the dock. */
+.dock-viewport {
+  padding-bottom: var(--edge-gap, 0px);
 }
 
-/* idle sleep: ambient motion pauses so the GPU can rest */
-.dock-viewport[data-asleep="true"] .dock-icon-float,
+.dock-viewport[data-edge="top"] {
+  align-items: flex-start;
+  padding-bottom: 0;
+  padding-top: var(--edge-gap, 0px);
+}
+
+/* idle sleep: ambient motion pauses so the GPU can rest (the icons' float is
+   stopped by DockBar, which writes its phase) */
 .dock-viewport[data-asleep="true"] .glass::after,
 .dock-viewport[data-asleep="true"] .glass-sweep::after {
   animation-play-state: paused;
@@ -23,18 +33,80 @@
 .dock-viewport[data-edge="left"] {
   align-items: center;
   justify-content: flex-start;
+  padding-bottom: 0;
+  padding-left: var(--edge-gap, 0px);
 }
 .dock-viewport[data-edge="right"] {
   align-items: center;
   justify-content: flex-end;
+  padding-bottom: 0;
+  padding-right: var(--edge-gap, 0px);
 }
 
+/* Shown beside an app that has been pulled far enough off the dock that
+   letting go would unpin it. */
+.dock-remove-hint {
+  position: absolute;
+  z-index: 120;
+  padding: 4px 11px;
+  border-radius: 10px;
+  white-space: nowrap;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(220, 90, 80, 0.92), rgba(160, 40, 40, 0.94));
+  box-shadow:
+    0 4px 12px rgba(60, 10, 10, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+/* Wraps the bar so the Search and Settings controls can hang off its ends
+   (see DockSatellite). It adds no size of its own. */
+.dock-shell {
+  position: relative;
+  display: flex;
+}
+
+/* Centring rides on `translate`, not `transform`: motion owns the inline
+   transform for the squash-and-stretch entrance and would drop a CSS one. */
+.dock-satellite {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 4;
+  display: flex;
+}
+
+.dock-satellite[data-side="left"] {
+  right: calc(100% + 8px);
+}
+
+.dock-satellite[data-side="right"] {
+  left: calc(100% + 8px);
+}
+
+/* outside the bar these are no longer part of a row of controls */
+.dock-satellite .dock-control-btn {
+  margin-right: 0;
+}
+
+/* Icons are centred across the bar, not seated on its bottom edge. The
+   clock and the round buttons can be taller than a small icon, and they
+   set the bar's height; bottom-aligned, a small icon sinks below the
+   middle of the glass. */
 .dock-bar {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--icon-gap);
   padding: var(--dock-pad-y) var(--dock-pad-x);
   opacity: var(--dock-opacity);
+}
+
+/* "Corner radius" in settings. Unset, the bar keeps the radius its material
+   gives it. */
+.dock-bar.glass {
+  border-radius: var(--dock-radius, var(--glass-radius));
 }
 
 .dock-bar[data-vertical="true"] {
@@ -46,14 +118,14 @@
 /* reorderable pinned section mirrors the bar's layout */
 .dock-section {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--icon-gap);
   list-style: none;
 }
 
 .dock-section > div {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   position: relative;
   z-index: 3;
 }
@@ -65,6 +137,15 @@
 
 /* glass ridge separating pinned apps from running-only apps */
 .dock-divider {
+  /* While the pointer sweeps the dock, every icon's width changes each
+     frame, so the layout position of a divider is fractional and keeps
+     changing. Painted in the normal flow, a 2px line is snapped to whole
+     pixels each frame and jumps by one against the icons beside it, which
+     reads as flicker. Its own compositing layer is placed at the fractional
+     position instead, so it travels as smoothly as they do. */
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
   align-self: stretch;
   width: 2px;
   margin: 4px 3px;
@@ -96,7 +177,9 @@
 /* running indicator: a tiny glowing droplet under the icon */
 .dock-indicator {
   position: absolute;
-  bottom: -7px;
+  /* the dot is 5px tall, so its bottom edge sits gap + 5px below the
+     icon; the gap is a setting */
+  bottom: calc(-1 * (var(--indicator-gap) + 5px));
   left: 50%;
   transform: translateX(-50%);
   width: 5px;
@@ -105,12 +188,48 @@
   background: radial-gradient(circle at 35% 30%, #ffffff, var(--aero-life) 55%, #3f8f1d);
   box-shadow: 0 0 6px 1px rgba(122, 208, 58, 0.8);
   pointer-events: none;
+  /* it pops in when an app starts, and swells and settles as it gains and
+     loses the focus, instead of switching size */
+  animation: dock-dot-in 280ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  transition:
+    width 150ms ease-out,
+    height 150ms ease-out,
+    bottom 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+
+@keyframes dock-dot-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
 }
 
 .dock-indicator[data-focused="true"] {
   width: 7px;
   height: 7px;
+  /* 2px taller than the resting dot, so it keeps the same gap */
+  bottom: calc(-1 * (var(--indicator-gap) + 7px));
   box-shadow: 0 0 10px 2px rgba(122, 208, 58, 0.95);
+}
+
+/* an icon's picture eases in when it arrives (it is resolved after the tile
+   is drawn), rather than popping into the glass */
+.dock-icon img {
+  animation: dock-icon-fade 220ms ease-out both;
+}
+
+@keyframes dock-icon-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* ---- icons ---- */
@@ -134,28 +253,87 @@
   transform-origin: center center;
 }
 
-/* idle float: compositor-only transform animation, phase-offset per icon */
+/* Idle float: each icon drifts up and down a pixel or two, a little out of
+   step with its neighbour.
+
+   It used to be a CSS keyframe animation, and that was the most expensive
+   thing the dock did. The drift is under two pixels a second, but a running
+   animation makes the page produce a frame at the display's refresh rate for
+   as long as it plays, 165 a second on a fast monitor, each one drawn and
+   handed to the window system in software. Nine icons floating cost a
+   quarter of a core, to move a distance nobody can see change from one frame
+   to the next.
+
+   Now DockBar writes the phase of the cycle (`--float-t`, in radians) 20
+   times a second, which is as smooth as it looks and an eighth of the
+   frames, and each icon adds its own offset (`--float-phase`). The curve is
+   the same cosine the ease-in-out keyframes traced. Where `cos()` is not
+   understood the declaration is dropped and the icons simply sit still. */
 .dock-icon-float {
   display: block;
   width: 100%;
   height: 100%;
-  animation: icon-float 5.2s ease-in-out infinite;
+  transform: translateY(
+    calc(cos(calc((var(--float-t, 0) + var(--float-phase, 0)) * 1rad)) * 1.6px)
+  );
   will-change: transform;
-}
-
-@keyframes icon-float {
-  0%,
-  100% {
-    transform: translateY(1.6px);
-  }
-  50% {
-    transform: translateY(-1.6px);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .dock-icon-float {
-    animation: none;
+    transform: none;
+  }
+}
+
+/* The Cascade way of appearing (Settings > Animations > Dock appears): the bar
+   itself only fades up a little, and the icons arrive in turn, each a beat
+   after the one before, rising from the screen edge with a small overshoot.
+   It plays whenever the dock comes in (`data-reveal="in"` newly matches), at
+   launch and after auto-hide, and for an icon added later. The icons are
+   timed by their `--i` (their place along the dock) and the global speed. */
+.dock-viewport[data-edge="bottom"] {
+  --cascade-x: 0px;
+  --cascade-y: 20px;
+}
+.dock-viewport[data-edge="top"] {
+  --cascade-x: 0px;
+  --cascade-y: -20px;
+}
+.dock-viewport[data-edge="left"] {
+  --cascade-x: -20px;
+  --cascade-y: 0px;
+}
+.dock-viewport[data-edge="right"] {
+  --cascade-x: 20px;
+  --cascade-y: 0px;
+}
+
+.dock-viewport[data-anim="cascade"][data-reveal="in"] .dock-icon-float > * {
+  animation: dock-cascade-in calc(600ms / var(--anim-speed, 1)) cubic-bezier(0.3, 0, 0.2, 1) backwards;
+  animation-delay: calc((var(--i, 0) * 42ms + 90ms) / var(--anim-speed, 1));
+}
+
+@keyframes dock-cascade-in {
+  0% {
+    opacity: 0;
+    transform: translate(var(--cascade-x), var(--cascade-y)) scale(0.62);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(calc(var(--cascade-x) * -0.15), calc(var(--cascade-y) * -0.15)) scale(1.07);
+  }
+  80% {
+    transform: scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-viewport[data-anim] .dock-icon-float > * {
+    animation: none !important;
   }
 }
 
@@ -174,6 +352,13 @@
       transparent 55%,
       rgba(255, 255, 255, calc(0.45 * var(--reflection-strength)))
     );
+}
+
+/* With the reflection strength at zero the reflection is invisible but still
+   a second copy of every icon to composite, so it is dropped altogether. */
+[data-reflect="off"] .dock-icon img,
+[data-reflect="off"] .dock-icon .dock-icon-glyph {
+  -webkit-box-reflect: none;
 }
 
 /* stack: a glass tile holding a 2x2 mosaic of its members */
@@ -370,4 +555,16 @@
   .dock-volume-fill {
     transition: none;
   }
+}
+
+/* The keyboard's place on the dock. A visit by shortcut gives the dock real
+   focus, and what has it is ringed so it can be seen. */
+.dock-viewport[data-kbd="true"] button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.95);
+  outline-offset: 3px;
+  border-radius: 14px;
+}
+
+.dock-viewport[data-kbd="true"] .dock-control-btn:focus {
+  border-radius: 50%;
 }

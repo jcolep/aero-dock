@@ -51,7 +51,7 @@ The short version:
   TypeScript counterparts change in the same commit**, always.
 - `src/features/`: one directory per user-facing surface, each owning its own
   CSS.
-- `src/engine/`: themes, springs, and the PixiJS effects layer.
+- `src/engine/`: themes, springs, and the Canvas 2D effects engine.
 
 ## House rules
 
@@ -64,9 +64,13 @@ These aren't style preferences; they're what keeps the app feeling right.
 - **Animate transform and opacity only.** Anything that triggers layout or
   paint per frame will show up as idle CPU. All spring constants live in
   `src/engine/animation/springs.ts` so the app's feel is tuned in one place.
-- **Idle must cost nothing.** The Pixi ticker stops when no effect is alive,
-  and ambient motion pauses after the dock is left alone. Any new animation
-  has to participate in that.
+- **Idle must cost nothing.** The effects engine schedules nothing when no
+  effect is alive, and ambient motion pauses after the dock is left alone. Any
+  new animation has to participate in that.
+- **Slow ambient motion is not a smooth CSS animation.** The web view renders
+  in software, and a running animation makes the page draw a frame per display
+  refresh (165 a second on a fast monitor). Use `steps()`, or write a value a
+  few times a second. See "Performance rules" in `docs/ARCHITECTURE.md`.
 - **Honor `prefers-reduced-motion`.** Decorative motion turns off.
 - **No `unwrap()` outside tests.** Commands return `Result<_, AeroError>`.
 - **Tell the user when their action fails.** The dock has no console, so

@@ -1,6 +1,11 @@
 pub mod apps;
 pub mod audio;
+pub mod control;
 pub mod dock;
+pub mod frame;
+pub mod glass;
+pub mod keyboard;
+pub mod menubar;
 pub mod modes;
 pub mod settings;
 pub mod system_cmd;

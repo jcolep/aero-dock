@@ -69,3 +69,6 @@ $RECYCLE.BIN/
 
 # ---- promo video project (local only, not part of the app) ----
 /video/
+
+# ---- portable builds (the exes, and the data folder with a real settings.json) ----
+dist-portable/

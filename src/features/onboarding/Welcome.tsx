@@ -20,7 +20,7 @@ export function Welcome({ edge }: { edge: DockEdge }) {
   const run = (action: () => Promise<void>) => {
     setBusy(true);
     action().catch((e) => {
-      notify.error("Setup failed — you can still drag apps onto the dock", e);
+      notify.error("Setup failed - you can still drag apps onto the dock", e);
       setBusy(false);
     });
     // success needs no cleanup: the settings event flips
@@ -37,7 +37,7 @@ export function Welcome({ edge }: { edge: DockEdge }) {
       }}
       initial={{ opacity: 0, scale: 0.85, ...bloomOffset(edge) }}
       animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-      exit={{ opacity: 0, scale: 0.94, filter: "blur(6px)", transition: { duration: 0.2 } }}
+      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.2 } }}
       transition={{ ...springs.bloom, delay: 0.25 }}
     >
       <span className="welcome-orb" aria-hidden />

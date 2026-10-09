@@ -61,6 +61,7 @@ function WidgetRow({
             options={[
               { value: "aero", label: "Classic" },
               { value: "liquid", label: "Liquid" },
+              { value: "clear", label: "Clear" },
             ]}
             onChange={(v) => void style({ surface: v })}
           />

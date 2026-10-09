@@ -9,6 +9,10 @@ export type DockEdge = "top" | "bottom" | "left" | "right";
 export interface DockSettings {
   edge: DockEdge;
   monitor: string | null;
+  /** A dock on every monitor, not just the chosen one. */
+  allMonitors: boolean;
+  /** With several docks, each lists only windows on its own screen. */
+  perMonitorWindows: boolean;
   iconSize: number;
   magnification: boolean;
   magnificationScale: number;
@@ -17,6 +21,22 @@ export interface DockSettings {
   autoHideDelayMs: number;
   floating: boolean;
   floatingMargin: number;
+  /** Icon-to-glass padding across the dock axis, in logical px. */
+  padding: number;
+  /** Gap between an icon and its running-app dot, in logical px. */
+  indicatorGap: number;
+  /** Horizontal gap between apps in the dock, in logical px. */
+  iconSpacing: number;
+  /** Corner radius of the dock bar in px; null = the material's own. */
+  cornerRadius: number | null;
+  /** Size of the network, volume, battery and Recycle Bin glyphs, in px. */
+  statusIconSize: number;
+  /** Order running (unpinned) apps were dragged into, as dock item ids. */
+  runningOrder: string[];
+  /** Search and Settings appear only when the pointer nears their end. */
+  revealControls: boolean;
+  /** Reserve screen space so maximised windows stop at the dock. */
+  reserveSpace: boolean;
   showRunningApps: boolean;
   /** Built-in dock controls, each independently hideable. */
   showSearchButton: boolean;
@@ -29,14 +49,19 @@ export interface DockSettings {
 /** How a surface is rendered. Both are Frutiger Aero; they differ in how
  *  thick the material reads. "aero" is the glossy beveled panel, "liquid"
  *  keeps the palette but renders as a thin lens. */
-export type SurfaceStyle = "aero" | "liquid";
+export type SurfaceStyle = "aero" | "liquid" | "clear";
 
 export interface AppearanceSettings {
+  /** Legacy: the named theme, kept only to find a starting colour. */
   theme: string;
+  /** The colour the whole look is derived from, `#rrggbb`; "" until picked. */
+  accent: string;
   transparency: number;
   glassIntensity: number;
   bloomAmount: number;
   reflectionStrength: number;
+  /** Shadow under the dock bar, 0 (none) to 1. */
+  dockShadow: number;
   particleDensity: number;
   scene: string;
   animationSpeed: number;
@@ -45,6 +70,12 @@ export interface AppearanceSettings {
   dockSurface: SurfaceStyle;
   /** Material for the settings window, independent of the dock. */
   settingsSurface: SurfaceStyle;
+  /** Windows blurs what is behind the dock, menu bar and frame. */
+  realBlur: boolean;
+  /** A soft highlight that follows the pointer across the glass. */
+  pointerLight: boolean;
+  /** A fine grain over the glass. */
+  glassGrain: boolean;
 }
 
 export type PinKind = "app" | "file" | "folder" | "stack";
@@ -56,7 +87,12 @@ export interface PinnedItem {
   name: string;
   icon: string | null;
   children: PinnedItem[];
+  /** How a stack opens; unset means a grid. Only stacks use it. */
+  view?: StackView | null;
 }
+
+/** How a stack of pinned items opens. */
+export type StackView = "grid" | "fan" | "list";
 
 /** One app's remembered audio inside a mode. */
 export interface AppAudioPref {
@@ -193,6 +229,127 @@ export interface NowPlaying {
 
 export type MediaAction = "playpause" | "next" | "previous";
 
+/** The strip along the top of the screen, after the macOS menu bar. */
+export interface MenuBarSettings {
+  enabled: boolean;
+  /** Height in logical px. */
+  height: number;
+  /** The bar shows the clock and status icons, so the dock does not. */
+  takesOverDockStatus: boolean;
+  /** Play the dock's ambient scene inside the bar. */
+  ambient: boolean;
+  showDate: boolean;
+  /** Space between the bar and the top and sides of the screen, in px. Above
+   *  0 the bar floats and is rounded on every corner. */
+  gap: number;
+  /** Corner radius in px. */
+  cornerRadius: number;
+  /** How strongly the bar is tinted with the theme colour (1 = default). */
+  tint: number;
+  /** Space between the items in the bar, in px. */
+  itemSpacing: number;
+  /** Size of the text in the bar, in px. */
+  fontSize: number;
+  /** The hairline of light round the bar's edge. */
+  edgeHighlight: boolean;
+  /** The circle behind the Wi-Fi icon in the Control Center, `#rrggbb`;
+   *  "" follows the theme colour. */
+  wifiColor: string;
+  /** The same for the Bluetooth icon. */
+  bluetoothColor: string;
+  /** How far the sliding lens reaches past its button, in px. */
+  lensGrow: number;
+  /** How much the button under the lens is enlarged (1 = not at all). */
+  lensMagnify: number;
+  /** How strongly the lens bends what is under it (0 = not at all, 1 = default). */
+  lensWarp: number;
+  /** Menus and the Control Center close when the pointer leaves them. */
+  closeOnLeave: boolean;
+}
+
+/** Which animation each kind of thing uses: the id of a preset in
+ *  `engine/animation/presets.ts`. Rust checks each against the same list. */
+export interface AnimationSettings {
+  /** Menu bar menus and the Control Center. */
+  menu: string;
+  /** The dock's flyouts and panels. */
+  flyout: string;
+  /** The dock appearing and disappearing. */
+  dockReveal: string;
+  /** What an icon does when an app is launched from it. */
+  launch: string;
+  /** How icons swell as the pointer passes over them. */
+  magnify: string;
+}
+
+/** A frame of glass round the free space of every monitor, between the menu bar
+ *  and the dock, that holds maximised apps in from the screen edges. */
+export interface FrameSettings {
+  enabled: boolean;
+  /** Width of the margin on every side, in px. */
+  padding: number;
+  /** Corner radius of the opening the apps sit in, in px. */
+  cornerRadius: number;
+  /** How strongly the margin is tinted with the theme colour (1 = default). */
+  tint: number;
+  /** Play the ambient scene in the margin. */
+  ambient: boolean;
+}
+
+/** How the app behaves for people who need it quieter, and how it feels. */
+export interface AccessibilitySettings {
+  /** "system" follows Windows' Animation effects switch. */
+  reduceMotion: "system" | "on" | "off";
+  /** "system" follows Windows' Transparency effects switch. */
+  reduceTransparency: "system" | "on" | "off";
+  /** Ctrl+Alt+M and Ctrl+Alt+D bring the keyboard to the menu bar and the dock. */
+  keyboardShortcuts: boolean;
+  /** Soft sounds for menus, switches and launching. */
+  uiSounds: boolean;
+  /** 0 to 1. */
+  uiSoundVolume: number;
+}
+
+/** What Windows says about motion and transparency. */
+export interface SystemAccessibility {
+  reduceMotion: boolean;
+  reduceTransparency: boolean;
+}
+
+/** A radio the Control Center can switch. */
+export interface RadioInfo {
+  kind: "wifi" | "bluetooth";
+  name: string;
+  on: boolean;
+  /** False when it is off at a hardware switch or by policy. */
+  switchable: boolean;
+}
+
+/** A Wi-Fi network in range. */
+export interface WifiNetwork {
+  ssid: string;
+  /** 0 to 100. */
+  signal: number;
+  secured: boolean;
+  connected: boolean;
+  /** Saved before, so it can be joined without a password. */
+  known: boolean;
+}
+
+/** A paired Bluetooth device. */
+export interface BluetoothDevice {
+  name: string;
+  sort: "audio" | "input" | "phone" | "computer" | "other";
+  connected: boolean;
+}
+
+/** The brightness of the screen the menu bar is on. */
+export interface BrightnessInfo {
+  available: boolean;
+  /** 0 to 100. */
+  percent: number;
+}
+
 export interface Settings {
   schemaVersion: number;
   dock: DockSettings;
@@ -203,6 +360,10 @@ export interface Settings {
   onboardingComplete: boolean;
   modes: ModesSettings;
   widgets: WidgetsSettings;
+  menuBar: MenuBarSettings;
+  accessibility: AccessibilitySettings;
+  animations: AnimationSettings;
+  frame: FrameSettings;
 }
 
 export interface AppEntry {
@@ -236,6 +397,9 @@ export interface WindowInfo {
   pid: number;
   /** AppUserModelID for UWP windows (hosted by ApplicationFrameHost). */
   aumid: string | null;
+  /** Device name of the monitor most of the window is on (`\\.\DISPLAY1`),
+   *  matching `MonitorInfoEx.name`. Empty if unknown. */
+  monitor: string;
 }
 
 export interface RunningSnapshot {
@@ -253,6 +417,8 @@ export interface RecentFile {
 export interface SystemStatus {
   battery: { present: boolean; percent: number; charging: boolean };
   internet: boolean;
+  /** What the connection in use runs over; the icon follows it. */
+  link: "wifi" | "ethernet" | "unknown";
   volume: { available: boolean; level: number; muted: boolean };
   recycleBin: { items: number; bytes: number };
 }
@@ -310,4 +476,14 @@ export const EVENTS = {
   settingsChanged: "settings://changed",
   runningChanged: "apps://running-changed",
   systemStatus: "system://status",
+  /** A click anywhere but the menu bar, while one of its menus is open. */
+  menubarOutside: "menubar://outside",
+  /** The Escape key, while one of the menu bar's menus is open. */
+  menubarEscape: "menubar://escape",
+  /** The tray's hidden-icons flyout opened (true) or closed (false). */
+  trayFlyout: "tray://flyout",
+  /** Something outside the dock (the menu bar) asked for the search to open. */
+  searchOpen: "search://open",
+  /** The person at the machine went idle (true) or came back (false). */
+  userIdle: "system://idle",
 } as const;

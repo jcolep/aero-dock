@@ -1,22 +1,29 @@
 /**
- * The WebGL effects layer: one transparent PixiJS canvas over the whole
- * window, pointer-events none. Listens to the effects bus and renders
- * ripples, launch bursts, and ambient dust.
+ * The dock's effects layer: one transparent canvas over the part of the window
+ * the dock lives in, pointer-events none. It listens to the effects bus and
+ * draws ripples and launch bursts, and keeps the ambient scene (dust, rain,
+ * snow, bubbles, aurora) running in the dock band.
  *
- * Performance contract: the ticker runs ONLY while at least one effect
- * is alive (dust counts as alive only when density > 0), and stops when
- * the document is hidden. Idle GPU cost is zero.
+ * Performance contract: with nothing to draw, nothing is scheduled. The
+ * ambient scene runs only while the dock is awake and showing, and it fades
+ * out rather than freezing when the dock goes idle. See `fx2d.ts` for how
+ * frames are paced.
  */
 
-import { Application, Container, Ticker } from "pixi.js";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { dockBandSize } from "../../features/dock/geometry";
 import type { DockEdge, Settings } from "../../ipc/types";
 import { useAmbient } from "../../state/ambientStore";
-import { ClickRipple, DustField, getGlowTexture, LaunchBurst, type Effect } from "./effects";
+import { ambientTint } from "../themes/applyTheme";
 import { effectsBus } from "./effectsBus";
-import { AuroraScene, BubblesScene, RainScene, SnowScene } from "./scenes";
-
-type AmbientScene = Effect & { enabled: boolean };
+import {
+  bandBox,
+  ClickRipple,
+  createScene,
+  Fx2D,
+  isSceneKind,
+  LaunchBurst,
+} from "./fx2d";
 
 /** Where the dock is glued; effect coordinates anchor there so they
  * survive the window growing/shrinking for flyouts. */
@@ -33,204 +40,167 @@ function anchorPoint(edge: DockEdge, w: number, h: number): { x: number; y: numb
   }
 }
 
-function cssAccentAsTint(): number {
-  const v = getComputedStyle(document.documentElement)
-    .getPropertyValue("--bloom-color")
-    .trim();
-  // --bloom-color is rgba(...); parse the rgb triple
-  const m = v.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-  if (!m) return 0xa0e1ff;
-  return (Number(m[1]) << 16) | (Number(m[2]) << 8) | Number(m[3]);
+/** Room, beyond the dock band, for a launch burst to fly up into. */
+const BURST_ROOM = 120;
+
+interface Box {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
 interface EffectsLayerProps {
   settings: Settings;
+  /** The wallpaper's colour, when the dock is tinted from it. */
+  wallpaperAccent: string | null;
 }
 
-export function EffectsLayer({ settings }: EffectsLayerProps) {
-  const hostRef = useRef<HTMLDivElement>(null);
-  const stateRef = useRef<{
-    app: Application | null;
-    effects: Effect[];
-    scene: AmbientScene | null;
-    root: Container | null;
-    bloomRef?: number;
-    speedRef?: number;
-    edgeRef?: DockEdge;
-    cleanup?: () => void;
-  }>({ app: null, effects: [], scene: null, root: null });
+export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const engineRef = useRef<Fx2D | null>(null);
 
+  const edge = settings.dock.edge;
   const density = settings.appearance.particleDensity;
-  const bloom = settings.appearance.bloomAmount;
+  const sceneKind = settings.appearance.scene;
   const speed = settings.appearance.animationSpeed;
-  const asleep = useAmbient((s) => s.asleep);
-
-  // dust sleeps with the rest of the ambient motion
-  useEffect(() => {
-    const st = stateRef.current;
-    const app = st.app;
-    if (!app) return;
-    if (asleep) {
-      app.ticker.stop();
-    } else if (st.effects.length > 0 && document.visibilityState === "visible") {
-      app.ticker.start();
-    }
-  }, [asleep]);
-
-  // one-time Pixi init
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-    let disposed = false;
-    const app = new Application();
-    const st = stateRef.current;
-
-    (async () => {
-      await app.init({
-        backgroundAlpha: 0,
-        resizeTo: window,
-        antialias: true,
-        autoStart: false,
-        preference: "webgl",
-      });
-      if (disposed) {
-        app.destroy(true);
-        return;
-      }
-      host.appendChild(app.canvas);
-      st.app = app;
-
-      // edge-anchored root: short-lived effects live in coordinates
-      // relative to the dock's screen edge
-      const root = new Container();
-      app.stage.addChild(root);
-      st.root = root;
-
-      const wake = () => {
-        if (!app.ticker.started && document.visibilityState === "visible") {
-          app.ticker.start();
-        }
-      };
-
-      app.ticker.add((ticker: Ticker) => {
-        const dt = (ticker.deltaMS / 1000) * (stateRef.current.speedRef ?? 1);
-        // an ambient scene alone doesn't justify full-rate rendering
-        const onlyScene = st.effects.length > 0 && st.effects.every((fx) => fx === st.scene);
-        app.ticker.maxFPS = onlyScene ? 30 : 0;
-        const a = anchorPoint(
-          stateRef.current.edgeRef ?? "bottom",
-          app.screen.width,
-          app.screen.height,
-        );
-        root.position.set(a.x, a.y);
-        const alive: Effect[] = [];
-        for (const fx of st.effects) {
-          fx.update(dt);
-          if (fx.done()) {
-            fx.view.destroy({ children: true });
-            if (fx === st.scene) st.scene = null;
-          } else {
-            alive.push(fx);
-          }
-        }
-        st.effects = alive;
-        app.renderer.render(app.stage);
-        if (alive.length === 0) app.ticker.stop(); // sleep until next event
-      });
-
-      /** convert emit-time window coords to edge-anchored coords */
-      const toAnchored = (x: number, y: number, winW: number, winH: number) => {
-        const a = anchorPoint(stateRef.current.edgeRef ?? "bottom", winW, winH);
-        return { x: x - a.x, y: y - a.y };
-      };
-
-      const spawn = (fx: Effect) => {
-        st.effects.push(fx);
-        root.addChild(fx.view);
-        wake();
-      };
-
-      const offRipple = effectsBus.on("ripple", ({ x, y, winW, winH }) => {
-        const p = toAnchored(x, y, winW, winH);
-        spawn(new ClickRipple(p.x, p.y, cssAccentAsTint()));
-      });
-      const offBurst = effectsBus.on("burst", ({ x, y, winW, winH }) => {
-        const p = toAnchored(x, y, winW, winH);
-        const tex = getGlowTexture(app.renderer);
-        spawn(new LaunchBurst(p.x, p.y, tex, cssAccentAsTint(), stateRef.current.bloomRef ?? 0.7));
-      });
-      const onVis = () => {
-        if (document.visibilityState === "hidden") app.ticker.stop();
-        else if (st.effects.length > 0) app.ticker.start();
-      };
-      document.addEventListener("visibilitychange", onVis);
-
-      st.cleanup = () => {
-        offRipple();
-        offBurst();
-        document.removeEventListener("visibilitychange", onVis);
-      };
-    })().catch((e) => console.error("effects init failed", e));
-
-    return () => {
-      disposed = true;
-      st.cleanup?.();
-      st.effects = [];
-      st.scene = null;
-      if (st.app) {
-        st.app.destroy(true);
-        st.app = null;
-      }
-    };
+  const bloom = settings.appearance.bloomAmount;
+  const band = dockBandSize(settings.dock);
+  // only the colour settings change it, and this renders on every running-app
+  // update, so it is not worked out afresh each time
+  const { accent, theme, wallpaperSync } = settings.appearance;
+  const tint = useMemo(
+    () => ambientTint(settings, wallpaperAccent),
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    [accent, theme, wallpaperSync, wallpaperAccent],
+  );
+
+  // dust sleeps with the rest of the ambient motion, and rests entirely while
+  // the dock is slid away
+  const asleep = useAmbient((s) => s.asleep);
+  const dockHidden = useAmbient((s) => s.dockHidden);
+
+  // The window is much taller than the dock (it has to hold the tallest
+  // flyout), with the dock at one edge of it. The canvas covers only the part
+  // that effects can reach: the dock band and room above it for a burst. It
+  // is redrawn when the window changes size, which it does right after launch.
+  const [viewport, setViewport] = useState(() => ({
+    w: window.innerWidth,
+    h: window.innerHeight,
+  }));
+  useEffect(() => {
+    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // ambient scene tracks the scene + density settings
-  const sceneKind = settings.appearance.scene;
-  useEffect(() => {
-    const st = stateRef.current;
-    const app = st.app;
-    if (!app) return;
-    // fade out whatever is playing; a replacement (if any) grows below
-    if (st.scene) {
-      st.scene.enabled = false;
-      st.scene = null;
-    }
-    if (density <= 0 || sceneKind === "none") return;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    const tex = getGlowTexture(app.renderer);
-    const tint = cssAccentAsTint();
-    const scene: AmbientScene | null =
-      sceneKind === "dust"
-        ? new DustField(tex, tint, density, w, h)
-        : sceneKind === "rain"
-          ? new RainScene(tint, density, w, h)
-          : sceneKind === "snow"
-            ? new SnowScene(tex, density, w, h)
-            : sceneKind === "bubbles"
-              ? new BubblesScene(tint, density, w, h)
-              : sceneKind === "aurora"
-                ? new AuroraScene(tex, density, w, h)
-                : null;
-    if (!scene) return;
-    st.scene = scene;
-    st.effects.push(scene);
-    app.stage.addChild(scene.view);
-    if (!app.ticker.started && document.visibilityState === "visible") app.ticker.start();
-  }, [density, sceneKind, settings.appearance.theme]);
+  const vertical = edge === "left" || edge === "right";
+  // whole pixels, so the canvas's store and its box agree to the last row
+  const reach = Math.ceil(band + BURST_ROOM);
+  const box: Box = vertical
+    ? {
+        w: Math.min(reach, viewport.w),
+        h: viewport.h,
+        x: edge === "right" ? viewport.w - Math.min(reach, viewport.w) : 0,
+        y: 0,
+      }
+    : {
+        w: viewport.w,
+        h: Math.min(reach, viewport.h),
+        x: 0,
+        y: edge === "bottom" ? viewport.h - Math.min(reach, viewport.h) : 0,
+      };
 
-  // live tuning refs (avoid re-init on slider moves)
-  stateRef.current.bloomRef = bloom;
-  stateRef.current.speedRef = speed;
-  stateRef.current.edgeRef = settings.dock.edge;
+  // the latest of everything the event handlers need, without resubscribing
+  const live = useRef({ edge, viewport, box, tint, bloom });
+  live.current = { edge, viewport, box, tint, bloom };
+
+  // ---- the engine: once ----
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const engine = new Fx2D(canvas);
+    engineRef.current = engine;
+
+    /** Window coordinates at emit time, onto the canvas now. The dock window
+     *  can change size between the two, so the point is kept relative to the
+     *  dock's own edge. */
+    const place = (x: number, y: number, winW: number, winH: number) => {
+      const l = live.current;
+      const then = anchorPoint(l.edge, winW, winH);
+      const now = anchorPoint(l.edge, l.viewport.w, l.viewport.h);
+      return {
+        x: now.x + (x - then.x) - l.box.x,
+        y: now.y + (y - then.y) - l.box.y,
+      };
+    };
+
+    const offRipple = effectsBus.on("ripple", ({ x, y, winW, winH }) => {
+      const p = place(x, y, winW, winH);
+      engine.spawn(new ClickRipple(p.x, p.y, live.current.tint));
+    });
+    const offBurst = effectsBus.on("burst", ({ x, y, winW, winH }) => {
+      const p = place(x, y, winW, winH);
+      engine.spawn(new LaunchBurst(p.x, p.y, live.current.tint, live.current.bloom));
+    });
+    const onVisibility = () => engine.setHidden(document.visibilityState === "hidden");
+    document.addEventListener("visibilitychange", onVisibility);
+    onVisibility();
+
+    return () => {
+      offRipple();
+      offBurst();
+      document.removeEventListener("visibilitychange", onVisibility);
+      engine.dispose();
+      engineRef.current = null;
+    };
+  }, []);
+
+  // live tuning, without rebuilding anything
+  useEffect(() => {
+    engineRef.current?.setSpeed(speed);
+  }, [speed]);
+
+  useEffect(() => {
+    engineRef.current?.resize(box.w, box.h);
+  }, [box.w, box.h]);
+
+  // ---- the ambient scene ----
+  // It lives in the dock band, pinned to the dock's edge. Rebuilt when the
+  // scene, its density, its colour, or the band changes.
+  const awake = !asleep && !dockHidden;
+  const awakeRef = useRef(awake);
+  awakeRef.current = awake;
+  useEffect(() => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    if (density <= 0 || !isSceneKind(sceneKind)) {
+      engine.setScene(null, false);
+      return;
+    }
+    const bandW = vertical ? Math.min(band, box.w) : box.w;
+    const bandH = vertical ? box.h : Math.min(band, box.h);
+    const x = edge === "right" ? box.w - bandW : 0;
+    const y = edge === "bottom" ? box.h - bandH : 0;
+    engine.setScene(createScene(sceneKind, tint, density, bandBox(x, y, bandW, bandH)), awakeRef.current);
+    // `box` is read for its size only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sceneKind, density, tint, edge, vertical, band, box.w, box.h]);
+
+  useEffect(() => {
+    engineRef.current?.setSceneAwake(awake);
+  }, [awake]);
 
   return (
-    <div
-      ref={hostRef}
+    <canvas
+      ref={canvasRef}
+      aria-hidden
       style={{
         position: "fixed",
-        inset: 0,
+        left: box.x,
+        top: box.y,
+        width: box.w,
+        height: box.h,
         pointerEvents: "none",
         zIndex: 50,
       }}

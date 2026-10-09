@@ -28,6 +28,11 @@ export interface GlassOptions {
   strength: number;
   /** Splits the channels slightly, the way thick glass fringes colour. */
   chromaticAberration: number;
+  /** The map is drawn at width by height but stretched to whatever size the
+   *  element is, instead of being fixed to it. For a surface that changes size
+   *  all the time (the menu bar's lens as it stretches), which would otherwise
+   *  need a new filter every frame. */
+  stretch?: boolean;
 }
 
 /**
@@ -74,8 +79,8 @@ const MAX_CACHED = 48;
  * fringing real glass has at its edges.
  */
 export function displacementFilter(options: GlassOptions): string {
-  const { width, height, radius, depth, strength, chromaticAberration } = options;
-  const key = `${width}x${height}r${radius}d${depth}s${strength}c${chromaticAberration}`;
+  const { width, height, radius, depth, strength, chromaticAberration, stretch = false } = options;
+  const key = `${width}x${height}r${radius}d${depth}s${strength}c${chromaticAberration}${stretch ? "x" : ""}`;
   const hit = cache.get(key);
   if (hit) return hit;
 
@@ -89,7 +94,7 @@ export function displacementFilter(options: GlassOptions): string {
     encodeURIComponent(
       `<svg height="${height}" width="${width}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
 <defs><filter id="displace" color-interpolation-filters="sRGB">
-<feImage x="0" y="0" height="${height}" width="${width}" href="${map}" result="displacementMap"/>
+<feImage ${stretch ? 'preserveAspectRatio="none"' : `x="0" y="0" height="${height}" width="${width}"`} href="${map}" result="displacementMap"/>
 ${channel(strength + chromaticAberration * 2, "1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0", "displacedR")}
 ${channel(strength + chromaticAberration, "0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0", "displacedG")}
 ${channel(strength, "0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0", "displacedB")}

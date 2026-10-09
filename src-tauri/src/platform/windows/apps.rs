@@ -148,6 +148,60 @@ fn enumerate_apps_folder() -> AeroResult<Vec<AppEntry>> {
     Ok(out)
 }
 
+/// The description an exe gives itself in its version information ("Microsoft
+/// Edge", "Notepad++"), falling back to the product name. None if it has
+/// neither, or the file cannot be read.
+pub fn file_description(path: &str) -> Option<String> {
+    use windows::core::PCWSTR;
+    use windows::Win32::Storage::FileSystem::{
+        GetFileVersionInfoSizeW, GetFileVersionInfoW, VerQueryValueW,
+    };
+
+    use super::util::to_wide;
+
+    let wide = to_wide(path);
+    unsafe {
+        let size = GetFileVersionInfoSizeW(PCWSTR(wide.as_ptr()), None);
+        if size == 0 {
+            return None;
+        }
+        let mut data = vec![0u8; size as usize];
+        GetFileVersionInfoW(PCWSTR(wide.as_ptr()), None, size, data.as_mut_ptr().cast()).ok()?;
+
+        let query = |sub: &str| -> Option<(*mut std::ffi::c_void, u32)> {
+            let sub_w = to_wide(sub);
+            let mut ptr: *mut std::ffi::c_void = std::ptr::null_mut();
+            let mut len = 0u32;
+            VerQueryValueW(data.as_ptr().cast(), PCWSTR(sub_w.as_ptr()), &mut ptr, &mut len)
+                .as_bool()
+                .then_some((ptr, len))
+        };
+
+        // the string tables are named for a language and a code page, which
+        // the first entry of the translation table gives
+        let lang = match query("\\VarFileInfo\\Translation") {
+            Some((ptr, len)) if len >= 4 => {
+                let pair = std::slice::from_raw_parts(ptr as *const u16, 2);
+                format!("{:04x}{:04x}", pair[0], pair[1])
+            }
+            _ => "040904b0".to_string(),
+        };
+        for key in ["FileDescription", "ProductName"] {
+            if let Some((ptr, len)) = query(&format!("\\StringFileInfo\\{lang}\\{key}")) {
+                if len > 1 {
+                    let chars = std::slice::from_raw_parts(ptr as *const u16, len as usize);
+                    let text = String::from_utf16_lossy(chars);
+                    let text = text.trim_matches('\0').trim();
+                    if !text.is_empty() {
+                        return Some(text.to_string());
+                    }
+                }
+            }
+        }
+        None
+    }
+}
+
 /// Take ownership of a shell-allocated PWSTR and free it.
 unsafe fn pwstr_to_string(p: windows::core::PWSTR) -> String {
     if p.is_null() {

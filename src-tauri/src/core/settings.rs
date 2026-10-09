@@ -35,6 +35,12 @@ pub struct DockSettings {
     pub edge: DockEdge,
     /// Monitor name (as reported by the OS); `None` = primary.
     pub monitor: Option<String>,
+    /// Put a dock on every monitor, not just the one in `monitor`.
+    pub all_monitors: bool,
+    /// With a dock on every monitor, each one lists only the windows that are
+    /// on its own screen, as the taskbar's "where the window is open" mode
+    /// does. Off, every dock lists every window.
+    pub per_monitor_windows: bool,
     /// Base icon size in logical pixels.
     pub icon_size: u32,
     /// Cursor-proximity magnification on hover.
@@ -50,6 +56,33 @@ pub struct DockSettings {
     pub floating: bool,
     /// Gap between dock and screen edge in floating mode (logical px).
     pub floating_margin: u32,
+    /// Padding between the icons and the dock's glass edge across the dock
+    /// axis (logical px). Smaller = a shorter dock.
+    pub padding: u32,
+    /// Gap between an icon and its running-app dot (logical px). The dot
+    /// sits in the padding under the icon, so a large gap wants more
+    /// padding to keep it inside the glass.
+    pub indicator_gap: u32,
+    /// Horizontal gap between apps in the dock (logical px).
+    pub icon_spacing: u32,
+    /// Corner radius of the dock bar (logical px). `None` uses the radius
+    /// that belongs to the current material.
+    pub corner_radius: Option<u32>,
+    /// Size of the network, volume, battery and Recycle Bin glyphs next to
+    /// the clock (logical px).
+    pub status_icon_size: u32,
+    /// Order the user dragged running (unpinned) apps into, as dock item
+    /// ids. Apps not listed keep the order Windows reports them in, after
+    /// the listed ones.
+    pub running_order: Vec<String>,
+    /// Keep the Search and Settings buttons out of sight until the pointer
+    /// nears their end of the dock (Search on the left, Settings beside the
+    /// clock). Horizontal docks only.
+    pub reveal_controls: bool,
+    /// Reserve screen space for the dock like the Windows taskbar does, so
+    /// maximised windows stop at the dock instead of running underneath it.
+    /// Has no effect while auto-hide is on.
+    pub reserve_space: bool,
     /// Show currently running apps that aren't pinned.
     pub show_running_apps: bool,
     /// Built-in dock controls, each independently hideable.
@@ -65,6 +98,8 @@ impl Default for DockSettings {
         Self {
             edge: DockEdge::Bottom,
             monitor: None,
+            all_monitors: false,
+            per_monitor_windows: true,
             icon_size: 48,
             magnification: true,
             magnification_scale: 1.45,
@@ -72,6 +107,14 @@ impl Default for DockSettings {
             auto_hide_delay_ms: 1400,
             floating: true,
             floating_margin: 8,
+            padding: 10,
+            indicator_gap: 4,
+            icon_spacing: 6,
+            corner_radius: None,
+            status_icon_size: 16,
+            running_order: Vec::new(),
+            reveal_controls: true,
+            reserve_space: true,
             show_running_apps: true,
             show_search_button: true,
             show_settings_button: true,
@@ -87,19 +130,29 @@ impl Default for DockSettings {
 /// `Aero` is the glossy, beveled 2000s panel. `Liquid` keeps the same
 /// palette but renders as a thin lens: most of the tint comes out of the
 /// body and the work moves to the rim, where light enters and bends.
+/// `Clear` drops the Aero palette altogether for a neutral, colourless
+/// glass in the style of Apple's Liquid Glass: rounded shapes, a specular
+/// rim, no gloss cap and no coloured tint.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SurfaceStyle {
     #[default]
     Aero,
     Liquid,
+    Clear,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct AppearanceSettings {
-    /// Theme id: aero | ocean | forest | aurora | sunset | night.
+    /// Theme id: aero | ocean | forest | aurora | sunset | night. No longer
+    /// chosen from a list; it is kept so settings saved before the colour
+    /// picker still know where their look started, which the picker's
+    /// starting colour is taken from while `accent` is empty.
     pub theme: String,
+    /// The colour the whole look is derived from, `#rrggbb`. Empty until one
+    /// is picked.
+    pub accent: String,
     /// Overall dock opacity, 0.3..=1.0.
     pub transparency: f32,
     /// Glass blur/refraction intensity, 0.0..=1.0.
@@ -108,6 +161,9 @@ pub struct AppearanceSettings {
     pub bloom_amount: f32,
     /// Icon reflection strength, 0.0..=1.0.
     pub reflection_strength: f32,
+    /// Soft shadow under the dock bar, 0.0..=1.0 (0 = none). It is kept
+    /// tight to the bar rather than spreading out to the sides.
+    pub dock_shadow: f32,
     /// Ambient particle density, 0.0..=1.0 (0 disables particles).
     pub particle_density: f32,
     /// Ambient scene: none | dust | rain | snow | bubbles | aurora.
@@ -121,16 +177,26 @@ pub struct AppearanceSettings {
     /// Material used by the settings window. Independent of the dock, so
     /// either window can be glossy while the other is a lens.
     pub settings_surface: SurfaceStyle,
+    /// Have Windows blur what is behind the dock, menu bar and frame, so the
+    /// glass is frosted rather than only tinted. Off until chosen: it depends on
+    /// how Windows draws the blur on a given machine.
+    pub real_blur: bool,
+    /// A soft highlight that follows the pointer across the glass.
+    pub pointer_light: bool,
+    /// A fine grain over the glass, which keeps its gradients from banding.
+    pub glass_grain: bool,
 }
 
 impl Default for AppearanceSettings {
     fn default() -> Self {
         Self {
             theme: "aero".into(),
+            accent: String::new(),
             transparency: 0.92,
             glass_intensity: 0.8,
             bloom_amount: 0.7,
             reflection_strength: 0.6,
+            dock_shadow: 0.0,
             particle_density: 0.35,
             scene: "dust".into(),
             animation_speed: 1.0,
@@ -139,6 +205,9 @@ impl Default for AppearanceSettings {
             // upgrading changes nothing on screen. Liquid is opt-in.
             dock_surface: SurfaceStyle::Aero,
             settings_surface: SurfaceStyle::Aero,
+            real_blur: false,
+            pointer_light: true,
+            glass_grain: true,
         }
     }
 }
@@ -169,6 +238,10 @@ pub struct PinnedItem {
     /// Children when `kind == Stack`.
     #[serde(default)]
     pub children: Vec<PinnedItem>,
+    /// How a stack opens: `grid`, `fan` or `list`. `None` is a grid. Only
+    /// stacks use it.
+    #[serde(default)]
+    pub view: Option<String>,
 }
 
 /// Ceilings that stop a hand-edited or imported file from producing a
@@ -270,6 +343,205 @@ impl Default for ModesSettings {
     }
 }
 
+/// The strip along the top of the screen, after the macOS menu bar: system
+/// and app menus on the left, status items and the Control Center on the
+/// right. The dock is for apps; this is for the system and for the app in
+/// front.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct MenuBarSettings {
+    /// Show the bar at all.
+    pub enabled: bool,
+    /// Height in logical px.
+    pub height: u32,
+    /// The bar takes over the clock and the status icons, so the dock no
+    /// longer shows them. Off, the dock keeps its own as well.
+    pub takes_over_dock_status: bool,
+    /// Show the ambient scene (the same one the dock plays) inside the bar.
+    pub ambient: bool,
+    /// Show the day and date beside the time.
+    pub show_date: bool,
+    /// Space in logical px between the bar and the top and sides of the
+    /// screen. Above 0 the bar floats, rounded on all four corners.
+    pub gap: u32,
+    /// Corner radius in logical px (the bottom corners only while the bar
+    /// touches the top of the screen).
+    pub corner_radius: u32,
+    /// How strongly the bar is tinted with the theme colour, 1.0 being the
+    /// default. Lower is clearer, higher is more solid.
+    pub tint: f32,
+    /// Space in logical px between the items in the bar.
+    pub item_spacing: u32,
+    /// Size of the text in the bar, in logical px.
+    pub font_size: u32,
+    /// The hairline of light round the bar's edge.
+    pub edge_highlight: bool,
+    /// The colour of the circle behind the Wi-Fi icon in the Control Center,
+    /// as `#rrggbb`. Empty follows the theme colour.
+    pub wifi_color: String,
+    /// The same for the Bluetooth icon.
+    pub bluetooth_color: String,
+    /// How far the sliding lens reaches past the button it is on, in px.
+    pub lens_grow: u32,
+    /// How much the button under the lens is enlarged, 1.0 being not at all.
+    pub lens_magnify: f32,
+    /// How strongly the lens bends what is under it, 0 for not at all, 1 being
+    /// the default.
+    pub lens_warp: f32,
+    /// A menu or the Control Center closes when the pointer moves away from it,
+    /// instead of staying until something else is clicked.
+    pub close_on_leave: bool,
+}
+
+impl Default for MenuBarSettings {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            height: 28,
+            takes_over_dock_status: true,
+            ambient: true,
+            show_date: true,
+            gap: 0,
+            corner_radius: 12,
+            tint: 1.0,
+            item_spacing: 2,
+            font_size: 13,
+            edge_highlight: true,
+            wifi_color: String::new(),
+            bluetooth_color: String::new(),
+            lens_grow: 3,
+            lens_magnify: 1.07,
+            lens_warp: 1.0,
+            close_on_leave: true,
+        }
+    }
+}
+
+impl MenuBarSettings {
+    /// How much of the top of the screen the bar takes, in logical px: its
+    /// own height and the gap above it.
+    pub fn thickness(&self) -> u32 {
+        self.height + self.gap
+    }
+}
+
+/// How the app behaves for people who need it quieter, and how it feels for
+/// everyone else.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct AccessibilitySettings {
+    /// Cut animation down to nothing but the change: `system` follows the
+    /// Windows "Animation effects" switch, `on` always, `off` never.
+    pub reduce_motion: String,
+    /// Make glass solid and drop the blur: `system` follows the Windows
+    /// "Transparency effects" switch, `on` always, `off` never.
+    pub reduce_transparency: String,
+    /// The global shortcuts that move the keyboard into the menu bar and the
+    /// dock (Ctrl+Alt+M and Ctrl+Alt+D).
+    pub keyboard_shortcuts: bool,
+    /// Soft sounds for opening and closing menus, switches and launching.
+    pub ui_sounds: bool,
+    /// How loud they are, 0.0..=1.0.
+    pub ui_sound_volume: f32,
+}
+
+impl Default for AccessibilitySettings {
+    fn default() -> Self {
+        Self {
+            reduce_motion: "system".into(),
+            reduce_transparency: "system".into(),
+            keyboard_shortcuts: true,
+            ui_sounds: false,
+            ui_sound_volume: 0.4,
+        }
+    }
+}
+
+impl AccessibilitySettings {
+    const POLICIES: &'static [&'static str] = &["system", "on", "off"];
+}
+/// A frame round the free space of every monitor, between the menu bar and the
+/// dock: maximised apps are held in from the screen edges by `padding`, with
+/// rounded corners, and the margin they leave is drawn as glass with the
+/// ambient scene drifting in it. Off by default, because it claims screen space.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct FrameSettings {
+    pub enabled: bool,
+    /// Width of the margin on every side, in logical px.
+    pub padding: u32,
+    /// Corner radius of the opening the apps sit in, in logical px.
+    pub corner_radius: u32,
+    /// How strongly the margin is tinted with the theme colour (1 = default).
+    pub tint: f32,
+    /// Play the ambient scene in the margin.
+    pub ambient: bool,
+}
+
+impl Default for FrameSettings {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            padding: 14,
+            corner_radius: 18,
+            tint: 1.0,
+            ambient: true,
+        }
+    }
+}
+
+/// Which animation each kind of thing uses. Each is the name of a preset the
+/// frontend knows (see `engine/animation/presets.ts`); the lists of names that
+/// are allowed live here too, so a hand-edited file can never name one the
+/// frontend would not recognise.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct AnimationSettings {
+    /// Menu bar menus and the Control Center, opening and closing.
+    pub menu: String,
+    /// The dock's own flyouts and panels: window previews, context menus,
+    /// folders and stacks, search, modes, notices.
+    pub flyout: String,
+    /// The dock appearing and disappearing: at launch, and with auto-hide.
+    pub dock_reveal: String,
+    /// What an icon does when an app is launched from it.
+    pub launch: String,
+    /// How the icons swell as the pointer passes over them.
+    pub magnify: String,
+}
+
+impl AnimationSettings {
+    pub const MENU: &'static [&'static str] =
+        &["goo", "spring", "unfurl", "reveal", "drift", "fade", "none"];
+    pub const FLYOUT: &'static [&'static str] =
+        &["bloom", "pop", "glide", "unfurl", "jelly", "fade", "none"];
+    pub const DOCK_REVEAL: &'static [&'static str] =
+        &["slide", "rise", "pop", "genie", "cascade", "fade", "none"];
+    pub const LAUNCH: &'static [&'static str] = &["bounce", "hop", "jelly", "pulse", "none"];
+    pub const MAGNIFY: &'static [&'static str] = &["soft", "snappy", "bouncy", "liquid"];
+}
+
+impl Default for AnimationSettings {
+    /// Each is what the app has always done (the menu bar's, what it was last
+    /// shipped with), so updating changes nothing until one is picked.
+    fn default() -> Self {
+        Self {
+            menu: "goo".into(),
+            flyout: "bloom".into(),
+            dock_reveal: "slide".into(),
+            launch: "bounce".into(),
+            magnify: "soft".into(),
+        }
+    }
+}
+
+/// Put `value` back to `fallback` unless it is one of `allowed`.
+fn keep_known(value: &mut String, allowed: &[&str], fallback: &str) {
+    if !allowed.contains(&value.as_str()) {
+        *value = fallback.to_string();
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct Settings {
@@ -283,6 +555,10 @@ pub struct Settings {
     pub onboarding_complete: bool,
     pub modes: ModesSettings,
     pub widgets: WidgetsSettings,
+    pub menu_bar: MenuBarSettings,
+    pub accessibility: AccessibilitySettings,
+    pub animations: AnimationSettings,
+    pub frame: FrameSettings,
 }
 
 impl Default for Settings {
@@ -297,6 +573,10 @@ impl Default for Settings {
             onboarding_complete: false,
             modes: ModesSettings::default(),
             widgets: WidgetsSettings::default(),
+            menu_bar: MenuBarSettings::default(),
+            accessibility: AccessibilitySettings::default(),
+            animations: AnimationSettings::default(),
+            frame: FrameSettings::default(),
         }
     }
 }
@@ -310,14 +590,58 @@ impl Settings {
         a.glass_intensity = a.glass_intensity.clamp(0.0, 1.0);
         a.bloom_amount = a.bloom_amount.clamp(0.0, 1.0);
         a.reflection_strength = a.reflection_strength.clamp(0.0, 1.0);
+        a.dock_shadow = a.dock_shadow.clamp(0.0, 1.0);
+        a.accent = normalize_hex(&a.accent);
         a.particle_density = a.particle_density.clamp(0.0, 1.0);
         a.animation_speed = a.animation_speed.clamp(0.5, 2.0);
         let d = &mut self.dock;
-        d.icon_size = d.icon_size.clamp(24, 96);
+        d.icon_size = d.icon_size.clamp(16, 96);
         d.magnification_scale = d.magnification_scale.clamp(1.0, 2.0);
         d.floating_margin = d.floating_margin.min(64);
+        d.padding = d.padding.clamp(2, 24);
+        d.indicator_gap = d.indicator_gap.min(16);
+        d.icon_spacing = d.icon_spacing.min(32);
+        d.corner_radius = d.corner_radius.map(|r| r.min(48));
+        d.status_icon_size = d.status_icon_size.clamp(10, 32);
+        // a hand-edited file cannot grow this without bound
+        d.running_order.truncate(64);
         // below ~200ms the dock hides while you are still reaching for it
         d.auto_hide_delay_ms = d.auto_hide_delay_ms.clamp(200, 10_000);
+        let f = &mut self.frame;
+        f.padding = f.padding.clamp(4, 64);
+        // the opening cannot be rounder than half of its own margin allows
+        f.corner_radius = f.corner_radius.min(48);
+        f.tint = if f.tint.is_finite() { f.tint.clamp(0.2, 2.0) } else { 1.0 };
+        let a11y = &mut self.accessibility;
+        keep_known(&mut a11y.reduce_motion, AccessibilitySettings::POLICIES, "system");
+        keep_known(&mut a11y.reduce_transparency, AccessibilitySettings::POLICIES, "system");
+        a11y.ui_sound_volume = if a11y.ui_sound_volume.is_finite() { a11y.ui_sound_volume.clamp(0.0, 1.0) } else { 0.4 };
+        let n = &mut self.animations;
+        keep_known(&mut n.menu, AnimationSettings::MENU, "goo");
+        keep_known(&mut n.flyout, AnimationSettings::FLYOUT, "bloom");
+        keep_known(&mut n.dock_reveal, AnimationSettings::DOCK_REVEAL, "slide");
+        keep_known(&mut n.launch, AnimationSettings::LAUNCH, "bounce");
+        keep_known(&mut n.magnify, AnimationSettings::MAGNIFY, "soft");
+        let m = &mut self.menu_bar;
+        m.height = m.height.clamp(22, 44);
+        m.gap = m.gap.min(24);
+        m.corner_radius = m.corner_radius.min(24);
+        m.tint = if m.tint.is_finite() { m.tint.clamp(0.2, 2.0) } else { 1.0 };
+        m.item_spacing = m.item_spacing.min(16);
+        m.font_size = m.font_size.clamp(11, 17);
+        // written into a style, so only ever a plain colour
+        m.wifi_color = normalize_hex(&m.wifi_color);
+        m.bluetooth_color = normalize_hex(&m.bluetooth_color);
+        m.lens_grow = m.lens_grow.min(10);
+        m.lens_magnify = if m.lens_magnify.is_finite() { m.lens_magnify.clamp(1.0, 1.3) } else { 1.07 };
+        m.lens_warp = if m.lens_warp.is_finite() { m.lens_warp.clamp(0.0, 2.0) } else { 1.0 };
+        // a stack opens as a grid, a fan or a list; anything else is a grid
+        for pin in &mut self.pinned {
+            pin.view = pin
+                .view
+                .take()
+                .filter(|v| matches!(v.as_str(), "grid" | "fan" | "list"));
+        }
         self.sanitize_modes();
         self.widgets.sanitize();
         // Every pin, unpin and reorder edits `pinned` directly, so the
@@ -471,6 +795,17 @@ fn strip_bom(raw: &str) -> &str {
     raw.strip_prefix('\u{feff}').unwrap_or(raw)
 }
 
+/// `#rrggbb`, lowercase, or empty if the text is not a colour. A hand-edited
+/// file cannot push anything but a colour into the stylesheet this way.
+fn normalize_hex(raw: &str) -> String {
+    let text = raw.trim().trim_start_matches('#');
+    if text.len() == 6 && text.chars().all(|c| c.is_ascii_hexdigit()) {
+        format!("#{}", text.to_ascii_lowercase())
+    } else {
+        String::new()
+    }
+}
+
 /// Thread-safe settings store managed as Tauri state.
 pub struct SettingsStore {
     inner: RwLock<Settings>,
@@ -562,6 +897,203 @@ mod tests {
     use super::*;
 
     #[test]
+    fn accent_is_kept_only_if_it_is_a_colour() {
+        assert_eq!(normalize_hex("#ABCDEF"), "#abcdef");
+        assert_eq!(normalize_hex("  2f9de3 "), "#2f9de3");
+        // anything else would otherwise travel into a stylesheet
+        assert_eq!(normalize_hex("red"), "");
+        assert_eq!(normalize_hex("#12345"), "");
+        assert_eq!(normalize_hex("#12345g"), "");
+        assert_eq!(normalize_hex("#fff; background: url(x)"), "");
+        assert_eq!(normalize_hex(""), "");
+    }
+
+    #[test]
+    fn the_menu_bar_is_off_and_its_height_stays_sensible() {
+        let mut s = Settings::default();
+        // off until asked for: nobody gets a strip taken off their screen by
+        // updating
+        assert!(!s.menu_bar.enabled);
+        s.menu_bar.height = 500;
+        s.sanitize();
+        assert_eq!(s.menu_bar.height, 44);
+        s.menu_bar.height = 1;
+        s.sanitize();
+        assert_eq!(s.menu_bar.height, 22);
+    }
+
+    #[test]
+    fn the_frame_is_off_until_asked_for_and_its_numbers_stay_sensible() {
+        // updating must not take a margin off anyone's screen
+        let old: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true}}"#)
+            .expect("an older file must still load");
+        assert!(!old.frame.enabled);
+        assert_eq!(old.frame.padding, 14);
+
+        let mut s = Settings::default();
+        s.frame.padding = 900;
+        s.frame.corner_radius = 900;
+        s.frame.tint = f32::NAN;
+        s.sanitize();
+        assert_eq!(s.frame.padding, 64);
+        assert_eq!(s.frame.corner_radius, 48);
+        assert!((s.frame.tint - 1.0).abs() < f32::EPSILON);
+        s.frame.padding = 0;
+        s.sanitize();
+        assert_eq!(s.frame.padding, 4);
+    }
+
+    #[test]
+    fn animations_default_to_what_the_app_always_did_and_only_known_names_survive() {
+        // a file from before these settings existed keeps every animation as it was
+        let old: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true}}"#)
+            .expect("an older file must still load");
+        assert_eq!(old.animations.menu, "goo");
+        assert_eq!(old.animations.flyout, "bloom");
+        assert_eq!(old.animations.dock_reveal, "slide");
+        assert_eq!(old.animations.launch, "bounce");
+        assert_eq!(old.animations.magnify, "soft");
+
+        // every default is itself one of the allowed names
+        let d = AnimationSettings::default();
+        assert!(AnimationSettings::MENU.contains(&d.menu.as_str()));
+        assert!(AnimationSettings::FLYOUT.contains(&d.flyout.as_str()));
+        assert!(AnimationSettings::DOCK_REVEAL.contains(&d.dock_reveal.as_str()));
+        assert!(AnimationSettings::LAUNCH.contains(&d.launch.as_str()));
+        assert!(AnimationSettings::MAGNIFY.contains(&d.magnify.as_str()));
+
+        // a name that is not known goes back to the default; one that is, stays
+        let mut s = Settings::default();
+        s.animations.menu = "wobble".into();
+        s.animations.flyout = "jelly".into();
+        s.animations.dock_reveal = "<script>".into();
+        s.animations.launch = String::new();
+        s.animations.magnify = "liquid".into();
+        s.sanitize();
+        assert_eq!(s.animations.menu, "goo");
+        assert_eq!(s.animations.flyout, "jelly");
+        assert_eq!(s.animations.dock_reveal, "slide");
+        assert_eq!(s.animations.launch, "bounce");
+        assert_eq!(s.animations.magnify, "liquid");
+    }
+
+    #[test]
+    fn the_bar_look_settings_are_clamped_and_older_files_get_the_old_look() {
+        // a file from before these settings existed keeps the bar as it was
+        let old: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true,"height":30}}"#)
+            .expect("an older menu bar block must still load");
+        assert_eq!(old.menu_bar.gap, 0);
+        assert_eq!(old.menu_bar.corner_radius, 12);
+        assert!((old.menu_bar.tint - 1.0).abs() < f32::EPSILON);
+        assert!(old.menu_bar.edge_highlight);
+        assert_eq!(old.menu_bar.thickness(), 30);
+
+        let mut s = Settings::default();
+        s.menu_bar.gap = 900;
+        s.menu_bar.corner_radius = 900;
+        s.menu_bar.tint = 50.0;
+        s.menu_bar.item_spacing = 900;
+        s.menu_bar.font_size = 1;
+        s.sanitize();
+        assert_eq!(s.menu_bar.gap, 24);
+        assert_eq!(s.menu_bar.corner_radius, 24);
+        assert!((s.menu_bar.tint - 2.0).abs() < f32::EPSILON);
+        assert_eq!(s.menu_bar.item_spacing, 16);
+        assert_eq!(s.menu_bar.font_size, 11);
+        s.menu_bar.tint = f32::NAN;
+        s.sanitize();
+        assert!((s.menu_bar.tint - 1.0).abs() < f32::EPSILON);
+        assert_eq!(s.menu_bar.thickness(), s.menu_bar.height + 24);
+    }
+
+    #[test]
+    fn the_depth_settings_default_on_and_the_blur_off_until_chosen() {
+        // a file from before these existed gets the soft light and grain, but
+        // not the blur, which is something to switch on and look at
+        let s: Settings = serde_json::from_str(r#"{"dock":{"iconSize":40}}"#).expect("old file loads");
+        assert!(!s.appearance.real_blur);
+        assert!(s.appearance.pointer_light && s.appearance.glass_grain);
+        let on: Settings = serde_json::from_str(r#"{"appearance":{"realBlur":true}}"#).expect("loads");
+        assert!(on.appearance.real_blur);
+        assert!(on.appearance.pointer_light);
+    }
+    #[test]
+    fn accessibility_defaults_follow_the_system_and_keep_sounds_off() {
+        let s: Settings = serde_json::from_str(r#"{"dock":{"iconSize":40}}"#).expect("old file loads");
+        assert_eq!(s.accessibility.reduce_motion, "system");
+        assert_eq!(s.accessibility.reduce_transparency, "system");
+        assert!(s.accessibility.keyboard_shortcuts);
+        assert!(!s.accessibility.ui_sounds);
+
+        let mut s = Settings::default();
+        s.accessibility.reduce_motion = "always".into();
+        s.accessibility.reduce_transparency = "on".into();
+        s.accessibility.ui_sound_volume = 9.0;
+        s.sanitize();
+        assert_eq!(s.accessibility.reduce_motion, "system");
+        assert_eq!(s.accessibility.reduce_transparency, "on");
+        assert!((s.accessibility.ui_sound_volume - 1.0).abs() < f32::EPSILON);
+        s.accessibility.ui_sound_volume = f32::NAN;
+        s.sanitize();
+        assert!((s.accessibility.ui_sound_volume - 0.4).abs() < f32::EPSILON);
+    }
+    #[test]
+    fn the_lens_sizing_settings_have_defaults_and_stay_in_range() {
+        let old: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true}}"#).expect("older block loads");
+        assert_eq!(old.menu_bar.lens_grow, 3);
+        assert!((old.menu_bar.lens_magnify - 1.07).abs() < f32::EPSILON);
+        assert!((old.menu_bar.lens_warp - 1.0).abs() < f32::EPSILON);
+        assert!(old.menu_bar.close_on_leave);
+
+        let mut s = Settings::default();
+        s.menu_bar.lens_grow = 99;
+        s.menu_bar.lens_magnify = 9.0;
+        s.menu_bar.lens_warp = -4.0;
+        s.sanitize();
+        assert_eq!(s.menu_bar.lens_grow, 10);
+        assert!((s.menu_bar.lens_magnify - 1.3).abs() < f32::EPSILON);
+        assert!(s.menu_bar.lens_warp.abs() < f32::EPSILON);
+        s.menu_bar.lens_magnify = f32::NAN;
+        s.menu_bar.lens_warp = f32::INFINITY;
+        s.sanitize();
+        assert!((s.menu_bar.lens_magnify - 1.07).abs() < f32::EPSILON);
+        assert!((s.menu_bar.lens_warp - 1.0).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn the_control_center_bubble_colours_default_to_the_theme_and_only_keep_real_colours() {
+        let old: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true}}"#)
+            .expect("an older menu bar block must still load");
+        assert_eq!(old.menu_bar.wifi_color, "");
+        assert_eq!(old.menu_bar.bluetooth_color, "");
+
+        let mut s = Settings::default();
+        s.menu_bar.wifi_color = " 0A84FF ".into();
+        s.menu_bar.bluetooth_color = "red; background: url(x)".into();
+        s.sanitize();
+        assert_eq!(s.menu_bar.wifi_color, "#0a84ff");
+        assert_eq!(s.menu_bar.bluetooth_color, "");
+    }
+
+    #[test]
+    fn the_bar_plays_the_ambient_scene_unless_told_not_to() {
+        // a file saved before the bar had this setting still loads, with it on
+        let s: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true,"height":30}}"#)
+            .expect("an older menu bar block must still load");
+        assert!(s.menu_bar.ambient);
+        assert_eq!(s.menu_bar.height, 30);
+        let off: Settings =
+            serde_json::from_str(r#"{"menuBar":{"ambient":false}}"#).expect("explicit off loads");
+        assert!(!off.menu_bar.ambient);
+    }
+
+    #[test]
+    fn a_missing_accent_is_empty_not_a_colour() {
+        let s = Settings::default();
+        assert_eq!(s.appearance.accent, "");
+    }
+
+    #[test]
     fn defaults_are_sane() {
         let s = Settings::default();
         assert_eq!(s.schema_version, CURRENT_SCHEMA_VERSION);
@@ -648,6 +1180,7 @@ mod tests {
             name: id.into(),
             icon: None,
             children: Vec::new(),
+            view: None,
         }
     }
 

@@ -142,7 +142,6 @@
 }
 
 /* Same reason: the small controls carry their own body on the dock. */
-[data-surface="liquid"][data-window="dock"] .dock-control-btn,
 [data-surface="liquid"][data-window="dock"] .mode-tile {
   background: linear-gradient(
     180deg,
@@ -152,10 +151,15 @@
   );
 }
 
+/* the round controls are tinted glass with a light symbol on every material,
+   so the material only changes how much the glass blurs what is behind it */
+[data-surface="liquid"] .dock-control-btn {
+  backdrop-filter: blur(14px) saturate(1.7);
+}
+
 /* ---- dock furniture ------------------------------------------------ */
 
 /* The round controls follow the same rule: less body, brighter rim. */
-[data-surface="liquid"] .dock-control-btn,
 [data-surface="liquid"] .mode-tile {
   background: linear-gradient(
     180deg,
@@ -227,12 +231,13 @@
   border-radius: 22px;
 }
 
-/* Cards in the settings window get the real thing: a refracting backdrop
-   written inline by useLiquidGlass, sized to each card. Once the backdrop
-   is doing the work the body has to get out of its way, so the tint drops
-   to almost nothing and the rim becomes a single inner glow, which is what
-   the reference implementation uses. */
+/* Cards in the settings window soften the sky behind them with a plain blur
+   (see clear.css for why it is not a refraction). With the backdrop doing
+   the work the body has to get out of its way, so the tint drops to almost
+   nothing and the rim becomes a single inner glow, which is what the
+   reference implementation uses. */
 [data-surface="liquid"] .settings-card.glass {
+  backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.28);
   box-shadow:
@@ -240,7 +245,7 @@
     0 18px 44px rgba(4, 26, 48, 0.28);
 }
 
-/* The Vista gloss cap fights the refraction, so a card keeps only a
+/* The Vista gloss cap fights the thin-glass look, so a card keeps only a
    whisper of sheen at the very top. */
 [data-surface="liquid"] .settings-card.glass::before {
   inset: 1px;
@@ -263,17 +268,16 @@
   background: rgba(255, 255, 255, 0.24);
 }
 
-/* Refraction can only bend what is behind it, and a smooth gradient bends
+/* A blur can only soften what is behind it, and a smooth gradient blurs
    into another smooth gradient. The bubbles are what give the glass
-   something to distort, so under this material they get bigger and a
+   something to soften, so under this material they get bigger and a
    little brighter. They are already the most Frutiger Aero thing in the
    window, which is why they earn the room. */
 [data-surface="liquid"] .settings-bubble {
-  /* Still, and deliberately. Anything moving behind a refracting surface
-     forces every card above it to re-raster on every frame, and with a
-     displacement map in the stack that costs more than a whole CPU core.
-     Held in place the refraction is computed once and the glass still
-     bends them the moment you scroll. */
+  /* Still, and deliberately. Anything moving behind a backdrop filter
+     forces every card above it to re-raster on every frame, which is a whole
+     CPU core in the software renderer. Held in place the cards stay idle
+     until you scroll. */
   animation: none;
   opacity: 0.5;
   bottom: auto;

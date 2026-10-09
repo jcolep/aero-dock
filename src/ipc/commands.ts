@@ -8,19 +8,24 @@ import type {
   AppAudio,
   AppEntry,
   AudioDevice,
+  BluetoothDevice,
+  BrightnessInfo,
   MonitorInfoEx,
   OutputChoice,
   PinnedItem,
+  RadioInfo,
   RecentFile,
   RestoreReport,
   RunningSnapshot,
   Settings,
   StorageInfo,
   SwitchReport,
+  SystemAccessibility,
   SystemLoad,
   SystemStatus,
   WidgetKind,
   WidgetStyle,
+  WifiNetwork,
 } from "./types";
 import type { DesktopBounds, HitRect, MediaAction, NowPlaying } from "./types";
 
@@ -32,6 +37,7 @@ export const ipc = {
     invoke<Settings>("pin_item", { item, index: index ?? null }),
   unpinItem: (id: string) => invoke<Settings>("unpin_item", { id }),
   reorderPinned: (ids: string[]) => invoke<Settings>("reorder_pinned", { ids }),
+  reorderRunning: (ids: string[]) => invoke<Settings>("reorder_running", { ids }),
   firstRunImport: (items: PinnedItem[]) =>
     invoke<Settings>("first_run_import", { items }),
   exportSettings: () => invoke<string>("export_settings"),
@@ -45,6 +51,9 @@ export const ipc = {
 
   // apps
   listApps: () => invoke<AppEntry[]>("list_apps"),
+  /** What an app calls itself (its Start menu name, or the description in its
+   *  version information), as opposed to the title of a window it has open. */
+  appDisplayName: (target: string) => invoke<string | null>("app_display_name", { target }),
   resolveIcons: (targets: string[]) =>
     invoke<Record<string, string>>("resolve_icons", { targets }),
   launch: (target: string, args?: string) =>
@@ -69,6 +78,8 @@ export const ipc = {
   // running windows
   getRunning: () => invoke<RunningSnapshot>("get_running"),
   activateWindow: (hwnd: number) => invoke<void>("activate_window", { hwnd }),
+  /** Taskbar-style click: restore if minimized, minimize if frontmost, else focus. */
+  toggleWindow: (hwnd: number) => invoke<void>("toggle_window", { hwnd }),
   minimizeWindow: (hwnd: number) => invoke<void>("minimize_window", { hwnd }),
   closeWindow: (hwnd: number) => invoke<void>("close_window", { hwnd }),
 
@@ -78,6 +89,12 @@ export const ipc = {
     invoke<void>("set_volume", { level: level ?? null, mute: mute ?? null }),
   openRecycleBin: () => invoke<void>("open_recycle_bin"),
   emptyRecycleBin: () => invoke<void>("empty_recycle_bin"),
+  /** Open the notification centre and calendar. */
+  openNotificationCenter: () => invoke<void>("open_notification_center"),
+  /** Open (or, if open, close) the tray's hidden-icons flyout, centred above
+   *  the given point in dock-window pixels. Resolves false if it would not open. */
+  openTrayOverflow: (anchorX: number, anchorTop: number) =>
+    invoke<boolean>("open_tray_overflow", { anchorX, anchorTop }),
   getWallpaperAccent: () => invoke<string>("get_wallpaper_accent"),
 
   // window previews (DWM thumbnails, physical px in dock client area)
@@ -85,6 +102,8 @@ export const ipc = {
     slots: { hwnd: number; x: number; y: number; w: number; h: number }[],
   ) => invoke<void>("show_window_previews", { slots }),
   hideWindowPreviews: () => invoke<void>("hide_window_previews"),
+  /** Show the real window behind a preview (peek), or null to put it back. */
+  peekWindow: (hwnd: number | null) => invoke<void>("peek_window", { hwnd }),
 
   // per-app audio
   listAppAudio: () => invoke<AppAudio[]>("list_app_audio"),
@@ -148,7 +167,53 @@ export const ipc = {
     invoke<boolean>("widget_media_control", { action }),
 
   // dock window
-  resizeDock: (width: number, height: number) =>
-    invoke<void>("resize_dock", { width, height }),
+  /** `width`/`height` size the OS window; `visible*` is the part of it that
+   *  shows pixels and takes mouse input (the rest is clipped away). */
+  resizeDock: (
+    width: number,
+    height: number,
+    visibleWidth: number,
+    visibleHeight: number,
+    barThickness: number,
+  ) => invoke<void>("resize_dock", { width, height, visibleWidth, visibleHeight, barThickness }),
+  /** Where the dock's glass bar is in its window (page px), so Windows can blur
+   *  what is behind it; `shown` false once it has slid away. */
+  reportDockBar: (
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number,
+    shown: boolean,
+  ) => invoke<void>("report_dock_bar", { bar: { x, y, width, height, radius, shown } }),
+  // control center
+  getSystemAccessibility: () => invoke<SystemAccessibility>("get_system_accessibility"),
+  getRadios: () => invoke<RadioInfo[]>("get_radios"),
+  setRadio: (kind: RadioInfo["kind"], on: boolean) => invoke<void>("set_radio", { kind, on }),
+  listWifi: (rescan: boolean) => invoke<WifiNetwork[]>("list_wifi", { rescan }),
+  connectWifi: (ssid: string) => invoke<void>("connect_wifi", { ssid }),
+  disconnectWifi: () => invoke<void>("disconnect_wifi"),
+  listBluetooth: () => invoke<BluetoothDevice[]>("list_bluetooth"),
+  getBrightness: () => invoke<BrightnessInfo>("get_brightness"),
+  setBrightness: (percent: number) => invoke<void>("set_brightness", { percent }),
   listMonitors: () => invoke<MonitorInfoEx[]>("list_monitors"),
+  /** The monitor the calling dock window is on, by device name. */
+  dockMonitor: () => invoke<string>("dock_monitor"),
+
+  // menu bar
+  /** How tall the part of the menu bar's window in use is, in logical px. */
+  resizeMenubar: (visibleHeight: number) =>
+    invoke<void>("resize_menubar", { visibleHeight }),
+  /** A menu has opened or closed: Rust watches for a click elsewhere, and for
+   *  Escape, while one is open, and sends `menubarOutside` / `menubarEscape`. */
+  setMenubarMenuOpen: (open: boolean) => invoke<void>("set_menubar_menu_open", { open }),
+  /** Run a power or session action; restart, shut down and log out ask first. */
+  systemAction: (kind: "lock" | "sleep" | "restart" | "shutdown" | "logoff" | "taskmgr") =>
+    invoke<void>("system_action", { kind }),
+  hideApp: (exe: string) => invoke<void>("hide_app", { exe }),
+  hideOthers: (exe: string) => invoke<void>("hide_others", { exe }),
+  showAllApps: () => invoke<void>("show_all_apps"),
+  quitAppWindows: (exe: string) => invoke<void>("quit_app_windows", { exe }),
+  /** Open the dock's search, which lives in the dock's own window. */
+  openDockSearch: () => invoke<void>("open_dock_search"),
 };

@@ -8,7 +8,7 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { create } from "zustand";
 import { ipc } from "../ipc/commands";
-import type { PinnedItem, WindowInfo } from "../ipc/types";
+import type { PinnedItem, StackView, WindowInfo } from "../ipc/types";
 import { exeDisplayName, targetKey, windowsByExe } from "./runningStore";
 
 export interface DockItemView {
@@ -19,6 +19,8 @@ export interface DockItemView {
   kind: PinnedItem["kind"];
   iconSrc: string | null;
   children: PinnedItem[];
+  /** How a stack opens (unset: a grid). Only stacks use it. */
+  view: StackView | null;
   /** Resolved icon URLs for stack children (parallel to children). */
   childIcons: (string | null)[];
   pinned: boolean;
@@ -81,6 +83,7 @@ export function buildDockItems(
   focused: number,
   iconUrls: Record<string, string>,
   showRunningApps: boolean,
+  runningOrder: string[] = [],
 ): DockItemView[] {
   const byExe = windowsByExe(runningWindows);
   const pinnedTargets = new Set(
@@ -96,6 +99,7 @@ export function buildDockItems(
       kind: p.kind,
       iconSrc: p.path ? (iconUrls[p.path] ?? null) : null,
       children: p.children,
+      view: p.view ?? null,
       childIcons: p.children.map((c) => (c.path ? (iconUrls[c.path] ?? null) : null)),
       pinned: true,
       windows,
@@ -105,18 +109,20 @@ export function buildDockItems(
   });
 
   if (showRunningApps) {
+    const running: DockItemView[] = [];
     for (const [key, windows] of byExe) {
       if (pinnedTargets.has(key)) continue;
       const first = windows[0];
       // UWP windows launch (and icon-resolve) through their AUMID
       const target = first.aumid ? `shell:AppsFolder\\${first.aumid}` : first.exe;
-      items.push({
+      running.push({
         id: `run-${key}`,
         name: windows.length === 1 ? first.title : exeDisplayName(first.exe),
         target,
         kind: "app",
         iconSrc: iconUrls[target] ?? null,
         children: [],
+        view: null,
         childIcons: [],
         pinned: false,
         windows,
@@ -124,6 +130,15 @@ export function buildDockItems(
         audioExe: first.exe,
       });
     }
+    // Apps the user has dragged keep that order. The rest follow in the
+    // order Windows reported them (sort is stable), so a new app lands at
+    // the end instead of shuffling the ones already placed.
+    const rank = (id: string) => {
+      const at = runningOrder.indexOf(id);
+      return at === -1 ? Number.MAX_SAFE_INTEGER : at;
+    };
+    running.sort((a, b) => rank(a.id) - rank(b.id));
+    items.push(...running);
   }
 
   return items;

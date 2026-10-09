@@ -20,6 +20,31 @@
   cursor: default;
 }
 
+/* The clock is a button: it opens the notification centre and calendar. It
+   is dressed like the status chips beside it, so it reads as part of the
+   same row and lights up the same way on hover. */
+.widget-clock-button {
+  padding: 2px 7px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.widget-clock-button:hover,
+.widget-chip-button:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(160, 220, 255, 0.15));
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 8px rgba(140, 210, 255, 0.4);
+}
+
+.widget-clock-button:active,
+.widget-chip-button:active {
+  transform: scale(0.96);
+}
+
 .widget-time {
   font-size: 14px;
   font-weight: 700;
@@ -37,18 +62,22 @@
   white-space: nowrap;
 }
 
+/* One row, vertically centred against the clock and the rest of the bar.
+   It was a two-column grid, which wrapped three icons into two rows. */
 .widget-glyphs {
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 2px 3px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
+/* the glyphs scale with the "Status icon size" setting; the chip around
+   each one keeps the same breathing room at any size */
 .widget-chip {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 20px;
+  width: calc(var(--status-glyph-size, 16px) + 6px);
+  height: calc(var(--status-glyph-size, 16px) + 4px);
   border: 1px solid transparent;
   border-radius: 6px;
   background: none;
@@ -60,21 +89,22 @@
   cursor: pointer;
 }
 
-.widget-chip-button:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(160, 220, 255, 0.15));
-  border-color: rgba(255, 255, 255, 0.45);
-  box-shadow: 0 0 8px rgba(140, 210, 255, 0.4);
-}
-
 .widget-glyph {
-  width: 16px;
-  height: 16px;
+  width: var(--status-glyph-size, 16px);
+  height: var(--status-glyph-size, 16px);
   filter: drop-shadow(0 1px 2px rgba(8, 40, 70, 0.6));
 }
 
 .widget-glyph-bin {
-  width: 17px;
-  height: 17px;
+  width: calc(var(--status-glyph-size, 16px) + 1px);
+  height: calc(var(--status-glyph-size, 16px) + 1px);
+}
+
+/* a vertical dock is narrow, so there the glyphs wrap into two columns */
+.dock-bar[data-vertical="true"] .widget-glyphs {
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: calc(2 * (var(--status-glyph-size, 16px) + 9px));
 }
 
 /* vertical dock: stack the cluster */

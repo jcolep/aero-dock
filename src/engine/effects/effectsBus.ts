@@ -1,5 +1,5 @@
 /**
- * Tiny event bus decoupling UI components from the PixiJS layer.
+ * Tiny event bus decoupling UI components from the effects layer.
  * Components fire fire-and-forget visual events; the effects layer
  * (if mounted and enabled) renders them.
  */

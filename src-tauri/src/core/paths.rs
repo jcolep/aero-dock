@@ -67,6 +67,16 @@ pub fn data_dir(app: &AppHandle) -> AeroResult<PathBuf> {
     Ok(resolve(app.path().app_data_dir()?))
 }
 
+/// Where a record of a crash is kept: beside the settings, but found without
+/// needing the app to be up, because it is needed when it is not.
+pub fn crash_log_path() -> Option<PathBuf> {
+    if is_portable() {
+        return exe_dir().map(|dir| dir.join(PORTABLE_DIR).join("crash.log"));
+    }
+    std::env::var_os("APPDATA")
+        .map(|appdata| PathBuf::from(appdata).join("com.aerodock.desktop").join("crash.log"))
+}
+
 /// WebView2 writes its own profile somewhere too, and by default that is
 /// under `%LOCALAPPDATA%`. Portable runs point it inside the data folder so
 /// the host machine keeps nothing.

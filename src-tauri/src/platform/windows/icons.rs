@@ -42,7 +42,6 @@ pub fn ensure_icon(target: &str, cache_dir: &Path) -> AeroResult<PathBuf> {
     rgba.save_with_format(&png_path, image::ImageFormat::Png)?;
     Ok(png_path)
 }
-
 fn extract_rgba(target: &str) -> AeroResult<image::RgbaImage> {
     let wide = to_wide(target);
     let factory: IShellItemImageFactory =

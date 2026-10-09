@@ -7,17 +7,37 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { springs } from "../../engine/animation/springs";
 import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
 import type { Settings } from "../../ipc/types";
 import { targetKey, useRunning, windowKey } from "../../state/runningStore";
-import { bloomOffset, flyoutStyle, useMenu } from "./menuStore";
+import { flyoutStyle, useMenu } from "./menuStore";
+import { usePanelMotion } from "./usePanelMotion";
 import "./windowsflyout.css";
 
 const SLOT_W = 200;
 const SLOT_H = 120;
 const COLS_MAX = 2;
+
+/** An element's box in the page, from layout offsets so that ancestors'
+ *  transforms (the entrance animation) do not move or shrink it. */
+function layoutRect(el: HTMLElement) {
+  let left = 0;
+  let top = 0;
+  let node: HTMLElement | null = el;
+  while (node) {
+    left += node.offsetLeft;
+    top += node.offsetTop;
+    const parent = node.offsetParent as HTMLElement | null;
+    // offsets are measured from the parent's padding edge, inside its border
+    if (parent) {
+      left += parent.clientLeft;
+      top += parent.clientTop;
+    }
+    node = parent;
+  }
+  return { left, top, width: el.offsetWidth, height: el.offsetHeight };
+}
 
 interface WindowsFlyoutProps {
   edge: Settings["dock"]["edge"];
@@ -28,6 +48,19 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
   const allWindows = useRunning((s) => s.windows);
   const focused = useRunning((s) => s.focused);
   const slotRefs = useRef(new Map<number, HTMLDivElement>());
+  // Peek: hovering a preview shows the real window. Both directions are
+  // delayed a little so sweeping across several previews does not make
+  // windows flash forward and back.
+  const peekTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const peek = useCallback((hwnd: number | null) => {
+    clearTimeout(peekTimer.current);
+    peekTimer.current = setTimeout(
+      () => {
+        ipc.peekWindow(hwnd).catch(() => undefined);
+      },
+      hwnd === null ? 80 : 130,
+    );
+  }, []);
 
   const active = kind === "windows" && item !== null && anchor !== null;
 
@@ -38,18 +71,32 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
     return allWindows.filter((w) => windowKey(w) === key);
   }, [item, allWindows]);
 
+  // A moment with no windows is not necessarily the end of them: the running
+  // list is rebuilt as windows change state, and a snapshot taken half way
+  // through can miss one. So the flyout waits a beat before going, and stays if
+  // they come back.
   useEffect(() => {
-    if (active && windows.length === 0) close();
+    if (!active || windows.length > 0) return;
+    const timer = setTimeout(close, 400);
+    return () => clearTimeout(timer);
   }, [active, windows.length, close]);
 
-  /** Measure slot rects and hand them to DWM (physical px). */
+  /**
+   * Measure slot rects and hand them to DWM (physical px).
+   *
+   * Rects come from layout, not `getBoundingClientRect()`. The flyout blooms
+   * in with a scale and an offset, and a bounding rect includes that
+   * transform: measured while the animation runs it reports a smaller,
+   * shifted box, and the live preview lands there instead of where the
+   * flyout ends up. Offsets ignore transforms, so they give the final place.
+   */
   const placeThumbnails = useCallback(() => {
     const scale = window.devicePixelRatio;
     const slots = windows
       .map((w) => {
         const el = slotRefs.current.get(w.hwnd);
         if (!el) return null;
-        const r = el.getBoundingClientRect();
+        const r = layoutRect(el);
         return {
           hwnd: w.hwnd,
           x: Math.round(r.left * scale),
@@ -68,21 +115,35 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
   // delayed hide catches anything a straggling animation callback
   // re-registered after the first (DWM draws over our DOM, so a leaked
   // thumbnail floats with no glass behind it)
+  //
+  // The delayed hide has to be cancellable. Moving from one app to the next
+  // closes the first flyout about when the second opens, and a hide that
+  // lands after that open would wipe the new previews a moment after they
+  // appeared, which is what "up for a split second, then gone" looked like.
+  const lateHide = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => {
     if (!active) return;
+    clearTimeout(lateHide.current);
     return () => {
       slotRefs.current.clear();
+      // a pending peek must not fire after the flyout is gone
+      clearTimeout(peekTimer.current);
+      // this also puts any peeked window back (see hide_window_previews)
       ipc.hideWindowPreviews().catch(() => undefined);
-      setTimeout(() => {
+      lateHide.current = setTimeout(() => {
         ipc.hideWindowPreviews().catch(() => undefined);
       }, 300);
     };
   }, [active]);
 
-  // window set changed while open → re-place
+  // Place the previews once the flyout is in the DOM, and again if the set
+  // of windows changes while it is open. Positions are the flyout's final
+  // ones (see placeThumbnails), so there is no need to wait out the entrance
+  // animation, and re-registering them a second time after it would only
+  // make them flicker. The short delay lets the glass start to appear first.
   useEffect(() => {
     if (active && windows.length > 0) {
-      const t = setTimeout(placeThumbnails, 60);
+      const t = setTimeout(placeThumbnails, 90);
       return () => clearTimeout(t);
     }
   }, [active, windows, placeThumbnails]);
@@ -121,25 +182,18 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
   const style = anchor
     ? flyoutStyle(edge, anchor, flyoutWidth, 14, rows * (SLOT_H + 26) + 30)
     : {};
-  const from = bloomOffset(edge);
+  const pm = usePanelMotion(edge);
 
   return (
     <AnimatePresence>
       {active && item && (
         <motion.div
           className="windows-flyout glass"
-          style={style}
-          initial={{ opacity: 0, scale: 0.84, ...from }}
-          animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-          exit={{ opacity: 0, scale: 0.93, transition: { duration: 0.15 } }}
-          transition={springs.bloom}
-          onAnimationComplete={(definition) => {
-            // fires for BOTH enter and exit — only place thumbnails when
-            // the ENTRANCE (opacity -> 1) has finished, never on exit
-            if ((definition as { opacity?: number })?.opacity === 1) {
-              placeThumbnails();
-            }
-          }}
+          style={{ ...style, transformOrigin: pm.origin }}
+          initial={pm.initial}
+          animate={pm.animate}
+          exit={pm.exit}
+          transition={pm.transition}
           onMouseEnter={() => useMenu.getState().cancelScheduledClose()}
           onMouseLeave={() => useMenu.getState().scheduleClose(350)}
         >
@@ -149,7 +203,13 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
             style={{ gridTemplateColumns: `repeat(${cols}, ${SLOT_W}px)` }}
           >
             {windows.map((w) => (
-              <div key={w.hwnd} className="windows-preview" data-focused={w.hwnd === focused}>
+              <div
+                key={w.hwnd}
+                className="windows-preview"
+                data-focused={w.hwnd === focused}
+                onMouseEnter={() => peek(w.hwnd)}
+                onMouseLeave={() => peek(null)}
+              >
                 <div
                   className="windows-preview-frame"
                   style={{ height: SLOT_H }}

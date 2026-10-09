@@ -38,10 +38,18 @@
   --ambient-glow: rgba(90, 180, 240, 0.25);
 
   /* ---- depth ---- */
+  /* three layers, as light has: a hairline of contact, a close soft shadow, and
+     a wide faint one. One shadow of a single blur reads as a sticker. */
   --shadow-dock:
-    0 10px 40px rgba(10, 45, 80, 0.35),
-    0 2px 10px rgba(10, 45, 80, 0.25);
+    0 1px 1px rgba(8, 30, 56, 0.3),
+    0 5px 12px rgba(10, 45, 80, 0.24),
+    0 20px 44px rgba(10, 45, 80, 0.26);
   --shadow-icon: drop-shadow(0 3px 6px rgba(8, 40, 70, 0.45));
+
+  /* A fine grain, laid over glass at a few percent: grey specks of noise, so a
+     soft gradient has something to break it up and does not band. It is a tile
+     the browser draws once. */
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0.07'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
 
   /* ---- user-tunable (settings-driven, written by ThemeApplier) ---- */
   --dock-opacity: 0.92;
