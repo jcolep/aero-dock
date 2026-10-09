@@ -63,9 +63,9 @@ pub fn run() {
             #[cfg(windows)]
             {
                 let hwnd = window.hwnd()?;
-                platform::windows::dock_window::apply_dock_styles(
-                    windows::Win32::Foundation::HWND(hwnd.0),
-                )?;
+                let hwnd = windows::Win32::Foundation::HWND(hwnd.0);
+                platform::windows::dock_window::apply_dock_styles(hwnd)?;
+                platform::windows::dock_window::strip_caption(hwnd);
             }
 
             // honor the taskbar preference from the last session, and if it

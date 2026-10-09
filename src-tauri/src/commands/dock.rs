@@ -230,6 +230,15 @@ fn position_one(app: &AppHandle, label: &str) -> AeroResult<()> {
     let hwnd = windows::Win32::Foundation::HWND(window.hwnd()?.0);
     crate::trace!("position_one: {label}");
 
+    // Tauri puts a title bar's style bits back on a window at moments of its own (a
+    // show, a change of focus or of always-on-top). The dock's window is much taller
+    // than the dock and clipped to the part in use; the title would be drawn at the
+    // top of it, out of sight, until something made the clip tall (a preview flyout
+    // opening) and a strip reading "Aero Dock" appeared in the middle of the screen.
+    // The window is made to refuse the style, as the menu bar's is.
+    #[cfg(windows)]
+    crate::platform::windows::dock_window::keep_caption_off(hwnd);
+
     // Reserve a strip for the visible dock (not the much taller window) so
     // maximised windows stop at it. The strip then stands in for the work
     // area when placing the dock, because the work area already excludes it.
@@ -453,6 +462,7 @@ async fn build_extra_dock(app: &AppHandle, label: &str) -> AeroResult<()> {
     {
         let hwnd = windows::Win32::Foundation::HWND(window.hwnd()?.0);
         crate::platform::windows::dock_window::apply_dock_styles(hwnd)?;
+        crate::platform::windows::dock_window::strip_caption(hwnd);
     }
     // placed before it is shown, so it never appears in the wrong spot
     let handle = app.clone();

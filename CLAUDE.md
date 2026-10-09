@@ -132,6 +132,13 @@ Say plainly in a report when something native was not seen.
   foreground window (Chromium takes focus for its web view), so closing a menu
   hands focus back. Do not set Tauri's `set_background_color` on these windows: tao
   paints it opaque on every `WM_ERASEBKGND`.
+- **Every window of ours must refuse a title bar** (`keep_caption_off`, called on the
+  main thread from each placement: `position_menubar`, `position_one` for the docks,
+  `layout_monitor` for the frame). Tauri puts `WS_CAPTION` back at moments of its
+  own, and the dock windows are titled "Aero Dock", so a dock without the guard showed
+  a strip reading "Aero Dock" with a close button mid-screen whenever a preview
+  flyout made its clip tall. A new window type needs the same guard (the widgets
+  overlay does not have it yet, as its clip only ever holds widgets).
 - **Packaged apps** (Teams, new Outlook, Terminal) are identified by AUMID
   (`GetApplicationUserModelId`, `packaged.rs`), not by exe path, which sits in a
   versioned folder that cannot be executed.

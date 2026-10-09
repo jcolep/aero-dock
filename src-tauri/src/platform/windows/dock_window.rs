@@ -180,3 +180,55 @@ pub fn set_no_activate(hwnd: HWND, no_activate: bool) -> AeroResult<()> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use windows::core::w;
+    use windows::Win32::UI::WindowsAndMessaging::{CreateWindowExW, DestroyWindow, WINDOW_EX_STYLE, WS_POPUP};
+
+    fn has_caption(hwnd: HWND) -> bool {
+        let style = unsafe { GetWindowLongPtrW(hwnd, GWL_STYLE) } as u32;
+        style & WS_CAPTION.0 != 0 || style & WS_SYSMENU.0 != 0
+    }
+
+    #[test]
+    fn a_guarded_window_refuses_its_title_bar_however_it_comes_back() {
+        // an unshown window far off screen, titled as the dock's windows are
+        let hwnd = unsafe {
+            CreateWindowExW(
+                WINDOW_EX_STYLE(0),
+                w!("STATIC"),
+                w!("Aero Dock"),
+                WS_POPUP | WS_CAPTION | WS_SYSMENU,
+                -30000,
+                -30000,
+                300,
+                200,
+                None,
+                None,
+                None,
+                None,
+            )
+        }
+        .expect("a test window");
+        assert!(has_caption(hwnd), "the test window starts with a title bar");
+
+        keep_caption_off(hwnd);
+        assert!(!has_caption(hwnd), "taken off when guarded");
+
+        // what Tauri does at a show or a change of focus: set the style again
+        unsafe {
+            let style = GetWindowLongPtrW(hwnd, GWL_STYLE) as u32;
+            SetWindowLongPtrW(hwnd, GWL_STYLE, (style | WS_CAPTION.0 | WS_SYSMENU.0) as isize);
+        }
+        assert!(!has_caption(hwnd), "and it does not come back");
+
+        // guarding twice is harmless
+        keep_caption_off(hwnd);
+        assert!(!has_caption(hwnd));
+        unsafe {
+            let _ = DestroyWindow(hwnd);
+        }
+    }
+}
