@@ -51,6 +51,8 @@ aero-dock/
 │  ├─ features/
 │  │  ├─ dock/                  DockBar, DockIcon, ContextMenu, flyouts, menuStore
 │  │  ├─ widgets/               clock, battery, network, volume, Recycle Bin
+│  │  ├─ mission/               Mission Control: every window as live pictures (own window)
+│  │  ├─ menubar/               menu bar, Control Center, Stats and Privacy panels
 │  │  ├─ search/                search overlay
 │  │  ├─ settings/              settings window + Aero form controls
 │  │  ├─ onboarding/            first-run welcome card
@@ -76,7 +78,11 @@ aero-dock/
 │  │        ├─ apps.rs          Start Menu/Desktop .lnk + AppsFolder (UWP)
 │  │        ├─ icons.rs         IShellItemImageFactory → PNG cache
 │  │        ├─ running.rs       shell-hook window, live running-app tracking
-│  │        ├─ thumbnails.rs    DWM live window previews
+│  │        ├─ thumbnails.rs    DWM live window previews (per destination window)
+│  │        ├─ genie.rs         minimise into / restore out of a dock icon: PrintWindow
+│  │        │                   capture, CPU row warp, layered click-through overlay
+│  │        ├─ privacy.rs       which apps use the camera / microphone (registry)
+│  │        ├─ procstats.rs     CPU / memory / network figures and top programs
 │  │        ├─ recent.rs        Recent folder items
 │  │        ├─ system.rs        battery, network, volume (WASAPI), Recycle Bin
 │  │        ├─ wallpaper.rs     wallpaper path + dominant color extraction

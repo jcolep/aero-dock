@@ -1,5 +1,5 @@
-//! The two global shortcuts that bring the keyboard to the bars: Ctrl+Alt+M
-//! for the menu bar and Ctrl+Alt+D for the dock.
+//! The global shortcuts: Ctrl+Alt+M and Ctrl+Alt+D bring the keyboard to the menu
+//! bar and the dock, and Ctrl+Alt+W opens the overview of every window.
 //!
 //! The bars never take the keyboard on their own (clicking one must not steal
 //! it from the app being used), so without a way in they cannot be reached from
@@ -25,10 +25,13 @@ use windows::Win32::UI::WindowsAndMessaging::{GetMessageW, PostThreadMessageW, M
 pub enum Target {
     MenuBar,
     Dock,
+    /// The overview of every window.
+    Mission,
 }
 
 /// The shortcuts: an id, the key (a virtual-key code) and what it is for.
-const CHORDS: [(i32, u32, Target); 2] = [(1, 0x4D, Target::MenuBar), (2, 0x44, Target::Dock)];
+const CHORDS: [(i32, u32, Target); 3] =
+    [(1, 0x4D, Target::MenuBar), (2, 0x44, Target::Dock), (3, 0x57, Target::Mission)];
 
 /// Message to the thread: register (wparam 1) or unregister (0) the chords.
 const SWITCH: u32 = WM_APP + 1;
@@ -111,7 +114,7 @@ mod tests {
         keys.sort();
         keys.dedup();
         assert_eq!(keys.len(), CHORDS.len());
-        // M and D
+        // M, D and W
         assert!(CHORDS.iter().all(|c| (0x41..=0x5A).contains(&c.1)));
     }
 }

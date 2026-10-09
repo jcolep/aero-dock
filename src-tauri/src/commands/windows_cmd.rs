@@ -1,7 +1,11 @@
 //! Window management IPC: the frontend gets live snapshots via the
 //! `apps://running-changed` event; these commands cover hydrate + actions.
 
-use crate::platform::windows::running;
+use serde::Deserialize;
+use tauri::{State, WebviewWindow};
+
+use crate::core::settings::SettingsStore;
+use crate::platform::windows::{accessibility, genie, running};
 
 #[tauri::command]
 pub fn get_running() -> running::RunningSnapshot {
@@ -16,9 +20,46 @@ pub fn activate_window(hwnd: isize) {
     running::activate_window(hwnd);
 }
 
+/// The dock icon a window is going into or coming out of, as the page measured
+/// it: CSS pixels from the top left of the dock window.
+#[derive(Debug, Clone, Copy, Deserialize)]
+pub struct IconRect {
+    pub x: f64,
+    pub y: f64,
+    pub width: f64,
+    pub height: f64,
+}
+
+/// Where the icon is on the screen, in physical pixels, given where the dock
+/// window's page starts and how big its pixels are.
+fn on_screen(icon: IconRect, origin: (i32, i32), scale: f64) -> genie::Area {
+    genie::Area {
+        x: origin.0 as f32 + (icon.x * scale) as f32,
+        y: origin.1 as f32 + (icon.y * scale) as f32,
+        w: (icon.width * scale) as f32,
+        h: (icon.height * scale) as f32,
+    }
+}
+
 #[tauri::command]
-pub fn toggle_window(hwnd: isize) {
-    running::toggle_window(hwnd);
+pub fn toggle_window(
+    window: WebviewWindow,
+    store: State<'_, SettingsStore>,
+    hwnd: isize,
+    target: Option<IconRect>,
+) {
+    let settings = store.get();
+    let still = accessibility::effective(&settings.accessibility.reduce_motion, accessibility::read().reduce_motion);
+    let effect = genie::Effect::parse(&settings.dock.minimize_effect);
+    let plan = match (target, effect, still) {
+        (Some(icon), Some(effect), false) => window
+            .inner_position()
+            .ok()
+            .zip(window.scale_factor().ok())
+            .map(|(p, scale)| (on_screen(icon, (p.x, p.y), scale), effect)),
+        _ => None,
+    };
+    running::toggle_window(hwnd, plan);
 }
 
 #[tauri::command]
@@ -95,10 +136,13 @@ pub fn show_window_previews(
 }
 
 #[tauri::command]
-pub fn hide_window_previews() {
-    crate::platform::windows::thumbnails::hide();
+pub fn hide_window_previews(window: tauri::WebviewWindow) -> crate::core::AeroResult<()> {
+    // the previews drawn into the window that asked, and no one else's
+    let hwnd = window.hwnd()?;
+    crate::platform::windows::thumbnails::hide_for(windows::Win32::Foundation::HWND(hwnd.0));
     // a closing flyout must never leave a window pulled to the front
     crate::platform::windows::peek::stop();
+    Ok(())
 }
 
 /// Show the real window behind a preview the pointer is on (`Some`), or put
@@ -108,5 +152,17 @@ pub fn peek_window(hwnd: Option<isize>) {
     match hwnd {
         Some(hwnd) => crate::platform::windows::peek::start(hwnd),
         None => crate::platform::windows::peek::stop(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_icon_is_put_on_the_screen_from_the_page_it_was_measured_in() {
+        // a dock window at (1920, 1000) on a 150% display: a 40 px icon at (100, 8)
+        let at = on_screen(IconRect { x: 100.0, y: 8.0, width: 40.0, height: 40.0 }, (1920, 1000), 1.5);
+        assert_eq!((at.x, at.y, at.w, at.h), (2070.0, 1012.0, 60.0, 60.0));
     }
 }

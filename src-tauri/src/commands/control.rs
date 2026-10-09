@@ -105,6 +105,13 @@ mod tests {
         eprintln!("radios: {:?}", radios::list());
         eprintln!("wifi: {:?}", wifi::networks().map(|n| n.into_iter().map(|n| (n.ssid, n.signal, n.connected, n.known)).collect::<Vec<_>>()));
         eprintln!("bluetooth: {:?}", bluetooth::paired());
+        eprintln!("in use now (microphone, camera): {:?}", crate::platform::windows::privacy::read());
+        let _ = crate::platform::windows::procstats::top(true, 1);
+        let _ = crate::platform::windows::procstats::throughput();
+        std::thread::sleep(std::time::Duration::from_millis(1500));
+        eprintln!("top by cpu: {:?}", crate::platform::windows::procstats::top(true, 4));
+        eprintln!("top by memory: {:?}", crate::platform::windows::procstats::top(false, 3));
+        eprintln!("network: {:?}", crate::platform::windows::procstats::throughput());
         let monitors = enumerate_monitors().expect("monitors");
         for m in &monitors {
             eprintln!("brightness on {}: {:?}", m.name, brightness::read(&m.bounds));

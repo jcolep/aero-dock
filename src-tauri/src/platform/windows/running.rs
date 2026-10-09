@@ -61,6 +61,13 @@ const HSHELL_WINDOWDESTROYED: usize = 2;
 const HSHELL_WINDOWACTIVATED: usize = 4;
 const HSHELL_REDRAW: usize = 6;
 const HSHELL_RUDEAPPACTIVATED: usize = 0x8004;
+/// A window's taskbar button is flashing: it wants attention. The same number as
+/// HSHELL_REDRAW with the high bit set.
+const HSHELL_FLASH: usize = HSHELL_REDRAW | 0x8000;
+
+/// The event sent when a window starts asking for attention. Its payload is the
+/// window's handle.
+const ATTENTION_EVENT: &str = "apps://attention";
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -333,6 +340,13 @@ unsafe extern "system" fn wnd_proc(
                     });
                 }
                 prune_and_emit();
+            }
+            HSHELL_FLASH => {
+                // a window in the background is flashing for attention (a message,
+                // a finished download); the page decides what to do about it
+                with_state(|s| {
+                    let _ = s.app.emit(ATTENTION_EVENT, target.0 as isize);
+                });
             }
             HSHELL_WINDOWDESTROYED => {
                 with_state(|s| {
@@ -757,7 +771,7 @@ pub fn activate_window(hwnd: isize) {
 /// brought forward. Decided from live window state rather than the cached
 /// focus snapshot, which goes stale (for instance after the last window is
 /// minimized, nothing else takes focus to update it).
-pub fn toggle_window(hwnd: isize) {
+pub fn toggle_window(hwnd: isize, into_icon: Option<(super::genie::Area, super::genie::Effect)>) {
     use windows::Win32::UI::WindowsAndMessaging::{
         GetAncestor, GetForegroundWindow, IsIconic, GA_ROOTOWNER,
     };
@@ -778,9 +792,17 @@ pub fn toggle_window(hwnd: isize) {
             && !front.0.is_null()
             && (front == h || GetAncestor(front, GA_ROOTOWNER) == GetAncestor(h, GA_ROOTOWNER))
     };
+    // With an icon to pour into (or out of) the window goes the long way; if the
+    // effect cannot take the job it is done plainly, as before.
     if is_foreground {
+        if into_icon.is_some_and(|(at, effect)| super::genie::minimize(hwnd, at, effect)) {
+            return;
+        }
         minimize_window(hwnd);
     } else {
+        if into_icon.is_some_and(|(at, effect)| super::genie::restore(hwnd, at, effect)) {
+            return;
+        }
         activate_window(hwnd);
     }
 }
@@ -820,6 +842,13 @@ pub fn close_window(hwnd: isize) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_flash_notice_is_the_redraw_notice_with_the_high_bit() {
+        // winuser.h: HSHELL_FLASH is (HSHELL_REDRAW|HSHELL_HIGHBIT), 0x8006
+        assert_eq!(HSHELL_FLASH, 0x8006);
+        assert_ne!(HSHELL_FLASH, HSHELL_REDRAW);
+    }
 
     #[test]
     fn idle_means_a_long_gap_since_the_last_input() {

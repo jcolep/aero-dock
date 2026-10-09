@@ -196,7 +196,7 @@ export function DockApp() {
 
   if (!settings) return null;
 
-  const activate = (item: DockItemView) => {
+  const activate = (item: DockItemView, target?: HTMLElement) => {
     if (item.windows.length === 0) {
       ipc.launch(item.target, item.args).catch(notify.on(`Could not open ${item.name}`));
       return;
@@ -204,7 +204,10 @@ export function DockApp() {
     // one window: behave like the taskbar (restore / minimize / focus),
     // decided in Rust from live window state
     if (item.windows.length === 1) {
-      ipc.toggleWindow(item.windows[0].hwnd).catch(notify.on("Could not switch to that window"));
+      // the icon's place goes along so the window can pour into it (or out of it)
+      const box = target?.getBoundingClientRect();
+      const icon = box ? { x: box.left, y: box.top, width: box.width, height: box.height } : undefined;
+      ipc.toggleWindow(item.windows[0].hwnd, icon).catch(notify.on("Could not switch to that window"));
       return;
     }
     // several windows: focus the first, or cycle if one is already focused

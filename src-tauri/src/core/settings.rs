@@ -91,6 +91,12 @@ pub struct DockSettings {
     pub show_clock: bool,
     /// Battery, network, volume and Recycle Bin glyphs.
     pub show_system_status: bool,
+    /// An app that flashes for attention (a message, a finished download) makes its
+    /// icon bounce and wear a dot, until it is looked at.
+    pub attention_bounce: bool,
+    /// How a window goes into the dock when minimised from it, and comes out:
+    /// genie (squeezed down to the icon), scale (shrunk to it) or off.
+    pub minimize_effect: String,
 }
 
 impl Default for DockSettings {
@@ -120,6 +126,8 @@ impl Default for DockSettings {
             show_settings_button: true,
             show_clock: true,
             show_system_status: true,
+            attention_bounce: true,
+            minimize_effect: "genie".into(),
         }
     }
 }
@@ -391,6 +399,10 @@ pub struct MenuBarSettings {
     /// A menu or the Control Center closes when the pointer moves away from it,
     /// instead of staying until something else is clicked.
     pub close_on_leave: bool,
+    /// A dot in the bar while an app is using the microphone or camera.
+    pub show_privacy: bool,
+    /// A small load graph in the bar, opening a popover of what is using the machine.
+    pub show_stats: bool,
 }
 
 impl Default for MenuBarSettings {
@@ -413,6 +425,8 @@ impl Default for MenuBarSettings {
             lens_magnify: 1.07,
             lens_warp: 1.0,
             close_on_leave: true,
+            show_privacy: true,
+            show_stats: true,
         }
     }
 }
@@ -612,6 +626,7 @@ impl Settings {
         // the opening cannot be rounder than half of its own margin allows
         f.corner_radius = f.corner_radius.min(48);
         f.tint = if f.tint.is_finite() { f.tint.clamp(0.2, 2.0) } else { 1.0 };
+        keep_known(&mut self.dock.minimize_effect, &["genie", "scale", "off"], "genie");
         let a11y = &mut self.accessibility;
         keep_known(&mut a11y.reduce_motion, AccessibilitySettings::POLICIES, "system");
         keep_known(&mut a11y.reduce_transparency, AccessibilitySettings::POLICIES, "system");
@@ -1026,6 +1041,20 @@ mod tests {
         let out = std::env::var("AERO_FIXTURE_OUT").expect("AERO_FIXTURE_OUT names the file to write");
         let json = serde_json::to_string_pretty(&Settings::default()).expect("settings serialise");
         std::fs::write(out, json).expect("the fixture can be written");
+    }
+    #[test]
+    fn the_new_bar_and_dock_switches_default_on_and_an_unknown_effect_falls_back() {
+        let s: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true},"dock":{"iconSize":40}}"#).expect("old file loads");
+        assert!(s.menu_bar.show_privacy && s.menu_bar.show_stats);
+        assert!(s.dock.attention_bounce);
+        assert_eq!(s.dock.minimize_effect, "genie");
+        let mut s = Settings::default();
+        s.dock.minimize_effect = "explode".into();
+        s.sanitize();
+        assert_eq!(s.dock.minimize_effect, "genie");
+        s.dock.minimize_effect = "scale".into();
+        s.sanitize();
+        assert_eq!(s.dock.minimize_effect, "scale");
     }
     #[test]
     fn accessibility_defaults_follow_the_system_and_keep_sounds_off() {

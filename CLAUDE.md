@@ -79,6 +79,9 @@ pnpm build
 node --experimental-websocket scripts/offscreen/menubar.mjs src-tauri/target/offscreen
 node --experimental-websocket scripts/offscreen/interrupt.mjs src-tauri/target/offscreen
 node --experimental-websocket scripts/offscreen/dock.mjs src-tauri/target/offscreen
+node --experimental-websocket scripts/offscreen/insight.mjs src-tauri/target/offscreen    # privacy dots, stats
+node --experimental-websocket scripts/offscreen/attention.mjs src-tauri/target/offscreen  # attention bounce
+node --experimental-websocket scripts/offscreen/mission.mjs src-tauri/target/offscreen    # Mission Control
 ```
 
 (The output folder is any folder; `src-tauri/target/` is git-ignored.)
@@ -156,7 +159,30 @@ Say plainly in a report when something native was not seen.
   ref.
 - **Menu bar menus close on pointer-leave** (setting, default on), after 320 ms so
   crossing the gap to the panel does not close it; not during a keyboard visit.
-- **Keyboard access** is by global hotkey (Ctrl+Alt+M menu bar, Ctrl+Alt+D dock;
+- **Privacy dots** (`privacy.rs`) read the registry's `CapabilityAccessManager\ConsentStore`
+  (an app is using a sensor while its `LastUsedTimeStop` is 0), polled every 2 s by
+  `insight.rs`, which emits `privacy://changed` only on a change. **Stats**
+  (`procstats.rs`) group processes by exe and use CPU deltas kept in a static, so the
+  first sample reads 0.
+- **Attention bounce**: `HSHELL_FLASH` (0x8006) from the shell hook becomes
+  `apps://attention`; `runningStore` holds the set and clears it when the app is
+  focused. The dock icon hops and shows a dot (`dock.attentionBounce`).
+- **Mission Control** (Ctrl+Alt+W, or Aero menu) is a window of its own (`mission.rs`,
+  label `mission`, built hidden on first use) that takes the keyboard. The live
+  pictures are DWM thumbnails (`thumbnails.rs`, one set per destination window, so
+  the dock flyouts and this overview do not clear each other). The grid is
+  `features/mission/layout.ts`; a picture is never drawn bigger than its window.
+- **Genie minimise** (`genie.rs`): the window is photographed with `PrintWindow`
+  (`PW_RENDERFULLCONTENT`), a click-through layered overlay plays a CPU row warp
+  (`render`, pure and unit-tested) while the real window is minimised underneath with
+  DWM transitions disabled for it. Only dock-icon clicks use it (the page sends the
+  icon's rect with `toggle_window`); every other minimise is plain. Restore needs the
+  picture kept from when it went in (6 kept); without one it restores plainly. One
+  effect at a time (`BUSY`); any failure falls back to the plain call. Off for
+  reduced motion or `dock.minimizeEffect = "off"`. An icon above the window's middle
+  gets the plain shrink, not the pour.
+- **Keyboard access** is by global hotkey (Ctrl+Alt+M menu bar, Ctrl+Alt+D dock,
+  Ctrl+Alt+W Mission Control;
   `hotkeys.rs`, the system's hotkey registration, not a hook). The bars are built
   never to take the keyboard, so `keyboard.rs` makes the window activatable for the
   visit and `set_dock_focusable(false)` restores it. Real focus is what lets
@@ -183,7 +209,10 @@ Read from the real machine and known to work: Wi-Fi and Bluetooth radio state,
 Wi-Fi networks in range, DDC brightness reads on external monitors.
 
 **Never exercised natively** (needs the owner to try, or a native test they have
-agreed to): switching a radio, setting a brightness, joining a network, the global
+agreed to): the genie minimise and restore (capture, overlay, timing, windows that
+refuse `PrintWindow`), Mission Control (the hotkey taking focus, live thumbnails in
+the overlay), the flash notice reaching the dock, the privacy registry reads with a
+real app on the microphone or camera, switching a radio, setting a brightness, joining a network, the global
 hotkeys taking focus, Narrator reading the bars, the blur panes (the first
 version showed a black backing; the plain-blur rework is unconfirmed), shaping a
 real maximised app on every kind of window, a visible taskbar, multi-monitor

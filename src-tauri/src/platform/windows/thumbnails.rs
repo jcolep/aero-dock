@@ -26,12 +26,14 @@ pub struct PreviewSlot {
     pub h: i32,
 }
 
-/// Registered thumbnail ids (opaque HTHUMBNAIL pointers).
-static ACTIVE: Mutex<Vec<isize>> = Mutex::new(Vec::new());
+/// Registered thumbnails: the window each is drawn into, and its id (an opaque
+/// HTHUMBNAIL). Kept by destination, so that the dock's flyout and the window
+/// overview, each a window of its own, do not tear down each other's.
+static ACTIVE: Mutex<Vec<(isize, isize)>> = Mutex::new(Vec::new());
 
-/// Replace all previews with the given slots.
+/// Replace the previews drawn into dest with the given slots.
 pub fn show(dest: HWND, slots: &[PreviewSlot]) -> AeroResult<()> {
-    hide();
+    hide_for(dest);
     let mut active = ACTIVE.lock();
     for slot in slots {
         let thumb = match unsafe { DwmRegisterThumbnail(dest, HWND(slot.hwnd as *mut _)) } {
@@ -57,15 +59,20 @@ pub fn show(dest: HWND, slots: &[PreviewSlot]) -> AeroResult<()> {
             let _ = unsafe { DwmUnregisterThumbnail(thumb) };
             continue;
         }
-        active.push(thumb);
+        active.push((dest.0 as isize, thumb));
     }
     Ok(())
 }
 
-/// Tear down all live previews.
-pub fn hide() {
+/// Tear down the previews drawn into one window.
+pub fn hide_for(dest: HWND) {
     let mut active = ACTIVE.lock();
-    for id in active.drain(..) {
-        let _ = unsafe { DwmUnregisterThumbnail(id) };
-    }
+    active.retain(|(d, id)| {
+        if *d == dest.0 as isize {
+            let _ = unsafe { DwmUnregisterThumbnail(*id) };
+            false
+        } else {
+            true
+        }
+    });
 }

@@ -4,6 +4,7 @@
  */
 
 import {
+  animate,
   motion,
   useMotionValue,
   useSpring,
@@ -14,11 +15,13 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { magnifySpring, nearSide, playLaunch } from "../../engine/animation/presets";
 import { idleFloat, springs } from "../../engine/animation/springs";
 import { effectsBus } from "../../engine/effects/effectsBus";
+import { motionReduced } from "../../engine/effects/fx2d";
 import { ipc } from "../../ipc/commands";
 import type { DockEdge } from "../../ipc/types";
 import { notify } from "../feedback/toastStore";
 import type { DockItemView } from "../../state/dockStore";
 import { exeKey, useAppAudio } from "../../state/audioStore";
+import { useRunning } from "../../state/runningStore";
 import { useSettings } from "../../state/settingsStore";
 import { playCue } from "../../engine/sound/ui";
 import { SpeakerShape } from "../widgets/SystemGlyphs";
@@ -153,6 +156,22 @@ export function DockIcon({
   const bounce = useMotionValue(0);
   const y = useTransform(bounce, (b) => (vertical ? 0 : b));
   const x = useTransform(bounce, (b) => (vertical ? b : 0));
+  // An app that flashes for attention (a message, a finished download) bounces its
+  // icon, and wears a dot until it is looked at. The bounce is a few hops, and a
+  // reminder every few seconds, not a loop: it asks without nagging, and costs
+  // nothing between hops. With motion reduced only the dot stays.
+  const attentionBounce = useSettings((s) => s.settings?.dock.attentionBounce ?? true);
+  const attention = useRunning((s) => item.windows.some((w) => s.attention.has(w.hwnd)));
+  useEffect(() => {
+    if (!attention || !attentionBounce) return;
+    const hop = () => {
+      if (motionReduced()) return;
+      void animate(bounce, [0, -18, 0, -11, 0, -5, 0], { duration: 0.95, ease: "easeOut" });
+    };
+    hop();
+    const again = setInterval(hop, 7000);
+    return () => clearInterval(again);
+  }, [attention, attentionBounce, bounce]);
   // squash and stretch, for the launch animations that use them
   const squashX = useMotionValue(1);
   const squashY = useMotionValue(1);
@@ -258,7 +277,13 @@ export function DockIcon({
           m.scheduleClose(450);
         }
       }}
-      aria-label={item.windows.length > 0 ? `, ${item.windows.length} open window${item.windows.length === 1 ? "" : "s"}` : item.name}
+      aria-label={
+        item.name +
+        (item.windows.length > 0
+          ? `, ${item.windows.length} open window${item.windows.length === 1 ? "" : "s"}`
+          : "") +
+        (attention && attentionBounce ? ", needs attention" : "")
+      }
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
     >
@@ -326,6 +351,7 @@ export function DockIcon({
           <Speaker level={0} muted />
         </span>
       )}
+      {attention && attentionBounce && <span className="dock-attention" aria-hidden />}
       {item.windows.length > 0 && (
         <span className="dock-indicator" data-focused={item.focused} />
       )}

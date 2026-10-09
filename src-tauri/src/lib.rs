@@ -112,6 +112,8 @@ pub fn run() {
             }
             #[cfg(windows)]
             commands::frame::init(&handle);
+            #[cfg(windows)]
+            commands::insight::start_privacy_watch(handle.clone());
             // the shortcuts that bring the keyboard to the menu bar and the dock
             #[cfg(windows)]
             {
@@ -177,6 +179,12 @@ pub fn run() {
             commands::apps::list_recent_files,
             commands::dock::resize_dock,
             commands::glass::report_dock_bar,
+            commands::mission::toggle_mission,
+            commands::mission::close_mission,
+            commands::mission::window_rects,
+            commands::insight::get_privacy_use,
+            commands::insight::get_stats,
+            commands::insight::get_top_processes,
             commands::control::get_system_accessibility,
             commands::control::get_radios,
             commands::control::set_radio,

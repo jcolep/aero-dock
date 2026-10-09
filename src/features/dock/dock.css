@@ -568,3 +568,19 @@
 .dock-viewport[data-kbd="true"] .dock-control-btn:focus {
   border-radius: 50%;
 }
+
+/* An app asking for attention: a red dot on the icon's upper left (the muted
+   badge has the upper right), until the app is looked at. */
+.dock-attention {
+  position: absolute;
+  top: -1px;
+  left: 1px;
+  z-index: 4;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ff7a6e, #e5382b);
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}

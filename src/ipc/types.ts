@@ -44,6 +44,10 @@ export interface DockSettings {
   showClock: boolean;
   /** Battery, network, volume and Recycle Bin glyphs. */
   showSystemStatus: boolean;
+  /** An app flashing for attention bounces its icon and wears a dot. */
+  attentionBounce: boolean;
+  /** How a window goes into the dock when minimised from it. */
+  minimizeEffect: "genie" | "scale" | "off";
 }
 
 /** How a surface is rendered. Both are Frutiger Aero; they differ in how
@@ -265,6 +269,10 @@ export interface MenuBarSettings {
   lensWarp: number;
   /** Menus and the Control Center close when the pointer leaves them. */
   closeOnLeave: boolean;
+  /** A dot while an app is using the microphone or camera. */
+  showPrivacy: boolean;
+  /** A load graph that opens a popover of what is using the machine. */
+  showStats: boolean;
 }
 
 /** Which animation each kind of thing uses: the id of a preset in
@@ -314,6 +322,31 @@ export interface AccessibilitySettings {
 export interface SystemAccessibility {
   reduceMotion: boolean;
   reduceTransparency: boolean;
+}
+
+/** One app using the microphone or the camera. */
+export interface PrivacyUse {
+  sensor: "microphone" | "camera";
+  app: string;
+}
+
+/** The machine's load. */
+export interface Stats {
+  cpuPercent: number;
+  memoryPercent: number;
+  memoryUsedMb: number;
+  memoryTotalMb: number;
+  /** Bytes a second. */
+  netDown: number;
+  netUp: number;
+}
+
+/** A program (all its processes together) and what it uses. */
+export interface Program {
+  name: string;
+  cpuPercent: number;
+  memoryMb: number;
+  processes: number;
 }
 
 /** A radio the Control Center can switch. */

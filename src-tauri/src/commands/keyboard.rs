@@ -20,6 +20,13 @@ pub fn enter(app: &AppHandle, target: Target) {
     let label = match target {
         Target::MenuBar => crate::commands::menubar::LABEL,
         Target::Dock => crate::commands::dock::PRIMARY_LABEL,
+        Target::Mission => {
+            // not a visit to a bar: the overview of every window, which has its own
+            // window to build, so it is opened off this thread
+            let app = app.clone();
+            tauri::async_runtime::spawn(async move { crate::commands::mission::toggle(&app).await });
+            return;
+        }
     };
     let Some(window) = app.get_webview_window(label) else { return };
     if !window.is_visible().unwrap_or(false) {

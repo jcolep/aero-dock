@@ -132,7 +132,7 @@ function useLocalOrder(items: DockItemView[], dragging: boolean) {
 interface DockBarProps {
   settings: Settings;
   items: DockItemView[];
-  onLaunch: (item: DockItemView) => void;
+  onLaunch: (item: DockItemView, target?: HTMLElement) => void;
   /** The first dock. With a dock on every monitor only this one shows the
    *  first-run welcome card, which pins the starter apps once. */
   primary: boolean;
@@ -620,7 +620,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         return;
       }
       playCue("launch");
-      onLaunch(item);
+      onLaunch(item, target);
     },
     [onLaunch, menu],
   );

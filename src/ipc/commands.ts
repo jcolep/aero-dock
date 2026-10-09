@@ -13,12 +13,15 @@ import type {
   MonitorInfoEx,
   OutputChoice,
   PinnedItem,
+  PrivacyUse,
+  Program,
   RadioInfo,
   RecentFile,
   RestoreReport,
   RunningSnapshot,
   Settings,
   StorageInfo,
+  Stats,
   SwitchReport,
   SystemAccessibility,
   SystemLoad,
@@ -79,7 +82,8 @@ export const ipc = {
   getRunning: () => invoke<RunningSnapshot>("get_running"),
   activateWindow: (hwnd: number) => invoke<void>("activate_window", { hwnd }),
   /** Taskbar-style click: restore if minimized, minimize if frontmost, else focus. */
-  toggleWindow: (hwnd: number) => invoke<void>("toggle_window", { hwnd }),
+  toggleWindow: (hwnd: number, target?: { x: number; y: number; width: number; height: number }) =>
+    invoke<void>("toggle_window", { hwnd, target: target ?? null }),
   minimizeWindow: (hwnd: number) => invoke<void>("minimize_window", { hwnd }),
   closeWindow: (hwnd: number) => invoke<void>("close_window", { hwnd }),
 
@@ -187,6 +191,15 @@ export const ipc = {
     shown: boolean,
   ) => invoke<void>("report_dock_bar", { bar: { x, y, width, height, radius, shown } }),
   // control center
+  // mission control
+  toggleMission: () => invoke<void>("toggle_mission"),
+  closeMission: () => invoke<void>("close_mission"),
+  /** Where each window is on screen (physical px); minimised ones are left out. */
+  windowRects: (hwnds: number[]) =>
+    invoke<{ hwnd: number; x: number; y: number; width: number; height: number }[]>("window_rects", { hwnds }),
+  getPrivacyUse: () => invoke<PrivacyUse[]>("get_privacy_use"),
+  getStats: () => invoke<Stats>("get_stats"),
+  getTopProcesses: (byCpu: boolean, limit: number) => invoke<Program[]>("get_top_processes", { byCpu, limit }),
   getSystemAccessibility: () => invoke<SystemAccessibility>("get_system_accessibility"),
   getRadios: () => invoke<RadioInfo[]>("get_radios"),
   setRadio: (kind: RadioInfo["kind"], on: boolean) => invoke<void>("set_radio", { kind, on }),

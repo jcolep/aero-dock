@@ -13,6 +13,7 @@ import { ColorSpectrum } from "./ColorSpectrum";
 import { ipc } from "../../ipc/commands";
 import type {
   DockEdge,
+  DockSettings,
   MonitorInfoEx,
   Settings,
   StorageInfo,
@@ -368,6 +369,18 @@ export function SettingsApp() {
                 onChange={(v) => set((d) => void (d.menuBar.takesOverDockStatus = v))}
               />
               <AeroToggle
+                label="Camera and microphone dots"
+                checked={settings.menuBar.showPrivacy}
+                hint="A green dot while an app is using the camera, an orange one for the microphone. Click it to see which"
+                onChange={(v) => set((d) => void (d.menuBar.showPrivacy = v))}
+              />
+              <AeroToggle
+                label="CPU, memory and network readout"
+                checked={settings.menuBar.showStats}
+                hint="A live readout in the bar. Click it for the busiest apps"
+                onChange={(v) => set((d) => void (d.menuBar.showStats = v))}
+              />
+              <AeroToggle
                 label="Show the date beside the time"
                 checked={settings.menuBar.showDate}
                 onChange={(v) => set((d) => void (d.menuBar.showDate = v))}
@@ -589,6 +602,26 @@ export function SettingsApp() {
             label="Show running applications"
             checked={dock.showRunningApps}
             onChange={(v) => set((d) => void (d.dock.showRunningApps = v))}
+          />
+          <AeroSegmented<DockSettings["minimizeEffect"]>
+            label="Minimise effect"
+            value={dock.minimizeEffect}
+            options={[
+              { value: "genie", label: "Genie" },
+              { value: "scale", label: "Scale" },
+              { value: "off", label: "None" },
+            ]}
+            onChange={(v) => set((d) => void (d.dock.minimizeEffect = v))}
+          />
+          <p className="settings-note">
+            A window pours into its dock icon when you minimise it from the dock, and back out when you open it.
+            Windows minimised any other way just minimise. Follows Reduce motion.
+          </p>
+          <AeroToggle
+            label="Bounce an icon when its app needs you"
+            checked={dock.attentionBounce}
+            hint="An app that flashes its taskbar button makes its dock icon hop and shows a dot, until you switch to it"
+            onChange={(v) => set((d) => void (d.dock.attentionBounce = v))}
           />
           <AeroToggle
             label="Automatically hide the dock"

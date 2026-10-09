@@ -15,7 +15,7 @@
 
 import { execFileSync, spawn } from "node:child_process";
 import { createServer } from "node:http";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -34,7 +34,9 @@ const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
 /** The default settings, as the app itself makes them (asked of Rust once and kept). */
 function defaultSettings(out) {
   const file = join(out, "default-settings.json");
-  if (!existsSync(file)) {
+  // asked of Rust again whenever the settings code is newer than the copy kept
+  const source = join(projectRoot, "src-tauri", "src", "core", "settings.rs");
+  if (!existsSync(file) || statSync(file).mtimeMs < statSync(source).mtimeMs) {
     execFileSync(
       "cargo",
       ["test", "--manifest-path", join(projectRoot, "src-tauri", "Cargo.toml"), "write_default_settings", "--", "--ignored"],
@@ -60,9 +62,10 @@ const ICON =
  * @param {[number, number]} [o.viewport]
  * @param {(settings: object) => void} [o.settings]  change the settings the mock serves
  * @param {object} [o.status]    overrides for what `get_system_status` returns
+ * @param {object[]} [o.privacy] the apps `get_privacy_use` reports (microphone/camera in use)
  * @param {object[]} [o.running] the windows `get_running` reports (default: one Notepad window)
  */
-export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running }) {
+export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running, privacy = [] }) {
   // absolute, because the browser reads its profile path from its own directory,
   // not from this script's
   const out = resolve(outFolder);
@@ -148,6 +151,9 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
   window.__calls = [];
   window.__reduceT = false;
   const callbacks = {};
+  const listeners = {};
+  // deliver an event to whoever listened for it, as the real backend would
+  window.__emit = (event, payload) => (listeners[event] || []).forEach((h) => callbacks[h] && callbacks[h]({ event, id: h, payload }));
   window.__TAURI_INTERNALS__ = {
     metadata: { currentWindow: { label: ${JSON.stringify(window)} }, currentWebview: { windowLabel: ${JSON.stringify(window)}, label: ${JSON.stringify(window)} } },
     transformCallback(cb) { const i = Math.floor(Math.random() * 1e9); callbacks[i] = cb; return i; },
@@ -166,8 +172,12 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "list_wifi": return [{ ssid: "Office", signal: 80, secured: true, connected: true, known: true }, { ssid: "Guest", signal: 45, secured: false, connected: false, known: false }];
         case "list_bluetooth": return [{ name: "Headphones", sort: "audio", connected: true }];
         case "get_brightness": return { available: true, percent: 70 };
+        case "window_rects": return ((args && args.hwnds) || []).filter((h) => !(window.__minimised || []).includes(h)).map((h, i) => ({ hwnd: h, x: 120 + i * 90, y: 90 + i * 50, width: i % 2 ? 900 : 1280, height: i % 2 ? 700 : 760 }));
+        case "get_privacy_use": return ${JSON.stringify(privacy)};
+        case "get_stats": { window.__statsTick = (window.__statsTick || 0) + 1; const t = window.__statsTick; return { cpuPercent: 20 + ((t * 7) % 50), memoryPercent: 61, memoryUsedMb: 19800, memoryTotalMb: 32500, netDown: 180000 + t * 9000, netUp: 24000 }; }
+        case "get_top_processes": return [{ name: "msedge", cpuPercent: 6.2, memoryMb: 1660, processes: 14 }, { name: "Code", cpuPercent: 3.1, memoryMb: 2526, processes: 19 }, { name: "Teams", cpuPercent: 1.4, memoryMb: 640, processes: 7 }, { name: "explorer", cpuPercent: 0.4, memoryMb: 180, processes: 1 }];
         case "resolve_icons": { const out = {}; for (const t of (args && args.targets) || []) out[t] = ICON; return out; }
-        case "plugin:event|listen": return Math.floor(Math.random() * 1e6);
+        case "plugin:event|listen": (listeners[args.event] = listeners[args.event] || []).push(args.handler); return args.handler;
         case "plugin:event|unlisten": return null;
         case "get_user_idle": case "get_idle": return false;
         case "dock_monitor": return "";
@@ -178,7 +188,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         }
         // commands with a real effect are acknowledged and recorded, never run
         case "resize_menubar": case "resize_dock": case "set_menubar_menu_open": case "activate_window":
-        case "set_dock_focusable": case "report_dock_bar": case "close_window": case "minimize_window": case "set_volume": case "set_radio":
+        case "set_dock_focusable": case "report_dock_bar": case "close_window": case "minimize_window": case "show_window_previews": case "hide_window_previews": case "toggle_mission": case "close_mission": case "toggle_window": case "set_memory_saver": case "set_volume": case "set_radio":
         case "connect_wifi": case "disconnect_wifi": case "set_brightness": case "launch": return null;
         default:
           if (cmd.startsWith("list_")) return [];
@@ -242,6 +252,8 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
     recorded: (name) => evalJs(`window.__rec_${name}`),
     /** The commands the page called that the mock did not know. */
     unknownCalls: () => evalJs("window.__unknown"),
+    /** Send the page an event, as the backend would. */
+    emit: (event, payload) => evalJs(`window.__emit(${JSON.stringify(event)}, ${JSON.stringify(payload)})`),
     /** Commands the page called, in order. */
     calls: () => evalJs("window.__calls"),
     /** Lay screenshots side by side in one image (file in `out`). */

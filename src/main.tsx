@@ -7,6 +7,7 @@ import { DesktopWidgets } from "./features/desktop/DesktopWidgets";
 import { FrameApp } from "./features/frame/FrameApp";
 import { FrameCornersApp } from "./features/frame/FrameCornersApp";
 import { MenuBarApp } from "./features/menubar/MenuBarApp";
+import { MissionApp } from "./features/mission/MissionApp";
 import { SettingsApp } from "./features/settings/SettingsApp";
 import "./styles/global.css";
 
@@ -18,6 +19,7 @@ const isWidgets = requested === "widgets";
 const isMenuBar = requested === "menubar";
 const isFrame = requested === "frame";
 const isFrameCorners = requested === "framecorners";
+const isMission = requested === "mission";
 
 function Root() {
   if (isSettings) return <SettingsApp />;
@@ -25,6 +27,7 @@ function Root() {
   if (isMenuBar) return <MenuBarApp />;
   if (isFrame) return <FrameApp />;
   if (isFrameCorners) return <FrameCornersApp />;
+  if (isMission) return <MissionApp />;
   return <DockApp />;
 }
 

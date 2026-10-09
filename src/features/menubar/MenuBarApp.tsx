@@ -32,6 +32,9 @@ import { notify } from "../feedback/toastStore";
 import { BatteryGlyph, useClock } from "../widgets/WidgetCluster";
 import { BarScene } from "./BarScene";
 import { Calendar } from "./Calendar";
+import { PrivacyDots, PrivacyPanel, privacySummary, usePrivacyUse } from "./Privacy";
+import { StatsPanel, StatsSparkline, useStatsLabel } from "./Stats";
+import { startStatsPolling } from "../../state/statsStore";
 import { ControlCenter } from "./ControlCenter";
 import { useLens, type LensLook } from "./Lens";
 import "./menubar.css";
@@ -44,9 +47,12 @@ const PANEL_ROOM = 700;
 const PANEL_WIDTH = 340;
 /** and the calendar's. */
 const CALENDAR_WIDTH = 300;
+/** and the stats popover's and the privacy note's. */
+const STATS_WIDTH = 320;
+const PRIVACY_WIDTH = 280;
 
 
-type MenuId = "apple" | "app" | "control" | "calendar";
+type MenuId = "apple" | "app" | "control" | "calendar" | "stats" | "privacy";
 
 interface OpenMenu {
   id: MenuId;
@@ -174,6 +180,11 @@ export function MenuBarApp() {
   const [open, setOpen] = useState<OpenMenu | null>(null);
   // the sliding lens under the buttons, and light that follows the pointer
   const reduced = useReduced();
+  // the privacy dots, and the load graph (read while the bar is showing it)
+  const privacyUses = usePrivacyUse(settings?.menuBar.showPrivacy ?? false);
+  const statsOn = settings?.menuBar.showStats ?? false;
+  useEffect(() => (statsOn ? startStatsPolling() : undefined), [statsOn]);
+  const statsLabel = useStatsLabel();
   const lensLook = useMemo<LensLook>(() => ({ grow: settings?.menuBar.lensGrow ?? 3, warp: settings?.menuBar.lensWarp ?? 1, still: reduced.motion }), [settings?.menuBar.lensGrow, settings?.menuBar.lensWarp, reduced.motion]);
   const { barRef, Lens, handlers: lensHandlers } = useLens(open?.id ?? null, lensLook);
   const pointerLight = usePointerLight();
@@ -357,7 +368,7 @@ export function MenuBarApp() {
   }, [closeOnLeave, closeMenu]);
   useEffect(() => () => clearTimeout(leaveTimer.current), []);
 
-  const MENU_ORDER: MenuId[] = ["apple", "app", "control", "calendar"];
+  const MENU_ORDER: MenuId[] = ["apple", "app", "control", "stats", "calendar"];
   const onKeyDown = (e: React.KeyboardEvent) => {
     const current = openRef.current;
     // a slider that took the key for itself (the arrows) keeps it
@@ -414,6 +425,7 @@ export function MenuBarApp() {
     { label: "About Aero Dock", run: () => ipc.openSettings() },
     { label: "Aero Dock Settings…", run: () => ipc.openSettings() },
     { label: "Windows Settings…", run: () => ipc.launch("ms-settings:") },
+    { label: "Mission Control", separatorAbove: true, run: () => ipc.toggleMission() },
     { label: "Force Quit…", separatorAbove: true, run: () => ipc.systemAction("taskmgr") },
     { label: "Sleep", separatorAbove: true, movesFocus: true, run: () => ipc.systemAction("sleep") },
     { label: "Restart…", movesFocus: true, run: () => ipc.systemAction("restart") },
@@ -514,6 +526,21 @@ export function MenuBarApp() {
         </div>
 
         <div className="mb-side">
+          {settings.menuBar.showPrivacy && privacyUses.length > 0 && (
+            <button
+              className="mb-item mb-privacy"
+              title={privacySummary(privacyUses)}
+              aria-label={privacySummary(privacyUses)}
+              {...trigger("privacy")}
+            >
+              <PrivacyDots uses={privacyUses} />
+            </button>
+          )}
+          {settings.menuBar.showStats && (
+            <button className="mb-item mb-stats" title={statsLabel} aria-label={statsLabel} {...trigger("stats")}>
+              <StatsSparkline />
+            </button>
+          )}
           {status?.battery.present && (
             <button className="mb-item" title="Battery" {...trigger("control")}>
               <BatteryGlyph percent={status.battery.percent} charging={status.battery.charging} />
@@ -576,7 +603,7 @@ export function MenuBarApp() {
         </div>
       )}
 
-      {(shown?.id === "control" || shown?.id === "calendar") && (
+      {(shown?.id === "control" || shown?.id === "calendar" || shown?.id === "stats" || shown?.id === "privacy") && (
         <div
           className="mb-panel"
           data-kind={shown.id}
@@ -588,14 +615,31 @@ export function MenuBarApp() {
           // the panel is pinned to the right of the bar; it grows out of the
           // button that opened it, which is somewhere along its top edge
           style={(() => {
-            const width = shown.id === "calendar" ? CALENDAR_WIDTH : PANEL_WIDTH;
+            const width =
+              shown.id === "calendar"
+                ? CALENDAR_WIDTH
+                : shown.id === "stats"
+                  ? STATS_WIDTH
+                  : shown.id === "privacy"
+                    ? PRIVACY_WIDTH
+                    : PANEL_WIDTH;
             const origin = shown.cx - (window.innerWidth - look.gap - 8 - width);
             return { width, transformOrigin: `${origin}px 0px`, ["--ox" as string]: `${origin}px` };
           })()}
           role="dialog"
-          aria-label={shown.id === "calendar" ? "Calendar" : "Control Center"}
+          aria-label={
+            shown.id === "calendar" ? "Calendar" : shown.id === "stats" ? "System load" : shown.id === "privacy" ? "Privacy" : "Control Center"
+          }
         >
-          {shown.id === "calendar" ? <Calendar /> : <ControlCenter />}
+          {shown.id === "calendar" ? (
+            <Calendar />
+          ) : shown.id === "stats" ? (
+            <StatsPanel />
+          ) : shown.id === "privacy" ? (
+            <PrivacyPanel uses={privacyUses} />
+          ) : (
+            <ControlCenter />
+          )}
         </div>
       )}
     </div>

@@ -11,6 +11,8 @@ import { EVENTS, type RunningSnapshot, type WindowInfo } from "../ipc/types";
 interface RunningState {
   windows: WindowInfo[];
   focused: number;
+  /** Windows that are flashing for attention: handles, until looked at or gone. */
+  attention: Set<number>;
   hydrated: boolean;
   hydrate: () => Promise<void>;
 }
@@ -18,13 +20,23 @@ interface RunningState {
 export const useRunning = create<RunningState>((set, get) => ({
   windows: [],
   focused: 0,
+  attention: new Set(),
   hydrated: false,
 
   hydrate: async () => {
     if (get().hydrated) return;
     set({ hydrated: true });
     await listen<RunningSnapshot>(EVENTS.runningChanged, (event) => {
-      set({ windows: event.payload.windows, focused: event.payload.focused });
+      const { windows, focused } = event.payload;
+      // looking at a window, or it going away, ends its asking for attention
+      const alive = new Set(windows.map((w) => w.hwnd));
+      const attention = new Set([...get().attention].filter((h) => alive.has(h) && h !== focused));
+      set({ windows, focused, attention: attention.size === get().attention.size ? get().attention : attention });
+    });
+    await listen<number>("apps://attention", (event) => {
+      // one that is already in front is not asking
+      if (event.payload === get().focused) return;
+      set({ attention: new Set(get().attention).add(event.payload) });
     });
     const snap = await ipc.getRunning();
     set({ windows: snap.windows, focused: snap.focused });
