@@ -38,6 +38,15 @@ const check = (ok, what) => {
     check((await q("!!document.querySelector('.dock-bar > .bd-layer')")) === true, "and a layer for it");
     const calls = await q("window.__calls.filter((c) => c.cmd === 'capture_backdrop').length");
     check(calls >= 2, `it looks again every so often (${calls} looks)`);
+    // two pictures, the newer fading in over the older: look at the opacities some way into a fade
+    await h.sleep(300);
+    const fades = [];
+    for (let i = 0; i < 14; i++) {
+      fades.push(await q("[...document.querySelectorAll('.dock-bar > .bd-layer > .bd-img')].map((e) => +getComputedStyle(e).opacity.toString().slice(0, 4))"));
+      await h.sleep(100);
+    }
+    const seen = new Set(fades.flat().map((v) => v.toFixed(1)));
+    check(seen.has("0.0") && seen.has("1.0") && [...seen].some((v) => v !== "0.0" && v !== "1.0"), `a picture fades in over the last, not all at once (opacities seen: ${[...seen].sort().join(" ")})`);
     const pose = await q("(() => { const l = document.querySelector('.dock-bar > .bd-layer'); const s = l.style; return { x: s.getPropertyValue('--bd-x'), y: s.getPropertyValue('--bd-y'), w: s.getPropertyValue('--bd-w'), h: s.getPropertyValue('--bd-h') }; })()");
     console.log("picture's place under the bar:", JSON.stringify(pose));
     const bar = await q("(() => { const b = document.querySelector('.dock-bar').getBoundingClientRect(); return { left: b.left, top: b.top, width: b.width, height: b.height }; })()");
@@ -68,6 +77,11 @@ const check = (ok, what) => {
     await h.sleep(1500);
     const q = (js) => h.eval(`(() => ${js})()`);
     check((await q("document.querySelector('.st-panel').dataset.bd")) === "on", "the Start panel has a picture under it");
+    const before = await q("window.__calls.filter((c) => c.cmd === 'capture_backdrop').length");
+    await h.sleep(3000);
+    const after = await q("window.__calls.filter((c) => c.cmd === 'capture_backdrop').length");
+    check(before === after, `and holds it: ${before} looks, ${after} three seconds later`);
+    check(before <= 3, `after no more than a couple of looks (${before})`);
     const shot = await h.shot(0, 0, 900, 900, 1);
     console.log("sheet:", await h.sheet({ start: shot }, "backdrop-start"));
   } finally {

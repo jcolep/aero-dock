@@ -84,19 +84,42 @@ img {
 
 [data-bd="on"] > .bd-layer {
   visibility: visible;
-  background-image: var(--bd-image);
+}
+
+/* the picture: two of them, one fading in over the other (see BackdropLayer) */
+.bd-img {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background-image: var(--bd-img);
   background-repeat: no-repeat;
   background-position: var(--bd-x, 0) var(--bd-y, 0);
   background-size: var(--bd-w, 100%) var(--bd-h, 100%);
+}
+
+/* A blurred picture is smooth to the point that its gradients show their steps (eight bits a colour, stretched
+   over a wide soft shape), and the steps move as the picture changes. The grain over it breaks them up, as
+   it does on the rest of the glass. */
+[data-bd="on"] > .bd-layer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background-image: var(--grain);
+  background-size: 160px 160px;
+}
+
+html[data-grain="off"] [data-bd="on"] > .bd-layer::before {
+  background-image: none;
 }
 
 [data-bd="on"] > .bd-layer::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 4;
   background: var(--bd-tint);
 }
-
 /* Vista's curved top-gloss highlight */
 .glass::before {
   content: "";

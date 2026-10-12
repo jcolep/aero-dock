@@ -650,7 +650,7 @@ export function StartApp() {
           }
         }}
       >
-        <BackdropLayer active={realBlur && phase !== "closed"} interval={450} margin={24} />
+        <BackdropLayer active={realBlur && phase !== "closed"} interval={380} looks={2} margin={24} fade={reduced.motion ? 0 : 500} minBlur={34} />
         {lens.Highlight}
         <div className="st-search">
           <Glyph name="search" />

@@ -21,6 +21,7 @@ import { useFileDrag } from "../../state/dragStore";
 import { Welcome } from "../onboarding/Welcome";
 import { WidgetCluster } from "../widgets/WidgetCluster";
 import { ContextMenu } from "./ContextMenu";
+import { useReduced } from "../../engine/accessibility/policy";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { SearchButton, SettingsButton } from "./DockControls";
 import { playCue } from "../../engine/sound/ui";
@@ -299,6 +300,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   // transform does not move). It is there once the dock has arrived and goes
   // the moment it starts to leave.
   const realBlur = settings.appearance.realBlur;
+  const reducedMotion = useReduced().motion;
   useEffect(() => {
     const el = barRef.current;
     if (!el) return;
@@ -847,7 +849,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       >
         {/* the bar can't clip itself (tooltips float above it), so the
             ambient sweep gets its own clipping layer */}
-        <BackdropLayer active={realBlur && !slidAway} interval={asleep ? 1500 : 220} margin={56} />
+        <BackdropLayer active={realBlur && !slidAway} interval={asleep ? 2400 : 500} margin={56} fade={reducedMotion ? 0 : 800} minBlur={30} />
         <span className="glass-sweep" aria-hidden />
         <ModeSwitcher settings={settings} edge={edge} />
         {!revealMode && settings.dock.showSearchButton && (

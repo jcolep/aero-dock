@@ -255,7 +255,11 @@ Say plainly in a report when something native was not seen.
   `animationstart`: they wake a rAF loop that rests after 24 still frames). A picture is of the glass plus
   `margin` px; when the glass leaves it a new one is asked for at once. It is decoded (`img.decode()`) before
   it is shown, or the glass shows its bare tint at every look; a look that finds the same bytes does not
-  swap, and the next is later (up to 7x `interval`). Pictures are in physical pixels from the window's top
+  swap, and the next is later (up to 7x `interval`). A new picture fades in over the last (`fade`; two
+  `.bd-img` children, the newer on top), a surface that opens and stays still takes `looks={2}` and then holds
+  (Start), and the grain (`--grain`) is laid over the picture: a blurred picture's gradients show their 8-bit
+  steps, which move as the picture changes, and that looked like a moving gradient. `minBlur` keeps whatever
+  changes behind the glass a soft wash. Pictures are in physical pixels from the window's top
   left (the 16-byte header) and the page divides by `devicePixelRatio`. **Unverified natively as of this
   note**: Display affinity, Mag host behaviour on a locked screen or secure desktop, and a magnifier already
   running (the Windows Magnifier app) were not tried. "Save a report" in Settings (Glass & light) writes

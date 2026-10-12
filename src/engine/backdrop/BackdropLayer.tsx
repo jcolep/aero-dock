@@ -26,6 +26,13 @@ interface Props {
   active: boolean;
   /** How often to look again, in ms. */
   interval?: number;
+  /** Look only this many times and then hold the picture (a surface that opens and stays still, like the Start
+   *  menu, is frosted glass over one moment of the desktop, not over a changing one). */
+  looks?: number;
+  /** How long a new picture takes to fade in over the last, in ms (none: it is swapped at once). */
+  fade?: number;
+  /** The least blur, in px: a desktop that changes behind the glass is a soft wash, not shapes. */
+  minBlur?: number;
   /** How much more than the glass is pictured, in px, for the glass to move or grow into. */
   margin?: number;
 }
@@ -50,7 +57,7 @@ function numberOf(style: CSSStyleDeclaration, name: string, fallback: number): n
   return Number.isFinite(v) ? v : fallback;
 }
 
-export function BackdropLayer({ active, interval = 220, margin = 48 }: Props) {
+export function BackdropLayer({ active, interval = 220, margin = 48, looks, fade = 0, minBlur = 0 }: Props) {
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -74,6 +81,11 @@ export function BackdropLayer({ active, interval = 220, margin = 48 }: Props) {
     // the last picture's bytes, and how many looks in a row have found the same one
     let lastBytes: Uint8Array | null = null;
     let quiet = 0;
+    let taken = 0;
+    // the two pictures it fades between: the one in front and the one under it
+    const images = Array.from(layer.querySelectorAll<HTMLElement>(".bd-img"));
+    let front = 0;
+    let settle: ReturnType<typeof setTimeout> | undefined;
 
     /** Where the glass is, as its layout box and where it shows (it may be moved and scaled). */
     const pose = () => {
@@ -119,6 +131,28 @@ export function BackdropLayer({ active, interval = 220, margin = 48 }: Props) {
       if (!raf) raf = requestAnimationFrame(follow);
     };
 
+    /** Put a new picture in front, fading in over the last. */
+    const show = (url: string) => {
+      const back = images[1 - front];
+      const old = images[front];
+      if (!back || !old) return;
+      clearTimeout(settle);
+      back.style.setProperty("--bd-img", `url("${url}")`);
+      back.style.transition = "none";
+      back.style.opacity = "0";
+      back.style.zIndex = "2";
+      old.style.zIndex = "1";
+      void back.offsetWidth;
+      back.style.transition = fade > 0 ? `opacity ${fade}ms ease-in-out` : "none";
+      back.style.opacity = "1";
+      front = 1 - front;
+      // under it, the last is let go once it is covered
+      settle = setTimeout(() => {
+        old.style.transition = "none";
+        old.style.opacity = "0";
+      }, fade + 40);
+    };
+
     const look = async () => {
       if (busy) return;
       busy = true;
@@ -129,7 +163,7 @@ export function BackdropLayer({ active, interval = 220, margin = 48 }: Props) {
       if (visible && alive) {
         const style = getComputedStyle(host);
         const dpr = window.devicePixelRatio || 1;
-        const blur = numberOf(style, "--glass-blur", 24) * numberOf(style, "--glass-intensity", 1);
+        const blur = Math.max(minBlur, numberOf(style, "--glass-blur", 24) * numberOf(style, "--glass-intensity", 1));
         try {
           const buf = await ipc.captureBackdrop({
             x: r.left - margin,
@@ -166,7 +200,7 @@ export function BackdropLayer({ active, interval = 220, margin = 48 }: Props) {
               width: header.getInt32(8, true) / dpr,
               height: header.getInt32(12, true) / dpr,
             };
-            layer.style.setProperty("--bd-image", `url("${next}")`);
+            show(next);
             host.dataset.bd = "on";
             lastPose = "";
             place();
@@ -184,8 +218,9 @@ export function BackdropLayer({ active, interval = 220, margin = 48 }: Props) {
         }
       }
       busy = false;
-      // looking less often while the desktop behind stands still
-      if (alive) timer = setTimeout(look, interval * (1 + quiet));
+      taken += 1;
+      // looking less often while the desktop behind stands still, and not at all once it has been looked at enough
+      if (alive && (looks === undefined || taken < looks)) timer = setTimeout(look, interval * (1 + quiet));
     };
 
     // what moves it: its own style or class changing (motion writes the transform inline), its size,
@@ -205,6 +240,7 @@ export function BackdropLayer({ active, interval = 220, margin = 48 }: Props) {
     return () => {
       alive = false;
       clearTimeout(timer);
+      clearTimeout(settle);
       if (raf) cancelAnimationFrame(raf);
       observer.disconnect();
       sizes.disconnect();
@@ -213,7 +249,12 @@ export function BackdropLayer({ active, interval = 220, margin = 48 }: Props) {
       delete host.dataset.bd;
       if (current) URL.revokeObjectURL(current);
     };
-  }, [active, interval, margin]);
+  }, [active, interval, margin, looks, fade, minBlur]);
 
-  return <span ref={ref} className="bd-layer" aria-hidden />;
+  return (
+    <span ref={ref} className="bd-layer" aria-hidden>
+      <span className="bd-img" />
+      <span className="bd-img" />
+    </span>
+  );
 }

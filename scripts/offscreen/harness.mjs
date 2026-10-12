@@ -206,7 +206,9 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
           c.width = w; c.height = h;
           const g = c.getContext("2d");
           const grad = g.createLinearGradient(0, 0, w, 0);
-          grad.addColorStop(0, "#d03030"); grad.addColorStop(0.5, "#e8c030"); grad.addColorStop(1, "#3050d0");
+          // the middle moves a little at every look, as a desktop that changes would
+          window.__bdTick = (window.__bdTick || 0) + 1;
+          grad.addColorStop(0, "#d03030"); grad.addColorStop(0.25 + (window.__bdTick % 5) * 0.12, "#e8c030"); grad.addColorStop(1, "#3050d0");
           g.fillStyle = grad; g.fillRect(0, 0, w, h);
           const bin = atob(c.toDataURL("image/png").split(",")[1]);
           const buf = new ArrayBuffer(16 + bin.length), dv = new DataView(buf), bytes = new Uint8Array(buf);
