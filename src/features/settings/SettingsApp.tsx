@@ -698,6 +698,38 @@ export function SettingsApp() {
           )}
         </section>
 
+        {/* ---- the Start menu ---- */}
+        <section className="settings-card glass">
+          <h2>Start menu</h2>
+          <p className="settings-note">
+            The search button on the dock opens it. It can also be opened from the keyboard with Ctrl+Alt+Space or Ctrl+Esc
+            (while keyboard shortcuts are on, under Accessibility). The Windows key still opens Windows' own Start menu.
+          </p>
+          <AeroToggle
+            label="Show recent files"
+            checked={settings.start.showRecommended}
+            hint="The Recommended section under the pinned apps"
+            onChange={(v) => set((d) => void (d.start.showRecommended = v))}
+          />
+          <div className="ctl-row">
+            <span className="ctl-label">Pinned apps</span>
+            <div className="ctl-actions">
+              <button
+                className="aero-button"
+                onClick={() =>
+                  set((d) => {
+                    // starts again from the dock's pins the next time it opens
+                    d.start.pinned = [];
+                    d.start.seeded = false;
+                  })
+                }
+              >
+                Reset to the dock's
+              </button>
+            </div>
+          </div>
+        </section>
+
         {/* ---- appearance ---- */}
         <section className="settings-card glass">
           <h2>Glass &amp; Light</h2>
@@ -885,7 +917,7 @@ export function SettingsApp() {
           <AeroToggle
             label="Keyboard shortcuts for the menu bar and the dock"
             checked={settings.accessibility.keyboardShortcuts}
-            hint="Ctrl+Alt+M opens the menu bar and Ctrl+Alt+D the dock, and gives them the keyboard: arrow keys move, Enter chooses, Shift+F10 opens an icon's menu, Escape gives the keyboard back. Screen readers can reach them this way too"
+            hint="Ctrl+Alt+W opens the window overview and Ctrl+Alt+Space (or Ctrl+Esc) the Start menu. Ctrl+Alt+M opens the menu bar and Ctrl+Alt+D the dock, and gives them the keyboard: arrow keys move, Enter chooses, Shift+F10 opens an icon's menu, Escape gives the keyboard back. Screen readers can reach them this way too"
             onChange={(v) => set((d) => void (d.accessibility.keyboardShortcuts = v))}
           />
           <AeroToggle

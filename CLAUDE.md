@@ -84,6 +84,7 @@ node --experimental-websocket scripts/offscreen/attention.mjs src-tauri/target/o
 node --experimental-websocket scripts/offscreen/mission.mjs src-tauri/target/offscreen    # Mission Control
 node --experimental-websocket scripts/offscreen/media.mjs src-tauri/target/offscreen      # Now Playing card
 node --experimental-websocket scripts/offscreen/tips.mjs src-tauri/target/offscreen       # glass tooltips
+node --experimental-websocket scripts/offscreen/start.mjs src-tauri/target/offscreen      # Start menu
 ```
 
 (The output folder is any folder; `src-tauri/target/` is git-ignored.)
@@ -212,8 +213,24 @@ Say plainly in a report when something native was not seen.
   is not touched by it; Tauri restores `WS_CAPTION` at moments of its own (see
   `keep_caption_off`). Checked with the real Mica For Everyone 2.0.6 using an off-screen test
   window (`does_mica_for_everyone_fight_back`, ignored); not yet checked on the real bars.
+- **The Start menu** (`commands/start.rs`, `features/start/`) replaced the dock's spotlight search
+  (deleted; the dock's search button and the menu bar's both call `toggle_start`). It is a window
+  only as big as the panel plus a 30 px shadow margin (`MARGIN`), centred on the work area and
+  resting above the docks' bars (`glass::dock_bar_rects`), built hidden and kept like Mission
+  Control, takes the keyboard, and has a blur pane (`"start"` in `glass::sync_all`). It is closed
+  by a 25 ms poll of the mouse buttons while open (`watch`), **not** a hook: `outside_click` is a
+  single shared instance owned by the menu bar and cannot serve two. Pins are our own list
+  (`settings.start`; Windows' real layout is an unreadable file), started from the dock's pins
+  once. Files come from Windows' index (`filesearch.rs`, WinRT `QueryOptions`), the account
+  from the registry (`profile.rs`). Shortcuts: Ctrl+Alt+Space and Ctrl+Esc. **The Windows key is
+  deliberately not taken over**: that needs a permanent low-level keyboard hook (and a stray key
+  press to cancel Windows' own Start), which the owner chose not to do for now; PowerToys is not
+  installable on their machine.
+- **Capabilities** (`capabilities/default.json`) list windows by label; a window not listed has no
+  `core:event` permission, so its `listen` fails silently. Every window that listens must be there
+  (`mission`, `start`, `widgets` and the frame windows were missing until the Start menu work).
 - **Keyboard access** is by global hotkey (Ctrl+Alt+M menu bar, Ctrl+Alt+D dock,
-  Ctrl+Alt+W Mission Control;
+  Ctrl+Alt+W Mission Control, Ctrl+Alt+Space and Ctrl+Esc the Start menu;
   `hotkeys.rs`, the system's hotkey registration, not a hook). The bars are built
   never to take the keyboard, so `keyboard.rs` makes the window activatable for the
   visit and `set_dock_focusable(false)` restores it. Real focus is what lets
@@ -240,7 +257,8 @@ Read from the real machine and known to work: Wi-Fi and Bluetooth radio state,
 Wi-Fi networks in range, DDC brightness reads on external monitors.
 
 **Never exercised natively** (needs the owner to try, or a native test they have
-agreed to): the Now Playing card while sound is playing (the sound wave with real audio, the
+agreed to): the Start menu (its window, focus, placement above the dock, closing on a click
+elsewhere, the blur pane, Ctrl+Esc being taken from Windows), the Now Playing card while sound is playing (the sound wave with real audio, the
 live view of a real window, seeking in a player that allows it; the session read itself works,
 checked against Apple Music), the genie minimise and restore (capture, overlay, timing, windows that
 refuse `PrintWindow`), Mission Control (the hotkey taking focus, live thumbnails in

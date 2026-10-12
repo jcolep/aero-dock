@@ -66,8 +66,12 @@ const ICON =
  * @param {object[]} [o.running] the windows `get_running` reports (default: one Notepad window)
  * @param {object} [o.media]     overrides for what `widget_now_playing` reports (the session starts as a seekable track)
  * @param {string} [o.art]       the cover `media_artwork` returns (a data: address), or none
+ * @param {object[]} [o.apps]    what `list_apps` returns (the Start menu's list of every app)
+ * @param {object[]} [o.recent]  what `list_recent_files` returns
+ * @param {object[]} [o.files]   what `search_files` returns
+ * @param {object}   [o.profile] what `user_profile` returns
  */
-export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running, privacy = [], media = {}, art = null }) {
+export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running, privacy = [], media = {}, art = null, apps = [], recent = [], files = [], profile = { name: "Jake Pascoe", picture: "" } }) {
   // absolute, because the browser reads its profile path from its own directory,
   // not from this script's
   const out = resolve(outFolder);
@@ -188,6 +192,11 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
           else { m.title = args.action === "next" ? "The next song" : "The song before"; m.key = "k" + Date.now(); m.positionMs = 0; }
           return true;
         }
+        case "list_apps": return ${JSON.stringify(apps)};
+        case "list_recent_files": return ${JSON.stringify(recent)};
+        case "search_files": return ${JSON.stringify(files)}.filter((f) => f.name.toLowerCase().includes(String(args.query || "").toLowerCase()));
+        case "user_profile": return ${JSON.stringify(profile)};
+        case "toggle_start": case "close_start": case "launch_as_admin": case "open_file_location": case "system_action": case "pin_item": return null;
         case "media_artwork": return window.__art;
         case "media_seek": window.__media.positionMs = args.positionMs; return true;
         case "media_seek_by": window.__media.positionMs = Math.max(0, window.__media.positionMs + args.deltaMs); return true;

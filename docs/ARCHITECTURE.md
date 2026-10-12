@@ -51,6 +51,7 @@ aero-dock/
 │  ├─ features/
 │  │  ├─ dock/                  DockBar, DockIcon, ContextMenu, flyouts, menuStore
 │  │  ├─ widgets/               clock, battery, network, volume, Recycle Bin
+│  │  ├─ start/                 the Start menu: pinned, all apps, search, power
 │  │  ├─ mission/               Mission Control: every window as live pictures (own window)
 │  │  ├─ menubar/               menu bar, Control Center, Stats and Privacy panels
 │  │  ├─ search/                search overlay
@@ -82,6 +83,8 @@ aero-dock/
 │  │        ├─ genie.rs         minimise into / restore out of a dock icon: PrintWindow
 │  │        │                   capture, CPU row warp, layered click-through overlay
 │  │        ├─ media.rs         system media session: cover, timeline, controls, source app
+│  │        ├─ profile.rs       who is signed in: display name and account picture
+│  │        ├─ filesearch.rs    files and folders from Windows' search index (Start menu search)
 │  │        ├─ system_backdrop.rs  keeps Mica/acrylic (put on by other programs) off our windows
 │  │        ├─ spectrum.rs      loopback capture + FFT for the Now Playing sound wave
 │  │        ├─ privacy.rs       which apps use the camera / microphone (registry)

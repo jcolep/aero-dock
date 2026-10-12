@@ -1,5 +1,7 @@
 //! The global shortcuts: Ctrl+Alt+M and Ctrl+Alt+D bring the keyboard to the menu
-//! bar and the dock, and Ctrl+Alt+W opens the overview of every window.
+//! bar and the dock, Ctrl+Alt+W opens the overview of every window, and
+//! Ctrl+Alt+Space (and Ctrl+Esc, which Windows uses for its own Start menu) opens
+//! the Start menu.
 //!
 //! The bars never take the keyboard on their own (clicking one must not steal
 //! it from the app being used), so without a way in they cannot be reached from
@@ -27,11 +29,20 @@ pub enum Target {
     Dock,
     /// The overview of every window.
     Mission,
+    /// The Start menu.
+    Start,
 }
 
-/// The shortcuts: an id, the key (a virtual-key code) and what it is for.
-const CHORDS: [(i32, u32, Target); 3] =
-    [(1, 0x4D, Target::MenuBar), (2, 0x44, Target::Dock), (3, 0x57, Target::Mission)];
+/// The shortcuts: an id, the modifiers, the key (a virtual-key code) and what it is for.
+const CTRL_ALT: HOT_KEY_MODIFIERS = HOT_KEY_MODIFIERS(MOD_CONTROL.0 | MOD_ALT.0);
+const CHORDS: [(i32, HOT_KEY_MODIFIERS, u32, Target); 5] = [
+    (1, CTRL_ALT, 0x4D, Target::MenuBar),
+    (2, CTRL_ALT, 0x44, Target::Dock),
+    (3, CTRL_ALT, 0x57, Target::Mission),
+    // Space, and Escape with Ctrl alone (Windows' own way to its Start menu)
+    (4, CTRL_ALT, 0x20, Target::Start),
+    (5, MOD_CONTROL, 0x1B, Target::Start),
+];
 
 /// Message to the thread: register (wparam 1) or unregister (0) the chords.
 const SWITCH: u32 = WM_APP + 1;
@@ -39,8 +50,8 @@ const SWITCH: u32 = WM_APP + 1;
 static THREAD: AtomicU32 = AtomicU32::new(0);
 
 fn register() {
-    let modifiers: HOT_KEY_MODIFIERS = MOD_CONTROL | MOD_ALT | MOD_NOREPEAT;
-    for (id, key, _) in CHORDS {
+    for (id, modifiers, key, _) in CHORDS {
+        let modifiers = HOT_KEY_MODIFIERS(modifiers.0 | MOD_NOREPEAT.0);
         if unsafe { RegisterHotKey(None, id, modifiers, key) }.is_err() {
             log::warn!("could not register shortcut {id}: another program has it");
         }
@@ -48,7 +59,7 @@ fn register() {
 }
 
 fn unregister() {
-    for (id, _, _) in CHORDS {
+    for (id, _, _, _) in CHORDS {
         unsafe {
             let _ = UnregisterHotKey(None, id);
         }
@@ -71,7 +82,7 @@ pub fn start(enabled: bool, on_press: impl Fn(Target) + Send + 'static) {
             match msg.message {
                 WM_HOTKEY => {
                     let id = msg.wParam.0 as i32;
-                    if let Some((_, _, target)) = CHORDS.iter().find(|(c, _, _)| *c == id) {
+                    if let Some((_, _, _, target)) = CHORDS.iter().find(|(c, _, _, _)| *c == id) {
                         on_press(*target);
                     }
                 }
@@ -105,16 +116,24 @@ mod tests {
     use super::*;
 
     #[test]
-    fn the_shortcuts_are_distinct_chords_on_letters() {
+    fn the_shortcuts_are_distinct_chords() {
         let mut ids: Vec<i32> = CHORDS.iter().map(|c| c.0).collect();
         ids.sort();
         ids.dedup();
         assert_eq!(ids.len(), CHORDS.len());
-        let mut keys: Vec<u32> = CHORDS.iter().map(|c| c.1).collect();
-        keys.sort();
-        keys.dedup();
-        assert_eq!(keys.len(), CHORDS.len());
-        // M, D and W
-        assert!(CHORDS.iter().all(|c| (0x41..=0x5A).contains(&c.1)));
+        // the same key with the same modifiers would be one chord claimed twice
+        let mut chords: Vec<(u32, u32)> = CHORDS.iter().map(|c| (c.1 .0, c.2)).collect();
+        chords.sort();
+        chords.dedup();
+        assert_eq!(chords.len(), CHORDS.len());
+        // every chord has a modifier, so none can be typed by accident
+        assert!(CHORDS.iter().all(|c| c.1 .0 != 0));
+        // M, D and W are letters; Start is on Space and on Escape
+        for (_, _, key, target) in CHORDS {
+            match target {
+                Target::Start => assert!(key == 0x20 || key == 0x1B),
+                _ => assert!((0x41..=0x5A).contains(&key)),
+            }
+        }
     }
 }

@@ -417,6 +417,36 @@ export interface BrightnessInfo {
   percent: number;
 }
 
+/** One app pinned to the Start menu. */
+export interface StartPin {
+  name: string;
+  /** An exe or document path, or `shell:AppsFolder\<aumid>`. */
+  target: string;
+  args: string;
+}
+
+export interface StartSettings {
+  pinned: StartPin[];
+  /** The pins were started from the dock's, once. */
+  seeded: boolean;
+  /** The Recommended section (recent files). */
+  showRecommended: boolean;
+}
+
+/** Who is signed in. */
+export interface Profile {
+  name: string;
+  /** A `data:` address, or empty. */
+  picture: string;
+}
+
+/** A file or folder from Windows' index. */
+export interface FoundFile {
+  name: string;
+  path: string;
+  folder: boolean;
+}
+
 export interface Settings {
   schemaVersion: number;
   dock: DockSettings;
@@ -431,6 +461,7 @@ export interface Settings {
   accessibility: AccessibilitySettings;
   animations: AnimationSettings;
   frame: FrameSettings;
+  start: StartSettings;
 }
 
 export interface AppEntry {
@@ -549,8 +580,6 @@ export const EVENTS = {
   menubarEscape: "menubar://escape",
   /** The tray's hidden-icons flyout opened (true) or closed (false). */
   trayFlyout: "tray://flyout",
-  /** Something outside the dock (the menu bar) asked for the search to open. */
-  searchOpen: "search://open",
   /** The person at the machine went idle (true) or came back (false). */
   userIdle: "system://idle",
 } as const;

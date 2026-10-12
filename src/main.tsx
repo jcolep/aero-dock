@@ -9,6 +9,7 @@ import { FrameCornersApp } from "./features/frame/FrameCornersApp";
 import { MenuBarApp } from "./features/menubar/MenuBarApp";
 import { MissionApp } from "./features/mission/MissionApp";
 import { SettingsApp } from "./features/settings/SettingsApp";
+import { StartApp } from "./features/start/StartApp";
 import "./styles/global.css";
 
 // One bundle, several windows, told apart by ?window=. The dock is the
@@ -20,6 +21,7 @@ const isMenuBar = requested === "menubar";
 const isFrame = requested === "frame";
 const isFrameCorners = requested === "framecorners";
 const isMission = requested === "mission";
+const isStart = requested === "start";
 
 function Root() {
   if (isSettings) return <SettingsApp />;
@@ -28,6 +30,7 @@ function Root() {
   if (isFrame) return <FrameApp />;
   if (isFrameCorners) return <FrameCornersApp />;
   if (isMission) return <MissionApp />;
+  if (isStart) return <StartApp />;
   return <DockApp />;
 }
 

@@ -5,7 +5,6 @@
  */
 
 import { GlassTips } from "../engine/tooltip/GlassTips";
-import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useEffect, useMemo } from "react";
@@ -13,9 +12,7 @@ import { DockBar } from "../features/dock/DockBar";
 import { EffectsLayer } from "../engine/effects/EffectsLayer";
 import { applyAppearance } from "../engine/themes/applyTheme";
 import { notify } from "../features/feedback/toastStore";
-import { useSearch } from "../features/search/SearchOverlay";
 import { ipc } from "../ipc/commands";
-import { EVENTS } from "../ipc/types";
 import { useAppAudio } from "../state/audioStore";
 import { buildDockItems, useDockIcons, type DockItemView } from "../state/dockStore";
 import { useFileDrag } from "../state/dragStore";
@@ -99,16 +96,6 @@ export function DockApp() {
       clearTimeout(timer);
     };
   }, [autoSwitch, focusedExe]);
-
-  // the menu bar's search button asks for the search, which lives here, in
-  // the first dock (the others would each open their own copy)
-  useEffect(() => {
-    if (!isPrimary) return;
-    const unlisten = listen(EVENTS.searchOpen, () => useSearch.getState().setOpen(true));
-    return () => {
-      unlisten.then((fn) => fn());
-    };
-  }, [isPrimary]);
 
   // pin files/shortcuts dropped onto the dock from Explorer
   useEffect(() => {

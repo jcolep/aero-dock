@@ -85,6 +85,29 @@ pub fn report_dock_bar(app: AppHandle, window: WebviewWindow, bar: BarReport) ->
     Ok(())
 }
 
+/// Where each dock's bar is on screen now, in physical pixels (only those that are showing).
+pub fn dock_bar_rects() -> Vec<RECT> {
+    let bars: HashMap<isize, Bar> = BARS.lock().clone().unwrap_or_default();
+    let mut out = Vec::new();
+    for (key, bar) in bars {
+        let hwnd = HWND(key as *mut _);
+        let mut at = RECT::default();
+        if bar.shown
+            && unsafe { IsWindow(Some(hwnd)).as_bool() }
+            && unsafe { IsWindowVisible(hwnd).as_bool() }
+            && unsafe { GetWindowRect(hwnd, &mut at) }.is_ok()
+        {
+            out.push(RECT {
+                left: at.left + bar.rel.x,
+                top: at.top + bar.rel.y,
+                right: at.left + bar.rel.x + bar.rel.width,
+                bottom: at.top + bar.rel.y + bar.rel.height,
+            });
+        }
+    }
+    out
+}
+
 /// Make every pane and every blur match the settings and where the windows
 /// are now. Cheap when nothing moved: each pane remembers what it was last
 /// given. Main thread.
@@ -127,6 +150,33 @@ pub fn sync_all(app: &AppHandle) {
             // no window to sit under now; hide whatever pane there was
             backdrop::set_pane(bar_pane, HWND::default(), None);
         }
+    }
+
+    // ---- the Start menu ----
+    let mut wanted_start = None;
+    if on {
+        if let Some(window) = app.get_webview_window(crate::commands::start::LABEL) {
+            if let Some(hwnd) = hwnd_of(&window) {
+                let mut at = RECT::default();
+                if unsafe { IsWindowVisible(hwnd).as_bool() } && unsafe { GetWindowRect(hwnd, &mut at) }.is_ok() {
+                    let scale = window.scale_factor().unwrap_or(1.0);
+                    // the panel is the window less the room left round it for its shadow
+                    let m = (crate::commands::start::MARGIN * scale).round() as i32;
+                    let rect = Rect {
+                        x: at.left + m,
+                        y: at.top + m,
+                        width: (at.right - at.left) - 2 * m,
+                        height: (at.bottom - at.top) - 2 * m,
+                    };
+                    let radius = (crate::commands::start::RADIUS * scale).round() as i32;
+                    wanted_start = Some((hwnd, (rect, radius, false)));
+                }
+            }
+        }
+    }
+    match wanted_start {
+        Some((hwnd, shape)) => backdrop::set_pane("start", hwnd, Some(shape)),
+        None => backdrop::set_pane("start", HWND::default(), None),
     }
 
     // ---- the docks ----

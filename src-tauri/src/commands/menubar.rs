@@ -331,9 +331,9 @@ fn run_system_action(kind: &str) -> AeroResult<()> {
     }
 }
 
-/// Open the dock's search, from the bar's search button. The search lives in
-/// the dock's window, so the dock is told.
+/// Open the Start menu, from the bar's search button (which is where the
+/// dock's search used to open).
 #[tauri::command]
-pub fn open_dock_search(app: AppHandle) {
-    let _ = app.emit("search://open", ());
+pub async fn open_dock_search(app: AppHandle) {
+    crate::commands::start::toggle(&app).await;
 }

@@ -30,7 +30,7 @@ import type {
   WidgetStyle,
   WifiNetwork,
 } from "./types";
-import type { DesktopBounds, HitRect, MediaAction, NowPlaying } from "./types";
+import type { DesktopBounds, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
 
 export const ipc = {
   // settings
@@ -237,4 +237,10 @@ export const ipc = {
   quitAppWindows: (exe: string) => invoke<void>("quit_app_windows", { exe }),
   /** Open the dock's search, which lives in the dock's own window. */
   openDockSearch: () => invoke<void>("open_dock_search"),
+  /** Open the Start menu, or close it if it is open. */
+  toggleStart: () => invoke<void>("toggle_start"),
+  /** The Start menu is done; `restore` gives the keyboard back to whoever had it. */
+  closeStart: (restore: boolean) => invoke<void>("close_start", { restore }),
+  userProfile: () => invoke<Profile>("user_profile"),
+  searchFiles: (query: string) => invoke<FoundFile[]>("search_files", { query }),
 };

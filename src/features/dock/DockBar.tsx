@@ -19,7 +19,6 @@ import type { DockItemView } from "../../state/dockStore";
 import { useAmbient } from "../../state/ambientStore";
 import { useFileDrag } from "../../state/dragStore";
 import { Welcome } from "../onboarding/Welcome";
-import { SEARCH_PANEL, SearchOverlay, useSearch } from "../search/SearchOverlay";
 import { WidgetCluster } from "../widgets/WidgetCluster";
 import { ContextMenu } from "./ContextMenu";
 import { SearchButton, SettingsButton } from "./DockControls";
@@ -184,8 +183,6 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   } = useLocalOrder(runningItems, dragging);
 
   const peak = magnification ? magnificationScale : 1;
-  const searchOpen = useSearch((s) => s.open);
-  const setSearchOpen = useSearch((s) => s.setOpen);
   const welcomeOpen = primary && !settings.onboardingComplete && pinnedItems.length === 0;
   const modesOpen = useModeSwitcher((m) => m.open);
   const modesOn = settings.modes.enabled && settings.modes.modes.length > 0;
@@ -199,7 +196,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       unlisten.then((fn) => fn());
     };
   }, []);
-  const menuOpen = menu.item !== null || searchOpen || welcomeOpen || modesOpen || trayOpen;
+  const menuOpen = menu.item !== null || welcomeOpen || modesOpen || trayOpen;
   // toasts sit in the band above the dock, which is only tall enough for a
   // tooltip — without extra room the window would clip them
   const toastCount = useToasts((s) => s.items.length);
@@ -470,17 +467,12 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     // The dock band itself: icons at full magnification plus tooltip room.
     const band = iconSize * peak + PAD_CROSS * 2 + label;
     // Open surfaces are taller than the band. Each reports the total cross
-    // size it needs, and the window takes the largest. The search overlay
-    // is measured from its own geometry rather than a shared guess, because
-    // a guess that is too small silently clips its input off the top.
+    // size it needs, and the window takes the largest.
     const crossFull = Math.max(
       band,
       menu.item !== null || welcomeOpen ? band + MENU_SPACE : 0,
       // the mode flyout is taller than the tooltip band it hangs off
       modesOpen ? band + MODE_FLYOUT_HEIGHT + FLYOUT_GAP : 0,
-      searchOpen
-        ? SEARCH_PANEL.offsetFor(iconSize) + SEARCH_PANEL.height + FLYOUT_GAP
-        : 0,
       toastCount > 0 ? band + TOAST_SPACE : 0,
     );
     // The OS window is as tall as the tallest thing that can ever open, and
@@ -492,7 +484,6 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     const crossMax = Math.max(
       band + MENU_SPACE,
       band + MODE_FLYOUT_HEIGHT + FLYOUT_GAP,
-      SEARCH_PANEL.offsetFor(iconSize) + SEARCH_PANEL.height + FLYOUT_GAP,
       band + TOAST_SPACE,
     );
     // The edge gap is part of the window, not space outside it. The window
@@ -525,7 +516,6 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     peak,
     vertical,
     menu.item,
-    searchOpen,
     welcomeOpen,
     toastCount,
     windowShrunk,
@@ -802,7 +792,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         <span className="glass-sweep" aria-hidden />
         <ModeSwitcher settings={settings} edge={edge} />
         {!revealMode && settings.dock.showSearchButton && (
-          <SearchButton onClick={() => setSearchOpen(!searchOpen)} />
+          <SearchButton onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
         )}
         <Reorder.Group
           as="div"
@@ -853,7 +843,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
                 side="left"
                 onHover={(over) => (over ? cancelRevealHide() : scheduleRevealHide())}
               >
-                <SearchButton onClick={() => setSearchOpen(!searchOpen)} />
+                <SearchButton onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
               </DockSatellite>
             )}
           </AnimatePresence>
@@ -884,7 +874,6 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       <FolderFlyout edge={edge} />
       <StackFlyout edge={edge} />
       <WindowsFlyout edge={edge} />
-      <SearchOverlay edge={edge} />
       <Toasts edge={edge} />
       <AnimatePresence>{welcomeOpen && <Welcome edge={edge} />}</AnimatePresence>
     </div>

@@ -20,6 +20,11 @@ pub fn enter(app: &AppHandle, target: Target) {
     let label = match target {
         Target::MenuBar => crate::commands::menubar::LABEL,
         Target::Dock => crate::commands::dock::PRIMARY_LABEL,
+        Target::Start => {
+            let app = app.clone();
+            tauri::async_runtime::spawn(async move { crate::commands::start::toggle(&app).await });
+            return;
+        }
         Target::Mission => {
             // not a visit to a bar: the overview of every window, which has its own
             // window to build, so it is opened off this thread

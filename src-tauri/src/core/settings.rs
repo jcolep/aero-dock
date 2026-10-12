@@ -563,6 +563,62 @@ fn keep_known(value: &mut String, allowed: &[&str], fallback: &str) {
     }
 }
 
+/// One app pinned to the Start menu.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct StartPin {
+    pub name: String,
+    /// What to launch: an exe or document path, or `shell:AppsFolder\<aumid>`.
+    pub target: String,
+    pub args: String,
+}
+
+/// The Start menu (the panel the dock's search button opens).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", default)]
+pub struct StartSettings {
+    /// What is pinned, in order. Windows keeps its own pinned layout in a file that
+    /// cannot be read, so this is a list of our own.
+    pub pinned: Vec<StartPin>,
+    /// The pins have been started from the dock's, once; after that they are the user's.
+    pub seeded: bool,
+    /// The Recommended section (recent files).
+    pub show_recommended: bool,
+}
+
+impl Default for StartSettings {
+    fn default() -> Self {
+        Self { pinned: Vec::new(), seeded: false, show_recommended: true }
+    }
+}
+
+const MAX_START_PINS: usize = 80;
+
+impl StartSettings {
+    fn sanitize(&mut self) {
+        let mut seen: Vec<(String, String)> = Vec::new();
+        self.pinned.retain_mut(|p| {
+            p.name.truncate(120);
+            p.target.truncate(520);
+            p.args.truncate(520);
+            if p.target.trim().is_empty() {
+                return false;
+            }
+            if p.name.trim().is_empty() {
+                p.name = p.target.clone();
+            }
+            // the same app twice is one
+            let key = (p.target.to_ascii_lowercase(), p.args.clone());
+            if seen.contains(&key) {
+                return false;
+            }
+            seen.push(key);
+            true
+        });
+        self.pinned.truncate(MAX_START_PINS);
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct Settings {
@@ -580,6 +636,7 @@ pub struct Settings {
     pub accessibility: AccessibilitySettings,
     pub animations: AnimationSettings,
     pub frame: FrameSettings,
+    pub start: StartSettings,
 }
 
 impl Default for Settings {
@@ -598,6 +655,7 @@ impl Default for Settings {
             accessibility: AccessibilitySettings::default(),
             animations: AnimationSettings::default(),
             frame: FrameSettings::default(),
+            start: StartSettings::default(),
         }
     }
 }
@@ -666,6 +724,7 @@ impl Settings {
         }
         self.sanitize_modes();
         self.widgets.sanitize();
+        self.start.sanitize();
         // Every pin, unpin and reorder edits `pinned` directly, so the
         // active mode has to pick those up here. Without this a pin made
         // between two switches would be thrown away by the next switch.
@@ -1147,6 +1206,27 @@ mod tests {
         assert_eq!(s.dock.icon_size, 48);
         assert!(s.dock.magnification);
         assert_eq!(s.appearance.theme, "aero");
+    }
+
+    #[test]
+    fn the_start_menu_pins_are_cleaned_and_an_old_file_has_none() {
+        let old: Settings = serde_json::from_str(r#"{"dock":{"iconSize":40}}"#).expect("old file loads");
+        assert!(old.start.pinned.is_empty() && !old.start.seeded && old.start.show_recommended);
+        let mut s = Settings::default();
+        let pin = |name: &str, target: &str| StartPin { name: name.into(), target: target.into(), args: String::new() };
+        s.start.pinned = vec![
+            pin("Notepad", r"C:\Windows\notepad.exe"),
+            pin("Notepad again", r"c:\windows\NOTEPAD.EXE"),
+            pin("Nothing", "   "),
+            pin("", "ms-settings:"),
+        ];
+        s.start.pinned.extend((0..200).map(|i| pin("x", &format!("C:\\a{i}.exe"))));
+        s.sanitize();
+        assert_eq!(s.start.pinned[0].name, "Notepad");
+        assert!(s.start.pinned.iter().all(|p| !p.target.trim().is_empty()));
+        assert_eq!(s.start.pinned[1].name, "ms-settings:", "a pin with no name goes by its target");
+        assert!(s.start.pinned.len() <= MAX_START_PINS);
+        assert_eq!(s.start.pinned.iter().filter(|p| p.target.eq_ignore_ascii_case(r"C:\Windows\notepad.exe")).count(), 1);
     }
 
     #[test]
