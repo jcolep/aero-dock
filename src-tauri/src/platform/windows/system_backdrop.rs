@@ -222,6 +222,35 @@ mod tests {
         }
     }
 
+    /// How long one look takes. `cargo test --lib how_long_is_a_look -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn how_long_is_a_look() {
+        let hwnds: Vec<HWND> = (0..8).map(|_| off_screen_window()).collect();
+        let start = std::time::Instant::now();
+        let n = 400;
+        for _ in 0..n {
+            pass();
+        }
+        let each = start.elapsed() / n;
+        let all = unsafe {
+            let mut c = 0usize;
+            unsafe extern "system" fn count(_: HWND, l: LPARAM) -> BOOL {
+                unsafe { *(l.0 as *mut usize) += 1 };
+                true.into()
+            }
+            let _ = EnumWindows(Some(count), LPARAM(&mut c as *mut usize as isize));
+            c
+        };
+        println!("one look: {each:?} ({all} top-level windows on the desktop, {} of ours)", our_windows().len());
+        println!("at one look per 150 ms that is {:.4}% of one core", each.as_secs_f64() / 0.150 * 100.0);
+        for h in hwnds {
+            unsafe {
+                let _ = DestroyWindow(h);
+            }
+        }
+    }
+
     /// Whether Mica For Everyone (if it is running) puts a material on a new
     /// window here, and whether it puts it back after we take it off. Reads and
     /// changes only a window made for the test. `cargo test --lib does_mica_for_everyone -- --ignored --nocapture`
