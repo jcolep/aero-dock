@@ -162,7 +162,7 @@ Say plainly in a report when something native was not seen.
   again: that was the grey square behind the dock and Start (both monitors, from the first frosted-glass version
   on). So the dock and Start blur a *picture*: `capture_backdrop` (`backdrop_capture.rs`) takes one of the
   screen with this program's windows left out (the Magnification API's window + `MagSetWindowFilterList`; its
-  host must be shown and on the primary screen; found by `capturelab.rs`), shrinks, blurs and grades it, and
+  host must be shown, on the primary screen and kept on top of our other topmost windows, or a window of ours lying over it makes the picture come back black there; found by `capturelab.rs`), shrinks, blurs and grades it, and
   `engine/backdrop/BackdropLayer.tsx` lays it under the glass's tint, clipped by the glass's own corners. A glass
   with a picture has `data-bd="on"`, which drops its own `background`; **every glass rule keeps its tint in
   `--bd-tint`** (global.css, clear.css, start.css) and the layer draws it over the picture. A new glass surface

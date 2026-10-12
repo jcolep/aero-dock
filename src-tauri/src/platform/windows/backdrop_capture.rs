@@ -32,8 +32,8 @@ use windows::Win32::UI::Magnification::{
 use windows::Win32::UI::WindowsAndMessaging::{
     CreateWindowExW, DefWindowProcW, DispatchMessageW, EnumWindows, GetSystemMetrics, GetWindowThreadProcessId,
     PeekMessageW, RegisterClassW, SetLayeredWindowAttributes, SetWindowPos, ShowWindow, TranslateMessage, LWA_ALPHA, MSG,
-    PM_REMOVE, SM_CXVIRTUALSCREEN, SM_CYVIRTUALSCREEN, SM_XVIRTUALSCREEN, SM_YVIRTUALSCREEN, SWP_NOACTIVATE,
-    SWP_NOMOVE, SWP_NOZORDER, SW_SHOWNOACTIVATE, WNDCLASSW, WS_CHILD, WS_EX_LAYERED, WS_EX_NOACTIVATE,
+    HWND_TOPMOST, PM_REMOVE, SM_CXVIRTUALSCREEN, SM_CYVIRTUALSCREEN, SM_XVIRTUALSCREEN, SM_YVIRTUALSCREEN,
+    SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, SW_SHOWNOACTIVATE, WNDCLASSW, WS_CHILD, WS_EX_LAYERED, WS_EX_NOACTIVATE,
     WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_EX_TRANSPARENT, WS_POPUP, WS_VISIBLE,
 };
 
@@ -294,6 +294,9 @@ fn take(rig: &mut Rig, region: Rect) -> Option<Raw> {
             let _ = SetWindowPos(rig.mag, None, 0, 0, cols, rows, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOZORDER);
             rig.size = (cols, rows);
         }
+        // above our other topmost windows (a magnifier is drawn only where nothing is over it: where a
+        // window of ours lay over the host, the picture came back black)
+        let _ = SetWindowPos(rig.host, Some(HWND_TOPMOST), 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
         let mut transform = MAGTRANSFORM {
             v: [cols as f32 / region.width as f32, 0.0, 0.0, 0.0, rows as f32 / region.height as f32, 0.0, 0.0, 0.0, 1.0],
         };
