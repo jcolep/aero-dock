@@ -56,6 +56,33 @@ try {
   console.log("recommended files:", await q("r.querySelectorAll('.st-rec').length"), " user:", await q("r.querySelector('.st-user span')?.textContent"));
   shots.home = await h.shot(0, 0, 760, 800);
 
+  // the search box: a thick blue border of its own, and nothing drawn by the input inside it
+  console.log("input draws no ring:", await q("(() => { const s = getComputedStyle(r.querySelector('.st-search input')); return s.outlineStyle === 'none' && s.boxShadow === 'none'; })()"));
+  console.log("box border (focus ring) is 3px:", await q("getComputedStyle(r.querySelector('.st-search')).boxShadow.includes(' 3px')"));
+  // the shadow fades out inside the window: the panel sits 48px in from every side
+  console.log("panel inset:", JSON.stringify(await q("(() => { const b = r.querySelector('.st-panel').getBoundingClientRect(); return { left: Math.round(b.left), top: Math.round(b.top), right: Math.round(innerWidth - b.right), bottom: Math.round(innerHeight - b.bottom) }; })()")));
+
+  // the highlight glides: it appears on the first tile, and on the next it is stretched toward it part way there
+  const tiles = await h.eval("[...document.querySelectorAll('.st-tile')].slice(0, 8).map((e) => { const b = e.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2, left: b.left, top: b.top, w: b.width, h: b.height }; })");
+  await h.move(tiles[0].x, tiles[0].y);
+  await h.sleep(500);
+  const lensAt = () => h.eval("(() => { const l = document.querySelector('.glide-highlight'); if (!l) return null; const b = l.getBoundingClientRect(); return { left: Math.round(b.left), top: Math.round(b.top), w: Math.round(b.width), h: Math.round(b.height), opacity: +getComputedStyle(l).opacity }; })()");
+  console.log("on the first tile:", JSON.stringify(await lensAt()), " tile:", JSON.stringify({ left: Math.round(tiles[0].left), top: Math.round(tiles[0].top), w: Math.round(tiles[0].w), h: Math.round(tiles[0].h) }));
+  shots.glide = await h.shot(0, 0, 760, 800);
+  await h.move(tiles[5].x, tiles[5].y);
+  const widths = [];
+  for (let i = 0; i < 14; i++) {
+    await h.sleep(30);
+    const a = await lensAt();
+    widths.push(a ? a.w : 0);
+  }
+  console.log("widths while it hops 5 tiles along (it stretches, then settles):", widths.join(" "), "target", Math.round(tiles[5].w) + 6);
+  await h.sleep(500);
+  console.log("settled on the sixth tile:", JSON.stringify(await lensAt()), " tile left:", Math.round(tiles[5].left));
+  await h.move(tiles[6].x, tiles[6].y);
+  await h.sleep(500);
+  console.log("lensed tile marked:", await q("r.querySelectorAll('[data-lensed]').length"));
+
   // typing goes to the box: apps, a Settings page, files
   await h.eval(`(() => { const i = document.querySelector('.st-search input'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(i, 'wor'); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
   await h.sleep(700);
@@ -121,6 +148,20 @@ try {
 
   // START_SHOTS=all,menu picks which pictures go on the sheet (it only has room for two)
   if (process.env.START_SHOTS) for (const k of Object.keys(shots)) if (!process.env.START_SHOTS.split(",").includes(k)) delete shots[k];
+  // each choice of animation names its own keyframes, for opening and for closing
+  const names = {};
+  for (const preset of ["rise", "bloom", "genie", "slide", "fade", "none"]) {
+    await h.eval(`document.querySelector(".st-root").dataset.anim = ${JSON.stringify(preset)}`);
+    await h.eval(`window.__emit("start://open", { previous: 0 })`);
+    await h.sleep(120);
+    const open = await q("getComputedStyle(r.querySelector('.st-panel')).animationName");
+    await h.eval(`window.__emit("start://outside", null)`);
+    await h.sleep(60);
+    const shut = await q("getComputedStyle(r.querySelector('.st-panel')).animationName");
+    names[preset] = `${open} / ${shut}`;
+    await h.sleep(500);
+  }
+  console.log("animations (open / close):", JSON.stringify(names));
   console.log("sheet:", await h.sheet(shots, "start"));
   console.log("commands the mock did not know:", JSON.stringify(await h.unknownCalls()));
 } finally {

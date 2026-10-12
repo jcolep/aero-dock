@@ -226,6 +226,17 @@ Say plainly in a report when something native was not seen.
   deliberately not taken over**: that needs a permanent low-level keyboard hook (and a stray key
   press to cancel Windows' own Start), which the owner chose not to do for now; PowerToys is not
   installable on their machine.
+- **Gliding highlight** (`engine/lens/useGlideHighlight.tsx`): the menu bar lens's liquid motion made
+  general (four edge springs, the leading edges quick, stretch capped, shaped like what it sits on,
+  held inside `data-lens-clip` lists, drawn *behind* the items). The Start menu uses it for every
+  hover and for the key-selected search result; its own `:hover` backgrounds are gone on purpose.
+- **Start animations** are a setting (`animations.start`: rise, bloom, genie, slide, fade, none) that
+  sets `--st-in` / `--st-out` on the root by `data-anim`; the page waits `startExitMs` before it
+  asks Rust to hide the window. The shadow must fade out inside the window's 48 px margin, or it is
+  cut off and shows as a pale band down each side.
+- **Deleting a stylesheet: check what else it styled.** `search.css` also held `.dock-control-btn`
+  (the dock's round search and settings buttons), and removing it left them as slivers. The
+  rules now live in `dock.css`.
 - **Capabilities** (`capabilities/default.json`) list windows by label; a window not listed has no
   `core:event` permission, so its `listen` fails silently. Every window that listens must be there
   (`mission`, `start`, `widgets` and the frame windows were missing until the Start menu work).

@@ -322,6 +322,8 @@ export interface AnimationSettings {
   launch: string;
   /** How icons swell as the pointer passes over them. */
   magnify: string;
+  /** The Start menu, opening and closing. */
+  start: string;
 }
 
 /** A frame of glass round the free space of every monitor, between the menu bar

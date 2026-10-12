@@ -25,9 +25,11 @@ import {
   panelMotion,
   playLaunch,
   revealMotion,
+  startExitMs,
   type PresetInfo,
 } from "../../engine/animation/presets";
 import "../menubar/menubar.css";
+import "../start/start.css";
 import "./animations.css";
 
 interface PickerProps {
@@ -144,6 +146,28 @@ export function MenuPreview({ preset, run, speed }: { preset: string; run: numbe
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** The Start menu, using its own panel and keyframes, in miniature. */
+export function StartPreview({ preset, run, speed }: { preset: string; run: number; speed: number }) {
+  const phase = useCycle(preset, run, startExitMs(preset, speed));
+  return (
+    <div
+      className="st-root st-mini"
+      data-anim={preset}
+      data-phase={phase === "in" ? "open" : phase === "out" ? "closing" : "closed"}
+      style={{ ["--anim-speed" as string]: speed } as React.CSSProperties}
+    >
+      <div className="st-panel">
+        <span className="anim-line st-mini-search" />
+        <div className="st-mini-grid">
+          {DOT_COLORS.map((c) => (
+            <span key={c} className="anim-icon" style={{ background: c }} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

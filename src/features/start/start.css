@@ -11,8 +11,10 @@
 
 .st-panel {
   position: absolute;
-  /* the margin is the same 30px start.rs leaves round the panel */
-  inset: 30px;
+  /* the margin is the same 48px start.rs leaves round the panel: room for the
+     shadow, which has to fade out inside it (a shadow cut off at the window's
+     edge shows as a pale band down each side) */
+  inset: 48px;
   display: flex;
   flex-direction: column;
   border-radius: 24px;
@@ -25,8 +27,8 @@
     color-mix(in srgb, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 36%, #0f1420) 80%, transparent);
   backdrop-filter: blur(30px) saturate(1.8);
   box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.45),
-    0 4px 14px rgba(0, 0, 0, 0.3),
+    0 14px 30px rgba(0, 0, 0, 0.4),
+    0 3px 10px rgba(0, 0, 0, 0.28),
     inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.9),
     inset -1px -1px 0.5px -0.5px rgba(255, 255, 255, 0.4),
     inset 0 0 0 1px rgba(255, 255, 255, 0.12),
@@ -49,18 +51,55 @@
   backdrop-filter: none;
 }
 
+/* ---- opening and closing: the choice under Settings > Animations ---- */
+
+.st-root {
+  --st-in: st-rise-in calc(300ms / var(--anim-speed, 1)) cubic-bezier(0.2, 1.05, 0.3, 1) both;
+  --st-out: st-rise-out calc(150ms / var(--anim-speed, 1)) ease-in both;
+}
+
+.st-root[data-anim="bloom"] {
+  --st-in: st-bloom-in calc(420ms / var(--anim-speed, 1)) cubic-bezier(0.2, 1.4, 0.3, 1) both;
+  --st-out: st-bloom-out calc(190ms / var(--anim-speed, 1)) ease-in both;
+}
+
+.st-root[data-anim="genie"] {
+  --st-in: st-genie-in calc(520ms / var(--anim-speed, 1)) cubic-bezier(0.3, 0.9, 0.3, 1) both;
+  --st-out: st-genie-out calc(260ms / var(--anim-speed, 1)) cubic-bezier(0.5, 0, 0.8, 0.4) both;
+}
+
+.st-root[data-anim="slide"] {
+  --st-in: st-slide-in calc(340ms / var(--anim-speed, 1)) cubic-bezier(0.16, 1, 0.3, 1) both;
+  --st-out: st-slide-out calc(210ms / var(--anim-speed, 1)) cubic-bezier(0.5, 0, 0.9, 0.5) both;
+}
+
+.st-root[data-anim="fade"] {
+  --st-in: st-fade-in calc(180ms / var(--anim-speed, 1)) ease-out both;
+  --st-out: st-fade-out calc(120ms / var(--anim-speed, 1)) ease-in both;
+}
+
+.st-root[data-anim="none"] {
+  --st-in: none;
+  --st-out: none;
+}
+
 .st-root[data-phase="open"] .st-panel {
   visibility: visible;
   opacity: 1;
-  animation: st-in 300ms cubic-bezier(0.2, 1.05, 0.3, 1) both;
+  animation: var(--st-in);
 }
 
 .st-root[data-phase="closing"] .st-panel {
   visibility: visible;
-  animation: st-out 150ms ease-in both;
+  animation: var(--st-out);
 }
 
-@keyframes st-in {
+/* with motion to be kept down it simply is there, and then is not */
+.st-root[data-still] .st-panel {
+  animation: none;
+}
+
+@keyframes st-rise-in {
   from {
     opacity: 0;
     transform: translateY(26px) scale(0.95);
@@ -71,21 +110,86 @@
   }
 }
 
-@keyframes st-out {
-  from {
-    opacity: 1;
-    transform: none;
-  }
+@keyframes st-rise-out {
   to {
     opacity: 0;
     transform: translateY(14px) scale(0.97);
   }
 }
 
-.st-root[data-still] .st-panel {
-  animation-duration: 1ms;
+@keyframes st-bloom-in {
+  from {
+    opacity: 0;
+    transform: translateY(54px) scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
+@keyframes st-bloom-out {
+  to {
+    opacity: 0;
+    transform: translateY(30px) scale(0.78);
+  }
+}
+
+/* narrow and flat at the bottom, as it comes out of the dock, then fills out */
+@keyframes st-genie-in {
+  from {
+    opacity: 0;
+    transform: translateY(90px) scale(0.1, 0.04);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(24px) scale(0.55, 0.45);
+  }
+  75% {
+    transform: translateY(-4px) scale(1.02, 1.015);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes st-genie-out {
+  to {
+    opacity: 0;
+    transform: translateY(90px) scale(0.1, 0.04);
+  }
+}
+
+@keyframes st-slide-in {
+  from {
+    transform: translateY(calc(100% + 70px));
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes st-slide-out {
+  to {
+    transform: translateY(calc(100% + 70px));
+  }
+}
+
+@keyframes st-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes st-fade-out {
+  to {
+    opacity: 0;
+  }
+}
 /* ---- search ---- */
 
 .st-search {
@@ -107,12 +211,21 @@
     box-shadow 200ms ease-out;
 }
 
+/* the box itself gets a blue border a few pixels thick when it has the keyboard; the
+   input inside draws nothing of its own (the page's keyboard ring is a white outline
+   with a blue halo, which on an input read as a blue rectangle round the text) */
 .st-search:focus-within {
   background: rgba(255, 255, 255, 0.17);
   box-shadow:
     inset 0 1px 2px rgba(0, 0, 0, 0.3),
-    0 0 0 1.5px color-mix(in srgb, var(--aero-accent, #4aa8ff) 70%, white),
-    0 0 18px color-mix(in srgb, var(--aero-accent, #4aa8ff) 40%, transparent);
+    0 0 0 3px var(--aero-accent, #2f9de3),
+    0 0 16px color-mix(in srgb, var(--aero-accent, #2f9de3) 45%, transparent);
+}
+
+.st-search input:focus,
+.st-search input:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .st-search svg {
@@ -175,8 +288,7 @@
     transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.st-pill:hover {
-  background: rgba(255, 255, 255, 0.22);
+.st-pill[data-lensed="true"] {
   transform: scale(1.05);
 }
 
@@ -236,15 +348,17 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-.st-tile:hover,
-.st-tile:focus-visible {
+/* the highlight under the pointer is the panel's one gliding glass (see
+   useGlideHighlight.tsx); an item it is on is raised a little, as if seen through it */
+.st-tile[data-lensed="true"] {
+  transform: scale(1.05);
+}
+
+.st-tile:focus-visible,
+.st-rec:focus-visible,
+.st-row:focus-visible {
   outline: none;
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.22);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 6px 16px rgba(0, 0, 0, 0.22);
-  transform: translateY(-1px) scale(1.04);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .st-tile:active {
@@ -282,15 +396,7 @@
     border-color 120ms ease-out;
 }
 
-.st-rec:hover,
-.st-row:hover,
-.st-row[data-selected="true"],
-.st-rec:focus-visible,
-.st-row:focus-visible {
-  outline: none;
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.2);
-}
+
 
 .st-row-text {
   display: flex;
@@ -405,7 +511,8 @@
   font-size: 13px;
   font-weight: 700;
   color: color-mix(in srgb, var(--aero-accent, #4aa8ff) 45%, white);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 36%, #0f1420) 60%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 36%, #0f1420) 70%, transparent);
 }
 
 .st-index {
@@ -466,7 +573,6 @@
   transition: background-color 140ms ease-out;
 }
 
-.st-user:hover,
 .st-user[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.14);
 }
@@ -514,10 +620,12 @@
   height: 19px;
 }
 
-.st-link:hover,
+.st-link[data-lensed="true"] {
+  transform: scale(1.1);
+}
+
 .st-link[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.18);
-  transform: scale(1.1);
 }
 
 .st-link:active {
@@ -608,4 +716,10 @@
   .st-menu {
     animation-duration: 1ms;
   }
+}
+
+/* everything in the panel but the gliding highlight and the popups lies above the highlight */
+.st-panel > :not(.glide-highlight):not(.st-pop):not(.st-menu) {
+  position: relative;
+  z-index: 1;
 }

@@ -67,6 +67,15 @@ export const LAUNCH_ANIMS: PresetInfo[] = [
   { id: "none", label: "None", hint: "Stays still" },
 ];
 
+export const START_ANIMS: PresetInfo[] = [
+  { id: "rise", label: "Rise", hint: "Floats up from the dock and settles; sinks away again" },
+  { id: "bloom", label: "Bloom", hint: "Swells open from the bottom with a soft overshoot" },
+  { id: "genie", label: "Genie", hint: "Pours up out of the dock like the minimise effect" },
+  { id: "slide", label: "Slide", hint: "Slides up from below, and back down" },
+  { id: "fade", label: "Fade", hint: "Just fades" },
+  { id: "none", label: "None", hint: "Appears at once" },
+];
+
 export const MAGNIFY_FEELS: PresetInfo[] = [
   { id: "soft", label: "Soft", hint: "Smooth and unhurried" },
   { id: "snappy", label: "Snappy", hint: "Tight, follows the pointer closely" },
@@ -541,6 +550,14 @@ export function menuExitMs(preset: string, speed = 1): number {
   return ms === 0 ? 0 : Math.ceil(ms / speed) + 20;
 }
 
+/** How long the Start menu takes to leave, per preset (the page waits this before hiding the window). */
+const START_EXIT_MS: Record<string, number> = { rise: 160, bloom: 200, genie: 280, slide: 220, fade: 130, none: 0 };
+
+export function startExitMs(preset: string, speed = 1): number {
+  const ms = START_EXIT_MS[preset] ?? START_EXIT_MS.rise;
+  return ms === 0 ? 0 : Math.ceil(ms / speed) + 20;
+}
+
 /** Read this part of the settings, with anything missing filled in. */
 export function animationsOf(settings: { animations?: Partial<AnimationSettings> } | null): AnimationSettings {
   const a = settings?.animations ?? {};
@@ -550,5 +567,6 @@ export function animationsOf(settings: { animations?: Partial<AnimationSettings>
     dockReveal: a.dockReveal ?? "slide",
     launch: a.launch ?? "bounce",
     magnify: a.magnify ?? "soft",
+    start: a.start ?? "rise",
   };
 }

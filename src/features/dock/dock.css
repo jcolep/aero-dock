@@ -584,3 +584,58 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   pointer-events: none;
 }
+
+/* the round glass buttons on the dock (search, settings) */
+.dock-control-btn {
+  /* follows the icon size down so a small dock is not held open by its
+     own buttons, but never grows past the original 30px */
+  --control-size: clamp(18px, calc(var(--icon-size) + 4px), 30px);
+  width: var(--control-size);
+  height: var(--control-size);
+  flex: none;
+  align-self: center;
+  margin-right: 2px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  /* tinted glass with a light symbol, as the menu bar's icons are: the theme's
+     colour as the body, a soft light from above, a hairline of light on the
+     rim, and a shadow that is more air than edge */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05) 55%, rgba(255, 255, 255, 0.12)),
+    rgba(var(--clear-tint), 0.62);
+  box-shadow:
+    0 3px 10px rgba(4, 20, 40, 0.34),
+    0 1px 2px rgba(4, 20, 40, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+  color: var(--aero-text-on-glass);
+  transition:
+    box-shadow calc(0.25s / var(--anim-speed)) ease,
+    transform calc(0.18s / var(--anim-speed)) ease;
+}
+
+.dock-control-btn:hover {
+  box-shadow:
+    0 0 14px color-mix(in srgb, var(--aero-accent) 65%, transparent),
+    0 3px 10px rgba(4, 20, 40, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: scale(1.08);
+}
+
+.dock-control-btn:active {
+  transform: scale(0.94);
+}
+
+.dock-control-btn svg {
+  width: calc(var(--control-size) * 0.58);
+  height: calc(var(--control-size) * 0.58);
+  overflow: visible;
+  /* lifted off the glass by a soft shadow, as the menu bar's icons are */
+  filter: drop-shadow(0 1px 2px rgba(4, 20, 40, 0.5));
+}

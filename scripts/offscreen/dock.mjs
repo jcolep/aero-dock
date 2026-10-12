@@ -16,6 +16,10 @@ const h = await startHarness({
   // a window is matched to a pin by the full path of its program
   running: [{ hwnd: 1, title: "Untitled", exe: "C:\\Windows\\notepad.exe", pid: 1, aumid: null, monitor: "" }],
   settings: (s) => {
+    // the round buttons always showing (they otherwise wait for the pointer at the dock's ends)
+    s.dock.revealControls = false;
+    s.dock.showSearchButton = true;
+    s.dock.showSettingsButton = true;
     // one pin that is not running, and one that is (the running window below is
     // that program's, so it joins the pin and the dock shows one icon for it)
     s.pinned = [
@@ -29,6 +33,8 @@ try {
   await h.desktop();
   const icons = await h.eval(`[...document.querySelectorAll('button.dock-icon')].map((b) => b.getAttribute('aria-label'))`);
   console.log("icons:", JSON.stringify(icons));
+// the round search and settings buttons keep their size (their styles once went missing and left a sliver)
+console.log("dock buttons:", JSON.stringify(await h.eval("[...document.querySelectorAll('.dock-control-btn')].map((b) => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })").catch(() => null)));
   const closes = async () => (await h.calls()).filter((c) => c.cmd === "close_window").map((c) => c.args.hwnd);
 
   const idle = await h.rect('button.dock-icon[aria-label^="Idle App"]');

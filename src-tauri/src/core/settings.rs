@@ -529,6 +529,8 @@ pub struct AnimationSettings {
     pub launch: String,
     /// How the icons swell as the pointer passes over them.
     pub magnify: String,
+    /// The Start menu, opening and closing.
+    pub start: String,
 }
 
 impl AnimationSettings {
@@ -540,6 +542,7 @@ impl AnimationSettings {
         &["slide", "rise", "pop", "genie", "cascade", "fade", "none"];
     pub const LAUNCH: &'static [&'static str] = &["bounce", "hop", "jelly", "pulse", "none"];
     pub const MAGNIFY: &'static [&'static str] = &["soft", "snappy", "bouncy", "liquid"];
+    pub const START: &'static [&'static str] = &["rise", "bloom", "genie", "slide", "fade", "none"];
 }
 
 impl Default for AnimationSettings {
@@ -552,6 +555,7 @@ impl Default for AnimationSettings {
             dock_reveal: "slide".into(),
             launch: "bounce".into(),
             magnify: "soft".into(),
+            start: "rise".into(),
         }
     }
 }
@@ -702,6 +706,7 @@ impl Settings {
         keep_known(&mut n.dock_reveal, AnimationSettings::DOCK_REVEAL, "slide");
         keep_known(&mut n.launch, AnimationSettings::LAUNCH, "bounce");
         keep_known(&mut n.magnify, AnimationSettings::MAGNIFY, "soft");
+        keep_known(&mut n.start, AnimationSettings::START, "rise");
         let m = &mut self.menu_bar;
         m.height = m.height.clamp(22, 44);
         m.gap = m.gap.min(24);
@@ -1034,6 +1039,7 @@ mod tests {
         assert_eq!(old.animations.dock_reveal, "slide");
         assert_eq!(old.animations.launch, "bounce");
         assert_eq!(old.animations.magnify, "soft");
+        assert_eq!(old.animations.start, "rise");
 
         // every default is itself one of the allowed names
         let d = AnimationSettings::default();
@@ -1050,12 +1056,14 @@ mod tests {
         s.animations.dock_reveal = "<script>".into();
         s.animations.launch = String::new();
         s.animations.magnify = "liquid".into();
+        s.animations.start = "explode".into();
         s.sanitize();
         assert_eq!(s.animations.menu, "goo");
         assert_eq!(s.animations.flyout, "jelly");
         assert_eq!(s.animations.dock_reveal, "slide");
         assert_eq!(s.animations.launch, "bounce");
         assert_eq!(s.animations.magnify, "liquid");
+        assert_eq!(s.animations.start, "rise", "an unknown Start animation falls back");
     }
 
     #[test]

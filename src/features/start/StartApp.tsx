@@ -16,6 +16,8 @@
 import { listen } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useReduced } from "../../engine/accessibility/policy";
+import { animationsOf, startExitMs } from "../../engine/animation/presets";
+import { useGlideHighlight } from "../../engine/lens/useGlideHighlight";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { ipc } from "../../ipc/commands";
@@ -47,6 +49,10 @@ interface Opening {
 }
 
 type Phase = "closed" | "open" | "closing";
+
+/** What the highlight can glide to, and the lists it is held inside. */
+const LENS_ITEMS = ".st-tile, .st-rec, .st-row, .st-link, .st-user, .st-pill";
+const LENS_CLIPS = "[data-lens-clip]";
 
 const EXPLORER: StartPin = { name: "File Explorer", target: "C:\\Windows\\explorer.exe", args: "" };
 const SETTINGS_APP: StartPin = {
@@ -229,6 +235,9 @@ export function StartApp() {
   const { settings, hydrate } = useSettings();
   const reduced = useReduced();
   const resolveIcons = useDockIcons((s) => s.resolveIcons);
+  const anim = animationsOf(settings).start;
+  const speed = settings?.appearance.animationSpeed ?? 1;
+  const lens = useGlideHighlight({ items: LENS_ITEMS, clips: LENS_CLIPS, grow: 3, still: reduced.motion });
 
   const [phase, setPhase] = useState<Phase>("closed");
   const [view, setView] = useState<"home" | "all">("home");
@@ -264,15 +273,17 @@ export function StartApp() {
       setPhase("closing");
       setMenu(null);
       setPop(null);
+      lens.fade();
       window.setTimeout(
         () => {
           setPhase("closed");
           ipc.closeStart(restore).catch(() => undefined);
         },
-        reduced.motion ? 0 : 150,
+        reduced.motion ? 0 : startExitMs(anim, speed),
       );
     },
-    [reduced.motion],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [reduced.motion, anim, speed, lens.fade],
   );
 
   // ---- opening ----
@@ -514,9 +525,19 @@ export function StartApp() {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   });
+  // the highlight rests on the result chosen with the keys, and goes when there is no list
   useEffect(() => {
-    document.querySelector(".st-row[data-selected='true']")?.scrollIntoView({ block: "nearest" });
-  }, [selected]);
+    if (!q) {
+      lens.fade();
+      return;
+    }
+    const row = document.querySelector<HTMLElement>(".st-row[data-selected='true']");
+    row?.scrollIntoView({ block: "nearest" });
+    // after the rows have been laid out
+    const frame = requestAnimationFrame(() => row && lens.goTo(row));
+    return () => cancelAnimationFrame(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, q, flat.length]);
 
   // ---- the lists of all apps, by letter ----
   const groups = useMemo(() => {
@@ -555,12 +576,14 @@ export function StartApp() {
   const initial = (profile?.name ?? "?").charAt(0).toUpperCase();
 
   return (
-    <div className="st-root" data-phase={phase} data-still={reduced.motion || undefined} data-solid={reduced.transparency || undefined}>
+    <div className="st-root" data-anim={anim} data-phase={phase} data-still={reduced.motion || undefined} data-solid={reduced.transparency || undefined}>
       <GlassTips side="above" />
       <div
+        ref={lens.rootRef}
         className="st-panel"
         role="dialog"
         aria-label="Start"
+        {...lens.handlers}
         onMouseDown={(e) => {
           // a press that is not on a popup closes it
           if (!(e.target as HTMLElement).closest(".st-menu, .st-pop, .st-user, .st-power")) {
@@ -569,6 +592,7 @@ export function StartApp() {
           }
         }}
       >
+        {lens.Highlight}
         <div className="st-search">
           <Glyph name="search" />
           <input
@@ -583,7 +607,7 @@ export function StartApp() {
         </div>
 
         {q ? (
-          <div className="st-results" role="listbox" aria-label="Search results">
+          <div className="st-results" data-lens-clip role="listbox" aria-label="Search results">
             {sections.length === 0 && <div className="st-none">Nothing found for “{q}”</div>}
             {sections.map((section) => (
               <div key={section.title} className="st-section">
@@ -622,7 +646,7 @@ export function StartApp() {
                 <Glyph name="chevron" />
               </button>
             </div>
-            <div className="st-pinned">
+            <div className="st-pinned" data-lens-clip>
               {pinned.length === 0 && <div className="st-none">Nothing pinned yet. Right-click an app in All apps to pin it.</div>}
               {pinned.map((item) => (
                 <button key={item.key} type="button" className="st-tile" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
@@ -661,7 +685,7 @@ export function StartApp() {
               <h2>All apps</h2>
             </div>
             <div className="st-all">
-              <div ref={allList} className="st-all-list">
+              <div ref={allList} className="st-all-list" data-lens-clip>
                 {groups.map(([letter, items]) => (
                   <div key={letter} data-letter={letter}>
                     <div className="st-letter">{letter}</div>

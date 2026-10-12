@@ -31,6 +31,7 @@ import {
   MAGNIFY_FEELS,
   MENU_ANIMS,
   REVEAL_ANIMS,
+  START_ANIMS,
 } from "../../engine/animation/presets";
 import {
   AnimationPicker,
@@ -39,6 +40,7 @@ import {
   MagnifyPreview,
   MenuPreview,
   RevealPreview,
+  StartPreview,
 } from "./AnimationPicker";
 import { AeroSegmented, AeroSlider, AeroToggle } from "./controls";
 import "./settings.css";
@@ -844,6 +846,16 @@ export function SettingsApp() {
             onChange={(id) => set((d) => void (d.animations.menu = id))}
             preview={(id, run) => (
               <MenuPreview key={`${id}-${run}`} preset={id} run={run} speed={appearance.animationSpeed} />
+            )}
+          />
+          <AnimationPicker
+            label="Start menu"
+            summary="Opening and closing the Start menu"
+            value={settings.animations.start}
+            options={START_ANIMS}
+            onChange={(id) => set((d) => void (d.animations.start = id))}
+            preview={(id, run) => (
+              <StartPreview preset={id} run={run} speed={appearance.animationSpeed} />
             )}
           />
           <AnimationPicker

@@ -35,7 +35,7 @@ pub const LABEL: &str = "start";
 pub const PANEL_WIDTH: f64 = 664.0;
 pub const PANEL_HEIGHT: f64 = 744.0;
 /// Room around the panel for its shadow, in logical pixels.
-pub const MARGIN: f64 = 30.0;
+pub const MARGIN: f64 = 48.0;
 /// The panel's corner radius, in logical pixels.
 pub const RADIUS: f64 = 24.0;
 /// The space left between the panel and the edge of the screen or a bar.
@@ -285,45 +285,45 @@ mod tests {
     fn the_panel_is_centred_and_rests_above_the_bottom() {
         // a 1920 by 1040 work area on a 100% screen
         let (x, y, w, h) = place((0, 0, 1920, 1040), 1.0, &[]);
-        assert_eq!(w, 664 + 60);
-        assert_eq!(h, 744 + 60);
+        assert_eq!(w, 664 + 96);
+        assert_eq!(h, 744 + 96);
         assert_eq!(x + w / 2, 960, "centred");
         // the panel (the window less its margin) ends a gap above the work area's bottom
-        assert_eq!(y + h - 30, 1040 - 12);
+        assert_eq!(y + h - 48, 1040 - 12);
     }
 
     #[test]
     fn it_rests_above_a_dock_that_lies_along_the_bottom() {
         let dock = bar(700, 980, 1220, 1060);
         let (_, y, _, h) = place((0, 0, 1920, 1080), 1.0, &[dock]);
-        assert_eq!(y + h - 30, 980 - 12);
+        assert_eq!(y + h - 48, 980 - 12);
         // a bar at the top of the screen is not in the way of the bottom
         let top = bar(0, 0, 1920, 30);
         let (_, y2, _, h2) = place((0, 0, 1920, 1080), 1.0, &[top]);
-        assert_eq!(y2 + h2 - 30, 1080 - 12);
+        assert_eq!(y2 + h2 - 48, 1080 - 12);
         // nor is one on another monitor
         let elsewhere = bar(2000, 980, 2500, 1060);
         let (_, y3, _, h3) = place((0, 0, 1920, 1080), 1.0, &[elsewhere]);
-        assert_eq!(y3 + h3 - 30, 1080 - 12);
+        assert_eq!(y3 + h3 - 48, 1080 - 12);
     }
 
     #[test]
     fn it_grows_with_the_screens_scale_and_shrinks_to_a_short_screen() {
         let (_, _, w, h) = place((0, 0, 3000, 1600), 1.5, &[]);
-        assert_eq!(w, ((664.0f64 * 1.5).round() + (30.0f64 * 1.5).round() * 2.0) as i32);
+        assert_eq!(w, ((664.0f64 * 1.5).round() + (48.0f64 * 1.5).round() * 2.0) as i32);
         assert!(h > 744);
         // a screen too short for the whole panel gets a shorter one that still fits
         let (_, y, _, h) = place((0, 0, 1366, 600), 1.0, &[]);
-        assert!(y >= 12 - 30, "the panel stays on screen");
-        assert!(h < 744 + 60);
+        assert!(y >= 12 - 48, "the panel stays on screen");
+        assert!(h < 744 + 96);
     }
 
     #[test]
     fn a_click_in_the_margin_is_outside_the_panel() {
-        let window = RECT { left: 100, top: 100, right: 824, bottom: 904 };
-        assert!(inside_panel(window, 30, 400, 400));
-        assert!(!inside_panel(window, 30, 110, 400), "in the shadow");
-        assert!(!inside_panel(window, 30, 400, 95));
-        assert!(!inside_panel(window, 30, 900, 400));
+        let window = RECT { left: 100, top: 100, right: 856, bottom: 936 };
+        assert!(inside_panel(window, 48, 400, 400));
+        assert!(!inside_panel(window, 48, 110, 400), "in the shadow");
+        assert!(!inside_panel(window, 48, 400, 95));
+        assert!(!inside_panel(window, 48, 900, 400));
     }
 }
