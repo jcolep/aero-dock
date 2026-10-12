@@ -189,6 +189,7 @@ pub fn run() {
             commands::start::close_start,
             commands::start::user_profile,
             commands::start::list_recent_downloads,
+            commands::glass::report_start_pane,
             commands::start::search_files,
             commands::insight::get_privacy_use,
             commands::insight::get_stats,

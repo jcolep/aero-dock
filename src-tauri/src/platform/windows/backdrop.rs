@@ -206,7 +206,6 @@ pub fn set_pane(id: &str, over: HWND, shape: Option<(Rect, i32, bool)>) {
     if pane.placed == want {
         return;
     }
-    let was_there = pane.placed.is_some();
     unsafe {
         let _ = SetWindowPos(
             hwnd,
@@ -224,7 +223,11 @@ pub fn set_pane(id: &str, over: HWND, shape: Option<(Rect, i32, bool)>) {
         } else {
             region(0, 0, rect.width, rect.height, radius)
         };
-        if SetWindowRgn(hwnd, Some(shape), !was_there) == 0 {
+        // Always redrawn. A shape changed without it was not always taken up by the system until the
+        // pane was next drawn, which it never is (nothing is painted in it), so a pane kept the
+        // shape and size it had before and showed as a stale backing behind a bar that had moved.
+        if SetWindowRgn(hwnd, Some(shape), true) == 0 {
+            log::warn!("blur pane {id}: it could not be shaped to {}x{} (radius {radius})", rect.width, rect.height);
             let _ = DeleteObject(shape.into());
         }
     }

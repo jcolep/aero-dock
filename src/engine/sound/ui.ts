@@ -10,7 +10,7 @@
 
 import { useSettings } from "../../state/settingsStore";
 
-export type Cue = "open" | "close" | "on" | "off" | "tick" | "launch" | "hover" | "notch";
+export type Cue = "open" | "close" | "on" | "off" | "tick" | "launch" | "hover" | "notch" | "startOpen" | "startClose";
 
 interface Note {
   /** Frequency at the start and at the end, in Hz. */
@@ -39,6 +39,15 @@ export const CUES: Record<Cue, Note[]> = {
   tick: [note(2100, 1700, 0, 0.03, 0.22)],
   // an app opening: a small chord, rising
   launch: [note(392, 392, 0, 0.16), note(588, 588, 0.05, 0.16, 0.8), note(784, 784, 0.1, 0.2, 0.6)],
+  // the Start menu arriving: a sweep that rises into a small airy chord, like a glass being tapped
+  startOpen: [
+    note(330, 466, 0, 0.2, 0.7),
+    note(494, 494, 0.035, 0.24, 0.6),
+    note(659, 698, 0.075, 0.28, 0.5),
+    note(988, 988, 0.12, 0.32, 0.3),
+  ],
+  // and leaving: the same, falling and shorter
+  startClose: [note(740, 520, 0, 0.14, 0.55), note(494, 392, 0.04, 0.18, 0.5), note(330, 262, 0.08, 0.22, 0.38)],
   // these two depend on what they are played for (see notesFor)
   hover: [],
   notch: [],
@@ -70,7 +79,18 @@ const CEILING = 0.2;
 
 /** The fewest milliseconds between two plays of one cue, so a quick sweep of
  *  the pointer is a trickle and not a rattle. */
-const THROTTLE_MS: Record<Cue, number> = { open: 60, close: 60, on: 60, off: 60, tick: 70, launch: 120, hover: 45, notch: 40 };
+const THROTTLE_MS: Record<Cue, number> = {
+  open: 60,
+  close: 60,
+  on: 60,
+  off: 60,
+  tick: 70,
+  launch: 120,
+  hover: 45,
+  notch: 40,
+  startOpen: 200,
+  startClose: 200,
+};
 
 let context: AudioContext | null = null;
 let master: GainNode | null = null;

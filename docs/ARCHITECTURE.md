@@ -83,6 +83,7 @@ aero-dock/
 │  │        ├─ genie.rs         minimise into / restore out of a dock icon: PrintWindow
 │  │        │                   capture, CPU row warp, layered click-through overlay
 │  │        ├─ media.rs         system media session: cover, timeline, controls, source app
+│  │        ├─ downloads.rs     the newest files in the Downloads folder (Start menu)
 │  │        ├─ profile.rs       who is signed in: display name and account picture
 │  │        ├─ filesearch.rs    files and folders from Windows' search index (Start menu search)
 │  │        ├─ system_backdrop.rs  keeps Mica/acrylic (put on by other programs) off our windows

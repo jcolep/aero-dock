@@ -11,14 +11,23 @@ import { startHarness } from "./harness.mjs";
 
 const out = process.argv[2] ?? "offscreen-out";
 const names = ["Calculator", "Calendar", "Camera", "Chrome", "Clock", "Code", "Discord", "Edge", "Excel", "Files", "Firefox", "Git Bash", "Mail", "Maps", "Notepad", "OneNote", "Outlook", "Paint", "Photos", "PowerPoint", "Settings", "Spotify", "Teams", "Terminal", "Word", "7-Zip", "Xbox"];
-const apps = names.map((name) => ({ name, shortcutPath: null, targetPath: `C:\\apps\\${name}.exe`, args: "", icon: null, source: "start-menu" }));
+const apps = names.map((name, i) => ({
+  name,
+  shortcutPath: null,
+  targetPath: `C:\\apps\\${name}.exe`,
+  args: "",
+  icon: null,
+  source: "start-menu",
+  // three were installed lately, the rest long ago
+  addedMs: i === 3 ? Date.now() - 2 * 3600_000 : i === 9 ? Date.now() - 3 * 86_400_000 : i === 14 ? Date.now() - 20 * 3600_000 : Date.now() - 400 * 86_400_000,
+}));
 const recent = [
-  { name: "Q3 budget.xlsx", path: "C:\\Users\\me\\Documents\\Finance\\Q3 budget.xlsx", icon: "", usedAt: 1 },
-  { name: "Trip photos.zip", path: "C:\\Users\\me\\Downloads\\Trip photos.zip", icon: "", usedAt: 2 },
-  { name: "notes.md", path: "C:\\Users\\me\\Desktop\\notes.md", icon: "", usedAt: 3 },
-  { name: "Design review.pptx", path: "C:\\Users\\me\\Documents\\Design review.pptx", icon: "", usedAt: 4 },
-  { name: "invoice-0412.pdf", path: "C:\\Users\\me\\Documents\\invoice-0412.pdf", icon: "", usedAt: 5 },
-  { name: "wallpaper.png", path: "C:\\Users\\me\\Pictures\\wallpaper.png", icon: "", usedAt: 6 },
+  { name: "Q3 budget.xlsx", path: "C:\\Users\\me\\Documents\\Finance\\Q3 budget.xlsx", icon: "", usedAt: Math.floor(Date.now() / 1000) - 600 },
+  { name: "Trip photos.zip", path: "C:\\Users\\me\\Downloads\\Trip photos.zip", icon: "", usedAt: Math.floor(Date.now() / 1000) - 7200 },
+  { name: "notes.md", path: "C:\\Users\\me\\Desktop\\notes.md", icon: "", usedAt: Math.floor(Date.now() / 1000) - 30 * 3600 },
+  { name: "Design review.pptx", path: "C:\\Users\\me\\Documents\\Design review.pptx", icon: "", usedAt: Math.floor(Date.now() / 1000) - 3 * 86400 },
+  { name: "invoice-0412.pdf", path: "C:\\Users\\me\\Documents\\invoice-0412.pdf", icon: "", usedAt: Math.floor(Date.now() / 1000) - 5 * 86400 },
+  { name: "wallpaper.png", path: "C:\\Users\\me\\Pictures\\wallpaper.png", icon: "", usedAt: Math.floor(Date.now() / 1000) - 9 * 86400 },
 ];
 const files = [
   { name: "Weekly report.docx", path: "C:\\Users\\me\\Documents\\Weekly report.docx", folder: false },
@@ -61,8 +70,9 @@ try {
   console.log("open:", await q("r.dataset.phase"), " search box focused:", await q("document.activeElement === r.querySelector('input')"));
   console.log("pinned tiles (started from the dock's 12 and two more):", await q("r.querySelectorAll('.st-tile').length"));
   console.log("seeded in settings:", await h.eval("(window.__calls.filter((c) => c.cmd === 'set_settings').at(-1)?.args.settings.start.seeded)"));
-  console.log("recently downloaded:", JSON.stringify(await q("[...r.querySelectorAll('.st-rec-col')[0].querySelectorAll('.st-rec')].map((e) => e.querySelector('strong').textContent + ' / ' + e.querySelector('small').textContent)")));
-  console.log("recommended files:", await q("r.querySelectorAll('.st-rec').length"), " user:", await q("r.querySelector('.st-user span')?.textContent"));
+  console.log("Recommended, newest first:", JSON.stringify(await q("[...r.querySelectorAll('.st-rec-grid')[0].querySelectorAll('.st-rec')].map((e) => e.querySelector('strong').textContent + ' / ' + e.querySelector('small').textContent)")));
+  console.log("recently downloaded:", JSON.stringify(await q("[...r.querySelectorAll('.st-rec-grid')[1].querySelectorAll('.st-rec')].map((e) => e.querySelector('strong').textContent + ' / ' + e.querySelector('small').textContent)")));
+  console.log("recommended items in all:", await q("r.querySelectorAll('.st-rec').length"), " user:", await q("r.querySelector('.st-user span')?.textContent"));
   shots.home = await h.shot(0, 0, 760, 800);
 
   // the search box: a thick blue border of its own, and nothing drawn by the input inside it

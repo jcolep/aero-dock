@@ -235,6 +235,20 @@ Say plainly in a report when something native was not seen.
   `--lens-scale`. It takes `menuBar.lensGrow/lensMagnify/lensWarp`, so one set of sliders sets both
   lenses. The Start menu uses it for every hover and for the key-selected search result; its own
   `:hover` backgrounds are gone on purpose.
+- **Blur panes follow what is drawn, not what layout says** (`glass.rs`, `backdrop.rs`). A dock's bar grows
+  and shrinks by a transform while layout jumps to the new size at once, so a pane placed from layout
+  offsets was a stale rectangle behind the moving dock. The dock page now reports `getBoundingClientRect()`
+  at every frame while anything moves (`DockBar.tsx`: ResizeObserver + MutationObserver wake a rAF loop that
+  rests after ~30 still frames) and Rust updates only that dock's pane (`sync_dock`, not `sync_all`). The
+  Start menu does the same for its panel (`report_start_pane`), and the pane is only shown while the panel's
+  opacity is at least 0.72, so no blurred rectangle is left where a fading panel was. Panes are one pixel
+  inside the thing they back, are always redrawn when shaped (`SetWindowRgn(..., true)`), and take their
+  scale from the page's `devicePixelRatio` / `GetDpiForWindow`, not from the toolkit's cached scale.
+  **Unverified natively**: the owner saw a square blur box round the Start menu on one monitor (Dell,
+  primary) and not on the other (Samsung); the cause was not found (a region not honoured by that
+  display's driver is one guess). If it persists, look for the "could not be shaped" warning in the log.
+- **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
+  page that has not been clicked (the Start menu, opened from the dock) plays its cues silently.
 - **The settings window** is a sidebar and a column of collapsible sections in groups (`sections.ts` is the
   registry: id, title, blurb, search keywords, group). A new section is a `<SettingsSection id="...">`
   **and an entry in `sections.ts`** (otherwise it renders unwrapped and is not in the sidebar). A new

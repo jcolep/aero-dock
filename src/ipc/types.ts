@@ -488,6 +488,8 @@ export interface AppEntry {
   args: string;
   icon: string | null;
   source: "start-menu" | "desktop" | "folder" | "apps-folder";
+  /** When its shortcut was made (ms since 1970): when it was installed, or near it. 0 if unknown. */
+  addedMs: number;
 }
 
 export interface Rect {

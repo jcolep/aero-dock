@@ -162,8 +162,6 @@ fn place_and_show(app: &AppHandle, monitor: &MonitorInfoEx) -> AeroResult<()> {
     window.set_always_on_top(true)?;
     window.set_focus()?;
     let _ = app.emit_to(LABEL, OPEN_EVENT, Opening { previous: previous.0 as isize as i64 });
-    // the blur behind the panel
-    crate::commands::glass::sync_all(app);
     watch(app.clone(), hwnd, monitor.scale);
     Ok(())
 }
@@ -175,7 +173,7 @@ pub fn close(app: &AppHandle, restore: bool) {
     if let Some(window) = app.get_webview_window(LABEL) {
         let _ = window.hide();
     }
-    crate::commands::glass::sync_later(app);
+    crate::commands::glass::forget_start_pane(app);
     if restore {
         let previous = *PREVIOUS.lock();
         if previous != 0 {

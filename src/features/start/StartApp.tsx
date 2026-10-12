@@ -17,6 +17,7 @@ import { listen } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useReduced } from "../../engine/accessibility/policy";
 import { animationsOf, startExitMs } from "../../engine/animation/presets";
+import { playCue } from "../../engine/sound/ui";
 import { useGlideHighlight } from "../../engine/lens/useGlideHighlight";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
@@ -268,7 +269,7 @@ export function StartApp() {
   });
 
   const [phase, setPhase] = useState<Phase>("closed");
-  const [view, setView] = useState<"home" | "all">("home");
+  const [view, setView] = useState<"home" | "all" | "more">("home");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const [apps, setApps] = useState<AppEntry[]>([]);
@@ -295,11 +296,51 @@ export function StartApp() {
 
   const pins = settings?.start.pinned;
 
+  // ---- the blur behind the panel ----
+  // Windows blurs what is behind the panel in a pane of its own (see backdrop.rs). The panel
+  // opens and closes by moving, so the page tells Rust where it is at every frame while it is
+  // on the move, and the pane is its shape at each moment. It is only there while the panel is
+  // solid enough to be worth blurring behind: a pane under a panel that is fading in or out
+  // would show as a blurred rectangle with nothing in front of it.
+  useEffect(() => {
+    if (phase === "closed") {
+      ipc.reportStartPane(0, 0, 0, 0, 0, false).catch(() => undefined);
+      return;
+    }
+    let last = "";
+    let frame = 0;
+    let still = 0;
+    const send = (): boolean => {
+      const el = document.querySelector<HTMLElement>(".st-panel");
+      if (!el) return false;
+      const box = el.getBoundingClientRect();
+      const style = getComputedStyle(el);
+      const dpr = window.devicePixelRatio;
+      // the corner as drawn: its size in the page, as large as the panel is now
+      const radius = (parseFloat(style.borderTopLeftRadius) || 0) * (box.width / Math.max(1, el.offsetWidth)) * dpr;
+      const shown = +style.opacity >= 0.72;
+      const half = (v: number) => Math.round(v * 2) / 2;
+      const key = [box.left, box.top, box.width, box.height, radius, shown].map((v) => (typeof v === "number" ? half(v) : v)).join();
+      if (key === last) return false;
+      last = key;
+      ipc.reportStartPane(box.left * dpr, box.top * dpr, box.width * dpr, box.height * dpr, radius, shown).catch(() => undefined);
+      return true;
+    };
+    const tick = () => {
+      frame = 0;
+      still = send() ? 0 : still + 1;
+      if (still < 30) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [phase]);
+
   // ---- closing ----
   const close = useCallback(
     (restore: boolean) => {
       if (phaseRef.current !== "open") return;
       setPhase("closing");
+      playCue("startClose");
       setMenu(null);
       setPop(null);
       lens.fade();
@@ -325,11 +366,12 @@ export function StartApp() {
       setPop(null);
       setFiles([]);
       setPhase("open");
+      playCue("startOpen");
       window.setTimeout(() => input.current?.focus(), 40);
       // what the lists are made of, read fresh each time (cheap, and an app may have been installed)
       ipc.listApps().then(setApps).catch(() => undefined);
       ipc.listRecentFiles(20).then(setRecent).catch(() => undefined);
-      ipc.listRecentDownloads(6).then(setDownloads).catch(() => undefined);
+      ipc.listRecentDownloads(4).then(setDownloads).catch(() => undefined);
       ipc.userProfile().then(setProfile).catch(() => undefined);
     });
     const outside = listen("start://outside", () => close(false));
@@ -367,8 +409,23 @@ export function StartApp() {
   }, [apps]);
 
   const pinned = useMemo(() => (pins ?? []).map(fromPin), [pins]);
-  const recommended = useMemo(() => recent.slice(0, 3).map(fromRecent), [recent]);
-  const downloaded = useMemo(() => downloads.slice(0, 3).map(fromDownload), [downloads]);
+  // Recommended, as Windows has it: what was installed lately and what was opened lately, together,
+  // newest first. An app counts as new for two weeks.
+  const recommendedAll = useMemo(() => {
+    const now = Date.now();
+    const added = uniqueApps
+      .filter((a) => a.addedMs > now - 14 * 86_400_000)
+      .sort((a, b) => b.addedMs - a.addedMs)
+      .slice(0, 8)
+      .map((a) => ({ at: a.addedMs, item: { ...fromApp(a), detail: "Recently added" } }));
+    const opened = recent.map((r) => ({
+      at: r.usedAt * 1000,
+      item: { ...fromRecent(r), detail: `${timeAgo(r.usedAt * 1000)}  ·  ${folderOf(r.path)}` },
+    }));
+    return [...added, ...opened].sort((a, b) => b.at - a.at).map((x) => x.item);
+  }, [uniqueApps, recent]);
+  const recommended = useMemo(() => recommendedAll.slice(0, 6), [recommendedAll]);
+  const downloaded = useMemo(() => downloads.slice(0, 4).map(fromDownload), [downloads])
 
   const q = query.trim();
   // files: asked of Windows' index a moment after typing stops
@@ -432,6 +489,10 @@ export function StartApp() {
     const wanted = flat.filter((i) => i.kind === "app" || i.kind === "file").map((i) => i.target);
     if (wanted.length) void resolveIcons(wanted);
   }, [phase, flat, resolveIcons, iconEpoch]);
+  useEffect(() => {
+    if (phase !== "open" || view !== "more") return;
+    void resolveIcons(recommendedAll.slice(0, 30).map((i) => i.target));
+  }, [phase, view, recommendedAll, resolveIcons, iconEpoch]);
   // all of the apps, a screenful at a time so the first rows are not waiting for the last
   useEffect(() => {
     if (phase !== "open" || view !== "all") return;
@@ -528,7 +589,7 @@ export function StartApp() {
         setPop(null);
       } else if (query) {
         setQuery("");
-      } else if (view === "all") {
+      } else if (view !== "home") {
         setView("home");
       } else {
         close(true);
@@ -687,9 +748,30 @@ export function StartApp() {
               ))}
             </div>
             {showRecommended && (
-              <div className="st-recommended">
-                <div className="st-rec-col">
+              <>
+                <div className="st-bar st-bar-tight">
+                  <h2>Recommended</h2>
+                  <button type="button" className="st-pill" onClick={() => setView("more")}>
+                    More
+                    <Glyph name="chevron" />
+                  </button>
+                </div>
+                <div className="st-rec-grid">
+                  {recommended.length === 0 && <div className="st-none">Apps you install and files you open will appear here.</div>}
+                  {recommended.map((item) => (
+                    <button key={item.key} type="button" className="st-rec" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
+                      <ItemIcon item={item} />
+                      <span className="st-row-text">
+                        <strong>{item.name}</strong>
+                        <small>{item.detail}</small>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <div className="st-bar st-bar-tight">
                   <h2>Recently downloaded</h2>
+                </div>
+                <div className="st-rec-grid">
                   {downloaded.length === 0 && <div className="st-none">Nothing downloaded lately.</div>}
                   {downloaded.map((item) => (
                     <button key={item.key} type="button" className="st-rec" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
@@ -701,21 +783,31 @@ export function StartApp() {
                     </button>
                   ))}
                 </div>
-                <div className="st-rec-col">
-                  <h2>Recent files</h2>
-                  {recommended.length === 0 && <div className="st-none">Files you open will appear here.</div>}
-                  {recommended.map((item) => (
-                    <button key={item.key} type="button" className="st-rec" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
-                      <ItemIcon item={item} />
-                      <span className="st-row-text">
-                        <strong>{item.name}</strong>
-                        <small>{item.detail}</small>
-                      </span>
-                    </button>
-                  ))}
-                </div>
+              </>
+            )}          </>
+        ) : view === "more" ? (
+          <>
+            <div className="st-bar">
+              <button type="button" className="st-pill" onClick={() => setView("home")}>
+                <Glyph name="back" />
+                Back
+              </button>
+              <h2>Recommended</h2>
+            </div>
+            <div className="st-all">
+              <div className="st-all-list" data-lens-clip>
+                {recommendedAll.slice(0, 30).map((item) => (
+                  <button key={item.key} type="button" className="st-row" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
+                    <ItemIcon item={item} />
+                    <span className="st-row-text">
+                      <strong>{item.name}</strong>
+                      <small>{item.detail}</small>
+                    </span>
+                  </button>
+                ))}
+                {recommendedAll.length === 0 && <div className="st-none">Apps you install and files you open will appear here.</div>}
               </div>
-            )}
+            </div>
           </>
         ) : (
           <>

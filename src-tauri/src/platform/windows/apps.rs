@@ -142,6 +142,7 @@ fn enumerate_apps_folder() -> AeroResult<Vec<AppEntry>> {
                 target_path: target,
                 args: String::new(),
                 source: "apps-folder".to_string(),
+                added_ms: 0,
             });
         }
     }
@@ -258,6 +259,7 @@ pub fn resolve_single(path: &str) -> AeroResult<AppEntry> {
             target_path: target,
             args,
             source: "desktop".to_string(),
+            added_ms: 0,
         });
     }
 
@@ -272,6 +274,7 @@ pub fn resolve_single(path: &str) -> AeroResult<AppEntry> {
         target_path: path.to_string(),
         args: String::new(),
         source: if p.is_dir() { "folder" } else { "desktop" }.to_string(),
+        added_ms: 0,
     })
 }
 
@@ -344,5 +347,32 @@ fn resolve_shortcut(
         target_path: target,
         args,
         source: source.to_string(),
+        added_ms: made_ms(lnk_path),
     })
+}
+
+/// When a file was made, in ms since 1970 (0 if the system does not say).
+fn made_ms(path: &Path) -> i64 {
+    std::fs::metadata(path)
+        .ok()
+        .and_then(|m| m.created().ok())
+        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn when_a_file_was_made_is_a_recent_time_and_a_missing_file_is_zero() {
+        let path = std::env::temp_dir().join(format!("aero-made-{}.txt", std::process::id()));
+        std::fs::write(&path, "x").expect("a file");
+        let made = made_ms(&path);
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis() as i64;
+        assert!(made > 0 && (now - made).abs() < 60_000, "made {made}, now {now}");
+        let _ = std::fs::remove_file(&path);
+        assert_eq!(made_ms(&path), 0);
+    }
 }

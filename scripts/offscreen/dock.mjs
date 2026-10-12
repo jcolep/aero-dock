@@ -18,6 +18,8 @@ const h = await startHarness({
   settings: (s) => {
     // the round buttons always showing (they otherwise wait for the pointer at the dock's ends)
     s.dock.revealControls = false;
+    // the blur behind the bar is on, so the page tells Rust where the bar is
+    s.appearance.realBlur = true;
     s.dock.showSearchButton = true;
     s.dock.showSettingsButton = true;
     // one pin that is not running, and one that is (the running window below is
@@ -34,6 +36,15 @@ try {
   const icons = await h.eval(`[...document.querySelectorAll('button.dock-icon')].map((b) => b.getAttribute('aria-label'))`);
   console.log("icons:", JSON.stringify(icons));
 // the round search and settings buttons keep their size (their styles once went missing and left a sliver)
+{
+  // where the glass is, said while the bar moves and then not at all
+  await h.sleep(1500);
+  const reports = await h.eval("window.__calls.filter((c) => c.cmd === 'report_dock_bar').map((c) => c.args.bar)");
+  console.log("blur: the bar's place was reported", reports.length, "times; the last:", JSON.stringify(reports.at(-1)));
+  await h.sleep(1500);
+  const later = await h.eval("window.__calls.filter((c) => c.cmd === 'report_dock_bar').length");
+  console.log("blur: nothing more is said once it has settled:", later === reports.length);
+}
 console.log("dock buttons:", JSON.stringify(await h.eval("[...document.querySelectorAll('.dock-control-btn')].map((b) => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })").catch(() => null)));
   const closes = async () => (await h.calls()).filter((c) => c.cmd === "close_window").map((c) => c.args.hwnd);
 

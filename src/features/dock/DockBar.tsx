@@ -302,39 +302,50 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     const el = barRef.current;
     if (!el) return;
     let last = "";
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const send = () => {
-      let x = 0;
-      let y = 0;
-      for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) {
-        x += n.offsetLeft;
-        y += n.offsetTop;
-      }
-      const w = el.offsetWidth;
-      const h = el.offsetHeight;
+    /** Say where the bar is now; true if that is not where it was last said to be. */
+    const send = (): boolean => {
+      // where it is drawn, not where layout puts it: while a bar grows or shrinks to fit
+      // an app that came or went it is moved by a transform, and the glass behind it has
+      // to follow that, not the size layout jumps to at once
+      const box = el.getBoundingClientRect();
+      const w = el.offsetWidth ? box.width : 0;
+      const h = el.offsetHeight ? box.height : 0;
       const radius = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, w / 2, h / 2);
       const shown = realBlur && !slidAway && w > 0 && h > 0;
-      const key = shown ? [x, y, w, h, radius].map(Math.round).join() : "off";
-      if (key === last) return;
+      const half = (v: number) => Math.round(v * 2) / 2;
+      const key = shown ? [box.left, box.top, w, h, radius].map(half).join() : "off";
+      if (key === last) return false;
       last = key;
-      ipc.reportDockBar(x, y, w, h, radius, shown).catch(() => undefined);
+      ipc.reportDockBar(box.left, box.top, w, h, radius, shown).catch(() => undefined);
+      return true;
     };
-    // a change in size is passed on once it has settled, not at every frame
-    const soon = () => {
-      clearTimeout(timer);
-      timer = setTimeout(send, 60);
+    // While anything is moving it looks at every frame, and rests when the bar has been
+    // the same for a while (half a second: a spring takes a while to be sure it has stopped).
+    let frame = 0;
+    let still = 0;
+    const tick = () => {
+      frame = 0;
+      still = send() ? 0 : still + 1;
+      if (still < 30) frame = requestAnimationFrame(tick);
     };
-    send();
-    const observer = new ResizeObserver(soon);
-    observer.observe(el);
-    window.addEventListener("resize", soon);
+    const wake = () => {
+      still = 0;
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+    wake();
+    const resized = new ResizeObserver(wake);
+    resized.observe(el);
+    // an icon coming or going moves the bar by a transform before layout has anything to say
+    const changed = new MutationObserver(wake);
+    changed.observe(el, { childList: true, subtree: true });
+    window.addEventListener("resize", wake);
     return () => {
-      clearTimeout(timer);
-      observer.disconnect();
-      window.removeEventListener("resize", soon);
+      cancelAnimationFrame(frame);
+      resized.disconnect();
+      changed.disconnect();
+      window.removeEventListener("resize", wake);
     };
-  }, [realBlur, slidAway, vertical]);
-  // and none left behind when the dock goes
+  }, [realBlur, slidAway, vertical]);  // and none left behind when the dock goes
   useEffect(
     () => () => {
       ipc.reportDockBar(0, 0, 0, 0, 0, false).catch(() => undefined);

@@ -197,7 +197,15 @@ export const ipc = {
     height: number,
     radius: number,
     shown: boolean,
-  ) => invoke<void>("report_dock_bar", { bar: { x, y, width, height, radius, shown } }),
+  ) =>
+    invoke<void>("report_dock_bar", {
+      // the page's own idea of its pixels, which is right for the screen it is on now
+      bar: { x, y, width, height, radius, shown, dpr: window.devicePixelRatio },
+    }),
+  /** Where the Start menu's panel is within its window now, in physical px, for the blur
+   *  that goes behind it; `shown` false while it is too faint (or gone) for one. */
+  reportStartPane: (x: number, y: number, width: number, height: number, radius: number, shown: boolean) =>
+    invoke<void>("report_start_pane", { report: { x, y, width, height, radius, shown } }),
   // control center
   // mission control
   toggleMission: () => invoke<void>("toggle_mission"),

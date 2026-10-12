@@ -23,6 +23,10 @@ pub struct AppEntry {
     pub icon: Option<String>,
     /// Where the entry came from: "start-menu" | "desktop".
     pub source: String,
+    /// When its shortcut was made, in ms since 1970, which is when the app was installed (or
+    /// near it): what "recently added" is. 0 when that is not known (a Store app has no file).
+    #[serde(default)]
+    pub added_ms: i64,
 }
 
 /// COM apartment guard: initializes COM on the current thread and
