@@ -204,8 +204,19 @@ export const ipc = {
     }),
   /** Where the Start menu's panel is within its window now, in physical px, for the blur
    *  that goes behind it; `shown` false while it is too faint (or gone) for one. */
-  reportStartPane: (x: number, y: number, width: number, height: number, radius: number, shown: boolean) =>
-    invoke<void>("report_start_pane", { report: { x, y, width, height, radius, shown } }),
+  /** A blurred picture of the screen behind a region of this window, our windows left out (see
+   *  BackdropLayer): a 16-byte header (where, from the window, and how big, in physical pixels) and a PNG.
+   *  Empty when there is none to be had. */
+  captureBackdrop: (request: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    dpr: number;
+    blur: number;
+    saturate: number;
+    brightness: number;
+  }) => invoke<ArrayBuffer>("capture_backdrop", { request }),
   // control center
   // mission control
   toggleMission: () => invoke<void>("toggle_mission"),

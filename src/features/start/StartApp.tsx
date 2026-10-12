@@ -20,6 +20,7 @@ import { animationsOf, startExitMs } from "../../engine/animation/presets";
 import { playCue } from "../../engine/sound/ui";
 import { useGlideHighlight } from "../../engine/lens/useGlideHighlight";
 import { applyAppearance } from "../../engine/themes/applyTheme";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { ipc } from "../../ipc/commands";
 import type { AppEntry, Download, FoundFile, PinnedItem, Profile, RecentFile, StartPin } from "../../ipc/types";
@@ -296,44 +297,9 @@ export function StartApp() {
 
   const pins = settings?.start.pinned;
 
-  // ---- the blur behind the panel ----
-  // Windows blurs what is behind the panel in a pane of its own (see backdrop.rs). The panel
-  // opens and closes by moving, so the page tells Rust where it is at every frame while it is
-  // on the move, and the pane is its shape at each moment. It is only there while the panel is
-  // solid enough to be worth blurring behind: a pane under a panel that is fading in or out
-  // would show as a blurred rectangle with nothing in front of it.
-  useEffect(() => {
-    if (phase === "closed") {
-      ipc.reportStartPane(0, 0, 0, 0, 0, false).catch(() => undefined);
-      return;
-    }
-    let last = "";
-    let frame = 0;
-    let still = 0;
-    const send = (): boolean => {
-      const el = document.querySelector<HTMLElement>(".st-panel");
-      if (!el) return false;
-      const box = el.getBoundingClientRect();
-      const style = getComputedStyle(el);
-      const dpr = window.devicePixelRatio;
-      // the corner as drawn: its size in the page, as large as the panel is now
-      const radius = (parseFloat(style.borderTopLeftRadius) || 0) * (box.width / Math.max(1, el.offsetWidth)) * dpr;
-      const shown = +style.opacity >= 0.72;
-      const half = (v: number) => Math.round(v * 2) / 2;
-      const key = [box.left, box.top, box.width, box.height, radius, shown].map((v) => (typeof v === "number" ? half(v) : v)).join();
-      if (key === last) return false;
-      last = key;
-      ipc.reportStartPane(box.left * dpr, box.top * dpr, box.width * dpr, box.height * dpr, radius, shown).catch(() => undefined);
-      return true;
-    };
-    const tick = () => {
-      frame = 0;
-      still = send() ? 0 : still + 1;
-      if (still < 30) frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [phase]);
+  // The frosted glass behind the panel is a picture of the desktop under it, made by Rust and laid under the panel's
+  // tint by the layer inside it (see BackdropLayer); the panel's own corners shape it.
+  const realBlur = !!settings?.appearance.realBlur && !reduced.transparency;
 
   // ---- closing ----
   const close = useCallback(
@@ -684,6 +650,7 @@ export function StartApp() {
           }
         }}
       >
+        <BackdropLayer active={realBlur && phase !== "closed"} interval={450} margin={24} />
         {lens.Highlight}
         <div className="st-search">
           <Glyph name="search" />

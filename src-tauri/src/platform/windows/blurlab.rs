@@ -52,7 +52,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
 use super::backdrop;
 use super::monitors::enumerate_monitors;
 /// How much brightness varies over some pixels (BGRA), as a standard deviation, 0 to 127.5.
-pub fn spread(bgra: &[u8]) -> f32 {
+pub(super) fn spread(bgra: &[u8]) -> f32 {
     let luma: Vec<f32> = bgra
         .chunks_exact(4)
         .map(|p| 0.114 * p[0] as f32 + 0.587 * p[1] as f32 + 0.299 * p[2] as f32)
@@ -92,7 +92,7 @@ unsafe extern "system" fn stripes_proc(hwnd: HWND, msg: u32, wparam: WPARAM, lpa
 }
 
 /// Let the system run what it has for this thread's windows, for a time.
-fn pump(ms: u64) {
+pub(super) fn pump(ms: u64) {
     let until = Instant::now() + Duration::from_millis(ms);
     while Instant::now() < until {
         unsafe {
@@ -107,7 +107,7 @@ fn pump(ms: u64) {
 }
 
 /// What the screen shows in a rectangle, as BGRA (top-down).
-fn read_screen(x: i32, y: i32, width: i32, height: i32) -> Option<Vec<u8>> {
+pub(super) fn read_screen(x: i32, y: i32, width: i32, height: i32) -> Option<Vec<u8>> {
     if width <= 0 || height <= 0 {
         return None;
     }
@@ -147,7 +147,7 @@ fn read_screen(x: i32, y: i32, width: i32, height: i32) -> Option<Vec<u8>> {
 }
 
 /// Make the class of the stripes window known. Registering it again is refused, and harmless.
-fn register_class() -> bool {
+pub(super) fn register_class() -> bool {
     unsafe {
         let Ok(module) = GetModuleHandleW(None) else { return false };
         let class = WNDCLASSW {

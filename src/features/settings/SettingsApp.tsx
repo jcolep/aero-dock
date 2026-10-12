@@ -261,9 +261,9 @@ export function SettingsApp() {
 
         <SettingsSection id="glass">
           <AeroToggle
-            label="Frosted glass: blur what is behind the dock, menu bar and frame"
+            label="Frosted glass: blur what is behind the dock, the Start menu and the menu bar"
             checked={appearance.realBlur}
-            hint="Windows blurs your wallpaper and windows behind the glass, instead of the glass only being tinted. Depends on how Windows draws it on your machine, so it is off until you choose it; turn it off again if anything looks wrong"
+            hint="Your wallpaper and windows, blurred, show through the glass instead of the glass only being tinted. The dock and the Start menu blur a picture of what is behind them (about five a second while the dock is awake), so their corners are as round as the glass. Off until you choose it; turn it off again if anything looks wrong"
             onChange={(v) => set((d) => void (d.appearance.realBlur = v))}
           />
           <div className="ctl-row">
@@ -283,9 +283,9 @@ export function SettingsApp() {
             </div>
           </div>
           <p className="settings-note">
-            Windows blurs only whole rectangles, so the blur behind a rounded bar is made of a few plain pieces that
-            stay inside its curve; the rim of the glass at the corners is not blurred. If the glass looks wrong on one
-            of your screens, the report says where each piece is.
+            The picture is taken with Aero Dock's own windows left out of it, so the dock is not in the picture of what
+            is behind the dock. If the glass looks wrong on one of your screens, the report says whether a picture can be
+            taken here, how long it takes, and where each window is.
           </p>          <AeroToggle
             label="Light that follows the pointer"
             checked={appearance.pointerLight}

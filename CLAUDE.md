@@ -81,6 +81,7 @@ node --experimental-websocket scripts/offscreen/interrupt.mjs src-tauri/target/o
 node --experimental-websocket scripts/offscreen/dock.mjs src-tauri/target/offscreen
 node --experimental-websocket scripts/offscreen/dockglass.mjs src-tauri/target/offscreen   # satellites from outside, status buttons' glass
 node --experimental-websocket scripts/offscreen/dockhide.mjs src-tauri/target/offscreen    # satellites put away, and moving with the dock
+node --experimental-websocket scripts/offscreen/backdrop.mjs src-tauri/target/offscreen    # the frosted picture under the dock and Start
 node --experimental-websocket scripts/offscreen/insight.mjs src-tauri/target/offscreen    # privacy dots, stats
 node --experimental-websocket scripts/offscreen/attention.mjs src-tauri/target/offscreen  # attention bounce
 node --experimental-websocket scripts/offscreen/mission.mjs src-tauri/target/offscreen    # Mission Control
@@ -153,19 +154,23 @@ Say plainly in a report when something native was not seen.
 - **Packaged apps** (Teams, new Outlook, Terminal) are identified by AUMID
   (`GetApplicationUserModelId`, `packaged.rs`), not by exe path, which sits in a
   versioned folder that cannot be executed.
-- **Real blur needs windows of its own, and the blur is a rectangle.** The windows are transparent web
-  views, so `backdrop-filter` can only blur page content. `backdrop.rs` makes bare popup panes with the
-  system's blur on, kept just under the window they back. It is the *plain* blur, not acrylic: acrylic added
-  its own dark tint that read as a black backing under a dark theme. **Measured** (`blurlab.rs`,
-  `cargo test --lib blur_lab -- --ignored --nocapture`, with `BLUR_LAB_OUT` set to a folder; it shows a window
-  of stripes on each screen for a few seconds, so ask the owner first): on Windows 11 24H2 the blur ignores a
-  window region, a layered window's per-pixel alpha, `DwmEnableBlurBehindWindow`'s region and acrylic's, on
-  every screen. Do not shape a pane with `SetWindowRgn` again: it shows as a grey square behind a rounded
-  bar (what the owner saw from the first frosted-glass version on, on both monitors). A rounded bar's pane
-  is a few plain rectangles that stay inside the curve (`backdrop::tile_rects`). A window blurs only what is
-  inside its own bounds, so tiles narrower than `MIN_TILE` show as bands and are left out. It is off by
-  default until the owner confirms it looks right.
-- **A `ResizeObserver` reports once on `observe()`**: reacting to that first report
+- **Real blur is a picture, not the system's blur.** The windows are transparent web views (`backdrop-filter`
+  has nothing to sample) and **the system's blur is a rectangle only**: measured by `blurlab.rs` (`cargo test
+  --lib blur_lab -- --ignored --nocapture`, `BLUR_LAB_OUT` set to a folder; it shows a window of stripes on each
+  screen for a few seconds, so ask the owner first) it ignores a window region, a layered window's alpha,
+  `DwmEnableBlurBehindWindow`'s region and acrylic's, on every screen. Do not shape a pane with `SetWindowRgn`
+  again: that was the grey square behind the dock and Start (both monitors, from the first frosted-glass version
+  on). So the dock and Start blur a *picture*: `capture_backdrop` (`backdrop_capture.rs`) takes one of the
+  screen with this program's windows left out (the Magnification API's window + `MagSetWindowFilterList`; its
+  host must be shown and on the primary screen; found by `capturelab.rs`), shrinks, blurs and grades it, and
+  `engine/backdrop/BackdropLayer.tsx` lays it under the glass's tint, clipped by the glass's own corners. A glass
+  with a picture has `data-bd="on"`, which drops its own `background`; **every glass rule keeps its tint in
+  `--bd-tint`** (global.css, clear.css, start.css) and the layer draws it over the picture. A new glass surface
+  that should be frosted: give it `isolation: isolate`, a `--bd-tint`, and `<BackdropLayer>` as its first child
+  (and keep content rules like `.st-panel > :not(...)` off `.bd-layer`). The menu bar still has a pane (the
+  system's blur on a plain window under the bar, tiles from `backdrop::tile_rects`, which leave out tiles
+  narrower than `MIN_TILE` because a window blurs only what is in its own bounds). It is off by default until
+  the owner confirms it looks right.- **A `ResizeObserver` reports once on `observe()`**: reacting to that first report
   as if it were a change restarted the lens mid-slide. Compare sizes.
 - **Closures made once keep their first value**: the elastic slider's resize
   handler kept the volume it was mounted with (0) and reset the knob. Read through a
@@ -243,23 +248,18 @@ Say plainly in a report when something native was not seen.
   `--lens-scale`. It takes `menuBar.lensGrow/lensMagnify/lensWarp`, so one set of sliders sets both
   lenses. The Start menu uses it for every hover and for the key-selected search result; its own
   `:hover` backgrounds are gone on purpose.
-- **Blur panes follow what is drawn, not what layout says** (`glass.rs`, `backdrop.rs`). A dock's bar grows
-  and shrinks by a transform while layout jumps to the new size at once, so a pane placed from layout
-  offsets was a stale rectangle behind the moving dock. The dock page now reports `getBoundingClientRect()`
-  at every frame while anything moves (`DockBar.tsx`: ResizeObserver + MutationObserver wake a rAF loop that
-  rests after ~30 still frames) and Rust updates only that dock's pane (`sync_dock`, not `sync_all`). The
-  Start menu does the same for its panel (`report_start_pane`), and the pane is only shown while the panel's
-  opacity is at least 0.72, so no blurred rectangle is left where a fading panel was. Panes are one pixel
-  inside the thing they back and take their scale from the page's `devicePixelRatio` / `GetDpiForWindow`, not
-  from the toolkit's cached scale. The page's report arrives a frame or two late, so while a bar moves its
-  pane is held `LAG` px inside it (a rim of clear glass, not a blurred rectangle left outside a shrinking
-  bar) and `set_pane` returns true; `glass::settle_later` then looks again 150 ms after the last change to
-  put it exactly under the bar. **Unverified natively**: the owner's screenshots also showed lighter and
-  darker patches with stair-stepped edges inside the Start panel and over the dock's tray end that the lab
-  could not reproduce; they were taken with the region-shaped panes, so look again after the rectangle panes.
-  "Save a report" in Settings (Glass & light) writes `blur-report.txt`: every dock/Start window and pane
-  tile, with place, size and DPI.
-- **Search and Settings (the dock's satellites) hang on `.dock-satellites`**, a layer the size of the bar that
+- **The backdrop layer follows what is drawn, not what layout says** (`BackdropLayer.tsx`). A glass moves by a
+  transform (the dock bar slides, the Start panel pours in by a CSS animation) while layout does not, so the
+  picture is placed from `getBoundingClientRect()` against `offsetWidth` (which gives the scale), at every
+  frame while the glass moves (a MutationObserver on the glass and two ancestors, a ResizeObserver,
+  `animationstart`: they wake a rAF loop that rests after 24 still frames). A picture is of the glass plus
+  `margin` px; when the glass leaves it a new one is asked for at once. It is decoded (`img.decode()`) before
+  it is shown, or the glass shows its bare tint at every look; a look that finds the same bytes does not
+  swap, and the next is later (up to 7x `interval`). Pictures are in physical pixels from the window's top
+  left (the 16-byte header) and the page divides by `devicePixelRatio`. **Unverified natively as of this
+  note**: Display affinity, Mag host behaviour on a locked screen or secure desktop, and a magnifier already
+  running (the Windows Magnifier app) were not tried. "Save a report" in Settings (Glass & light) writes
+  `blur-report.txt`: screens, docks, Start, panes, and whether and how fast a picture can be taken.- **Search and Settings (the dock's satellites) hang on `.dock-satellites`**, a layer the size of the bar that
   takes the bar's reveal motion, so a button still out when the dock auto-hides slides away with it. They bud
   out of the room beside the bar too (`handleOutside` on the viewport), and are put away when the pointer
   leaves the window or moves off about the room (before, a button budded from outside stayed). The dock

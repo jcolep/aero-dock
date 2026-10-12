@@ -43,13 +43,16 @@ img {
 .glass {
   position: relative;
   border-radius: var(--glass-radius);
-  background: linear-gradient(
+  /* kept in a variable so that, with a picture of the desktop under the glass, the tint can be drawn over
+     that picture (see BackdropLayer) */
+  --bd-tint: linear-gradient(
     180deg,
     var(--glass-tint-top) 0%,
     var(--glass-tint-mid) 46%,
     rgba(255, 255, 255, 0.04) 52%,
     var(--glass-tint-bottom) 100%
   );
+  background: var(--bd-tint);
   backdrop-filter: blur(calc(var(--glass-blur) * var(--glass-intensity)))
     saturate(var(--glass-saturate));
   border: 1px solid var(--glass-border);
@@ -59,6 +62,39 @@ img {
     inset 0 1px 0 rgba(255, 255, 255, 0.75),
     inset 0 -1px 12px rgba(140, 210, 255, 0.18);
   isolation: isolate;
+}
+
+/* A picture of what is behind a piece of glass, under its tint (see BackdropLayer). The layer is there
+   always and shows only while the glass has a picture (data-bd), and then the glass's own tint, which is
+   under the layer, is not drawn: the layer draws it over the picture. */
+.bd-layer {
+  /* hidden, not removed: it is measured to say where the picture goes before there is one */
+  visibility: hidden;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+[data-bd="on"] {
+  background: none !important;
+}
+
+[data-bd="on"] > .bd-layer {
+  visibility: visible;
+  background-image: var(--bd-image);
+  background-repeat: no-repeat;
+  background-position: var(--bd-x, 0) var(--bd-y, 0);
+  background-size: var(--bd-w, 100%) var(--bd-h, 100%);
+}
+
+[data-bd="on"] > .bd-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bd-tint);
 }
 
 /* Vista's curved top-gloss highlight */

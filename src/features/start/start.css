@@ -21,10 +21,13 @@
   overflow: hidden;
   /* a body that is dark enough for white text on any wallpaper, with the theme's
      deep colour in it, lit from the upper left, and a rim of light at the edge */
-  background:
+  /* the body, in a variable: with a picture of the desktop under the panel (BackdropLayer) it is drawn over it */
+  --bd-tint:
     radial-gradient(120% 70% at 12% -8%, rgba(255, 255, 255, 0.22), transparent 55%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02) 40%),
     color-mix(in srgb, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 36%, #0f1420) 80%, transparent);
+  background: var(--bd-tint);
+  isolation: isolate;
   box-shadow:
     0 14px 30px rgba(0, 0, 0, 0.4),
     0 3px 10px rgba(0, 0, 0, 0.28),
@@ -39,14 +42,16 @@
 
 /* with the real blur behind it the panel can be clearer */
 :root[data-real-blur="true"] .st-panel {
-  background:
+  --bd-tint:
     radial-gradient(120% 70% at 12% -8%, rgba(255, 255, 255, 0.26), transparent 55%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03) 40%),
     color-mix(in srgb, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 36%, #0f1420) 56%, transparent);
+  background: var(--bd-tint);
 }
 
 .st-root[data-solid] .st-panel {
-  background: color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 30%, #121826);
+  --bd-tint: color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 30%, #121826);
+  background: var(--bd-tint);
 }
 
 /* ---- opening and closing: the choice under Settings > Animations ---- */
@@ -757,7 +762,7 @@
 }
 
 /* everything in the panel but the gliding highlight and the popups lies above the highlight */
-.st-panel > :not(.glide-highlight):not(.st-pop):not(.st-menu) {
+.st-panel > :not(.glide-highlight):not(.st-pop):not(.st-menu):not(.bd-layer) {
   position: relative;
   z-index: 1;
 }

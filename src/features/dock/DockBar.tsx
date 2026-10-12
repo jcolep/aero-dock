@@ -21,6 +21,7 @@ import { useFileDrag } from "../../state/dragStore";
 import { Welcome } from "../onboarding/Welcome";
 import { WidgetCluster } from "../widgets/WidgetCluster";
 import { ContextMenu } from "./ContextMenu";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { SearchButton, SettingsButton } from "./DockControls";
 import { playCue } from "../../engine/sound/ui";
 import { usePointerLight } from "../../engine/light/usePointerLight";
@@ -846,6 +847,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       >
         {/* the bar can't clip itself (tooltips float above it), so the
             ambient sweep gets its own clipping layer */}
+        <BackdropLayer active={realBlur && !slidAway} interval={asleep ? 1500 : 220} margin={56} />
         <span className="glass-sweep" aria-hidden />
         <ModeSwitcher settings={settings} edge={edge} />
         {!revealMode && settings.dock.showSearchButton && (

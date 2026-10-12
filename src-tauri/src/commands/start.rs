@@ -173,7 +173,6 @@ pub fn close(app: &AppHandle, restore: bool) {
     if let Some(window) = app.get_webview_window(LABEL) {
         let _ = window.hide();
     }
-    crate::commands::glass::forget_start_pane(app);
     if restore {
         let previous = *PREVIOUS.lock();
         if previous != 0 {

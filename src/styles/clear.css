@@ -47,7 +47,8 @@
 }
 
 [data-surface="clear"] .glass {
-  background: rgba(var(--clear-tint), calc(0.22 * var(--clear-strength)));
+  --bd-tint: rgba(var(--clear-tint), calc(0.22 * var(--clear-strength)));
+  background: var(--bd-tint);
   backdrop-filter: blur(calc(var(--glass-blur) * var(--glass-intensity)))
     saturate(var(--glass-saturate)) brightness(1.06);
   /* kept (transparent, not removed) so the dock's height still matches
@@ -97,7 +98,8 @@
 [data-surface="clear"][data-window="dock"] .glass {
   /* the picked colour, flat: the same strength all the way across, so what
      is picked is what the dock is */
-  background: rgba(var(--clear-tint), calc(0.34 * var(--clear-strength)));
+  --bd-tint: rgba(var(--clear-tint), calc(0.34 * var(--clear-strength)));
+  background: var(--bd-tint);
 }
 
 [data-surface="clear"] .dock-indicator {

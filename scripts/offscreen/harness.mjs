@@ -197,6 +197,23 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "list_recent_files": return ${JSON.stringify(recent)};
         case "search_files": return ${JSON.stringify(files)}.filter((f) => f.name.toLowerCase().includes(String(args.query || "").toLowerCase()));
         case "blur_report": return "";
+        // a picture of the desktop behind a region: red, to yellow, to blue, from left to right, so that where the page
+        // puts it shows (the real one is a blurred picture of the screen)
+        case "capture_backdrop": {
+          const r = args.request, dpr = r.dpr || 1;
+          const w = Math.max(2, Math.round(r.width / 4)), h = Math.max(2, Math.round(r.height / 4));
+          const c = document.createElement("canvas");
+          c.width = w; c.height = h;
+          const g = c.getContext("2d");
+          const grad = g.createLinearGradient(0, 0, w, 0);
+          grad.addColorStop(0, "#d03030"); grad.addColorStop(0.5, "#e8c030"); grad.addColorStop(1, "#3050d0");
+          g.fillStyle = grad; g.fillRect(0, 0, w, h);
+          const bin = atob(c.toDataURL("image/png").split(",")[1]);
+          const buf = new ArrayBuffer(16 + bin.length), dv = new DataView(buf), bytes = new Uint8Array(buf);
+          [r.x, r.y, r.width, r.height].forEach((v, i) => dv.setInt32(i * 4, Math.round(v * dpr), true));
+          for (let i = 0; i < bin.length; i++) bytes[16 + i] = bin.charCodeAt(i);
+          return buf;
+        }
         case "list_recent_downloads": return ${JSON.stringify(downloads)};
         case "user_profile": return ${JSON.stringify(profile)};
         case "toggle_start": case "close_start": case "launch_as_admin": case "open_file_location": case "system_action": case "pin_item": return null;

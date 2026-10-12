@@ -4,8 +4,11 @@ pub mod appaudio;
 pub mod appbar;
 pub mod apps;
 pub mod backdrop;
+pub mod backdrop_capture;
 #[cfg(test)]
 mod blurlab;
+#[cfg(test)]
+mod capturelab;
 pub mod bluetooth;
 pub mod brightness;
 pub mod dock_window;
