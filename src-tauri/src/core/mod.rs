@@ -1,4 +1,5 @@
 pub mod error;
+pub mod glassicon;
 pub mod names;
 pub mod paths;
 pub mod settings;

@@ -193,6 +193,10 @@ pub struct AppearanceSettings {
     pub pointer_light: bool,
     /// A fine grain over the glass, which keeps its gradients from banding.
     pub glass_grain: bool,
+    /// What is done to every app's icon: plain | glass | clear | tinted. The
+    /// treatment is baked into a copy of the icon when it is first read (see
+    /// `core::glassicon`), so it costs nothing to show.
+    pub icon_style: String,
 }
 
 impl Default for AppearanceSettings {
@@ -216,6 +220,7 @@ impl Default for AppearanceSettings {
             real_blur: false,
             pointer_light: true,
             glass_grain: true,
+            icon_style: "glass".into(),
         }
     }
 }
@@ -696,6 +701,7 @@ impl Settings {
         f.corner_radius = f.corner_radius.min(48);
         f.tint = if f.tint.is_finite() { f.tint.clamp(0.2, 2.0) } else { 1.0 };
         keep_known(&mut self.dock.minimize_effect, &["genie", "scale", "off"], "genie");
+        keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
         let a11y = &mut self.accessibility;
         keep_known(&mut a11y.reduce_motion, AccessibilitySettings::POLICIES, "system");
         keep_known(&mut a11y.reduce_transparency, AccessibilitySettings::POLICIES, "system");
@@ -1214,6 +1220,19 @@ mod tests {
         assert_eq!(s.dock.icon_size, 48);
         assert!(s.dock.magnification);
         assert_eq!(s.appearance.theme, "aero");
+    }
+
+    #[test]
+    fn the_icon_style_defaults_to_glass_and_an_unknown_one_falls_back() {
+        let old: Settings = serde_json::from_str(r#"{"dock":{"iconSize":40}}"#).expect("old file loads");
+        assert_eq!(old.appearance.icon_style, "glass");
+        let mut s = Settings::default();
+        s.appearance.icon_style = "clear".into();
+        s.sanitize();
+        assert_eq!(s.appearance.icon_style, "clear");
+        s.appearance.icon_style = "rainbow; drop table".into();
+        s.sanitize();
+        assert_eq!(s.appearance.icon_style, "glass");
     }
 
     #[test]

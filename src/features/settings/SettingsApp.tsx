@@ -15,6 +15,7 @@ import { ipc } from "../../ipc/commands";
 import type {
   DockEdge,
   DockSettings,
+  IconStyle,
   MonitorInfoEx,
   Settings,
   StorageInfo,
@@ -228,6 +229,23 @@ export function SettingsApp() {
             ]}
             onChange={(v) => set((d) => void (d.appearance.settingsSurface = v))}
           />
+          <AeroSegmented<IconStyle>
+            label="App icons"
+            value={appearance.iconStyle}
+            options={[
+              { value: "plain", label: "Plain" },
+              { value: "glass", label: "Glass" },
+              { value: "clear", label: "Clear" },
+              { value: "tinted", label: "Tinted" },
+            ]}
+            onChange={(v) => set((d) => void (d.appearance.iconStyle = v))}
+          />
+          <p className="settings-note">
+            Every app's icon, in the dock and the Start menu. Glass keeps the colours and adds a body of glass
+            with light along its edge. Clear leaves only a frosted shape of the drawing. Tinted is the same in
+            your theme colour. Each is made once and kept, so it costs nothing to show, and none puts a tile
+            behind the icon.
+          </p>
           <p className="settings-note">
             Classic is the glossy Aero panel. Liquid keeps the same colours but
             renders as thin glass: less tint in the body, the light moved to the

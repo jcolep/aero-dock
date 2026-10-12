@@ -11,7 +11,7 @@
 //! Like the window overview it takes the keyboard (it exists to be typed into),
 //! and gives it back to whoever had it when it is left with Escape.
 
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::Duration;
 
 use parking_lot::Mutex;
@@ -56,6 +56,10 @@ struct Opening {
 static PREVIOUS: Mutex<isize> = Mutex::new(0);
 /// Counts openings, so the thread that watches for a click elsewhere knows when it is out of date.
 static GENERATION: AtomicU64 = AtomicU64::new(0);
+/// The page has been told to close and is playing its closing animation. A second ask to
+/// close (the dock's search button, clicked to dismiss it, arrives just after the click
+/// elsewhere was noticed) must not cut that short by hiding the window at once.
+static CLOSING: AtomicBool = AtomicBool::new(false);
 
 /// Where the window goes: the panel centred on the work area, resting above the
 /// bottom of it and above any dock bar that lies along the bottom.
@@ -90,10 +94,13 @@ fn visible(window: &WebviewWindow) -> bool {
     window.is_visible().unwrap_or(false)
 }
 
-/// Open the menu if it is closed, close it if it is open.
+/// Open the menu if it is closed, close it if it is open. Closing is asked of the
+/// page, which plays its closing animation and then hides the window.
 pub async fn toggle(app: &AppHandle) {
     if app.get_webview_window(LABEL).is_some_and(|w| visible(&w)) {
-        close(app, false);
+        if !CLOSING.swap(true, Ordering::SeqCst) {
+            let _ = app.emit_to(LABEL, OUTSIDE_EVENT, ());
+        }
         return;
     }
     if let Err(e) = open(app).await {
@@ -143,6 +150,7 @@ fn place_and_show(app: &AppHandle, monitor: &MonitorInfoEx) -> AeroResult<()> {
     let hwnd = HWND(window.hwnd()?.0);
     let previous = unsafe { GetForegroundWindow() };
     *PREVIOUS.lock() = previous.0 as isize;
+    CLOSING.store(false, Ordering::SeqCst);
     dock_window::keep_caption_off(hwnd);
     dock_window::set_no_activate(hwnd, false)?;
 
@@ -163,6 +171,7 @@ fn place_and_show(app: &AppHandle, monitor: &MonitorInfoEx) -> AeroResult<()> {
 /// Close the menu: hide the window, and with `restore` hand the keyboard back.
 pub fn close(app: &AppHandle, restore: bool) {
     GENERATION.fetch_add(1, Ordering::SeqCst);
+    CLOSING.store(false, Ordering::SeqCst);
     if let Some(window) = app.get_webview_window(LABEL) {
         let _ = window.hide();
     }
@@ -198,7 +207,7 @@ fn watch(app: AppHandle, window_handle: HWND, scale: f64) {
         let hwnd = HWND(hwnd_value as *mut _);
         let started = std::time::Instant::now();
         let mut was_down = button_down();
-        let mut told = false;
+        let mut told_at: Option<std::time::Instant> = None;
         loop {
             std::thread::sleep(Duration::from_millis(25));
             if GENERATION.load(Ordering::SeqCst) != generation {
@@ -208,9 +217,13 @@ fn watch(app: AppHandle, window_handle: HWND, scale: f64) {
             if !window.is_visible().unwrap_or(false) {
                 return;
             }
-            if told {
+            // told to close, by this thread or by a press of the button that opens it
+            if told_at.is_none() && CLOSING.load(Ordering::SeqCst) {
+                told_at = Some(std::time::Instant::now());
+            }
+            if let Some(at) = told_at {
                 // the page was told and has not closed: it is not going to, so it is closed here
-                if started.elapsed() > Duration::from_millis(1500) {
+                if at.elapsed() > Duration::from_millis(1500) {
                     let handle = app.clone();
                     let _ = app.run_on_main_thread(move || close(&handle, false));
                     return;
@@ -238,7 +251,8 @@ fn watch(app: AppHandle, window_handle: HWND, scale: f64) {
                 }
             }
             if outside {
-                told = true;
+                told_at = Some(std::time::Instant::now());
+                CLOSING.store(true, Ordering::SeqCst);
                 let _ = app.emit_to(LABEL, OUTSIDE_EVENT, ());
             }
         }

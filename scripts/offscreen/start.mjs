@@ -81,6 +81,9 @@ try {
   console.log("settled on the sixth tile:", JSON.stringify(await lensAt()), " tile left:", Math.round(tiles[5].left));
   await h.move(tiles[6].x, tiles[6].y);
   await h.sleep(500);
+  console.log("the glass bends what is under it:", await h.eval("getComputedStyle(document.querySelector('.glide-highlight')).backdropFilter.includes('url(')"), " above the items:", await h.eval("+getComputedStyle(document.querySelector('.glide-highlight')).zIndex > 1"));
+  console.log("the lensed tile swells:", await h.eval("getComputedStyle(document.querySelector('[data-lensed]')).transform"));
+  console.log("settings is a cog, not a sun:", await q("((r.querySelector('.st-link[aria-label=\"Settings\"] svg path')?.getAttribute('d') || '').match(/L/g) || []).length > 20"));
   console.log("lensed tile marked:", await q("r.querySelectorAll('[data-lensed]').length"));
 
   // typing goes to the box: apps, a Settings page, files
@@ -142,8 +145,12 @@ try {
   // a click elsewhere, told by Rust
   await h.eval(`window.__emit("start://open", { previous: 0 })`);
   await h.sleep(600);
+  // a click elsewhere: the closing animation plays, and the window is hidden only after it
+  const sent = Date.now();
   await h.eval(`window.__emit("start://outside", null)`);
-  await h.sleep(500);
+  await h.sleep(40);
+  console.log("40 ms in: phase", await q("r.dataset.phase"), " animation", await q("getComputedStyle(r.querySelector('.st-panel')).animationName"), " window asked to hide yet:", (await calls("close_start")).length > 3);
+  await h.sleep(460);
   console.log("outside click closes:", await q("r.dataset.phase"), JSON.stringify(await calls("close_start")));
 
   // START_SHOTS=all,menu picks which pictures go on the sheet (it only has room for two)

@@ -57,8 +57,8 @@ export const ipc = {
   /** What an app calls itself (its Start menu name, or the description in its
    *  version information), as opposed to the title of a window it has open. */
   appDisplayName: (target: string) => invoke<string | null>("app_display_name", { target }),
-  resolveIcons: (targets: string[]) =>
-    invoke<Record<string, string>>("resolve_icons", { targets }),
+  resolveIcons: (targets: string[], style?: string, tint?: string) =>
+    invoke<Record<string, string>>("resolve_icons", { targets, style: style ?? null, tint: tint ?? null }),
   launch: (target: string, args?: string) =>
     invoke<void>("launch", { target, args: args || null }),
   launchAsAdmin: (target: string, args?: string) =>

@@ -50,14 +50,25 @@ pub async fn list_apps() -> AeroResult<Vec<AppEntry>> {
 pub async fn resolve_icons(
     app: AppHandle,
     targets: Vec<String>,
+    style: Option<String>,
+    tint: Option<String>,
 ) -> AeroResult<HashMap<String, String>> {
     let cache_dir = crate::core::paths::data_dir(&app)?.join("icons");
+    // the look the icons are asked for in (none for plain), and the colour of the tinted one
+    let look = style.as_deref().and_then(crate::core::glassicon::Style::parse);
+    let tint = tint.as_deref().and_then(crate::core::glassicon::parse_hex).unwrap_or([0x2f, 0x9d, 0xe3]);
     tauri::async_runtime::spawn_blocking(move || {
         let mut out = HashMap::with_capacity(targets.len());
         for target in targets {
             match crate::platform::windows::icons::ensure_icon(&target, &cache_dir) {
                 Ok(path) => {
-                    out.insert(target, path.to_string_lossy().to_string());
+                    // the glass copy is made once and kept beside the plain one; if it cannot
+                    // be made the plain icon is better than none
+                    let shown = match look {
+                        Some(style) => crate::core::glassicon::variant_path(&path, style, tint).unwrap_or(path),
+                        None => path,
+                    };
+                    out.insert(target, shown.to_string_lossy().to_string());
                 }
                 Err(e) => eprintln!("[icons] no icon for {target}: {e}"),
             }

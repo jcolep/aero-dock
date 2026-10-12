@@ -45,6 +45,7 @@ export function MissionApp() {
   const { windows, hydrate: hydrateRunning } = useRunning();
   const iconUrls = useDockIcons((s) => s.iconUrls);
   const resolveIcons = useDockIcons((s) => s.resolveIcons);
+  const iconEpoch = useDockIcons((s) => s.epoch);
   const reduced = useReduced();
 
   const [opening, setOpening] = useState<Opening | null>(null);
@@ -82,7 +83,7 @@ export function MissionApp() {
 
   useEffect(() => {
     void resolveIcons(mine.map((w) => w.exe));
-  }, [mine, resolveIcons]);
+  }, [mine, resolveIcons, iconEpoch]);
 
   // opened: reset, then find out where the windows are
   useEffect(() => {

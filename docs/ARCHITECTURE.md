@@ -72,7 +72,7 @@ aero-dock/
 │  │  ├─ lib.rs                 app builder, window setup, tray, state wiring
 │  │  ├─ commands/              IPC surface, one module per feature
 │  │  │                         apps, dock, settings, system_cmd, windows_cmd
-│  │  ├─ core/                  settings engine + unified error type
+│  │  ├─ core/                  settings engine + unified error type; glassicon.rs bakes glass icons
 │  │  └─ platform/
 │  │     ├─ mod.rs              shared types + the COM apartment guard
 │  │     └─ windows/            every Win32/COM call lives here

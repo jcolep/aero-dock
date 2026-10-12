@@ -55,6 +55,9 @@ export interface DockSettings {
  *  keeps the palette but renders as a thin lens. */
 export type SurfaceStyle = "aero" | "liquid" | "clear";
 
+/** plain: as drawn. glass: the icon with a glass body. clear: frosted white glass. tinted: glass in the theme's colour. */
+export type IconStyle = "plain" | "glass" | "clear" | "tinted";
+
 export interface AppearanceSettings {
   /** Legacy: the named theme, kept only to find a starting colour. */
   theme: string;
@@ -80,6 +83,8 @@ export interface AppearanceSettings {
   pointerLight: boolean;
   /** A fine grain over the glass. */
   glassGrain: boolean;
+  /** What is done to every app's icon (baked into a copy of it). */
+  iconStyle: IconStyle;
 }
 
 export type PinKind = "app" | "file" | "folder" | "stack";

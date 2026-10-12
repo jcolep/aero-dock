@@ -25,7 +25,6 @@
     radial-gradient(120% 70% at 12% -8%, rgba(255, 255, 255, 0.22), transparent 55%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02) 40%),
     color-mix(in srgb, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 36%, #0f1420) 80%, transparent);
-  backdrop-filter: blur(30px) saturate(1.8);
   box-shadow:
     0 14px 30px rgba(0, 0, 0, 0.4),
     0 3px 10px rgba(0, 0, 0, 0.28),
@@ -48,7 +47,6 @@
 
 .st-root[data-solid] .st-panel {
   background: color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 30%, #121826);
-  backdrop-filter: none;
 }
 
 /* ---- opening and closing: the choice under Settings > Animations ---- */
@@ -92,6 +90,13 @@
 .st-root[data-phase="closing"] .st-panel {
   visibility: visible;
   animation: var(--st-out);
+}
+
+/* the panel is lifted onto a layer of its own while it shows, so opening and closing
+   move that layer and do not redraw the panel on every frame (the page is drawn in
+   software, where that is the difference between smooth and not) */
+.st-root:not([data-phase="closed"]) .st-panel {
+  will-change: transform, opacity;
 }
 
 /* with motion to be kept down it simply is there, and then is not */
@@ -289,7 +294,7 @@
 }
 
 .st-pill[data-lensed="true"] {
-  transform: scale(1.05);
+  transform: scale(var(--lens-scale, 1.07));
 }
 
 .st-pill:active {
@@ -351,7 +356,7 @@
 /* the highlight under the pointer is the panel's one gliding glass (see
    useGlideHighlight.tsx); an item it is on is raised a little, as if seen through it */
 .st-tile[data-lensed="true"] {
-  transform: scale(1.05);
+  transform: scale(var(--lens-scale, 1.07));
 }
 
 .st-tile:focus-visible,
@@ -364,6 +369,13 @@
 .st-tile:active {
   transform: scale(0.95);
   transition-duration: 80ms, 80ms, 80ms, 120ms;
+}
+
+/* rows and the account button swell a little less: they are long, and a wide thing scaled looks heavy */
+.st-row[data-lensed="true"],
+.st-rec[data-lensed="true"],
+.st-user[data-lensed="true"] {
+  transform: scale(calc(1 + (var(--lens-scale, 1.07) - 1) * 0.35));
 }
 
 /* ---- recommended ---- */
@@ -621,7 +633,7 @@
 }
 
 .st-link[data-lensed="true"] {
-  transform: scale(1.1);
+  transform: scale(var(--lens-scale, 1.07));
 }
 
 .st-link[aria-expanded="true"] {

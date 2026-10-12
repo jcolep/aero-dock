@@ -83,6 +83,22 @@ const fromFound = (f: FoundFile): Item => ({
 
 // ---- glyphs ----
 
+/** The outline of a cog: `teeth` teeth, each rising from the valley circle to the tip circle. */
+function gearPath(teeth = 8, valley = 7.1, tip = 9.4, cx = 12, cy = 12): string {
+  const points: string[] = [];
+  for (let i = 0; i < teeth; i++) {
+    const a = (i / teeth) * Math.PI * 2;
+    const half = Math.PI / teeth; // half the width of a tooth and its gap together
+    for (const [offset, r] of [[-half * 0.92, valley], [-half * 0.5, tip], [half * 0.5, tip], [half * 0.92, valley]] as const) {
+      const x = cx + Math.cos(a + offset - Math.PI / 2) * r;
+      const y = cy + Math.sin(a + offset - Math.PI / 2) * r;
+      points.push(`${points.length === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`);
+    }
+  }
+  return points.join("") + "Z";
+}
+const GEAR_PATH = gearPath();
+
 function Glyph({ name }: { name: "search" | "docs" | "downloads" | "gear" | "folder" | "power" | "back" | "chevron" | "lock" | "out" | "sleep" | "restart" | "page" | "calc" | "file" }) {
   const p = { fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" } as const;
   switch (name) {
@@ -107,10 +123,12 @@ function Glyph({ name }: { name: "search" | "docs" | "downloads" | "gear" | "fol
         </svg>
       );
     case "gear":
+    case "page":
+      // a cog: eight teeth round a hub (the old sun-like spokes read as a brightness icon)
       return (
         <svg viewBox="0 0 24 24" aria-hidden {...p}>
-          <circle cx="12" cy="12" r="3" />
-          <path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4 18 18M18 6l-1.6 1.6M7.6 16.4 6 18" />
+          <path d={GEAR_PATH} />
+          <circle cx="12" cy="12" r="3.1" />
         </svg>
       );
     case "folder":
@@ -162,13 +180,6 @@ function Glyph({ name }: { name: "search" | "docs" | "downloads" | "gear" | "fol
         <svg viewBox="0 0 24 24" aria-hidden {...p}>
           <path d="M19.5 12a7.5 7.5 0 1 1-2.3-5.4" />
           <path d="M19.5 4.5v4h-4" />
-        </svg>
-      );
-    case "page":
-      return (
-        <svg viewBox="0 0 24 24" aria-hidden {...p}>
-          <circle cx="12" cy="12" r="3" />
-          <path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2" />
         </svg>
       );
     case "calc":
@@ -235,9 +246,18 @@ export function StartApp() {
   const { settings, hydrate } = useSettings();
   const reduced = useReduced();
   const resolveIcons = useDockIcons((s) => s.resolveIcons);
+  const iconEpoch = useDockIcons((s) => s.epoch);
   const anim = animationsOf(settings).start;
   const speed = settings?.appearance.animationSpeed ?? 1;
-  const lens = useGlideHighlight({ items: LENS_ITEMS, clips: LENS_CLIPS, grow: 3, still: reduced.motion });
+  // the same glass as the menu bar's lens, set by the same three settings (Menu bar > the lens)
+  const mb = settings?.menuBar;
+  const lens = useGlideHighlight({
+    items: LENS_ITEMS,
+    clips: LENS_CLIPS,
+    grow: mb?.lensGrow ?? 3,
+    warp: mb?.lensWarp ?? 1,
+    still: reduced.motion,
+  });
 
   const [phase, setPhase] = useState<Phase>("closed");
   const [view, setView] = useState<"home" | "all">("home");
@@ -395,12 +415,12 @@ export function StartApp() {
   useEffect(() => {
     if (phase !== "open") return;
     void resolveIcons([...pinned, ...recommended].map((i) => i.target));
-  }, [phase, pinned, recommended, resolveIcons]);
+  }, [phase, pinned, recommended, resolveIcons, iconEpoch]);
   useEffect(() => {
     if (phase !== "open") return;
     const wanted = flat.filter((i) => i.kind === "app" || i.kind === "file").map((i) => i.target);
     if (wanted.length) void resolveIcons(wanted);
-  }, [phase, flat, resolveIcons]);
+  }, [phase, flat, resolveIcons, iconEpoch]);
   // all of the apps, a screenful at a time so the first rows are not waiting for the last
   useEffect(() => {
     if (phase !== "open" || view !== "all") return;
@@ -414,7 +434,7 @@ export function StartApp() {
     return () => {
       live = false;
     };
-  }, [phase, view, uniqueApps, resolveIcons]);
+  }, [phase, view, uniqueApps, resolveIcons, iconEpoch]);
 
   // ---- doing things ----
   const launch = useCallback(
@@ -576,7 +596,7 @@ export function StartApp() {
   const initial = (profile?.name ?? "?").charAt(0).toUpperCase();
 
   return (
-    <div className="st-root" data-anim={anim} data-phase={phase} data-still={reduced.motion || undefined} data-solid={reduced.transparency || undefined}>
+    <div className="st-root" style={{ ["--lens-scale" as string]: mb?.lensMagnify ?? 1.07 } as React.CSSProperties} data-anim={anim} data-phase={phase} data-still={reduced.motion || undefined} data-solid={reduced.transparency || undefined}>
       <GlassTips side="above" />
       <div
         ref={lens.rootRef}

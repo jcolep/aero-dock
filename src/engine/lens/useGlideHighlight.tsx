@@ -11,12 +11,14 @@
  * visible part of a scrolling list, and rests where the pointer is, or on the
  * item chosen with the keys, and fades when the pointer leaves.
  *
- * Unlike the menu bar's lens it lies behind the things it highlights, which
- * keeps icons and text crisp; the menu bar's sits above its buttons to bend them.
+ * Like the menu bar's lens it lies above the things it highlights, so it has
+ * them to bend: its backdrop filter pushes the pixels near its rim inward, and the
+ * item under it is enlarged a little (`data-lensed`), as if seen through the glass.
  */
 
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { refraction } from "./refraction";
 import { playCue } from "../sound/ui";
 import "./glide.css";
 
@@ -45,6 +47,8 @@ export interface GlideOptions {
   grow?: number;
   /** Move at once instead of gliding, for reduced motion. */
   still?: boolean;
+  /** How strongly it bends what is under it; 0 is not at all. */
+  warp?: number;
 }
 
 /** The first corner radius of an element, in px (a percentage is of the smaller side). */
@@ -56,8 +60,10 @@ function radiusOf(el: HTMLElement, width: number, height: number): number {
   return Math.min(px, Math.min(width, height) / 2);
 }
 
-export function useGlideHighlight({ items, clips, grow = 3, still = false }: GlideOptions) {
+export function useGlideHighlight({ items, clips, grow = 3, still = false, warp = 1 }: GlideOptions) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const lensEl = useRef<HTMLSpanElement>(null);
+  const backdrop = useMemo(() => refraction(warp), [warp]);
   const left = useMotionValue(0);
   const right = useMotionValue(0);
   const top = useMotionValue(0);
@@ -89,6 +95,9 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false }: Gli
   );
   const width = useTransform([shownLeft, shownRight], ([l, r]: number[]) => Math.max(0, r - l));
   const height = useTransform([shownTop, shownBottom], ([t, b]: number[]) => Math.max(0, b - t));
+  // stretched one way it grows thinner the other, as a drop does
+  const squashY = useTransform([width], ([w]: number[]) => 1 / Math.max(1, w / Math.max(1, target.current.w)) ** 0.3);
+  const squashX = useTransform([height], ([h]: number[]) => 1 / Math.max(1, h / Math.max(1, target.current.h)) ** 0.3);
 
   const setLensed = (el: HTMLElement | null) => {
     current.current?.removeAttribute("data-lensed");
@@ -191,14 +200,21 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false }: Gli
       const item = (e.target as HTMLElement).closest<HTMLElement>(optionsRef.current.items);
       if (item && rootRef.current?.contains(item)) goTo(item);
     },
-    onPointerLeave: () => fade(),
+    onPointerLeave: () => {
+      lensEl.current?.removeAttribute("data-pressed");
+      fade();
+    },
+    // pressing draws the glass in a little
+    onPointerDown: () => lensEl.current?.setAttribute("data-pressed", "true"),
+    onPointerUp: () => lensEl.current?.removeAttribute("data-pressed"),
   };
 
   const Highlight = (
     <motion.span
+      ref={lensEl}
       className="glide-highlight"
       aria-hidden
-      style={{ left: shownLeft, top: shownTop, width, height, opacity, borderRadius: radius }}
+      style={{ left: shownLeft, top: shownTop, width, height, opacity, borderRadius: radius, scaleX: squashX, scaleY: squashY, backdropFilter: backdrop }}
     />
   );
 

@@ -301,6 +301,7 @@ export function MediaCard() {
   const { np, art, refresh, patch } = useNowPlaying();
   const resolveIcons = useDockIcons((s) => s.resolveIcons);
   const iconUrls = useDockIcons((s) => s.iconUrls);
+  const iconEpoch = useDockIcons((s) => s.epoch);
   const [names, setNames] = useState<Record<string, string>>({});
   const [layers, setLayers] = useState<Layer[]>([]);
   const [listOpen, setListOpen] = useState(false);
@@ -368,7 +369,7 @@ export function MediaCard() {
         .then((n) => n && setNames((all) => ({ ...all, [target]: n })))
         .catch(() => undefined);
     }
-  }, [target, resolveIcons, names]);
+  }, [target, resolveIcons, names, iconEpoch]);
   const sourceName = names[target] || np?.sourceName || "";
   const sourceIcon = target ? iconUrls[target] : undefined;
 

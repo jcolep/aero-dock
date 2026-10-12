@@ -2,7 +2,11 @@ import { MotionConfig } from "motion/react";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { DockApp } from "./app/DockApp";
+import { useEffect, useRef } from "react";
 import { useReduced } from "./engine/accessibility/policy";
+import { accentForTheme, normalizeHex } from "./engine/themes/accent";
+import { useDockIcons } from "./state/dockStore";
+import { useSettings } from "./state/settingsStore";
 import { DesktopWidgets } from "./features/desktop/DesktopWidgets";
 import { FrameApp } from "./features/frame/FrameApp";
 import { FrameCornersApp } from "./features/frame/FrameCornersApp";
@@ -36,7 +40,23 @@ function Root() {
 
 /** With motion to be kept down, the animation library moves things at once and
  *  only fades them, which is what its reduced-motion mode does. */
+/** Icons are made in the look chosen (and, for the tinted one, in the theme's colour), so a
+ *  change of either throws away what has been fetched, and what shows them asks again. */
+function useIconLook() {
+  const look = useSettings((s) => {
+    const a = s.settings?.appearance;
+    if (!a) return null;
+    return a.iconStyle === "tinted" ? `tinted:${normalizeHex(a.accent) ?? accentForTheme(a.theme)}` : a.iconStyle;
+  });
+  const before = useRef<string | null>(null);
+  useEffect(() => {
+    if (look !== null && before.current !== null && look !== before.current) useDockIcons.getState().reset();
+    before.current = look;
+  }, [look]);
+}
+
 function Policy() {
+  useIconLook();
   const reduced = useReduced();
   return (
     <MotionConfig reducedMotion={reduced.motion ? "always" : "never"}>

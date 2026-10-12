@@ -7,9 +7,17 @@
 
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { create } from "zustand";
+import { accentForTheme, normalizeHex } from "../engine/themes/accent";
 import { ipc } from "../ipc/commands";
 import type { PinnedItem, StackView, WindowInfo } from "../ipc/types";
 import { exeDisplayName, targetKey, windowsByExe } from "./runningStore";
+import { useSettings } from "./settingsStore";
+
+/** The look icons are asked for in, and the colour of the tinted one. */
+export function iconLook(): { style: string; tint: string } {
+  const a = useSettings.getState().settings?.appearance;
+  return { style: a?.iconStyle ?? "plain", tint: normalizeHex(a?.accent ?? "") ?? accentForTheme(a?.theme ?? "aero") };
+}
 
 export interface DockItemView {
   id: string;
@@ -40,11 +48,18 @@ interface IconState {
   /** targets currently being resolved (dedupes in-flight work) */
   pendingIcons: Set<string>;
   resolveIcons: (targets: string[]) => Promise<void>;
+  /** Counts how many times the icons have been thrown away (the look was changed), for what
+   *  must ask for them again. */
+  epoch: number;
+  /** Forget every icon, so each is asked for again in the look now chosen. */
+  reset: () => void;
 }
 
 export const useDockIcons = create<IconState>((set, get) => ({
   iconUrls: {},
   pendingIcons: new Set(),
+  epoch: 0,
+  reset: () => set((s) => ({ iconUrls: {}, pendingIcons: new Set(), epoch: s.epoch + 1 })),
 
   resolveIcons: async (targets) => {
     const { iconUrls, pendingIcons } = get();
@@ -52,8 +67,12 @@ export const useDockIcons = create<IconState>((set, get) => ({
     if (missing.length === 0) return;
 
     set({ pendingIcons: new Set([...pendingIcons, ...missing]) });
+    const epoch = get().epoch;
     try {
-      const resolved = await ipc.resolveIcons(missing);
+      const { style, tint } = iconLook();
+      const resolved = await ipc.resolveIcons(missing, style, tint);
+      // the look was changed while these were being made: they are of the old one
+      if (get().epoch !== epoch) return;
       const urls: Record<string, string> = {};
       for (const [target, path] of Object.entries(resolved)) {
         urls[target] = convertFileSrc(path);

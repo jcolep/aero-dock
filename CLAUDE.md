@@ -85,6 +85,7 @@ node --experimental-websocket scripts/offscreen/mission.mjs src-tauri/target/off
 node --experimental-websocket scripts/offscreen/media.mjs src-tauri/target/offscreen      # Now Playing card
 node --experimental-websocket scripts/offscreen/tips.mjs src-tauri/target/offscreen       # glass tooltips
 node --experimental-websocket scripts/offscreen/start.mjs src-tauri/target/offscreen      # Start menu
+node --experimental-websocket scripts/offscreen/startfps.mjs src-tauri/target/offscreen   # its frame rate (a 60 Hz regression check: it cannot show a real window's)
 ```
 
 (The output folder is any folder; `src-tauri/target/` is git-ignored.)
@@ -226,10 +227,26 @@ Say plainly in a report when something native was not seen.
   deliberately not taken over**: that needs a permanent low-level keyboard hook (and a stray key
   press to cancel Windows' own Start), which the owner chose not to do for now; PowerToys is not
   installable on their machine.
-- **Gliding highlight** (`engine/lens/useGlideHighlight.tsx`): the menu bar lens's liquid motion made
-  general (four edge springs, the leading edges quick, stretch capped, shaped like what it sits on,
-  held inside `data-lens-clip` lists, drawn *behind* the items). The Start menu uses it for every
-  hover and for the key-selected search result; its own `:hover` backgrounds are gone on purpose.
+- **Gliding highlight** (`engine/lens/useGlideHighlight.tsx`): the menu bar lens made general (four
+  edge springs, the leading edges quick, stretch capped, shaped like what it sits on, held inside
+  `data-lens-clip` lists) **and drawn like it**: *above* the items with a refraction backdrop filter
+  (`engine/lens/refraction.ts`, the same recipe as `Lens.tsx`), the item under it enlarged by
+  `--lens-scale`. It takes `menuBar.lensGrow/lensMagnify/lensWarp`, so one set of sliders sets both
+  lenses. The Start menu uses it for every hover and for the key-selected search result; its own
+  `:hover` backgrounds are gone on purpose.
+- **Closing the Start menu**: the page plays the closing animation and only then asks Rust to hide the
+  window, so **nothing in Rust may hide it directly**: `toggle` while open emits `start://outside` (the
+  page closes itself) and `CLOSING` makes a second ask harmless. The first version hid the window at
+  once when the dock's search button was pressed to dismiss it, which looked like no animation at all.
+  The panel has no `backdrop-filter` (nothing is behind it in the page; the real blur is the Rust pane)
+  and is put on its own layer while showing (`will-change`).
+- **Glass icons** (`core/glassicon.rs`): `appearance.iconStyle` plain | glass | clear | tinted. When an icon
+  is resolved (`resolve_icons(targets, style, tint)`) a copy in that look is baked from the cached plain
+  PNG and kept beside it (`<key>.glass-b1.png`, `tinted-rrggbb` for the colour), so showing it costs
+  nothing. It follows the icon's own alpha (rim light from the upper left, sheen, no tile) and never
+  makes a pixel more opaque. A change of look or theme colour calls `useDockIcons.reset()` (see `main.tsx`);
+  anything that shows icons from an effect must list `epoch` in its deps. Bump `VERSION` when the pixels
+  change. `bake_a_sheet_of_real_icons` (ignored) bakes this machine's icons onto a sheet to look at.
 - **Start animations** are a setting (`animations.start`: rise, bloom, genie, slide, fade, none) that
   sets `--st-in` / `--st-out` on the root by `data-anim`; the page waits `startExitMs` before it
   asks Rust to hide the window. The shadow must fade out inside the window's 48 px margin, or it is
