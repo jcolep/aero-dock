@@ -285,14 +285,14 @@ own background; its tint lives in `--bd-tint` (every glass rule keeps it there) 
 picture by the layer. `background-attachment: fixed` was tried to share one window-sized picture among
 all the glass of a window and does not hold inside a transformed parent (the dock's bar is one).
 
-The menu bar is nearly a rectangle and still has the old way: a *pane*, a plain popup window with the
-system's blur on, kept directly beneath the bar, never taking a click. A rounded bar's pane is *tiles*
-(`backdrop::tile_rects`): plain rectangles that stay inside the curve. A window blurs only what is in
-its own bounds, so tiles narrower than `MIN_TILE` px show as bands and are left out. While the bar
-moves its pane is held `LAG` px inside it and `glass::settle_later` puts it exactly under once it has
-stood still. The frame's ring is not blurred: it is cut to its shape with a region. A blur dims what it
-covers by about 11% on the machine this was measured on. Reduced transparency stops all of it. It is off
-until chosen.
+The dock, the Start menu and the menu bar all do it, each with its own blur (in px) and grain (0 to 1)
+under Settings > Glass & light (`appearance.frost.dock/start/menuBar`), and none of it runs while the
+frosted glass is off or transparency is to be reduced: the layers do not ask, an ask is answered with
+nothing, and the capture thread and its magnifier window are not made until the first picture is wanted.
+The old pane (a plain popup window with the system's blur, tiled to stay inside a curve) is gone; what
+is left of it (`backdrop.rs`, `blurlab.rs`) is test-only, to say again what Windows does. The frame's ring
+is not blurred: it is cut to its shape with a region. A blur dims what it covers by about 11% on the
+machine this was measured on. It is off until chosen.
 **Depth.** Grain (`--grain`, an SVG noise tile), light that follows the pointer
 (`engine/light/usePointerLight.ts`, which writes `--lx` and `--ly` about 30 times
 a second and only while the pointer is over the glass) and a three-layer shadow.

@@ -351,8 +351,6 @@ pub fn layout_all(app: &AppHandle) {
     }
     // the shaper rounds whichever maximised app fills each opening
     shaper::set_openings(openings);
-    // and the ring gets its blur
-    crate::commands::glass::sync_all(app);
 }
 
 /// Take the frame off every window it has shaped. Called when Aero Dock quits

@@ -3,7 +3,8 @@ pub mod anchor;
 pub mod appaudio;
 pub mod appbar;
 pub mod apps;
-pub mod backdrop;
+#[cfg(test)]
+mod backdrop;
 pub mod backdrop_capture;
 #[cfg(test)]
 mod blurlab;

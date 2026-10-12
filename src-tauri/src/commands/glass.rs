@@ -1,21 +1,15 @@
 //! Real frosted glass: what is behind a surface, blurred.
 //!
-//! Two ways, because the system's blur is only ever a rectangle (see `platform::windows::backdrop`):
+//! The system's blur is only ever a rectangle (measured; see `platform::windows::blurlab`), so nothing
+//! rounded can have it behind it. A page asks for a picture of the screen behind a region of its
+//! window (`capture_backdrop`), already shrunk and blurred, with our own windows left out of it (see
+//! `platform::windows::backdrop_capture`), and paints it under its glass, where the glass's own shape
+//! clips it, antialiased, to any corner. The dock, the Start menu and the menu bar do.
 //!
-//! * The dock, the Start menu and whatever else is rounded: a page asks for a picture of the screen
-//!   behind a region of its window (`capture_backdrop`), already shrunk and blurred, with our own
-//!   windows left out of it (see `platform::windows::backdrop_capture`), and paints it under its glass,
-//!   where the glass's own shape clips it, antialiased, to any corner.
-//! * The menu bar, which is nearly a rectangle: a pane, a plain window with the system's blur on kept
-//!   just under it, made here from the bar's settings.
-//!
-//! The frame's ring is not blurred: it is cut to its shape with a region, and the system's blur
-//! ignores regions.
-//!
-//! The pane runs on the main thread, which owns the windows.
-
+//! None of it runs while the frosted glass is switched off (or transparency is to be reduced): the
+//! pages do not ask, an ask is answered with nothing, and the magnifier is not started until the
+//! first picture is wanted.
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use parking_lot::Mutex;
@@ -26,7 +20,6 @@ use windows::Win32::UI::WindowsAndMessaging::{GetWindowRect, IsWindow, IsWindowV
 
 use crate::core::settings::SettingsStore;
 use crate::core::AeroResult;
-use crate::platform::windows::backdrop;
 use crate::platform::windows::backdrop_capture;
 use crate::platform::windows::monitors::Rect;
 
@@ -44,26 +37,6 @@ static BLUR_CACHE: Mutex<Option<(Instant, bool)>> = Mutex::new(None);
 
 /// The docks' bars by dock window handle.
 static BARS: Mutex<Option<HashMap<isize, Bar>>> = Mutex::new(None);
-
-/// Whether blur was last switched on or off on each frame ring, so a repeat is
-/// not asked of the system again.
-static RINGS: Mutex<Option<HashMap<isize, bool>>> = Mutex::new(None);
-
-/// Which look-again is the latest asked for (see `settle_later`).
-static SETTLE_ASKED: AtomicU64 = AtomicU64::new(0);
-
-/// A pane held inside a bar that is moving is to be looked at again once the bar has stood still,
-/// to be put exactly under it. Only the latest ask is answered.
-fn settle_later(app: &AppHandle) {
-    let ask = SETTLE_ASKED.fetch_add(1, Ordering::SeqCst) + 1;
-    let handle = app.clone();
-    std::thread::spawn(move || {
-        std::thread::sleep(Duration::from_millis(150));
-        if SETTLE_ASKED.load(Ordering::SeqCst) == ask {
-            sync_later(&handle);
-        }
-    });
-}
 
 fn hwnd_of(window: &WebviewWindow) -> Option<HWND> {
     window.hwnd().ok().map(|h| HWND(h.0))
@@ -100,7 +73,11 @@ pub fn report_dock_bar(window: WebviewWindow, bar: BarReport) -> AeroResult<()> 
         radius: px(radius.max(0.0)),
         shown: shown && width >= 1.0 && height >= 1.0,
     };
-    BARS.lock().get_or_insert_with(HashMap::new).insert(hwnd.0 as isize, bar);
+    let mut guard = BARS.lock();
+    let bars = guard.get_or_insert_with(HashMap::new);
+    bars.insert(hwnd.0 as isize, bar);
+    // a dock that has gone is not remembered
+    bars.retain(|key, _| unsafe { IsWindow(Some(HWND(*key as *mut _))).as_bool() });
     Ok(())
 }
 
@@ -242,89 +219,9 @@ pub async fn capture_backdrop(
     Ok(tauri::ipc::Response::new(bytes))
 }
 
-/// Make the menu bar's pane and every blur match the settings and where the windows
-/// are now. Cheap when nothing moved: each pane remembers what it was last
-/// given. Main thread.
-pub fn sync_all(app: &AppHandle) {
-    let settings = app.state::<SettingsStore>().get();
-    // not while transparency is to be reduced, by the setting or by Windows
-    let reduce = crate::platform::windows::accessibility::effective(
-        &settings.accessibility.reduce_transparency,
-        crate::platform::windows::accessibility::read().reduce_transparency,
-    );
-    let on = settings.appearance.real_blur && !reduce;
-    *BLUR_CACHE.lock() = Some((Instant::now(), on));
-
-    // ---- the menu bar ----
-    let bar_pane = "menubar";
-    let mut wanted_bar = None;
-    if on && settings.menu_bar.enabled {
-        if let Some(window) = app.get_webview_window(crate::commands::menubar::LABEL) {
-            if let Some(hwnd) = hwnd_of(&window) {
-                let mut at = RECT::default();
-                let visible = unsafe { IsWindowVisible(hwnd).as_bool() };
-                if visible && unsafe { GetWindowRect(hwnd, &mut at) }.is_ok() {
-                    let scale = dpi_scale(hwnd);
-                    let gap = (settings.menu_bar.gap as f64 * scale).round() as i32;
-                    let height = (settings.menu_bar.height as f64 * scale).round() as i32;
-                    let radius = (settings.menu_bar.corner_radius as f64 * scale).round() as i32;
-                    let rect = Rect {
-                        x: at.left + gap,
-                        y: at.top + gap,
-                        width: (at.right - at.left) - 2 * gap,
-                        height,
-                    };
-                    wanted_bar = Some((hwnd, (rect, radius, gap == 0)));
-                }
-            }
-        }
-    }
-    let settling = match wanted_bar {
-        Some((hwnd, shape)) => backdrop::set_pane(bar_pane, hwnd, Some(shape)),
-        None => {
-            // no window to sit under now; hide whatever pane there was
-            backdrop::set_pane(bar_pane, HWND::default(), None)
-        }
-    };
-    if settling {
-        settle_later(app);
-    }
-
-    // ---- docks that have gone ----
-    let mut guard = BARS.lock();
-    if let Some(map) = guard.as_mut() {
-        map.retain(|key, _| unsafe { IsWindow(Some(HWND(*key as *mut _))).as_bool() });
-    }
-    drop(guard);
-
-    // ---- the frame ----
-    for window in app.webview_windows().into_values() {
-        let label = window.label();
-        if label.starts_with("frame-") {
-            if let Some(hwnd) = hwnd_of(&window) {
-                // Never blurred for now. The ring is a window the size of the screen cut to its shape with a
-                // region, and the system's blur ignores a region (see `backdrop::tile_rects`): it would blur
-                // the whole screen behind it. Its margin is plain strips and could be tiles like the bars'.
-                let want = false;
-                let mut guard = RINGS.lock();
-                let rings = guard.get_or_insert_with(HashMap::new);
-                if rings.insert(hwnd.0 as isize, want) != Some(want) {
-                    backdrop::set_blur(hwnd, want);
-                }
-            }
-        }
-    }
-}
-
-/// Queue [`sync_all`] on the main thread, from anywhere.
-pub fn sync_later(app: &AppHandle) {
-    let handle = app.clone();
-    let _ = app.run_on_main_thread(move || sync_all(&handle));
-}
-
 /// A written account of the frosted glass now, to say what is on a screen when it looks wrong: the
-/// screens, the docks and their bars, the Start window, the menu bar's pane, and a picture taken of
-/// a corner of the primary screen to say whether the magnifier works here and how long it takes.
+/// screens, the docks and their bars, the Start window, and a picture taken of a corner of the primary
+/// screen to say whether the magnifier works here and how long it takes.
 #[tauri::command]
 pub async fn blur_report(app: AppHandle) -> AeroResult<String> {
     let mut lines = Vec::new();
@@ -380,9 +277,6 @@ pub async fn blur_report(app: AppHandle) -> AeroResult<String> {
     }
     if let Some(start) = app.get_webview_window(crate::commands::start::LABEL).as_ref().and_then(hwnd_of) {
         lines.push(format!("start: {}", describe(start)));
-    }
-    for (id, hwnd) in backdrop::pane_windows() {
-        lines.push(format!("pane {id}: {}", describe(HWND(hwnd as *mut _))));
     }
     let text = lines.join("\n");
     if let Ok(dir) = crate::core::paths::data_dir(&app) {

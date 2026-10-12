@@ -31,8 +31,10 @@ interface Props {
   looks?: number;
   /** How long a new picture takes to fade in over the last, in ms (none: it is swapped at once). */
   fade?: number;
-  /** The least blur, in px: a desktop that changes behind the glass is a soft wash, not shapes. */
-  minBlur?: number;
+  /** How far what is behind the glass is blurred, in px. */
+  blur?: number;
+  /** How much grain lies over the picture, 0 to 1. */
+  grain?: number;
   /** How much more than the glass is pictured, in px, for the glass to move or grow into. */
   margin?: number;
 }
@@ -57,7 +59,7 @@ function numberOf(style: CSSStyleDeclaration, name: string, fallback: number): n
   return Number.isFinite(v) ? v : fallback;
 }
 
-export function BackdropLayer({ active, interval = 220, margin = 48, looks, fade = 0, minBlur = 0 }: Props) {
+export function BackdropLayer({ active, interval = 220, margin = 48, looks, fade = 0, blur: spread = 30, grain = 0.35 }: Props) {
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -163,7 +165,7 @@ export function BackdropLayer({ active, interval = 220, margin = 48, looks, fade
       if (visible && alive) {
         const style = getComputedStyle(host);
         const dpr = window.devicePixelRatio || 1;
-        const blur = Math.max(minBlur, numberOf(style, "--glass-blur", 24) * numberOf(style, "--glass-intensity", 1));
+        const blur = spread;
         try {
           const buf = await ipc.captureBackdrop({
             x: r.left - margin,
@@ -249,10 +251,10 @@ export function BackdropLayer({ active, interval = 220, margin = 48, looks, fade
       delete host.dataset.bd;
       if (current) URL.revokeObjectURL(current);
     };
-  }, [active, interval, margin, looks, fade, minBlur]);
+  }, [active, interval, margin, looks, fade, spread]);
 
   return (
-    <span ref={ref} className="bd-layer" aria-hidden>
+    <span ref={ref} className="bd-layer" aria-hidden style={{ ["--bd-grain" as string]: grain } as React.CSSProperties}>
       <span className="bd-img" />
       <span className="bd-img" />
     </span>

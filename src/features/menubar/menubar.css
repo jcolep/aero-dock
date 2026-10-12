@@ -45,8 +45,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 8px;
-  /* the picked colour, flat: the same idea as the dock's glass body */
-  background: rgba(var(--clear-tint), calc(0.5 * var(--clear-strength) * var(--mb-tint, 1)));
+  /* the picked colour, flat: the same idea as the dock's glass body. In a variable so that, with a picture of
+     the desktop under the bar (BackdropLayer), it is drawn over the picture */
+  --bd-tint: rgba(var(--clear-tint), calc(0.5 * var(--clear-strength) * var(--mb-tint, 1)));
+  background: var(--bd-tint);
+  isolation: isolate;
   /* touching the top of the screen it is rounded below only; floating it is
      rounded all round */
   border-radius: 0 0 var(--mb-radius, 12px) var(--mb-radius, 12px);
@@ -118,7 +121,8 @@ html[data-pointer-light="on"] .menubar:hover::before {
   background-image: var(--grain);
 }
 
-html[data-grain="off"] .menubar::after {
+html[data-grain="off"] .menubar::after,
+.menubar[data-bd="on"]::after {
   display: none;
 }
 

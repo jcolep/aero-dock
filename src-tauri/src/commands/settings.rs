@@ -44,8 +44,6 @@ pub async fn set_settings(
         crate::commands::menubar::sync_menubar(&docks).await;
         // the frame goes round what they leave, so it is placed last
         crate::commands::frame::sync_frames(&docks).await;
-        // and the blur behind all of them, which may have been switched
-        crate::commands::glass::sync_later(&docks);
     });
     Ok(result)
 }

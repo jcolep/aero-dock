@@ -50,6 +50,7 @@
      soft gradient has something to break it up and does not band. It is a tile
      the browser draws once. */
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0.07'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+  --grain-strong: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0.22'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
 
   /* ---- user-tunable (settings-driven, written by ThemeApplier) ---- */
   --dock-opacity: 0.92;

@@ -335,8 +335,6 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
                 let _ = w.show();
             }
         }
-        // the blur behind the bar goes and comes with it
-        commands::glass::sync_all(app);
     }
 
     TrayIconBuilder::with_id("aero-dock-tray")

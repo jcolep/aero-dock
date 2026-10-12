@@ -1,41 +1,27 @@
-//! Real frosted glass: Windows blurring what is behind a surface.
+//! What the frosted glass is not: the system's own blur (tests only; the program does not use it).
 //!
-//! Aero Dock's windows are transparent web views, and a web view can only blur
-//! its own content, so on its own the "glass" is a tint over a sharp desktop.
-//! The system can blur what is behind a window (through the undocumented but
-//! long-stable `SetWindowCompositionAttribute`), but it does it for the whole
-//! window, and the dock's window is far larger than the dock's bar (room for
-//! flyouts and tooltips).
-//!
-//! It is the plain blur, not acrylic. Acrylic lays its own tint and luminosity
-//! over the blur, and under a dark system theme that comes out near black, a
-//! solid backing where the glass was meant to show the desktop through.
-//!
-//! So the blur gets windows of its own: a pane is a bare popup, exactly the
-//! size of the bar, shaped to its corners by a window region, with the blur
-//! switched on, kept directly beneath the window it backs. The web view above
-//! it draws the tint and the rest as before, and what shows through is the
-//! desktop, blurred. A pane has no content and takes no input.
-//!
-//! Panes are created and moved on the main thread, which pumps their messages.
-//! A pane is only ever as far up as the window it sits under, never above it.
+//! Windows can blur what is behind a window (through the undocumented but long-stable
+//! `SetWindowCompositionAttribute`), and it is the whole window's rectangle every time: it was
+//! measured on Windows 11 with a window region, a layered window's alpha, `DwmEnableBlurBehindWindow`
+//! and a blur region, and acrylic, and none gives a shape. A bar that is rounded could only be had
+//! with plain rectangles inside its curve (`tile_rects`), which leave a rim at the corners and show
+//! as bands where a rectangle is narrow, so the program blurs a picture of the screen instead (see
+//! `backdrop_capture`). This is kept for the bench (`blurlab`), to say again what Windows does.
 
-use std::collections::HashMap;
 use std::sync::Once;
-use std::time::{Duration, Instant};
 
-use parking_lot::Mutex;
 use windows::core::{s, w, BOOL};
 use windows::Win32::Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, WPARAM};
 use windows::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWINDOWATTRIBUTE};
 use windows::Win32::System::LibraryLoader::{GetModuleHandleW, GetProcAddress};
 use windows::Win32::UI::WindowsAndMessaging::{
-    CreateWindowExW, DefWindowProcW, DestroyWindow, IsWindow, RegisterClassW, SetWindowPos,
-    ShowWindow, HTTRANSPARENT, MA_NOACTIVATE, SWP_NOACTIVATE, SWP_SHOWWINDOW, SW_HIDE, WM_ERASEBKGND,
-    WM_MOUSEACTIVATE, WM_NCHITTEST, WNDCLASSW, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_POPUP,
+    CreateWindowExW, DefWindowProcW, RegisterClassW, HTTRANSPARENT, MA_NOACTIVATE, WM_ERASEBKGND, WM_MOUSEACTIVATE,
+    WM_NCHITTEST, WNDCLASSW, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_POPUP,
 };
 
-use super::monitors::Rect;
+/// A tile narrower than this is left out. A window blurs only what is in its own bounds, so a narrow
+/// one blurs a narrow strip of the screen and shows as a band that is not like its neighbours.
+const MIN_TILE: i32 = 10;
 
 static REGISTER: Once = Once::new();
 
@@ -49,7 +35,6 @@ unsafe extern "system" fn proc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPA
         _ => unsafe { DefWindowProcW(hwnd, msg, wparam, lparam) },
     }
 }
-
 // ---- the system's blur ----
 
 /// `WINDOWCOMPOSITIONATTRIBDATA` and `ACCENT_POLICY`, as user32 reads them.
@@ -103,39 +88,9 @@ pub fn set_accent(hwnd: HWND, state: u32, flags: u32, gradient: u32) -> bool {
     }
 }
 
-// ---- panes ----
-
-/// How long a bar has to have stood still before its pane is put exactly under it.
-const SETTLE: Duration = Duration::from_millis(110);
-/// While a bar is on the move its pane keeps this far inside it. The page says where the bar is
-/// a frame or two late, and a pane that is late behind a bar that is growing is only a rim of
-/// clear glass, where behind one that is shrinking it is a blurred rectangle left outside it.
-const LAG: i32 = 6;
-/// A tile narrower than this is left out. A window blurs what is in its own bounds, so a narrow
-/// one blurs a narrow strip of the screen and shows as a band that is not like its neighbours.
-const MIN_TILE: i32 = 10;
-
-struct Pane {
-    /// The windows it is made of, those in use first (`shown` of them).
-    hwnds: Vec<isize>,
-    shown: usize,
-    /// What it was last asked to be, so a repeat is skipped.
-    placed: Option<(Rect, i32, bool)>,
-    /// Whether the windows are exactly where it was asked (and not held in for a bar on the move).
-    settled: bool,
-    /// When what it was asked changed last.
-    changed_at: Instant,
-}
-
-static PANES: Mutex<Option<HashMap<String, Pane>>> = Mutex::new(None);
-
-/// A bare pane window, not yet placed (the bench makes its own).
-#[cfg(test)]
+/// A bare pane window, not yet placed.
 pub fn make_pane() -> Option<HWND> {
-    make()
-}
 
-fn make() -> Option<HWND> {
     unsafe {
         let instance = HINSTANCE(GetModuleHandleW(None).ok()?.0);
         REGISTER.call_once(|| {
@@ -226,127 +181,6 @@ pub fn tile_rects(width: i32, height: i32, radius: i32, flush_top: bool) -> Vec<
     out
 }
 
-/// Put a pane named `id` at `rect` (screen pixels), corners of `radius`, just
-/// beneath `over`; or take it away with `None`. `flush_top` leaves the top
-/// corners square, for a bar that touches the top of the screen. Main thread.
-///
-/// True when the pane is being held inside a bar that is on the move, and wants to be looked at
-/// again once the bar has stood still (by `SETTLE`), to be put exactly under it.
-pub fn set_pane(id: &str, over: HWND, shape: Option<(Rect, i32, bool)>) -> bool {
-    let mut guard = PANES.lock();
-    let panes = guard.get_or_insert_with(HashMap::new);
-
-    let Some((rect, radius, flush_top)) = shape else {
-        if let Some(pane) = panes.get_mut(id) {
-            if pane.placed.take().is_some() {
-                hide_from(pane, 0);
-            }
-        }
-        return false;
-    };
-    if rect.width < 1 || rect.height < 1 {
-        return false;
-    }
-
-    let pane = panes.entry(id.to_string()).or_insert_with(|| Pane {
-        hwnds: Vec::new(),
-        shown: 0,
-        placed: None,
-        settled: true,
-        changed_at: Instant::now() - Duration::from_secs(10),
-    });
-    // a pane whose windows have gone is made again
-    if pane.hwnds.iter().any(|h| unsafe { !IsWindow(Some(HWND(*h as *mut _))).as_bool() }) {
-        pane.hwnds.clear();
-        pane.shown = 0;
-        pane.placed = None;
-    }
-
-    let want = Some((rect, radius, flush_top));
-    let now = Instant::now();
-    let changed = pane.placed != want;
-    let quiet = now.duration_since(pane.changed_at) >= SETTLE;
-    if changed {
-        pane.changed_at = now;
-    } else if pane.settled {
-        return false;
-    } else if !quiet {
-        return true;
-    }
-    // the first move of a bar that has been still is followed exactly; the ones after it, held in
-    let moving = changed && !quiet;
-    let lag = if moving { LAG.min(rect.width / 4).min(rect.height / 4) } else { 0 };
-    let inner = Rect { x: rect.x + lag, y: rect.y + lag, width: rect.width - 2 * lag, height: rect.height - 2 * lag };
-    let tiles = tile_rects(inner.width, inner.height, (radius - lag).max(0), flush_top);
-
-    let mut used = 0;
-    for (i, (tx, ty, tw, th)) in tiles.iter().enumerate() {
-        if i >= pane.hwnds.len() {
-            let Some(hwnd) = make() else { break };
-            set_blur(hwnd, true);
-            pane.hwnds.push(hwnd.0 as isize);
-        }
-        let hwnd = HWND(pane.hwnds[i] as *mut _);
-        unsafe {
-            let _ = SetWindowPos(
-                hwnd,
-                Some(over),
-                inner.x + tx,
-                inner.y + ty,
-                *tw,
-                *th,
-                SWP_NOACTIVATE | SWP_SHOWWINDOW,
-            );
-        }
-        used = i + 1;
-    }
-    hide_from(pane, used);
-    pane.shown = used;
-    pane.placed = want;
-    pane.settled = !moving;
-    moving
-}
-
-/// Hide the windows of a pane from the `from`th on.
-fn hide_from(pane: &mut Pane, from: usize) {
-    for h in pane.hwnds.iter().skip(from).take(pane.shown.saturating_sub(from)) {
-        unsafe {
-            let _ = ShowWindow(HWND(*h as *mut _), SW_HIDE);
-        }
-    }
-    pane.shown = pane.shown.min(from);
-}
-
-/// Destroy a pane, if there is one.
-pub fn drop_pane(id: &str) {
-    let removed = PANES.lock().as_mut().and_then(|p| p.remove(id));
-    if let Some(pane) = removed {
-        for h in pane.hwnds {
-            unsafe {
-                let _ = DestroyWindow(HWND(h as *mut _));
-            }
-        }
-    }
-}
-
-/// The panes there are, with their windows.
-pub fn pane_windows() -> Vec<(String, isize)> {
-    PANES
-        .lock()
-        .as_ref()
-        .map(|p| {
-            p.iter()
-                .flat_map(|(k, v)| v.hwnds.iter().enumerate().map(move |(i, h)| (format!("{k}#{i}"), *h)))
-                .collect()
-        })
-        .unwrap_or_default()
-}
-
-/// The ids of the panes there are.
-pub fn pane_ids() -> Vec<String> {
-    PANES.lock().as_ref().map(|p| p.keys().cloned().collect()).unwrap_or_default()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -412,39 +246,5 @@ mod tests {
         assert_eq!(tile_rects(300, 60, 0, false), vec![(0, 0, 300, 60)]);
         assert_eq!(tile_rects(300, 60, 2, false), vec![(0, 0, 300, 60)]);
         assert!(tile_rects(0, 60, 10, false).is_empty());
-    }
-
-    #[test]
-    fn a_pane_can_be_made_placed_and_dropped_without_a_window_to_sit_under() {
-        // a pane needs a window to sit beneath; any live one will do
-        let under = unsafe {
-            CreateWindowExW(
-                Default::default(),
-                w!("STATIC"),
-                w!(""),
-                WS_POPUP,
-                -30000,
-                -30000,
-                10,
-                10,
-                None,
-                None,
-                None,
-                None,
-            )
-        }
-        .expect("a window to sit under");
-        let rect = Rect { x: -29000, y: -29000, width: 300, height: 60 };
-        set_pane("test", under, Some((rect, 14, false)));
-        assert!(pane_ids().contains(&"test".to_string()));
-        // a repeat is skipped, and hiding keeps the pane for next time
-        set_pane("test", under, Some((rect, 14, false)));
-        set_pane("test", under, None);
-        assert!(pane_ids().contains(&"test".to_string()));
-        drop_pane("test");
-        assert!(!pane_ids().contains(&"test".to_string()));
-        unsafe {
-            let _ = DestroyWindow(under);
-        }
     }
 }

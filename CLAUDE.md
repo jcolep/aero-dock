@@ -167,10 +167,12 @@ Say plainly in a report when something native was not seen.
   with a picture has `data-bd="on"`, which drops its own `background`; **every glass rule keeps its tint in
   `--bd-tint`** (global.css, clear.css, start.css) and the layer draws it over the picture. A new glass surface
   that should be frosted: give it `isolation: isolate`, a `--bd-tint`, and `<BackdropLayer>` as its first child
-  (and keep content rules like `.st-panel > :not(...)` off `.bd-layer`). The menu bar still has a pane (the
-  system's blur on a plain window under the bar, tiles from `backdrop::tile_rects`, which leave out tiles
-  narrower than `MIN_TILE` because a window blurs only what is in its own bounds). It is off by default until
-  the owner confirms it looks right.- **A `ResizeObserver` reports once on `observe()`**: reacting to that first report
+  (and keep content rules like `.st-panel > :not(...)` off `.bd-layer`). The dock, Start and the menu bar all have
+  one, each with its own blur and grain sliders (`appearance.frost.*`, passed as the layer's `blur`/`grain`).
+  The old pane code (system blur on a plain window, tiled with `tile_rects`) is gone from the program;
+  `backdrop.rs` and `blurlab.rs` are test-only. **Off must mean off**: with `realBlur` false no layer is active,
+  nothing is asked, and the capture thread and the magnifier host are never made (`backdrop.mjs` asserts it
+  for all three windows). It is off by default until the owner confirms it looks right.- **A `ResizeObserver` reports once on `observe()`**: reacting to that first report
   as if it were a change restarted the lens mid-slide. Compare sizes.
 - **Closures made once keep their first value**: the elastic slider's resize
   handler kept the volume it was mounted with (0) and reset the knob. Read through a

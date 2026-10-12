@@ -197,6 +197,47 @@ pub struct AppearanceSettings {
     /// treatment is baked into a copy of the icon when it is first read (see
     /// `core::glassicon`), so it costs nothing to show.
     pub icon_style: String,
+    /// How the frosted glass is made on each surface (it only is while `real_blur` is on).
+    pub frost: FrostSettings,
+}
+
+/// How frosted one surface's glass is.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct FrostLook {
+    /// How far what is behind the glass is blurred, in pixels, `FrostLook::BLUR`.
+    pub blur: f32,
+    /// How much grain lies over it, 0.0..=1.0.
+    pub grain: f32,
+}
+
+impl FrostLook {
+    pub const BLUR: std::ops::RangeInclusive<f32> = 0.0..=120.0;
+
+    fn new(blur: f32) -> Self {
+        Self { blur, grain: 0.35 }
+    }
+}
+
+impl Default for FrostLook {
+    fn default() -> Self {
+        Self::new(30.0)
+    }
+}
+
+/// The frosted glass of each surface that has some, each its own.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct FrostSettings {
+    pub dock: FrostLook,
+    pub start: FrostLook,
+    pub menu_bar: FrostLook,
+}
+
+impl Default for FrostSettings {
+    fn default() -> Self {
+        Self { dock: FrostLook::new(30.0), start: FrostLook::new(34.0), menu_bar: FrostLook::new(28.0) }
+    }
 }
 
 impl Default for AppearanceSettings {
@@ -221,6 +262,7 @@ impl Default for AppearanceSettings {
             pointer_light: true,
             glass_grain: true,
             icon_style: "glass".into(),
+            frost: FrostSettings::default(),
         }
     }
 }
@@ -675,6 +717,10 @@ impl Settings {
     fn sanitize(&mut self) {
         let a = &mut self.appearance;
         a.transparency = a.transparency.clamp(0.3, 1.0);
+        for look in [&mut a.frost.dock, &mut a.frost.start, &mut a.frost.menu_bar] {
+            look.blur = if look.blur.is_finite() { look.blur.clamp(*FrostLook::BLUR.start(), *FrostLook::BLUR.end()) } else { 30.0 };
+            look.grain = if look.grain.is_finite() { look.grain.clamp(0.0, 1.0) } else { 0.35 };
+        }
         a.glass_intensity = a.glass_intensity.clamp(0.0, 1.0);
         a.bloom_amount = a.bloom_amount.clamp(0.0, 1.0);
         a.reflection_strength = a.reflection_strength.clamp(0.0, 1.0);
@@ -1099,6 +1145,28 @@ mod tests {
         s.sanitize();
         assert!((s.menu_bar.tint - 1.0).abs() < f32::EPSILON);
         assert_eq!(s.menu_bar.thickness(), s.menu_bar.height + 24);
+    }
+
+    #[test]
+    fn each_surface_has_its_own_frosting_that_stays_in_range_and_an_old_file_has_the_defaults() {
+        let s = Settings::default();
+        assert!(s.appearance.frost.dock.blur > 0.0 && s.appearance.frost.start.blur > 0.0 && s.appearance.frost.menu_bar.blur > 0.0);
+        // an old file with none of it gets the defaults
+        let old: Settings = serde_json::from_str(r#"{"appearance":{"realBlur":true}}"#).expect("loads");
+        assert_eq!(old.appearance.frost, FrostSettings::default());
+        // one surface can be given a look without the others
+        let one: Settings = serde_json::from_str(r#"{"appearance":{"frost":{"start":{"blur":70.0}}}}"#).expect("loads");
+        assert_eq!(one.appearance.frost.start.blur, 70.0);
+        assert_eq!(one.appearance.frost.start.grain, FrostLook::default().grain);
+        assert_eq!(one.appearance.frost.dock, FrostSettings::default().dock);
+        // out of range is brought back
+        let mut wild = Settings::default();
+        wild.appearance.frost.dock = FrostLook { blur: 9000.0, grain: -3.0 };
+        wild.appearance.frost.menu_bar = FrostLook { blur: f32::NAN, grain: f32::INFINITY };
+        wild.sanitize();
+        let kept = wild;
+        assert_eq!(kept.appearance.frost.dock, FrostLook { blur: 120.0, grain: 0.0 });
+        assert!(kept.appearance.frost.menu_bar.blur.is_finite() && kept.appearance.frost.menu_bar.grain.is_finite());
     }
 
     #[test]

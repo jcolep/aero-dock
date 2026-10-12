@@ -92,10 +92,7 @@ pub fn position_menubar(app: &AppHandle) -> AeroResult<()> {
     crate::platform::windows::dock_window::set_bounds(hwnd, strip.x, strip.y, width, height)?;
     crate::trace!("position_menubar: bounds set");
 
-    let clipped = clip_to_use(hwnd, scale, bar, width, height);
-    // the blur behind the bar follows where it now is
-    crate::commands::glass::sync_all(app);
-    clipped
+    clip_to_use(hwnd, scale, bar, width, height)
 }
 
 /// Clip the window to what is in use: the bar, or the bar and what is open

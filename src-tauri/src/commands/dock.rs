@@ -115,9 +115,7 @@ pub fn resize_dock(
             bar: bar_thickness.filter(|t| *t >= 1.0),
         },
     );
-    let placed = position_one(&app, &label);
-    crate::commands::glass::sync_all(&app);
-    placed
+    position_one(&app, &label)
 }
 
 /// Which monitor a dock window belongs on, by device name. `None` means the
@@ -193,8 +191,6 @@ pub fn position_dock(app: &AppHandle) -> AeroResult<()> {
             first_error.get_or_insert(e);
         }
     }
-    // the blur behind each bar follows where its window now is
-    crate::commands::glass::sync_all(app);
     first_error.map_or(Ok(()), Err)
 }
 

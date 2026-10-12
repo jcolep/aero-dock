@@ -13,6 +13,7 @@
  * and gives the focus back to the app that had it when the menu closes.
  */
 
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { listen } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -518,6 +519,14 @@ export function MenuBarApp() {
         }}
         onPointerMove={pointerLight}
       >
+        <BackdropLayer
+          active={settings.appearance.realBlur && !reduced.transparency}
+          interval={500}
+          margin={40}
+          fade={reduced.motion ? 0 : 800}
+          blur={settings.appearance.frost.menuBar.blur}
+          grain={settings.appearance.frost.menuBar.grain}
+        />
         {showScene && <BarScene settings={settings} />}
         {Lens}
         <div className="mb-side">

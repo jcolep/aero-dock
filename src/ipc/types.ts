@@ -85,6 +85,8 @@ export interface AppearanceSettings {
   glassGrain: boolean;
   /** What is done to every app's icon (baked into a copy of it). */
   iconStyle: IconStyle;
+  /** How frosted the glass is on each surface, while frosted glass is on. */
+  frost: FrostSettings;
 }
 
 export type PinKind = "app" | "file" | "folder" | "stack";
@@ -438,6 +440,20 @@ export interface StartSettings {
   seeded: boolean;
   /** The Recommended section (recent files). */
   showRecommended: boolean;
+}
+
+/** How frosted one surface's glass is. */
+export interface FrostLook {
+  /** How far what is behind the glass is blurred, in pixels. */
+  blur: number;
+  /** How much grain lies over it, 0 to 1. */
+  grain: number;
+}
+
+export interface FrostSettings {
+  dock: FrostLook;
+  start: FrostLook;
+  menuBar: FrostLook;
 }
 
 /** Who is signed in. */

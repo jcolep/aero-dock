@@ -105,8 +105,16 @@ img {
   position: absolute;
   inset: 0;
   z-index: 3;
-  background-image: var(--grain);
+  background-image: var(--grain-strong);
   background-size: 160px 160px;
+  /* the slider under Settings > Glass & light, for this surface */
+  opacity: var(--bd-grain, 0.35);
+}
+
+/* the grain the picture has replaces the grain the glass had */
+[data-bd="on"] > .glass-sweep,
+[data-bd="on"] .glass-sweep {
+  background-image: none;
 }
 
 html[data-grain="off"] [data-bd="on"] > .bd-layer::before {

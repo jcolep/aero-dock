@@ -6,7 +6,7 @@
 
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { accentForTheme, normalizeHex } from "../../engine/themes/accent";
 import { BubbleColor } from "./BubbleColor";
@@ -263,7 +263,7 @@ export function SettingsApp() {
           <AeroToggle
             label="Frosted glass: blur what is behind the dock, the Start menu and the menu bar"
             checked={appearance.realBlur}
-            hint="Your wallpaper and windows, blurred, show through the glass instead of the glass only being tinted. The dock and the Start menu blur a picture of what is behind them (about five a second while the dock is awake), so their corners are as round as the glass. Off until you choose it; turn it off again if anything looks wrong"
+            hint="Your wallpaper and windows, blurred, show through the glass instead of the glass only being tinted. The dock, the Start menu and the menu bar blur a picture of what is behind them (a couple of times a second, and only while it is on), so their corners are as round as the glass. Off until you choose it; turn it off again if anything looks wrong"
             onChange={(v) => set((d) => void (d.appearance.realBlur = v))}
           />
           <div className="ctl-row">
@@ -286,7 +286,42 @@ export function SettingsApp() {
             The picture is taken with Aero Dock's own windows left out of it, so the dock is not in the picture of what
             is behind the dock. If the glass looks wrong on one of your screens, the report says whether a picture can be
             taken here, how long it takes, and where each window is.
-          </p>          <AeroToggle
+          </p>
+          <SettingsSub>Frosting, for each surface</SettingsSub>
+          {(
+            [
+              ["dock", "Dock"],
+              ["start", "Start menu"],
+              ["menuBar", "Menu bar"],
+            ] as const
+          ).map(([key, name]) => (
+            <Fragment key={key}>
+              <AeroSlider
+                label={`${name}: blur`}
+                value={appearance.frost[key].blur}
+                min={0}
+                max={120}
+                step={1}
+                commitOnRelease
+                format={(v) => (v < 1 ? "Sharp" : `${Math.round(v)} px`)}
+                onChange={(v) => set((d) => void (d.appearance.frost[key].blur = v))}
+              />
+              <AeroSlider
+                label={`${name}: grain`}
+                value={appearance.frost[key].grain}
+                min={0}
+                max={1}
+                step={0.01}
+                format={(v) => (v < 0.01 ? "None" : pctFmt(v))}
+                onChange={(v) => set((d) => void (d.appearance.frost[key].grain = v))}
+              />
+            </Fragment>
+          ))}
+          <p className="settings-note">
+            How far what is behind each surface is blurred, and how much grain lies over it. They take effect while
+            Frosted glass is on; with it off nothing here runs. The grain switch below turns all of the grain off.
+          </p>
+          <AeroToggle
             label="Light that follows the pointer"
             checked={appearance.pointerLight}
             hint="A soft highlight drifts across the dock and the menu bar under the pointer"
