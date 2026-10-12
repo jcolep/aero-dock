@@ -30,7 +30,7 @@ import type {
   WidgetStyle,
   WifiNetwork,
 } from "./types";
-import type { DesktopBounds, Download, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
+import type { BlurCheck, DesktopBounds, Download, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
 
 export const ipc = {
   // settings
@@ -251,5 +251,10 @@ export const ipc = {
   closeStart: (restore: boolean) => invoke<void>("close_start", { restore }),
   userProfile: () => invoke<Profile>("user_profile"),
   searchFiles: (query: string) => invoke<FoundFile[]>("search_files", { query }),
+  /** Look at each screen (a window of stripes shows on each for a second) to see whether the frosted glass keeps its shape. */
+  checkFrostedGlass: () => invoke<BlurCheck[]>("check_frosted_glass"),
+  lastBlurCheck: () => invoke<BlurCheck[]>("last_blur_check"),
+  /** Where each blur pane is now, written to blur-report.txt as well. */
+  blurReport: () => invoke<string>("blur_report"),
   listRecentDownloads: (limit?: number) => invoke<Download[]>("list_recent_downloads", { limit: limit ?? null }),
 };

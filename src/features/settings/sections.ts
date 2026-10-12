@@ -40,7 +40,7 @@ export const GROUPS: GroupDef[] = [
         title: "Glass & light",
         blurb: "Blur, grain, bloom, reflections, scene, speed",
         keywords:
-          "frosted glass blur real blur pointer light grain opacity transparency intensity bloom reflections dock shadow ambient scene dust rain snow ocean aurora particles tint from wallpaper animation speed",
+          "frosted glass blur real blur check screens report square corners pointer light grain opacity transparency intensity bloom reflections dock shadow ambient scene dust rain snow ocean aurora particles tint from wallpaper animation speed",
       },
       {
         id: "animations",

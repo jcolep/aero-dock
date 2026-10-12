@@ -7,6 +7,9 @@
  */
 
 import { useEffect, useState } from "react";
+import { useReduced } from "../../engine/accessibility/policy";
+import { useGlideHighlight } from "../../engine/lens/useGlideHighlight";
+import { useSettings } from "../../state/settingsStore";
 import { ipc } from "../../ipc/commands";
 import { useSystem } from "../../state/systemStore";
 import { notify } from "../feedback/toastStore";
@@ -40,6 +43,16 @@ interface WidgetClusterProps {
 export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClusterProps) {
   const { status, hydrate } = useSystem();
   const now = useClock();
+  const reduced = useReduced();
+  // the same gliding glass as the menu bar's lens, set by the same three settings: one piece of glass
+  // that travels between the clock and the buttons, and swells the one it is on
+  const mb = useSettings((s) => s.settings?.menuBar);
+  const lens = useGlideHighlight({
+    items: ".widget-clock-button, .widget-chip-button",
+    grow: mb?.lensGrow ?? 3,
+    warp: mb?.lensWarp ?? 1,
+    still: reduced.motion,
+  });
 
   useEffect(() => {
     hydrate();
@@ -63,7 +76,13 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
   if (!showClock && !showStatus) return null;
 
   return (
-    <div className="widget-cluster">
+    <div
+      ref={lens.rootRef}
+      className="widget-cluster"
+      style={{ ["--lens-scale" as string]: mb?.lensMagnify ?? 1.07 } as React.CSSProperties}
+      {...lens.handlers}
+    >
+      {lens.Highlight}
       {showClock && (
       <button
         className="widget-clock widget-clock-button"

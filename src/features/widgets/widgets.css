@@ -26,23 +26,29 @@
 .widget-clock-button {
   padding: 2px 7px;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 12px;
   background: none;
   font: inherit;
   color: inherit;
   cursor: pointer;
 }
 
-.widget-clock-button:hover,
-.widget-chip-button:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(160, 220, 255, 0.15));
-  border-color: rgba(255, 255, 255, 0.45);
-  box-shadow: 0 0 8px rgba(140, 210, 255, 0.4);
+/* No highlight of their own: the one under the pointer is the cluster's gliding glass (see
+   useGlideHighlight.tsx), which travels from one to the next, and the one it is on swells a little. */
+.widget-clock-button,
+.widget-chip-button {
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.widget-clock-button[data-lensed="true"],
+.widget-chip-button[data-lensed="true"] {
+  transform: scale(var(--lens-scale, 1.07));
 }
 
 .widget-clock-button:active,
 .widget-chip-button:active {
-  transform: scale(0.96);
+  transform: scale(0.94);
+  transition-duration: 80ms;
 }
 
 .widget-time {
@@ -79,7 +85,8 @@
   width: calc(var(--status-glyph-size, 16px) + 6px);
   height: calc(var(--status-glyph-size, 16px) + 4px);
   border: 1px solid transparent;
-  border-radius: 6px;
+  /* round, so the glass that lands on it is round too */
+  border-radius: 999px;
   background: none;
   padding: 0;
   cursor: default;

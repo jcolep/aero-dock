@@ -447,6 +447,18 @@ export interface Profile {
   picture: string;
 }
 
+/** What a look at one screen found about the frosted glass. */
+export interface BlurCheck {
+  monitor: string;
+  primary: boolean;
+  scale: number;
+  blurs: boolean;
+  shapeKept: boolean;
+  centreSpread: number;
+  cornerSpread: number;
+  note: string;
+}
+
 /** Something in the Downloads folder. */
 export interface Download {
   name: string;

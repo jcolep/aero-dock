@@ -592,6 +592,30 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     [mouseAxis, vertical, revealMode, cancelRevealHide],
   );
 
+  // Coming at the dock's end from outside it, along the screen, never crosses the bar before the
+  // place the buttons bud from, so the bar's own handler (above) never sees the pointer there. The
+  // window is wider than the bar by the room the buttons need, so this watches that room too.
+  const handleOutside = useCallback(
+    (e: React.MouseEvent) => {
+      if (!revealMode || draggingRef.current) return;
+      const barEl = barRef.current;
+      if (!barEl || barEl.contains(e.target as Node)) return;
+      const bar = barEl.getBoundingClientRect();
+      // level with the bar, give or take a little
+      if (e.clientY < bar.top - 14 || e.clientY > bar.bottom + 14) return;
+      const cluster = barEl.querySelector(".widget-cluster")?.getBoundingClientRect();
+      const rightEdge = cluster ? cluster.left - 12 : bar.right - REVEAL_ZONE;
+      const left = e.clientX < bar.left + REVEAL_ZONE && e.clientX > bar.left - SATELLITE_ROOM - 24;
+      const right = e.clientX > rightEdge && e.clientX < bar.right + SATELLITE_ROOM + 24;
+      if (left || right) {
+        cancelRevealHide();
+        setRevealLeft(left);
+        setRevealRight(right);
+      }
+    },
+    [revealMode, cancelRevealHide],
+  );
+
   const handleLeave = useCallback(() => {
     mouseAxis.set(Infinity);
     if (revealMode) scheduleRevealHide();
@@ -783,6 +807,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       data-reveal={hidden ? "out" : "in"}
       onMouseEnter={() => setPointerInside(true)}
       onMouseLeave={() => setPointerInside(false)}
+      onMouseMove={handleOutside}
     >
       <div className="dock-shell">
       <motion.div

@@ -13,6 +13,7 @@ import { BubbleColor } from "./BubbleColor";
 import { ColorSpectrum } from "./ColorSpectrum";
 import { ipc } from "../../ipc/commands";
 import type {
+  BlurCheck,
   DockEdge,
   DockSettings,
   IconStyle,
@@ -65,6 +66,11 @@ export function SettingsApp() {
   const [storage, setStorage] = useState<StorageInfo | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
+  const [blurChecks, setBlurChecks] = useState<BlurCheck[]>([]);
+  const [checkingBlur, setCheckingBlur] = useState(false);
+  useEffect(() => {
+    ipc.lastBlurCheck().then(setBlurChecks).catch(() => undefined);
+  }, []);
   const [hydrateFailed, setHydrateFailed] = useState(false);
   useEffect(() => {
     hydrate().catch((e) => {
@@ -266,6 +272,47 @@ export function SettingsApp() {
             hint="Windows blurs your wallpaper and windows behind the glass, instead of the glass only being tinted. Depends on how Windows draws it on your machine, so it is off until you choose it; turn it off again if anything looks wrong"
             onChange={(v) => set((d) => void (d.appearance.realBlur = v))}
           />
+          <div className="ctl-row">
+            <span className="ctl-label">Check the frosted glass</span>
+            <div className="ctl-actions">
+              <button
+                className="aero-button"
+                disabled={checkingBlur}
+                onClick={() => {
+                  setCheckingBlur(true);
+                  ipc
+                    .checkFrostedGlass()
+                    .then(setBlurChecks)
+                    .catch((e) => setStatus({ tone: "error", text: `The check failed: ${e}` }))
+                    .finally(() => setCheckingBlur(false));
+                }}
+              >
+                {checkingBlur ? "Checking…" : "Check my screens"}
+              </button>
+              <button
+                className="aero-button"
+                onClick={() =>
+                  ipc
+                    .blurReport()
+                    .then(() => setStatus({ tone: "ok", text: "Saved blur-report.txt in Aero Dock's data folder." }))
+                    .catch((e) => setStatus({ tone: "error", text: `Could not save the report: ${e}` }))
+                }
+              >
+                Save a report
+              </button>
+            </div>
+          </div>
+          <p className="settings-note">
+            A window of stripes shows on each screen for a second to see whether the blur keeps the round shape of the dock
+            and the Start menu there. A screen where it does not gets a smaller blur that stays inside the glass, so no
+            square shows.
+          </p>
+          {blurChecks.map((c) => (
+            <p key={c.monitor} className="settings-note" data-tone={c.blurs && !c.shapeKept ? "error" : undefined}>
+              {c.monitor.replace(/^\\\\\.\\/, "")}
+              {c.primary ? " (primary)" : ""}: {c.note}
+            </p>
+          ))}
           <AeroToggle
             label="Light that follows the pointer"
             checked={appearance.pointerLight}

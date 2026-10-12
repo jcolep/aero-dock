@@ -28,7 +28,8 @@ use windows::core::{s, w, BOOL};
 use windows::Win32::Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, WPARAM};
 use windows::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWINDOWATTRIBUTE};
 use windows::Win32::Graphics::Gdi::{
-    CreateRectRgn, CreateRoundRectRgn, DeleteObject, SetWindowRgn, HRGN,
+    CreateRectRgn, CreateRoundRectRgn, DeleteObject, RedrawWindow, SetWindowRgn, HRGN, RDW_FRAME, RDW_INVALIDATE,
+    RDW_UPDATENOW,
 };
 use windows::Win32::System::LibraryLoader::{GetModuleHandleW, GetProcAddress};
 use windows::Win32::UI::WindowsAndMessaging::{
@@ -115,6 +116,16 @@ struct Pane {
 }
 
 static PANES: Mutex<Option<HashMap<String, Pane>>> = Mutex::new(None);
+
+/// A bare pane window, not yet placed (the blur check makes its own).
+pub fn make_pane() -> Option<HWND> {
+    make()
+}
+
+/// The shape of a pane (see `region`), for a pane placed by hand.
+pub fn pane_region(x: i32, y: i32, width: i32, height: i32, radius: i32) -> HRGN {
+    region(x, y, width, height, radius)
+}
 
 fn make() -> Option<HWND> {
     unsafe {
@@ -230,6 +241,11 @@ pub fn set_pane(id: &str, over: HWND, shape: Option<(Rect, i32, bool)>) {
             log::warn!("blur pane {id}: it could not be shaped to {}x{} (radius {radius})", rect.width, rect.height);
             let _ = DeleteObject(shape.into());
         }
+        // Told to be drawn again as well. The system does not take a moved blur up from the
+        // window being moved alone on every graphics path: on one screen of the machine this
+        // was found on, a pane stayed where it had been, the size it had been, for as long
+        // as the window it backed stood still.
+        let _ = RedrawWindow(Some(hwnd), None, None, RDW_INVALIDATE | RDW_FRAME | RDW_UPDATENOW);
     }
     pane.placed = want;
 }
@@ -242,6 +258,11 @@ pub fn drop_pane(id: &str) {
             let _ = DestroyWindow(HWND(pane.hwnd as *mut _));
         }
     }
+}
+
+/// The panes there are, with their windows.
+pub fn pane_windows() -> Vec<(String, isize)> {
+    PANES.lock().as_ref().map(|p| p.iter().map(|(k, v)| (k.clone(), v.hwnd)).collect()).unwrap_or_default()
 }
 
 /// The ids of the panes there are.

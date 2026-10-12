@@ -22,6 +22,7 @@ use windows::Win32::UI::WindowsAndMessaging::{GetWindowRect, IsWindow, IsWindowV
 use crate::core::settings::SettingsStore;
 use crate::core::AeroResult;
 use crate::platform::windows::backdrop;
+use crate::platform::windows::blurcheck;
 use crate::platform::windows::monitors::Rect;
 
 /// Where a dock's bar is within its window, in physical pixels, and its
@@ -162,7 +163,10 @@ fn apply_dock(key: isize, bar: &Bar, on: bool) {
             width: bar.rel.width - 2,
             height: bar.rel.height - 2,
         };
-        backdrop::set_pane(&id, hwnd, Some((rect, (bar.radius - 1).max(0), false)));
+        // a screen that blurs the whole rectangle and not the shape gets a pane that is inside it
+        let kept = blurcheck::shape_kept_at(rect.x + rect.width / 2, rect.y + rect.height / 2);
+        let (rect, radius) = blurcheck::degrade(rect, (bar.radius - 1).max(0), kept);
+        backdrop::set_pane(&id, hwnd, Some((rect, radius, false)));
     } else {
         backdrop::set_pane(&id, hwnd, None);
     }
@@ -281,6 +285,95 @@ pub fn sync_later(app: &AppHandle) {
     let _ = app.run_on_main_thread(move || sync_all(&handle));
 }
 
+/// Look at each screen to see whether the frosted glass keeps its shape on it (see
+/// `platform::windows::blurcheck`): a window of stripes shows on each for about a second. What is
+/// found is kept and used from then on.
+#[tauri::command]
+pub async fn check_frosted_glass(app: AppHandle) -> AeroResult<Vec<blurcheck::Check>> {
+    let path = crate::core::paths::data_dir(&app)?.join("blur-check.json");
+    let checks = tauri::async_runtime::spawn_blocking(blurcheck::run)
+        .await
+        .map_err(|e| crate::core::AeroError::other(format!("the check failed: {e}")))?;
+    blurcheck::save(&path, &checks);
+    // every pane is placed again, now that it is known which screens need the fallback
+    let handle = app.clone();
+    let _ = app.run_on_main_thread(move || sync_all(&handle));
+    Ok(checks)
+}
+
+/// What the last check found, if there was one.
+#[tauri::command]
+pub fn last_blur_check(app: AppHandle) -> Vec<blurcheck::Check> {
+    crate::core::paths::data_dir(&app)
+        .ok()
+        .and_then(|d| std::fs::read_to_string(d.join("blur-check.json")).ok())
+        .and_then(|t| serde_json::from_str(&t).ok())
+        .unwrap_or_default()
+}
+
+/// A written account of where each blur pane is now, to say what is on a screen when it looks wrong:
+/// the panes, the windows they back, and the screens.
+#[tauri::command]
+pub fn blur_report(app: AppHandle) -> AeroResult<String> {
+    use windows::Win32::Graphics::Gdi::GetWindowRgnBox;
+    let mut lines = Vec::new();
+    let describe = |hwnd: HWND| -> String {
+        let mut at = RECT::default();
+        let mut region = RECT::default();
+        let have = unsafe { GetWindowRect(hwnd, &mut at) }.is_ok();
+        let kind = unsafe { GetWindowRgnBox(hwnd, &mut region) };
+        format!(
+            "window {}x{} at ({}, {}), visible {}, region {} {}x{}, dpi {}",
+            if have { at.right - at.left } else { 0 },
+            if have { at.bottom - at.top } else { 0 },
+            at.left,
+            at.top,
+            unsafe { IsWindowVisible(hwnd).as_bool() },
+            kind.0,
+            region.right - region.left,
+            region.bottom - region.top,
+            unsafe { GetDpiForWindow(hwnd) },
+        )
+    };
+    for m in crate::platform::windows::monitors::enumerate_monitors()? {
+        lines.push(format!(
+            "screen {}{}: {}x{} at ({}, {}), scale {}, keeps the shape: {}",
+            m.name,
+            if m.is_primary { " (primary)" } else { "" },
+            m.bounds.width,
+            m.bounds.height,
+            m.bounds.x,
+            m.bounds.y,
+            m.scale,
+            blurcheck::shape_kept(&m.name),
+        ));
+    }
+    for (key, bar) in BARS.lock().clone().unwrap_or_default() {
+        let hwnd = HWND(key as *mut _);
+        lines.push(format!(
+            "dock {key:x}: bar in its window at ({}, {}) {}x{} radius {} shown {}; {}",
+            bar.rel.x,
+            bar.rel.y,
+            bar.rel.width,
+            bar.rel.height,
+            bar.radius,
+            bar.shown,
+            describe(hwnd)
+        ));
+    }
+    if let Some(start) = app.get_webview_window(crate::commands::start::LABEL).as_ref().and_then(hwnd_of) {
+        lines.push(format!("start: {:?}; {}", *START.lock(), describe(start)));
+    }
+    for (id, hwnd) in backdrop::pane_windows() {
+        lines.push(format!("pane {id}: {}", describe(HWND(hwnd as *mut _))));
+    }
+    let text = lines.join("\n");
+    if let Ok(dir) = crate::core::paths::data_dir(&app) {
+        let _ = std::fs::write(dir.join("blur-report.txt"), &text);
+    }
+    Ok(text)
+}
+
 /// What the Start menu's page says about its panel: where it is now within the window, in
 /// physical pixels, its corner radius, and whether it is solid enough for a blur to go behind.
 #[derive(Debug, Clone, Copy, serde::Deserialize)]
@@ -354,7 +447,9 @@ fn sync_start(app: &AppHandle) {
             && unsafe { GetWindowRect(hwnd, &mut at) }.is_ok()
         {
             if let Some(rect) = start_pane_rect(at, &pane) {
-                backdrop::set_pane("start", hwnd, Some((rect, (pane.radius - 1).max(0), false)));
+                let kept = blurcheck::shape_kept_at(rect.x + rect.width / 2, rect.y + rect.height / 2);
+                let (rect, radius) = blurcheck::degrade(rect, (pane.radius - 1).max(0), kept);
+                backdrop::set_pane("start", hwnd, Some((rect, radius, false)));
                 return;
             }
         }
