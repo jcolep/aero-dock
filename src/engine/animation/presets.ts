@@ -551,7 +551,7 @@ export function menuExitMs(preset: string, speed = 1): number {
 }
 
 /** How long the Start menu takes to leave, per preset (the page waits this before hiding the window). */
-const START_EXIT_MS: Record<string, number> = { rise: 160, bloom: 200, genie: 280, slide: 220, fade: 130, none: 0 };
+const START_EXIT_MS: Record<string, number> = { rise: 220, bloom: 260, genie: 340, slide: 260, fade: 180, none: 0 };
 
 export function startExitMs(preset: string, speed = 1): number {
   const ms = START_EXIT_MS[preset] ?? START_EXIT_MS.rise;

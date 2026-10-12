@@ -22,9 +22,15 @@
 export function reverseEntrance(root: HTMLElement): Promise<unknown> | null {
   // one that has finished has nothing to turn back (it is not "running"); one
   // that has not started, waiting out its delay, turns back by staying where it is
-  const running = root
-    .getAnimations({ subtree: true })
-    .filter((a) => a instanceof CSSAnimation && a.playState === "running");
+  // An entrance is an animation that ends. One that repeats for ever (a long title
+  // scrolling in the Now Playing card) is not one, and turning it back would never
+  // finish: the menu stayed up for as long as its copy took to play backwards, which
+  // was seconds, and showed no exit. A very long one is not an entrance either.
+  const running = root.getAnimations({ subtree: true }).filter((a) => {
+    if (!(a instanceof CSSAnimation) || a.playState !== "running") return false;
+    const timing = (a.effect as KeyframeEffect).getComputedTiming();
+    return Number.isFinite(timing.iterations) && Number(timing.endTime) <= 2500;
+  });
   if (running.length === 0) return null;
 
   const done: Promise<unknown>[] = [];

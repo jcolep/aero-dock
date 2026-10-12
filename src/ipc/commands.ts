@@ -30,7 +30,7 @@ import type {
   WidgetStyle,
   WifiNetwork,
 } from "./types";
-import type { DesktopBounds, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
+import type { DesktopBounds, Download, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
 
 export const ipc = {
   // settings
@@ -243,4 +243,5 @@ export const ipc = {
   closeStart: (restore: boolean) => invoke<void>("close_start", { restore }),
   userProfile: () => invoke<Profile>("user_profile"),
   searchFiles: (query: string) => invoke<FoundFile[]>("search_files", { query }),
+  listRecentDownloads: (limit?: number) => invoke<Download[]>("list_recent_downloads", { limit: limit ?? null }),
 };

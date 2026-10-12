@@ -21,11 +21,12 @@ import { useGlideHighlight } from "../../engine/lens/useGlideHighlight";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { ipc } from "../../ipc/commands";
-import type { AppEntry, FoundFile, PinnedItem, Profile, RecentFile, StartPin } from "../../ipc/types";
+import type { AppEntry, Download, FoundFile, PinnedItem, Profile, RecentFile, StartPin } from "../../ipc/types";
 import { useDockIcons } from "../../state/dockStore";
 import { useSettings } from "../../state/settingsStore";
 import { notify } from "../feedback/toastStore";
 import { calculate, formatResult } from "./calc";
+import { sizeText, timeAgo } from "./format";
 import { matchSettings } from "./settingsPages";
 import "./start.css";
 
@@ -72,6 +73,13 @@ function folderOf(path: string): string {
   return parts.length > 1 ? parts[parts.length - 2] : path;
 }
 
+const fromDownload = (d: Download): Item => ({
+  key: `download:${d.path}`,
+  kind: d.folder ? "folder" : "file",
+  name: d.name,
+  detail: d.folder ? timeAgo(d.modifiedMs) : `${timeAgo(d.modifiedMs)}  ·  ${sizeText(d.size)}`,
+  target: d.path,
+});
 const fromRecent = (r: RecentFile): Item => ({ key: `recent:${r.path}`, kind: "file", name: r.name, detail: folderOf(r.path), target: r.path });
 const fromFound = (f: FoundFile): Item => ({
   key: `found:${f.path}`,
@@ -265,6 +273,7 @@ export function StartApp() {
   const [selected, setSelected] = useState(0);
   const [apps, setApps] = useState<AppEntry[]>([]);
   const [recent, setRecent] = useState<RecentFile[]>([]);
+  const [downloads, setDownloads] = useState<Download[]>([]);
   const [files, setFiles] = useState<FoundFile[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [menu, setMenu] = useState<MenuState | null>(null);
@@ -320,6 +329,7 @@ export function StartApp() {
       // what the lists are made of, read fresh each time (cheap, and an app may have been installed)
       ipc.listApps().then(setApps).catch(() => undefined);
       ipc.listRecentFiles(20).then(setRecent).catch(() => undefined);
+      ipc.listRecentDownloads(6).then(setDownloads).catch(() => undefined);
       ipc.userProfile().then(setProfile).catch(() => undefined);
     });
     const outside = listen("start://outside", () => close(false));
@@ -357,7 +367,8 @@ export function StartApp() {
   }, [apps]);
 
   const pinned = useMemo(() => (pins ?? []).map(fromPin), [pins]);
-  const recommended = useMemo(() => recent.slice(0, 6).map(fromRecent), [recent]);
+  const recommended = useMemo(() => recent.slice(0, 3).map(fromRecent), [recent]);
+  const downloaded = useMemo(() => downloads.slice(0, 3).map(fromDownload), [downloads]);
 
   const q = query.trim();
   // files: asked of Windows' index a moment after typing stops
@@ -414,8 +425,8 @@ export function StartApp() {
   // ---- icons ----
   useEffect(() => {
     if (phase !== "open") return;
-    void resolveIcons([...pinned, ...recommended].map((i) => i.target));
-  }, [phase, pinned, recommended, resolveIcons, iconEpoch]);
+    void resolveIcons([...pinned, ...recommended, ...downloaded].map((i) => i.target));
+  }, [phase, pinned, recommended, downloaded, resolveIcons, iconEpoch]);
   useEffect(() => {
     if (phase !== "open") return;
     const wanted = flat.filter((i) => i.kind === "app" || i.kind === "file").map((i) => i.target);
@@ -676,11 +687,22 @@ export function StartApp() {
               ))}
             </div>
             {showRecommended && (
-              <>
-                <div className="st-bar">
-                  <h2>Recommended</h2>
+              <div className="st-recommended">
+                <div className="st-rec-col">
+                  <h2>Recently downloaded</h2>
+                  {downloaded.length === 0 && <div className="st-none">Nothing downloaded lately.</div>}
+                  {downloaded.map((item) => (
+                    <button key={item.key} type="button" className="st-rec" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
+                      <ItemIcon item={item} />
+                      <span className="st-row-text">
+                        <strong>{item.name}</strong>
+                        <small>{item.detail}</small>
+                      </span>
+                    </button>
+                  ))}
                 </div>
-                <div className="st-recommended">
+                <div className="st-rec-col">
+                  <h2>Recent files</h2>
                   {recommended.length === 0 && <div className="st-none">Files you open will appear here.</div>}
                   {recommended.map((item) => (
                     <button key={item.key} type="button" className="st-rec" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
@@ -692,7 +714,7 @@ export function StartApp() {
                     </button>
                   ))}
                 </div>
-              </>
+              </div>
             )}
           </>
         ) : (

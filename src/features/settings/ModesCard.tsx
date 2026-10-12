@@ -6,6 +6,7 @@
  * settings struct on `settings://changed`, so nothing is mirrored twice.
  */
 
+import { SettingsSection } from "./SettingsSection";
 import { useState } from "react";
 import { ipc } from "../../ipc/commands";
 import type { DockMode, Settings } from "../../ipc/types";
@@ -204,9 +205,8 @@ export function ModesCard({ settings, onStatus }: Props) {
   const modes = settings.modes;
 
   return (
-    <section className="settings-card glass">
-      <h2>Modes</h2>
-      <AeroToggle
+    <SettingsSection id="modes">
+            <AeroToggle
         label="Use modes"
         checked={modes.enabled}
         hint="Each mode keeps its own pinned apps, window layout and per-app volumes"
@@ -312,6 +312,6 @@ export function ModesCard({ settings, onStatus }: Props) {
           </p>
         </>
       )}
-    </section>
+    </SettingsSection>
   );
 }

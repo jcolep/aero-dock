@@ -69,9 +69,10 @@ const ICON =
  * @param {object[]} [o.apps]    what `list_apps` returns (the Start menu's list of every app)
  * @param {object[]} [o.recent]  what `list_recent_files` returns
  * @param {object[]} [o.files]   what `search_files` returns
+ * @param {object[]} [o.downloads] what `list_recent_downloads` returns
  * @param {object}   [o.profile] what `user_profile` returns
  */
-export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running, privacy = [], media = {}, art = null, apps = [], recent = [], files = [], profile = { name: "Jake Pascoe", picture: "" } }) {
+export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running, privacy = [], media = {}, art = null, apps = [], recent = [], files = [], downloads = [], profile = { name: "Jake Pascoe", picture: "" } }) {
   // absolute, because the browser reads its profile path from its own directory,
   // not from this script's
   const out = resolve(outFolder);
@@ -195,6 +196,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "list_apps": return ${JSON.stringify(apps)};
         case "list_recent_files": return ${JSON.stringify(recent)};
         case "search_files": return ${JSON.stringify(files)}.filter((f) => f.name.toLowerCase().includes(String(args.query || "").toLowerCase()));
+        case "list_recent_downloads": return ${JSON.stringify(downloads)};
         case "user_profile": return ${JSON.stringify(profile)};
         case "toggle_start": case "close_start": case "launch_as_admin": case "open_file_location": case "system_action": case "pin_item": return null;
         case "media_artwork": return window.__art;

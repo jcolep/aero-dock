@@ -113,8 +113,9 @@
 
 .settings-scroll {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
-  padding: 8px 30px 24px;
+  padding: 8px 26px 24px 10px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -858,5 +859,369 @@
 
   .settings-support-chip {
     margin-left: 0;
+  }
+}
+
+/* ---- the body: a sidebar and the sections ---- */
+
+.settings-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+}
+
+.settings-nav {
+  flex: none;
+  width: 196px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 4px 16px 24px;
+  color: #0d3a5c;
+}
+
+.settings-search {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow:
+    inset 0 1px 2px rgba(10, 45, 80, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.6);
+  transition:
+    background-color 160ms ease-out,
+    box-shadow 200ms ease-out;
+}
+
+.settings-search:focus-within {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 2px rgba(10, 45, 80, 0.2),
+    0 0 0 2px var(--aero-accent, #2f9de3);
+}
+
+.settings-search svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  opacity: 0.7;
+}
+
+.settings-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+}
+
+.settings-search input:focus,
+.settings-search input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.settings-search input::placeholder {
+  color: rgba(13, 58, 92, 0.55);
+}
+
+.settings-nav-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 4px;
+  scrollbar-width: none;
+}
+
+.settings-nav-heading {
+  padding: 0 10px 3px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(13, 58, 92, 0.6);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.settings-nav-item {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition:
+    background-color 140ms ease-out,
+    box-shadow 160ms ease-out;
+}
+
+.settings-nav-item:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.settings-nav-item[data-active="true"] {
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 4px rgba(10, 45, 80, 0.15);
+}
+
+.settings-nav-item[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--aero-accent), var(--aero-life));
+}
+
+.settings-nav-none {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: rgba(13, 58, 92, 0.7);
+}
+
+.settings-nav-actions {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+
+.settings-nav-actions button {
+  flex: 1;
+  padding: 5px 4px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  color: inherit;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-nav-actions button:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+/* ---- a group's heading in the page ---- */
+
+.settings-group {
+  flex: none;
+  margin: 8px 4px -4px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0d3a5c;
+  opacity: 0.72;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.settings-group:first-child {
+  margin-top: 0;
+}
+
+/* ---- a section that folds ---- */
+
+.settings-section > h2 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom-color: transparent;
+  transition: margin-bottom 240ms ease-out;
+}
+
+.settings-section[data-open="true"] > h2 {
+  margin-bottom: 12px;
+  padding-bottom: 7px;
+  border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+.settings-section[data-open="false"] > h2::after {
+  display: none;
+}
+
+.settings-section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 2px 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-shadow: inherit;
+  cursor: pointer;
+}
+
+.settings-section-head:focus-visible {
+  border-radius: 8px;
+}
+
+.settings-section-title {
+  flex: none;
+}
+
+.settings-section-blurb {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(8, 40, 70, 0.8);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.settings-section-chevron {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  opacity: 0.7;
+  transition: transform 240ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.settings-section[data-open="false"] .settings-section-chevron {
+  transform: rotate(-90deg);
+}
+
+.settings-section-head:hover .settings-section-chevron {
+  opacity: 1;
+}
+
+/* the body folds by its row going from nothing to its own height */
+.settings-section-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  position: relative;
+  z-index: 3;
+  transition:
+    grid-template-rows 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 200ms ease-out;
+}
+
+.settings-section-body[data-open="false"] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows 240ms cubic-bezier(0.4, 0, 0.8, 0.4),
+    opacity 140ms ease-in,
+    visibility 0s 240ms;
+}
+
+.settings-section-inner {
+  min-height: 0;
+  overflow: hidden;
+  /* room for focus rings and slider knobs, which would be cut at the edge of a folding row */
+  padding: 4px 8px 2px;
+  margin: -4px -8px -2px;
+}
+
+/* ---- a heading inside a section ---- */
+
+.settings-sub {
+  margin: 18px 0 4px;
+  padding-bottom: 4px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(13, 58, 92, 0.62);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+  position: relative;
+  z-index: 3;
+}
+
+.settings-sub:first-child {
+  margin-top: 2px;
+}
+
+.settings-nomatch {
+  padding: 18px 8px;
+  text-align: center;
+  color: #0d3a5c;
+}
+
+.settings-nomatch button {
+  border: none;
+  background: none;
+  color: var(--aero-accent-deep, #1264aa);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* in a narrow window the sections are a strip along the top */
+@media (max-width: 760px) {
+  .settings-body {
+    flex-direction: column;
+  }
+  .settings-nav {
+    width: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 0 22px 8px;
+  }
+  .settings-search {
+    flex: 0 0 170px;
+  }
+  .settings-nav-list {
+    flex-direction: row;
+    gap: 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0;
+  }
+  .settings-nav-group {
+    display: flex;
+    flex-direction: row;
+    flex: none;
+  }
+  .settings-nav-heading,
+  .settings-nav-actions {
+    display: none;
+  }
+  .settings-nav-item {
+    width: auto;
+    white-space: nowrap;
+  }
+  .settings-scroll {
+    padding: 4px 22px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-section-body,
+  .settings-section-body[data-open="false"],
+  .settings-section-chevron {
+    transition: none;
   }
 }

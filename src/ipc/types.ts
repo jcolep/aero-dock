@@ -447,6 +447,16 @@ export interface Profile {
   picture: string;
 }
 
+/** Something in the Downloads folder. */
+export interface Download {
+  name: string;
+  path: string;
+  /** When it last changed, in ms since 1970. */
+  modifiedMs: number;
+  size: number;
+  folder: boolean;
+}
+
 /** A file or folder from Windows' index. */
 export interface FoundFile {
   name: string;

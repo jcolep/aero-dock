@@ -25,10 +25,18 @@ const files = [
   { name: "Reports", path: "C:\\Users\\me\\Documents\\Reports", folder: true },
 ];
 
+const now = Date.now();
+const downloads = [
+  { name: "Mica For Everyone Installer.exe", path: "C:\\Users\\me\\Downloads\\Mica For Everyone Installer.exe", modifiedMs: now - 3 * 60_000, size: 813088, folder: false },
+  { name: "Quarterly pricing.xlsx", path: "C:\\Users\\me\\Downloads\\Quarterly pricing.xlsx", modifiedMs: now - 5 * 3600_000, size: 2_400_000, folder: false },
+  { name: "Drawings", path: "C:\\Users\\me\\Downloads\\Drawings", modifiedMs: now - 30 * 3600_000, size: 0, folder: true },
+];
+
 const h = await startHarness({
   out,
   window: "start",
   viewport: [760, 800],
+  downloads,
   apps,
   recent,
   files,
@@ -53,6 +61,7 @@ try {
   console.log("open:", await q("r.dataset.phase"), " search box focused:", await q("document.activeElement === r.querySelector('input')"));
   console.log("pinned tiles (started from the dock's 12 and two more):", await q("r.querySelectorAll('.st-tile').length"));
   console.log("seeded in settings:", await h.eval("(window.__calls.filter((c) => c.cmd === 'set_settings').at(-1)?.args.settings.start.seeded)"));
+  console.log("recently downloaded:", JSON.stringify(await q("[...r.querySelectorAll('.st-rec-col')[0].querySelectorAll('.st-rec')].map((e) => e.querySelector('strong').textContent + ' / ' + e.querySelector('small').textContent)")));
   console.log("recommended files:", await q("r.querySelectorAll('.st-rec').length"), " user:", await q("r.querySelector('.st-user span')?.textContent"));
   shots.home = await h.shot(0, 0, 760, 800);
 
@@ -149,6 +158,7 @@ try {
   const sent = Date.now();
   await h.eval(`window.__emit("start://outside", null)`);
   await h.sleep(40);
+  console.log("40 ms in, the panel is still visible and moving:", await q("(() => { const s = getComputedStyle(r.querySelector('.st-panel')); return { opacity: +(+s.opacity).toFixed(2), transform: s.transform === 'none' ? 'none' : 'moving' }; })()").then(JSON.stringify));
   console.log("40 ms in: phase", await q("r.dataset.phase"), " animation", await q("getComputedStyle(r.querySelector('.st-panel')).animationName"), " window asked to hide yet:", (await calls("close_start")).length > 3);
   await h.sleep(460);
   console.log("outside click closes:", await q("r.dataset.phase"), JSON.stringify(await calls("close_start")));

@@ -85,6 +85,7 @@ node --experimental-websocket scripts/offscreen/mission.mjs src-tauri/target/off
 node --experimental-websocket scripts/offscreen/media.mjs src-tauri/target/offscreen      # Now Playing card
 node --experimental-websocket scripts/offscreen/tips.mjs src-tauri/target/offscreen       # glass tooltips
 node --experimental-websocket scripts/offscreen/start.mjs src-tauri/target/offscreen      # Start menu
+node --experimental-websocket scripts/offscreen/settings.mjs src-tauri/target/offscreen   # settings: sections, sidebar, search
 node --experimental-websocket scripts/offscreen/startfps.mjs src-tauri/target/offscreen   # its frame rate (a 60 Hz regression check: it cannot show a real window's)
 ```
 
@@ -234,6 +235,24 @@ Say plainly in a report when something native was not seen.
   `--lens-scale`. It takes `menuBar.lensGrow/lensMagnify/lensWarp`, so one set of sliders sets both
   lenses. The Start menu uses it for every hover and for the key-selected search result; its own
   `:hover` backgrounds are gone on purpose.
+- **The settings window** is a sidebar and a column of collapsible sections in groups (`sections.ts` is the
+  registry: id, title, blurb, search keywords, group). A new section is a `<SettingsSection id="...">`
+  **and an entry in `sections.ts`** (otherwise it renders unwrapped and is not in the sidebar). A new
+  setting inside an existing section should add its name to that section's `keywords`, which is what
+  the search box matches. Folded state is remembered in localStorage (`useSettingsUi`); Colour starts
+  open, the rest folded. Long sections are split with `<SettingsSub>`. The restructure was done by a
+  script; controls are plain JSX, so moving one is moving its lines.
+- **A CSS animation with only a `to` keyframe starts from the element's own value.** The Start menu's
+  closing keyframes did, and the panel's own opacity at that moment was 0, so it vanished and the
+  animation played on nothing (found only after a first "fix" that hid the window correctly but
+  changed nothing the owner could see). Give exit keyframes a `from`, and check opacity partway
+  through in the harness, not just the animation's name.
+- **`reverseEntrance` (`menubar/interrupt.ts`) must only take finite, short animations.** An infinite one
+  (the Now Playing title's marquee) was copied and played backwards from far past its end, so closing
+  the Control Center took seconds and showed no exit.
+- **Tooltips: a title stays off its element for as long as the pointer is on it**, not only while a tip
+  shows; giving it back early let the browser draw its own plain tip (and a title set again by React,
+  as on Play / Pause, is taken off again by a MutationObserver).
 - **Closing the Start menu**: the page plays the closing animation and only then asks Rust to hide the
   window, so **nothing in Rust may hide it directly**: `toggle` while open emits `start://outside` (the
   page closes itself) and `CLOSING` makes a second ask harmless. The first version hid the window at

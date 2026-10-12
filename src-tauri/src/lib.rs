@@ -188,6 +188,7 @@ pub fn run() {
             commands::start::toggle_start,
             commands::start::close_start,
             commands::start::user_profile,
+            commands::start::list_recent_downloads,
             commands::start::search_files,
             commands::insight::get_privacy_use,
             commands::insight::get_stats,

@@ -278,6 +278,15 @@ pub async fn user_profile() -> Profile {
     tauri::async_runtime::spawn_blocking(profile::read).await.unwrap_or_default()
 }
 
+/// The newest things in the Downloads folder, newest first.
+#[tauri::command]
+pub async fn list_recent_downloads(limit: Option<usize>) -> Vec<crate::platform::windows::downloads::Download> {
+    let limit = limit.unwrap_or(6).min(40);
+    tauri::async_runtime::spawn_blocking(move || crate::platform::windows::downloads::recent(limit))
+        .await
+        .unwrap_or_default()
+}
+
 /// Files and folders from Windows' index that match what was typed.
 #[tauri::command]
 pub async fn search_files(query: String) -> Vec<Found> {

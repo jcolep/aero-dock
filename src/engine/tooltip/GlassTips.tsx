@@ -96,15 +96,15 @@ export function GlassTips({ side = "below", onRoom, delayMs = 420, off = false }
   const endRef = useRef<() => void>(() => undefined);
 
   useEffect(() => {
-    /** The element the pointer is on, and the titles taken off elements so the browser draws none. */
+    /** The element the pointer is on. Its title stays off for as long as the pointer is on it
+     *  (not only while a tip shows), or the browser would draw its own plain one. */
     let current: HTMLElement | null = null;
     const stashed = new Map<HTMLElement, string>();
     let timer: ReturnType<typeof setTimeout> | undefined;
     let watch: ReturnType<typeof setInterval> | undefined;
     let wentAt = 0;
     let shown = false;
-    /** An element pressed on: it gets no tip again until the pointer has left it. */
-    let dismissed: HTMLElement | null = null;
+    let observer: MutationObserver | null = null;
 
     const give = (el: HTMLElement) => {
       const title = stashed.get(el);
@@ -115,7 +115,8 @@ export function GlassTips({ side = "below", onRoom, delayMs = 420, off = false }
       }
     };
 
-    const leave = () => {
+    /** Take the tip away. The pointer may still be on its element, whose title stays off. */
+    const hideTip = () => {
       clearTimeout(timer);
       clearInterval(watch);
       if (shown) {
@@ -125,26 +126,45 @@ export function GlassTips({ side = "below", onRoom, delayMs = 420, off = false }
         setPlaced(null);
         roomRef.current?.(null);
       }
+    };
+
+    /** The pointer has left the element: the title goes back on it. */
+    const leave = () => {
+      hideTip();
+      observer?.disconnect();
+      observer = null;
       if (current) give(current);
       current = null;
     };
 
     const over = (e: PointerEvent) => {
-      if (offRef.current) return;
       const el = (e.target as Element | null)?.closest?.("[title],[data-tip]") as HTMLElement | null;
-      if (!el || el === current || el === dismissed) return;
+      if (!el || el === current) return;
       leave();
       const title = el.getAttribute("title");
       if (title) {
         stashed.set(el, title);
         el.removeAttribute("title");
       }
-      const text = (title ?? el.dataset.tip ?? "").trim();
+      let text = (title ?? el.dataset.tip ?? "").trim();
       if (!text) {
         give(el);
         return;
       }
       current = el;
+      // a title that is set again while the pointer is on it (a button that says "Pause", then
+      // "Play", once pressed) is taken off again at once, and the tip says the new thing
+      observer = new MutationObserver(() => {
+        const again = el.getAttribute("title");
+        if (!again) return;
+        stashed.set(el, again);
+        el.removeAttribute("title");
+        text = again.trim();
+        if (shown) setShowing((s) => (s ? { ...s, text } : s));
+      });
+      observer.observe(el, { attributes: true, attributeFilter: ["title"] });
+      // no tip while a menu is open (the pointer is dealing with that), but no plain one either
+      if (offRef.current) return;
       timer = setTimeout(
         () => {
           if (!current?.isConnected) return;
@@ -161,29 +181,24 @@ export function GlassTips({ side = "below", onRoom, delayMs = 420, off = false }
 
     const out = (e: PointerEvent) => {
       if (current && !current.contains(e.relatedTarget as Node | null)) leave();
-      if (dismissed && !dismissed.contains(e.relatedTarget as Node | null)) dismissed = null;
     };
-    const press = () => {
-      dismissed = current ?? dismissed;
-      leave();
-    };
-    const key = (e: KeyboardEvent) => e.key === "Escape" && leave();
+    const key = (e: KeyboardEvent) => e.key === "Escape" && hideTip();
 
     document.addEventListener("pointerover", over, true);
     document.addEventListener("pointerout", out, true);
     // pressing, scrolling or leaving the window ends a tip: it has said what it had to
-    document.addEventListener("pointerdown", press, true);
-    document.addEventListener("scroll", leave, true);
+    document.addEventListener("pointerdown", hideTip, true);
+    document.addEventListener("scroll", hideTip, true);
     document.addEventListener("keydown", key, true);
-    window.addEventListener("blur", leave);
-    endRef.current = leave;
+    window.addEventListener("blur", hideTip);
+    endRef.current = hideTip;
     return () => {
       document.removeEventListener("pointerover", over, true);
       document.removeEventListener("pointerout", out, true);
-      document.removeEventListener("pointerdown", press, true);
-      document.removeEventListener("scroll", leave, true);
+      document.removeEventListener("pointerdown", hideTip, true);
+      document.removeEventListener("scroll", hideTip, true);
       document.removeEventListener("keydown", key, true);
-      window.removeEventListener("blur", leave);
+      window.removeEventListener("blur", hideTip);
       leave();
       for (const el of [...stashed.keys()]) give(el);
     };

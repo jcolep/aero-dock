@@ -58,6 +58,24 @@ try {
   await h.sleep(200);
   console.log("tip after pressing:", await tip());
 
+  // with the menu open: move off the button and back on it. The browser must still draw no tip of its
+  // own (it would, in its plain style, if the title had been given back while the menu was open)
+  await h.sleep(900);
+  await h.move(900, 500);
+  await h.sleep(200);
+  console.log("away from the button, its title is back:", await h.eval("document.querySelector('.mb-item[title=\"Control Center\"]') !== null"));
+  await h.move(cc.x, cc.y);
+  await h.sleep(900);
+  console.log("back on it, no title for the browser to draw:", await h.eval("document.querySelector('.mb-item[title=\"Control Center\"]') === null"));
+  // a title that changes under the pointer (Play / Pause) is taken off again, and the tip says the new thing
+  await h.move(900, 500);
+  await h.sleep(600);
+  const again = await h.rect('.mb-item[data-menu="control"]');
+  await h.move(again.x, again.y);
+  await h.sleep(700);
+  await h.eval(`document.querySelector('.mb-item[data-menu="control"]').setAttribute('title', 'Changed')`);
+  await h.sleep(150);
+  console.log("a title set again under the pointer is taken off again:", await h.eval(`document.querySelector('.mb-item[data-menu="control"]').hasAttribute('title') === false`), " tip now says:", (await tip())?.text);
   console.log("sheet:", await h.sheet(shots, "tips"));
   console.log("commands the mock did not know:", JSON.stringify(await h.unknownCalls()));
 } finally {

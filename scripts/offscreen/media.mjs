@@ -122,6 +122,20 @@ try {
   console.log("players listed:", await card("c.querySelectorAll('.np-players button').length"));
   shots.cool = await h.shot(1380, 0, 540, 760);
 
+  // closing the Control Center while a long title scrolls: it turns back and goes in well under a second
+  // (the scrolling, which never ends, was once taken for an entrance to be played backwards, which took seconds)
+  const trigger = await h.rect('.mb-item[title="Control Center"]');
+  const shutAt = Date.now();
+  await h.click(trigger.x, trigger.y);
+  let gone = false;
+  for (let i = 0; i < 60 && !gone; i++) {
+    await h.sleep(50);
+    gone = !(await h.eval("!!document.querySelector('.mb-panel')"));
+  }
+  console.log("Control Center gone after", Date.now() - shutAt, "ms with the long title scrolling:", gone);
+  await h.click(trigger.x, trigger.y);
+  await h.sleep(900);
+
   // a track that cannot be sought: a bar to look at and buttons that say why
   await h.eval(`Object.assign(window.__media, { key: "noseek", title: "Apple Music song", canSeek: false, shuffle: null, repeat: null, hasArtwork: false, players: [], sourceName: "Apple Music" })`);
   await h.sleep(2600);

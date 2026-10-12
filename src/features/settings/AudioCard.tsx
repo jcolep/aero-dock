@@ -6,6 +6,7 @@
  * has no volume to set.
  */
 
+import { SettingsSection } from "./SettingsSection";
 import { useEffect } from "react";
 import { ipc } from "../../ipc/commands";
 import type { Settings } from "../../ipc/types";
@@ -31,9 +32,8 @@ export function AudioCard({ settings, onStatus }: Props) {
   const activeMode = settings.modes.modes.find((m) => m.id === settings.modes.activeId);
 
   return (
-    <section className="settings-card glass">
-      <h2>App volume</h2>
-      <p className="settings-note">
+    <SettingsSection id="audio">
+            <p className="settings-note">
         Scroll an app on the dock to change its volume. Right-click an icon to
         mute it or pick an output.
       </p>
@@ -98,6 +98,6 @@ export function AudioCard({ settings, onStatus }: Props) {
           </button>
         </p>
       )}
-    </section>
+    </SettingsSection>
   );
 }

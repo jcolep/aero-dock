@@ -53,27 +53,27 @@
 
 .st-root {
   --st-in: st-rise-in calc(300ms / var(--anim-speed, 1)) cubic-bezier(0.2, 1.05, 0.3, 1) both;
-  --st-out: st-rise-out calc(150ms / var(--anim-speed, 1)) ease-in both;
+  --st-out: st-rise-out calc(220ms / var(--anim-speed, 1)) cubic-bezier(0.4, 0, 0.9, 0.5) both;
 }
 
 .st-root[data-anim="bloom"] {
   --st-in: st-bloom-in calc(420ms / var(--anim-speed, 1)) cubic-bezier(0.2, 1.4, 0.3, 1) both;
-  --st-out: st-bloom-out calc(190ms / var(--anim-speed, 1)) ease-in both;
+  --st-out: st-bloom-out calc(260ms / var(--anim-speed, 1)) cubic-bezier(0.4, 0, 0.9, 0.5) both;
 }
 
 .st-root[data-anim="genie"] {
   --st-in: st-genie-in calc(520ms / var(--anim-speed, 1)) cubic-bezier(0.3, 0.9, 0.3, 1) both;
-  --st-out: st-genie-out calc(260ms / var(--anim-speed, 1)) cubic-bezier(0.5, 0, 0.8, 0.4) both;
+  --st-out: st-genie-out calc(340ms / var(--anim-speed, 1)) cubic-bezier(0.5, 0, 0.8, 0.4) both;
 }
 
 .st-root[data-anim="slide"] {
   --st-in: st-slide-in calc(340ms / var(--anim-speed, 1)) cubic-bezier(0.16, 1, 0.3, 1) both;
-  --st-out: st-slide-out calc(210ms / var(--anim-speed, 1)) cubic-bezier(0.5, 0, 0.9, 0.5) both;
+  --st-out: st-slide-out calc(260ms / var(--anim-speed, 1)) cubic-bezier(0.5, 0, 0.9, 0.5) both;
 }
 
 .st-root[data-anim="fade"] {
   --st-in: st-fade-in calc(180ms / var(--anim-speed, 1)) ease-out both;
-  --st-out: st-fade-out calc(120ms / var(--anim-speed, 1)) ease-in both;
+  --st-out: st-fade-out calc(180ms / var(--anim-speed, 1)) ease-in both;
 }
 
 .st-root[data-anim="none"] {
@@ -89,6 +89,10 @@
 
 .st-root[data-phase="closing"] .st-panel {
   visibility: visible;
+  /* it leaves from where it is: shown. (Without this the panel was still at its
+     resting opacity of 0 when the closing keyframes began, which have no start of their
+     own, so it vanished and the animation played on nothing.) */
+  opacity: 1;
   animation: var(--st-out);
 }
 
@@ -116,9 +120,13 @@
 }
 
 @keyframes st-rise-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
   to {
     opacity: 0;
-    transform: translateY(14px) scale(0.97);
+    transform: translateY(34px) scale(0.94);
   }
 }
 
@@ -134,9 +142,13 @@
 }
 
 @keyframes st-bloom-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
   to {
     opacity: 0;
-    transform: translateY(30px) scale(0.78);
+    transform: translateY(46px) scale(0.62);
   }
 }
 
@@ -160,6 +172,10 @@
 }
 
 @keyframes st-genie-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
   to {
     opacity: 0;
     transform: translateY(90px) scale(0.1, 0.04);
@@ -176,6 +192,9 @@
 }
 
 @keyframes st-slide-out {
+  from {
+    transform: none;
+  }
   to {
     transform: translateY(calc(100% + 70px));
   }
@@ -191,6 +210,9 @@
 }
 
 @keyframes st-fade-out {
+  from {
+    opacity: 1;
+  }
   to {
     opacity: 0;
   }
@@ -384,9 +406,28 @@
   flex: none;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2px 8px;
-  padding: 2px 18px 8px;
-  min-height: 132px;
+  gap: 0 10px;
+  padding: 6px 18px 8px;
+  min-height: 168px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.st-rec-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.st-rec-col h2 {
+  margin: 4px 8px 3px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.st-rec {
+  width: 100%;
 }
 
 .st-rec,

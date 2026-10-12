@@ -6,6 +6,7 @@
  * twice and the overlay redraws itself.
  */
 
+import { SettingsSection } from "./SettingsSection";
 import { useState } from "react";
 import { WIDGETS } from "../desktop/registry";
 import { ipc } from "../../ipc/commands";
@@ -212,9 +213,8 @@ export function WidgetsCard({ settings, onStatus }: Props) {
   const hasWeather = w.widgets.some((x) => x.kind === "weather");
 
   return (
-    <section className="settings-card glass">
-      <h2>Desktop widgets</h2>
-      <AeroToggle
+    <SettingsSection id="widgets">
+            <AeroToggle
         label="Show widgets on the desktop"
         checked={w.enabled}
         hint="Draggable glass widgets that sit on the wallpaper"
@@ -292,6 +292,6 @@ export function WidgetsCard({ settings, onStatus }: Props) {
           </p>
         </>
       )}
-    </section>
+    </SettingsSection>
   );
 }
