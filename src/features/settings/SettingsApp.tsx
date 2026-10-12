@@ -4,6 +4,7 @@
  * live while you drag a slider.
  */
 
+import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { useEffect, useRef, useState } from "react";
 import { applyAppearance } from "../../engine/themes/applyTheme";
@@ -159,6 +160,7 @@ export function SettingsApp() {
 
   return (
     <div className="settings-root">
+      <GlassTips side="below" />
       {/* ambient scenery: slow bubbles rising through the light */}
       <div className="settings-bubbles" aria-hidden>
         {[0, 1, 2, 3, 4].map((i) => (

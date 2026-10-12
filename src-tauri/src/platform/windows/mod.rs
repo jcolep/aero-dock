@@ -24,6 +24,7 @@ pub mod running;
 pub mod shaper;
 pub mod shell_ui;
 pub mod spectrum;
+pub mod system_backdrop;
 pub mod system;
 pub mod taskbar;
 pub mod thumbnails;

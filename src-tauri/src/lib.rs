@@ -114,6 +114,9 @@ pub fn run() {
             commands::frame::init(&handle);
             #[cfg(windows)]
             commands::insight::start_privacy_watch(handle.clone());
+            // another program (Mica For Everyone) can put a grey material behind every window
+            #[cfg(windows)]
+            platform::windows::system_backdrop::start();
             // the shortcuts that bring the keyboard to the menu bar and the dock
             #[cfg(windows)]
             {

@@ -83,6 +83,7 @@ node --experimental-websocket scripts/offscreen/insight.mjs src-tauri/target/off
 node --experimental-websocket scripts/offscreen/attention.mjs src-tauri/target/offscreen  # attention bounce
 node --experimental-websocket scripts/offscreen/mission.mjs src-tauri/target/offscreen    # Mission Control
 node --experimental-websocket scripts/offscreen/media.mjs src-tauri/target/offscreen      # Now Playing card
+node --experimental-websocket scripts/offscreen/tips.mjs src-tauri/target/offscreen       # glass tooltips
 ```
 
 (The output folder is any folder; `src-tauri/target/` is git-ignored.)
@@ -197,6 +198,20 @@ Say plainly in a report when something native was not seen.
   permission, not the microphone), FFT into 24 bands, `media://spectrum` at ~30 Hz to the menu
   bar window only. It runs while the card calls `media_spectrum(true)` every ~1.2 s and stops
   3.5 s after the calls stop. It hears everything playing, not one program.
+- **Tooltips are ours** (`engine/tooltip/GlassTips.tsx`, one per window): it takes the `title`
+  off whatever the pointer rests on (so the browser draws none), shows a glass pill, and gives
+  the title back on leaving; `data-tip` is the same without a title. Windows are clipped to
+  what is in use, so the menu bar passes `onRoom` and asks Rust for the height under the bar
+  while a tip shows; the dock puts tips on the side facing into the screen (as its labels do).
+  New `title=` attributes need nothing. Do not add a native-tooltip workaround.
+- **Mica For Everyone** (and tools like it) put a system backdrop on every window that has
+  `WS_CAPTION`, which showed through our see-through windows as grey squares. It is not
+  fixable by styling: `system_backdrop.rs` looks at all our top-level windows every 150 ms
+  (2.5 s if it has never been needed) and sets any Mica/acrylic back to none and resets the
+  frame margins, because that program puts it back every few seconds. A plain `WS_POPUP`
+  is not touched by it; Tauri restores `WS_CAPTION` at moments of its own (see
+  `keep_caption_off`). Checked with the real Mica For Everyone 2.0.6 using an off-screen test
+  window (`does_mica_for_everyone_fight_back`, ignored); not yet checked on the real bars.
 - **Keyboard access** is by global hotkey (Ctrl+Alt+M menu bar, Ctrl+Alt+D dock,
   Ctrl+Alt+W Mission Control;
   `hotkeys.rs`, the system's hotkey registration, not a hook). The bars are built

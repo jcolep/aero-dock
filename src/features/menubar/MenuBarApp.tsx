@@ -13,6 +13,7 @@
  * and gives the focus back to the app that had it when the menu closes.
  */
 
+import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { listen } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isSceneKind } from "../../engine/effects/fx2d";
@@ -246,9 +247,11 @@ export function MenuBarApp() {
   // tell Rust how much of the window is in use: the bar and the gap above it,
   // and the room under them while a menu is open
   const inUse = shown !== null;
+  // a tip below a button hangs under the bar, so it needs the window to reach that far too
+  const [tipBottom, setTipBottom] = useState<number | null>(null);
   useEffect(() => {
-    ipc.resizeMenubar(barHeight + gap + (inUse ? PANEL_ROOM : 0)).catch(() => undefined);
-  }, [barHeight, gap, inUse]);
+    ipc.resizeMenubar(Math.max(barHeight + gap + (inUse ? PANEL_ROOM : 0), tipBottom ?? 0)).catch(() => undefined);
+  }, [barHeight, gap, inUse, tipBottom]);
 
   // Clicking the bar makes its window the foreground one (Chromium takes the
   // focus for the web view whatever the window asks), so the app the user was
@@ -500,6 +503,7 @@ export function MenuBarApp() {
     >
       {/* anywhere in the window outside the bar and the open menu */}
       {open && <div className="mb-backdrop" onMouseDown={() => closeMenu(true)} />}
+      <GlassTips side="below" onRoom={setTipBottom} off={inUse} />
 
       <div
         ref={barRef}

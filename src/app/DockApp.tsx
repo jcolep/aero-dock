@@ -4,6 +4,7 @@
  * and renders the bar.
  */
 
+import { GlassTips } from "../engine/tooltip/GlassTips";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -21,6 +22,9 @@ import { useFileDrag } from "../state/dragStore";
 import { useRunning } from "../state/runningStore";
 import { useSettings } from "../state/settingsStore";
 import { useState } from "react";
+
+/** Which side of an icon its tip goes: the one facing into the screen, as the dock's labels do. */
+const TIP_SIDE = { bottom: "above", top: "below", left: "right", right: "left" } as const;
 
 export function DockApp() {
   const { settings, hydrate } = useSettings();
@@ -224,6 +228,8 @@ export function DockApp() {
     <>
       <EffectsLayer settings={settings} wallpaperAccent={accent} />
       <DockBar settings={settings} items={items} onLaunch={activate} primary={isPrimary} />
+      {/* the same side as the dock's own labels: away from the screen's edge it sits on */}
+      <GlassTips side={TIP_SIDE[settings.dock.edge]} />
     </>
   );
 }

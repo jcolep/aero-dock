@@ -82,6 +82,7 @@ aero-dock/
 │  │        ├─ genie.rs         minimise into / restore out of a dock icon: PrintWindow
 │  │        │                   capture, CPU row warp, layered click-through overlay
 │  │        ├─ media.rs         system media session: cover, timeline, controls, source app
+│  │        ├─ system_backdrop.rs  keeps Mica/acrylic (put on by other programs) off our windows
 │  │        ├─ spectrum.rs      loopback capture + FFT for the Now Playing sound wave
 │  │        ├─ privacy.rs       which apps use the camera / microphone (registry)
 │  │        ├─ procstats.rs     CPU / memory / network figures and top programs

@@ -12,6 +12,7 @@
  * uses: everything about a showing is reset when Rust says it is open again.
  */
 
+import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { listen } from "@tauri-apps/api/event";
 import { motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -228,6 +229,7 @@ export function MissionApp() {
 
   return (
     <div className="mc-root" data-open="true" onMouseDown={(e) => e.target === e.currentTarget && leave(true)}>
+      <GlassTips side="below" />
       <div className="mc-search" onMouseDown={(e) => e.stopPropagation()}>
         <input
           ref={input}
