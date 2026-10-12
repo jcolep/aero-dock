@@ -13,7 +13,6 @@ import { BubbleColor } from "./BubbleColor";
 import { ColorSpectrum } from "./ColorSpectrum";
 import { ipc } from "../../ipc/commands";
 import type {
-  BlurCheck,
   DockEdge,
   DockSettings,
   IconStyle,
@@ -66,11 +65,6 @@ export function SettingsApp() {
   const [storage, setStorage] = useState<StorageInfo | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
-  const [blurChecks, setBlurChecks] = useState<BlurCheck[]>([]);
-  const [checkingBlur, setCheckingBlur] = useState(false);
-  useEffect(() => {
-    ipc.lastBlurCheck().then(setBlurChecks).catch(() => undefined);
-  }, []);
   const [hydrateFailed, setHydrateFailed] = useState(false);
   useEffect(() => {
     hydrate().catch((e) => {
@@ -273,22 +267,8 @@ export function SettingsApp() {
             onChange={(v) => set((d) => void (d.appearance.realBlur = v))}
           />
           <div className="ctl-row">
-            <span className="ctl-label">Check the frosted glass</span>
+            <span className="ctl-label">Frosted glass report</span>
             <div className="ctl-actions">
-              <button
-                className="aero-button"
-                disabled={checkingBlur}
-                onClick={() => {
-                  setCheckingBlur(true);
-                  ipc
-                    .checkFrostedGlass()
-                    .then(setBlurChecks)
-                    .catch((e) => setStatus({ tone: "error", text: `The check failed: ${e}` }))
-                    .finally(() => setCheckingBlur(false));
-                }}
-              >
-                {checkingBlur ? "Checking…" : "Check my screens"}
-              </button>
               <button
                 className="aero-button"
                 onClick={() =>
@@ -303,17 +283,10 @@ export function SettingsApp() {
             </div>
           </div>
           <p className="settings-note">
-            A window of stripes shows on each screen for a second to see whether the blur keeps the round shape of the dock
-            and the Start menu there. A screen where it does not gets a smaller blur that stays inside the glass, so no
-            square shows.
-          </p>
-          {blurChecks.map((c) => (
-            <p key={c.monitor} className="settings-note" data-tone={c.blurs && !c.shapeKept ? "error" : undefined}>
-              {c.monitor.replace(/^\\\\\.\\/, "")}
-              {c.primary ? " (primary)" : ""}: {c.note}
-            </p>
-          ))}
-          <AeroToggle
+            Windows blurs only whole rectangles, so the blur behind a rounded bar is made of a few plain pieces that
+            stay inside its curve; the rim of the glass at the corners is not blurred. If the glass looks wrong on one
+            of your screens, the report says where each piece is.
+          </p>          <AeroToggle
             label="Light that follows the pointer"
             checked={appearance.pointerLight}
             hint="A soft highlight drifts across the dock and the menu bar under the pointer"

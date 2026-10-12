@@ -5,12 +5,13 @@
 //! only known to its page, which says where the bar is within the window
 //! (`report_dock_bar`); the window itself may be moved around, so what is kept
 //! is that position within the window, and the screen position is worked out
-//! afresh each time it is needed. The frame's ring is a window of exactly the
-//! right shape already, so it just has the blur switched on.
+//! afresh each time it is needed. The frame's ring is not blurred: it is cut to its
+//! shape with a region, and the system's blur ignores regions.
 //!
 //! Everything here runs on the main thread, which owns the windows.
 
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use parking_lot::Mutex;
@@ -22,7 +23,6 @@ use windows::Win32::UI::WindowsAndMessaging::{GetWindowRect, IsWindow, IsWindowV
 use crate::core::settings::SettingsStore;
 use crate::core::AeroResult;
 use crate::platform::windows::backdrop;
-use crate::platform::windows::blurcheck;
 use crate::platform::windows::monitors::Rect;
 
 /// Where a dock's bar is within its window, in physical pixels, and its
@@ -57,6 +57,22 @@ static BARS: Mutex<Option<HashMap<isize, Bar>>> = Mutex::new(None);
 /// Whether blur was last switched on or off on each frame ring, so a repeat is
 /// not asked of the system again.
 static RINGS: Mutex<Option<HashMap<isize, bool>>> = Mutex::new(None);
+
+/// Which look-again is the latest asked for (see `settle_later`).
+static SETTLE_ASKED: AtomicU64 = AtomicU64::new(0);
+
+/// A pane held inside a bar that is moving is to be looked at again once the bar has stood still,
+/// to be put exactly under it. Only the latest ask is answered.
+fn settle_later(app: &AppHandle) {
+    let ask = SETTLE_ASKED.fetch_add(1, Ordering::SeqCst) + 1;
+    let handle = app.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(150));
+        if SETTLE_ASKED.load(Ordering::SeqCst) == ask {
+            sync_later(&handle);
+        }
+    });
+}
 
 fn hwnd_of(window: &WebviewWindow) -> Option<HWND> {
     window.hwnd().ok().map(|h| HWND(h.0))
@@ -141,13 +157,16 @@ fn blur_on(app: &AppHandle) -> bool {
 /// One dock's pane, to match where its bar is now. Main thread.
 fn sync_dock(app: &AppHandle, key: isize) {
     let Some(bar) = BARS.lock().as_ref().and_then(|m| m.get(&key).copied()) else { return };
-    apply_dock(key, &bar, blur_on(app));
+    if apply_dock(key, &bar, blur_on(app)) {
+        settle_later(app);
+    }
 }
 
 /// Place or take away a dock's pane. The pane is one pixel inside the bar all round: the
 /// bar's own edge is smooth and the pane's is not, so at the bar's exact edge the pane
-/// shows as a pale fringe.
-fn apply_dock(key: isize, bar: &Bar, on: bool) {
+/// shows as a pale fringe. True when the pane is held inside a bar that is moving (see
+/// `backdrop::set_pane`).
+fn apply_dock(key: isize, bar: &Bar, on: bool) -> bool {
     let hwnd = HWND(key as *mut _);
     let id = pane_id_for_dock(key);
     let mut at = RECT::default();
@@ -163,12 +182,9 @@ fn apply_dock(key: isize, bar: &Bar, on: bool) {
             width: bar.rel.width - 2,
             height: bar.rel.height - 2,
         };
-        // a screen that blurs the whole rectangle and not the shape gets a pane that is inside it
-        let kept = blurcheck::shape_kept_at(rect.x + rect.width / 2, rect.y + rect.height / 2);
-        let (rect, radius) = blurcheck::degrade(rect, (bar.radius - 1).max(0), kept);
-        backdrop::set_pane(&id, hwnd, Some((rect, radius, false)));
+        backdrop::set_pane(&id, hwnd, Some((rect, (bar.radius - 1).max(0), false)))
     } else {
-        backdrop::set_pane(&id, hwnd, None);
+        backdrop::set_pane(&id, hwnd, None)
     }
 }
 
@@ -233,16 +249,16 @@ pub fn sync_all(app: &AppHandle) {
             }
         }
     }
-    match wanted_bar {
+    let mut settling = match wanted_bar {
         Some((hwnd, shape)) => backdrop::set_pane(bar_pane, hwnd, Some(shape)),
         None => {
             // no window to sit under now; hide whatever pane there was
-            backdrop::set_pane(bar_pane, HWND::default(), None);
+            backdrop::set_pane(bar_pane, HWND::default(), None)
         }
-    }
+    };
 
     // ---- the Start menu ----
-    sync_start(app);
+    settling |= sync_start_pane(app);
 
     // ---- the docks ----
     let bars: HashMap<isize, Bar> = BARS.lock().clone().unwrap_or_default();
@@ -252,7 +268,7 @@ pub fn sync_all(app: &AppHandle) {
             gone.push(*key);
             continue;
         }
-        apply_dock(*key, bar, on);
+        settling |= apply_dock(*key, bar, on);
     }
     if !gone.is_empty() {
         let mut guard = BARS.lock();
@@ -263,12 +279,18 @@ pub fn sync_all(app: &AppHandle) {
             }
         }
     }
+    if settling {
+        settle_later(app);
+    }
     // ---- the frame ----
     for window in app.webview_windows().into_values() {
         let label = window.label();
         if label.starts_with("frame-") {
             if let Some(hwnd) = hwnd_of(&window) {
-                let want = on && settings.frame.enabled;
+                // Never blurred for now. The ring is a window the size of the screen cut to its shape with a
+                // region, and the system's blur ignores a region (see `backdrop::tile_rects`): it would blur
+                // the whole screen behind it. Its margin is plain strips and could be tiles like the bars'.
+                let want = false;
                 let mut guard = RINGS.lock();
                 let rings = guard.get_or_insert_with(HashMap::new);
                 if rings.insert(hwnd.0 as isize, want) != Some(want) {
@@ -283,32 +305,6 @@ pub fn sync_all(app: &AppHandle) {
 pub fn sync_later(app: &AppHandle) {
     let handle = app.clone();
     let _ = app.run_on_main_thread(move || sync_all(&handle));
-}
-
-/// Look at each screen to see whether the frosted glass keeps its shape on it (see
-/// `platform::windows::blurcheck`): a window of stripes shows on each for about a second. What is
-/// found is kept and used from then on.
-#[tauri::command]
-pub async fn check_frosted_glass(app: AppHandle) -> AeroResult<Vec<blurcheck::Check>> {
-    let path = crate::core::paths::data_dir(&app)?.join("blur-check.json");
-    let checks = tauri::async_runtime::spawn_blocking(blurcheck::run)
-        .await
-        .map_err(|e| crate::core::AeroError::other(format!("the check failed: {e}")))?;
-    blurcheck::save(&path, &checks);
-    // every pane is placed again, now that it is known which screens need the fallback
-    let handle = app.clone();
-    let _ = app.run_on_main_thread(move || sync_all(&handle));
-    Ok(checks)
-}
-
-/// What the last check found, if there was one.
-#[tauri::command]
-pub fn last_blur_check(app: AppHandle) -> Vec<blurcheck::Check> {
-    crate::core::paths::data_dir(&app)
-        .ok()
-        .and_then(|d| std::fs::read_to_string(d.join("blur-check.json")).ok())
-        .and_then(|t| serde_json::from_str(&t).ok())
-        .unwrap_or_default()
 }
 
 /// A written account of where each blur pane is now, to say what is on a screen when it looks wrong:
@@ -337,7 +333,7 @@ pub fn blur_report(app: AppHandle) -> AeroResult<String> {
     };
     for m in crate::platform::windows::monitors::enumerate_monitors()? {
         lines.push(format!(
-            "screen {}{}: {}x{} at ({}, {}), scale {}, keeps the shape: {}",
+            "screen {}{}: {}x{} at ({}, {}), scale {}",
             m.name,
             if m.is_primary { " (primary)" } else { "" },
             m.bounds.width,
@@ -345,7 +341,6 @@ pub fn blur_report(app: AppHandle) -> AeroResult<String> {
             m.bounds.x,
             m.bounds.y,
             m.scale,
-            blurcheck::shape_kept(&m.name),
         ));
     }
     for (key, bar) in BARS.lock().clone().unwrap_or_default() {
@@ -408,7 +403,11 @@ pub fn report_start_pane(app: AppHandle, report: StartPaneReport) {
     };
     if changed {
         let handle = app.clone();
-        let _ = app.run_on_main_thread(move || sync_start(&handle));
+        let _ = app.run_on_main_thread(move || {
+            if sync_start_pane(&handle) {
+                settle_later(&handle);
+            }
+        });
     }
 }
 
@@ -434,8 +433,9 @@ fn start_pane_rect(window: RECT, pane: &StartPane) -> Option<Rect> {
     (rect.width > 4 && rect.height > 4).then_some(rect)
 }
 
-/// Put the Start menu's pane where its panel is, or take it away. Main thread.
-fn sync_start(app: &AppHandle) {
+/// Put the Start menu's pane where its panel is, or take it away. True when the pane is held
+/// inside a panel that is moving (see `backdrop::set_pane`). Main thread.
+fn sync_start_pane(app: &AppHandle) -> bool {
     let pane = *START.lock();
     let window = app.get_webview_window(crate::commands::start::LABEL);
     let hwnd = window.as_ref().and_then(hwnd_of);
@@ -447,14 +447,11 @@ fn sync_start(app: &AppHandle) {
             && unsafe { GetWindowRect(hwnd, &mut at) }.is_ok()
         {
             if let Some(rect) = start_pane_rect(at, &pane) {
-                let kept = blurcheck::shape_kept_at(rect.x + rect.width / 2, rect.y + rect.height / 2);
-                let (rect, radius) = blurcheck::degrade(rect, (pane.radius - 1).max(0), kept);
-                backdrop::set_pane("start", hwnd, Some((rect, radius, false)));
-                return;
+                return backdrop::set_pane("start", hwnd, Some((rect, (pane.radius - 1).max(0), false)));
             }
         }
     }
-    backdrop::set_pane("start", HWND::default(), None);
+    backdrop::set_pane("start", HWND::default(), None)
 }
 
 #[cfg(test)]
@@ -479,7 +476,7 @@ mod tests {
     fn what_the_window_does_not_show_the_pane_does_not_either() {
         // the panel sliding out of the bottom of its window
         let rect = start_pane_rect(window(), &pane(48, 600, 664, 704)).expect("a pane");
-        assert_eq!(rect.y + rect.height + 1, 1000, "it stops at the window''s bottom");
+        assert_eq!(rect.y + rect.height + 1, 1000, "it stops at the window's bottom");
         // and with nothing of it left inside: no pane
         assert!(start_pane_rect(window(), &pane(48, 805, 664, 704)).is_none(), "nothing left to blur");
     }

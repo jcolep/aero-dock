@@ -68,9 +68,19 @@
   display: flex;
 }
 
+/* The layer the controls hang on: the bar's own size and place, moved with the bar by the same
+   reveal motion, and out of the way of the pointer except at the controls themselves. */
+.dock-satellites {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
 /* Centring rides on `translate`, not `transform`: motion owns the inline
    transform for the squash-and-stretch entrance and would drop a CSS one. */
 .dock-satellite {
+  pointer-events: auto;
   position: absolute;
   top: 50%;
   translate: 0 -50%;

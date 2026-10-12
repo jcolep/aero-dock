@@ -117,11 +117,6 @@ pub fn run() {
             // another program (Mica For Everyone) can put a grey material behind every window
             #[cfg(windows)]
             platform::windows::system_backdrop::start();
-            // what an earlier look at the screens found about the frosted glass
-            #[cfg(windows)]
-            if let Ok(dir) = core::paths::data_dir(&handle) {
-                platform::windows::blurcheck::load(&dir.join("blur-check.json"));
-            }
             // the shortcuts that bring the keyboard to the menu bar and the dock
             #[cfg(windows)]
             {
@@ -195,8 +190,6 @@ pub fn run() {
             commands::start::user_profile,
             commands::start::list_recent_downloads,
             commands::glass::report_start_pane,
-            commands::glass::check_frosted_glass,
-            commands::glass::last_blur_check,
             commands::glass::blur_report,
             commands::start::search_files,
             commands::insight::get_privacy_use,

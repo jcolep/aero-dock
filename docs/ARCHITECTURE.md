@@ -265,9 +265,30 @@ are transparent web views, and a web view can only blur its own content, so on
 its own the glass is a tint over a sharp desktop. Windows can blur what is behind
 a window (via `SetWindowCompositionAttribute`) but for the whole window,
 and the dock's window is far larger than its bar. So the blur gets *panes*: bare
-popup windows exactly the size of a bar, shaped to its corners with a window
-region, with the system's blur on, kept directly beneath the window they back, and never
-taking a click (`WM_NCHITTEST` is transparent, never activated). The menu bar's
+popup windows, with the system's blur on, kept directly beneath the window they
+back, and never taking a click (`WM_NCHITTEST` is transparent, never activated).
+
+**The blur is a rectangle and only a rectangle.** It was measured on Windows 11
+24H2 (`platform/windows/blurlab.rs`, `cargo test --lib blur_lab -- --ignored
+--nocapture`, a window of stripes on each screen and a pane of each kind over it):
+a window region (`SetWindowRgn`), a layered window whose picture is the shape, the
+older `DwmEnableBlurBehindWindow` with a blur region, and acrylic all blur the
+whole rectangle of the window, corners and all, on every screen; the older call
+blurs nothing; the system's own rounded corners (8 px) give a shadow. A pane shaped
+with a region therefore showed as a grey square behind a rounded bar. So a rounded
+bar's pane is *tiles* (`backdrop::tile_rects`): a column down the middle and, down
+each side, columns that step in with the curve, each inside the curve, none
+overlapping. A window blurs only what is in its own bounds, so a narrow tile looks
+different from its neighbours (a band); tiles under `MIN_TILE` px are left out, and
+what is left is a thin rim of unblurred glass at the corners and, for a tall panel,
+down its sides. A blur dims what it covers by about 11% on this machine.
+
+A pane follows its bar: the page says where the bar is at every frame while it
+moves (visual `getBoundingClientRect`, a rAF loop that rests when still), a frame
+or two late. While the bar moves, the pane is held `LAG` px inside it, so lateness
+shows as a rim of clear glass and not a blurred rectangle left outside a shrinking
+bar; `set_pane` returns true when it is holding in, and `glass::settle_later` looks
+again 150 ms after the last change to put it exactly under the bar. The menu bar's
 pane is worked out in Rust from its settings. The dock's page reports where its
 bar sits in the window (`report_dock_bar`; layout offsets, so a slide animation
 does not move it) and Rust adds the window's position each time, because the
@@ -275,7 +296,6 @@ window can move. The frame's ring needs no pane: it is already a window of the
 right shape. Panes are made and moved on the main thread, which pumps their
 messages. It is the plain blur, not acrylic: acrylic adds its own tint and luminosity, and under a dark system theme that came out near black, a solid backing. It is off until chosen. A dock's pane appears once the dock has arrived and goes the moment it
 starts to leave, since a blur cannot be animated along with the slide.
-
 **Depth.** Grain (`--grain`, an SVG noise tile), light that follows the pointer
 (`engine/light/usePointerLight.ts`, which writes `--lx` and `--ly` about 30 times
 a second and only while the pointer is over the glass) and a three-layer shadow.

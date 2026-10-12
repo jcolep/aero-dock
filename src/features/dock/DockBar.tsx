@@ -601,25 +601,41 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       const barEl = barRef.current;
       if (!barEl || barEl.contains(e.target as Node)) return;
       const bar = barEl.getBoundingClientRect();
-      // level with the bar, give or take a little
-      if (e.clientY < bar.top - 14 || e.clientY > bar.bottom + 14) return;
       const cluster = barEl.querySelector(".widget-cluster")?.getBoundingClientRect();
       const rightEdge = cluster ? cluster.left - 12 : bar.right - REVEAL_ZONE;
-      const left = e.clientX < bar.left + REVEAL_ZONE && e.clientX > bar.left - SATELLITE_ROOM - 24;
-      const right = e.clientX > rightEdge && e.clientX < bar.right + SATELLITE_ROOM + 24;
+      // level with the bar, give or take a little
+      const level = e.clientY >= bar.top - 14 && e.clientY <= bar.bottom + 14;
+      const left = level && e.clientX < bar.left + REVEAL_ZONE && e.clientX > bar.left - SATELLITE_ROOM - 24;
+      const right = level && e.clientX > rightEdge && e.clientX < bar.right + SATELLITE_ROOM + 24;
       if (left || right) {
         cancelRevealHide();
         setRevealLeft(left);
         setRevealRight(right);
+      } else {
+        // moving about the window, away from the places the buttons come from
+        scheduleRevealHide();
       }
     },
-    [revealMode, cancelRevealHide],
+    [revealMode, cancelRevealHide, scheduleRevealHide],
   );
 
   const handleLeave = useCallback(() => {
     mouseAxis.set(Infinity);
     if (revealMode) scheduleRevealHide();
   }, [mouseAxis, revealMode, scheduleRevealHide]);
+
+  // The dock slid away: a button still out goes with it (the layer they are on takes the same
+  // motion as the bar), and is let go of once that has played, so it is not there to be seen
+  // when the dock comes back.
+  useEffect(() => {
+    if (!hidden) return;
+    cancelRevealHide();
+    const t = setTimeout(() => {
+      setRevealLeft(false);
+      setRevealRight(false);
+    }, reveal.hideMs);
+    return () => clearTimeout(t);
+  }, [hidden, reveal.hideMs, cancelRevealHide]);
 
   const openMenu = useCallback(
     (item: DockItemView, target: HTMLElement) => {
@@ -806,7 +822,12 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       data-anim={animations.dockReveal}
       data-reveal={hidden ? "out" : "in"}
       onMouseEnter={() => setPointerInside(true)}
-      onMouseLeave={() => setPointerInside(false)}
+      onMouseLeave={() => {
+        setPointerInside(false);
+        // a button budded from the room beside the bar (see handleOutside) is not put away by
+        // the bar's own leave, which the pointer never made
+        if (revealMode) scheduleRevealHide();
+      }}
       onMouseMove={handleOutside}
     >
       <div className="dock-shell">
@@ -871,7 +892,15 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         )}
       </motion.div>
       {revealMode && (
-        <>
+        // one layer the size of the bar that moves as the bar does (the same reveal motion, so a
+        // button still out when the dock goes slides away with it and comes back with it), and
+        // lets everything but the buttons themselves through
+        <motion.div
+          className="dock-satellites"
+          style={{ transformOrigin: reveal.origin }}
+          initial={reveal.initial}
+          animate={hidden ? reveal.hidden : reveal.shown}
+        >
           <AnimatePresence>
             {settings.dock.showSearchButton && revealLeft && (
               <DockSatellite
@@ -898,7 +927,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
               </DockSatellite>
             )}
           </AnimatePresence>
-        </>
+        </motion.div>
       )}
       </div>
       {pullOut && (

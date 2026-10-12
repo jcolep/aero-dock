@@ -196,8 +196,6 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "list_apps": return ${JSON.stringify(apps)};
         case "list_recent_files": return ${JSON.stringify(recent)};
         case "search_files": return ${JSON.stringify(files)}.filter((f) => f.name.toLowerCase().includes(String(args.query || "").toLowerCase()));
-        case "last_blur_check": return [];
-        case "check_frosted_glass": return [{ monitor: "\\\\.\\DISPLAY1", primary: true, scale: 1, blurs: true, shapeKept: true, centreSpread: 4, cornerSpread: 120, note: "the blur is drawn and keeps its shape" }];
         case "blur_report": return "";
         case "list_recent_downloads": return ${JSON.stringify(downloads)};
         case "user_profile": return ${JSON.stringify(profile)};
