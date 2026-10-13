@@ -225,6 +225,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "toggle_start": case "close_start": case "launch_as_admin": case "open_file_location": case "system_action": case "pin_item": return null;
         case "media_artwork": return window.__art;
         case "frame_corner_colours": return window.__corners ?? null;
+        case "set_glass_pane": return null;
         case "media_seek": window.__media.positionMs = args.positionMs; return true;
         case "media_seek_by": window.__media.positionMs = Math.max(0, window.__media.positionMs + args.deltaMs); return true;
         case "media_shuffle": window.__media.shuffle = args.on; return true;

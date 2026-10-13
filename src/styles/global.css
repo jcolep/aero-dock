@@ -97,9 +97,9 @@ img {
   isolation: isolate;
 }
 
-/* A picture of what is behind a piece of glass, under its tint (see BackdropLayer). The layer is there
-   always and shows only while the glass has a picture (data-bd), and then the glass's own tint, which is
-   under the layer, is not drawn: the layer draws it over the picture. */
+/* Frosted glass (see BackdropLayer): the compositor blurs what is behind the window, beneath the page, where the
+   glass is. The layer is there always and draws only while the glass is frosted (data-bd), and then the glass's own
+   tint, which is under the layer, is not drawn: the layer draws it over the blur. */
 .bd-layer {
   position: absolute;
   inset: 0;
@@ -109,25 +109,15 @@ img {
   pointer-events: none;
 }
 
+/* and the page's own backdrop filter, which can only see the page, has nothing to do */
 [data-bd="on"] {
   background: none !important;
+  backdrop-filter: none !important;
 }
 
-/* the picture: two of them, one fading in over the other (see BackdropLayer) */
-.bd-img {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  background-image: var(--bd-img);
-  background-repeat: no-repeat;
-  background-position: var(--bd-x, 0) var(--bd-y, 0);
-  background-size: var(--bd-w, 100%) var(--bd-h, 100%);
-}
-
-/* The grain of a glass surface lies in this layer, with a picture under it or not, and is the one grain the
-   surface has (the slider under Settings > Glass & light is its strength). A blurred picture is smooth to the
-   point that its gradients show their steps (eight bits a colour, stretched over a wide soft shape), and the
-   steps move as the picture changes; the grain breaks them up. */
+/* The grain of a glass surface lies in this layer, frosted or not, and is the one grain the surface has (the
+   slider under Settings > Glass & light is its strength). A blur is smooth to the point that its gradients show
+   their steps; the grain breaks them up. */
 .bd-layer::before {
   content: "";
   position: absolute;
@@ -142,21 +132,8 @@ html[data-grain="off"] .bd-layer::before {
   background-image: none;
 }
 
-/* How bright the desktop behind the glass is (0 to 1, from the picture of it), which the glass adapts to: over a bright
-   one a scrim of the theme's deep colour lies under the tint so that the white on the glass stays legible (up to 30%),
-   and over a dark one the tint thins a little (to 80%) so that the desktop shows through more. It is a number the page
-   can ease, so the glass follows a wallpaper that changes, or a window dragged under it, without a jump. */
-@property --bd-luma {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 0.5;
-}
-
-.bd-layer {
-  transition: --bd-luma var(--m-heavy) var(--e-inout);
-}
-
-/* with a picture the glass's tint is drawn over it, by the layer, over the scrim */
+/* frosted, the glass's tint is drawn over the blur by the layer, over a faint scrim of the theme's deep colour that
+   keeps white on the glass legible over a bright desktop */
 [data-bd="on"] > .bd-layer::after {
   content: "";
   position: absolute;
@@ -164,11 +141,7 @@ html[data-grain="off"] .bd-layer::before {
   z-index: 4;
   background:
     var(--bd-tint),
-    linear-gradient(
-      rgb(6 12 26 / clamp(0, calc((var(--bd-luma) - 0.42) * 0.62), 0.3)),
-      rgb(6 12 26 / clamp(0, calc((var(--bd-luma) - 0.42) * 0.62), 0.3))
-    );
-  opacity: clamp(0.8, calc(1 - (0.34 - var(--bd-luma)) * 0.6), 1);
+    linear-gradient(rgb(6 12 26 / 0.08), rgb(6 12 26 / 0.08));
 }
 
 /* the surfaces' own, older grain gives way to it */

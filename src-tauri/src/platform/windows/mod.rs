@@ -4,12 +4,7 @@ pub mod appaudio;
 pub mod appbar;
 pub mod apps;
 #[cfg(test)]
-mod backdrop;
-pub mod backdrop_capture;
-#[cfg(test)]
-mod blurlab;
-#[cfg(test)]
-mod capturelab;
+mod complab;
 pub mod bluetooth;
 pub mod brightness;
 pub mod dock_window;
@@ -17,6 +12,7 @@ pub mod downloads;
 pub mod endtask;
 pub mod filesearch;
 pub mod genie;
+pub mod glass;
 pub mod hotkeys;
 pub mod icons;
 pub mod memory;

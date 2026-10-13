@@ -276,30 +276,9 @@ export function SettingsApp() {
           <AeroToggle
             label="Frosted glass: blur what is behind the dock, the Start menu and the menu bar"
             checked={appearance.realBlur}
-            hint="Your wallpaper and windows, blurred, show through the glass instead of the glass only being tinted. The dock, the Start menu and the menu bar blur a picture of what is behind them (a couple of times a second, and only while it is on), so their corners are as round as the glass. Off until you choose it; turn it off again if anything looks wrong"
+            hint="Your wallpaper and windows, blurred, show through the glass instead of the glass only being tinted. Windows' own compositor does the blurring, on the graphics card, as part of drawing the screen, so it costs Aero Dock nothing while the glass stands still. It follows Windows' Transparency effects setting"
             onChange={(v) => set((d) => void (d.appearance.realBlur = v))}
           />
-          <div className="ctl-row">
-            <span className="ctl-label">Frosted glass report</span>
-            <div className="ctl-actions">
-              <button
-                className="aero-button"
-                onClick={() =>
-                  ipc
-                    .blurReport()
-                    .then(() => setStatus({ tone: "ok", text: "Saved blur-report.txt in Aero Dock's data folder." }))
-                    .catch((e) => setStatus({ tone: "error", text: `Could not save the report: ${humane(e)}` }))
-                }
-              >
-                Save a report
-              </button>
-            </div>
-          </div>
-          <p className="settings-note">
-            The picture is taken with Aero Dock's own windows left out of it, so the dock is not in the picture of what
-            is behind the dock. If the glass looks wrong on one of your screens, the report says whether a picture can be
-            taken here, how long it takes, and where each window is.
-          </p>
           <SettingsSub>Frosting, for each surface</SettingsSub>
           {(
             [
@@ -310,13 +289,12 @@ export function SettingsApp() {
           ).map(([key, name]) => (
             <Fragment key={key}>
               <AeroSlider
-                label={`${name}: blur`}
-                value={appearance.frost[key].blur}
+                label={`${name}: frost`}
+                value={Math.min(40, appearance.frost[key].blur)}
                 min={0}
-                max={120}
+                max={40}
                 step={1}
-                commitOnRelease
-                format={(v) => (v < 1 ? "Sharp" : `${Math.round(v)} px`)}
+                format={(v) => (v < 1 ? "Clear" : pctFmt(v / 40))}
                 onChange={(v) => set((d) => void (d.appearance.frost[key].blur = v))}
               />
               <AeroSlider
@@ -331,11 +309,9 @@ export function SettingsApp() {
             </Fragment>
           ))}
           <p className="settings-note">
-            The grain is always on the glass. The blur is how far what is behind the surface is blurred: the picture of
-            your desktop when Frosted glass is on, and, with it off, only whatever the page itself has behind the glass
-            (the ambient scene), since there is no desktop for it to blur. The grain switch below turns all grain off.
-          </p>
-          <AeroToggle
+            Frost is how much of the blur shows through the glass, from clear to fully frosted, while Frosted glass is on.
+            The grain is always on the glass; the switch below turns all grain off.
+          </p>          <AeroToggle
             label="Light that follows the pointer"
             checked={appearance.pointerLight}
             hint="A soft highlight drifts across the dock and the menu bar under the pointer"

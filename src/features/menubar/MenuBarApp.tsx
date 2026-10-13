@@ -536,9 +536,6 @@ export function MenuBarApp() {
       >
         <BackdropLayer
           active={settings.appearance.realBlur && !reduced.transparency}
-          interval={500}
-          margin={40}
-          fade={reduced.motion ? 0 : 800}
           blur={settings.appearance.frost.menuBar.blur}
           grain={settings.appearance.frost.menuBar.grain}
         />

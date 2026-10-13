@@ -208,19 +208,9 @@ export const ipc = {
     }),
   /** Where the Start menu's panel is within its window now, in physical px, for the blur
    *  that goes behind it; `shown` false while it is too faint (or gone) for one. */
-  /** A blurred picture of the screen behind a region of this window, our windows left out (see
-   *  BackdropLayer): a 16-byte header (where, from the window, and how big, in physical pixels) and a PNG.
-   *  Empty when there is none to be had. */
-  captureBackdrop: (request: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    dpr: number;
-    blur: number;
-    saturate: number;
-    brightness: number;
-  }) => invoke<ArrayBuffer>("capture_backdrop", { request }),
+    /** Put a piece of frosted glass under the page, move it, or take it away (see BackdropLayer). */
+  setGlassPane: (pane: { id: string; shown: boolean; x?: number; y?: number; width?: number; height?: number; radius?: number; opacity?: number; dpr?: number }) =>
+    invoke<void>("set_glass_pane", { pane }),
   // control center
   // mission control
   toggleMission: () => invoke<void>("toggle_mission"),
@@ -269,7 +259,6 @@ export const ipc = {
   searchFiles: (query: string) => invoke<FoundFile[]>("search_files", { query }),
   /** Look at each screen (a window of stripes shows on each for a second) to see whether the frosted glass keeps its shape. */
   /** Where each blur pane is now, written to blur-report.txt as well. */
-  blurReport: () => invoke<string>("blur_report"),
   /** How this window's frames went, for the table of frame timings. */
   reportFrameStats: (stats: { fps: number; avgMs: number; p95Ms: number; worstMs: number; late: number; frames: number; dpr: number }) =>
     invoke<void>("report_frame_stats", { stats }),

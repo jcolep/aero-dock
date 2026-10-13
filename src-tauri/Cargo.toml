@@ -34,11 +34,18 @@ image = { version = "0.25", default-features = false, features = ["png", "jpeg",
 [target.'cfg(windows)'.dependencies]
 webview2-com = "0.38"
 windows-core-061 = { package = "windows-core", version = "0.61" }
+windows-numerics = "0.3.1"
 
 [target.'cfg(windows)'.dependencies.windows]
 version = "0.62"
 features = [
   "Win32_Foundation",
+  "Foundation_Numerics",
+  "System",
+  "UI_Composition",
+  "UI_Composition_Desktop",
+  "Win32_System_WinRT",
+  "Win32_System_WinRT_Composition",
   "Win32_System_Com",
   "Win32_System_Com_StructuredStorage",
   "Win32_System_Diagnostics_Debug",

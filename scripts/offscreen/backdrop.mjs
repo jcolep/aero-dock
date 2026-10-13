@@ -1,6 +1,7 @@
-// The frosted backdrop, off screen: a picture of the desktop (red to yellow to blue, left to right, made by the
-// mock) is laid under the dock bar and the Start panel, under their tint, clipped by their own rounded corners,
-// and stays put under the bar as the bar moves.
+// Frosted glass, off screen: each glassy surface tells Rust where its glass is (`set_glass_pane`), in its own
+// pixels, with the corner radius of the glass and how much of the blur shows; follows it while it moves and goes
+// quiet when it stands still; takes it away when it goes; and asks for nothing at all with the glass switched off.
+// (The blur itself is the compositor's, beneath the page: see platform/windows/glass.rs and its bench, complab.)
 //
 //   pnpm build
 //   node --experimental-websocket scripts/offscreen/backdrop.mjs <out folder>
@@ -13,130 +14,88 @@ const check = (ok, what) => {
   console.log(ok ? "ok  " : "FAIL", what);
   if (!ok) failed = true;
 };
-
-// ---- the dock ----
-{
-  const h = await startHarness({
-    out,
-    window: "dock",
-    viewport: [1400, 500],
-    running: [],
-    settings: (s) => {
-      s.appearance.realBlur = true;
-      s.appearance.frost.dock = { blur: 55, grain: 0.8 };
-      s.pinned = [
-        { id: "a", kind: "app", path: "C:\\Windows\\notepad.exe", name: "Notes", icon: null, children: [] },
-        { id: "b", kind: "app", path: "C:\\Tools\\idle.exe", name: "Idle", icon: null, children: [] },
-      ];
-    },
-  });
-  try {
-    await h.open(".dock-icon");
-    await h.desktop("#c8d0e0");
-    await h.sleep(1500);
-    const q = (js) => h.eval(`(() => ${js})()`);
-    check((await q("document.querySelector('.dock-bar').dataset.bd")) === "on", "the bar has a picture under it");
-    check((await q("!!document.querySelector('.dock-bar > .bd-layer')")) === true, "and a layer for it");
-    const calls = await q("window.__calls.filter((c) => c.cmd === 'capture_backdrop').length");
-    check(calls >= 2, `it looks again every so often (${calls} looks)`);
-    // two pictures, the newer fading in over the older: look at the opacities some way into a fade
-    await h.sleep(300);
-    const fades = [];
-    for (let i = 0; i < 14; i++) {
-      fades.push(await q("[...document.querySelectorAll('.dock-bar > .bd-layer > .bd-img')].map((e) => +getComputedStyle(e).opacity.toString().slice(0, 4))"));
-      await h.sleep(100);
-    }
-    const seen = new Set(fades.flat().map((v) => v.toFixed(1)));
-    check(seen.has("0.0") && seen.has("1.0") && [...seen].some((v) => v !== "0.0" && v !== "1.0"), `a picture fades in over the last, not all at once (opacities seen: ${[...seen].sort().join(" ")})`);
-    const asked0 = await q("window.__calls.filter((c) => c.cmd === 'capture_backdrop')[0].args.request");
-    check(asked0.blur === 55, `the blur asked for is the dock's own setting (${asked0.blur})`);
-    check((await q("getComputedStyle(document.querySelector('.dock-bar > .bd-layer')).getPropertyValue('--bd-grain')")) === "0.8", "and the grain is its own");
-    const pose = await q("(() => { const l = document.querySelector('.dock-bar > .bd-layer'); const s = l.style; return { x: s.getPropertyValue('--bd-x'), y: s.getPropertyValue('--bd-y'), w: s.getPropertyValue('--bd-w'), h: s.getPropertyValue('--bd-h') }; })()");
-    console.log("picture's place under the bar:", JSON.stringify(pose));
-    const bar = await q("(() => { const b = document.querySelector('.dock-bar').getBoundingClientRect(); return { left: b.left, top: b.top, width: b.width, height: b.height }; })()");
-    // where the picture's left edge is, in the page: the bar's left plus its offset (and the layer sits one pixel in for the border)
-    const asked = await q("(() => { const c = window.__calls.filter((c) => c.cmd === 'capture_backdrop').pop().args.request; return { x: c.x, width: c.width }; })()");
-    check(Math.abs(asked.x - (bar.left - 56)) < 3 && Math.abs(asked.width - (bar.width + 112)) < 4, `it is of the bar and a margin: asked for x ${asked.x.toFixed(1)}, ${asked.width.toFixed(1)} wide for a bar at ${bar.left.toFixed(1)}, ${bar.width.toFixed(1)} wide`);
-    const shot = await h.shot(Math.max(0, bar.left - 80), bar.top - 40, bar.width + 160, bar.height + 80, 2);
-    console.log("sheet:", await h.sheet({ dock: shot }, "backdrop-dock"));
-  } finally {
-    h.close();
-  }
-}
-
-// ---- the glass adapts to what is behind it ----
-{
-  const h = await startHarness({ out, window: "dock", viewport: [1400, 500], running: [], settings: (s) => { s.appearance.realBlur = true; } });
-  try {
-    await h.open(".dock-icon");
-    await h.desktop("#c8d0e0");
-    const bar = await h.eval("(() => { const b = document.querySelector('.dock-bar').getBoundingClientRect(); return { x: (b.left + b.right) / 2, y: (b.top + b.bottom) / 2 }; })()");
-    await h.move(bar.x, bar.y);
-    const state = () => h.eval("(() => { const l = document.querySelector('.dock-bar > .bd-layer'); const a = getComputedStyle(l, '::after'); return { luma: +getComputedStyle(l).getPropertyValue('--bd-luma'), opacity: +a.opacity }; })()");
-    await h.eval("window.__bdLuma = 0.95");
-    await h.sleep(2600);
-    const bright = await state();
-    await h.eval("window.__bdLuma = 0.05");
-    await h.sleep(3200);
-    const dark = await state();
-    console.log("over a bright desktop:", JSON.stringify(bright), " over a dark one:", JSON.stringify(dark));
-    check(bright.luma > 0.8 && dark.luma < 0.2, "the glass has been told how bright what is behind it is");
-    check(dark.opacity < bright.opacity - 0.05, `its tint is thinner over a dark desktop (${dark.opacity.toFixed(2)} against ${bright.opacity.toFixed(2)})`);
-  } finally {
-    h.close();
-  }
-}
-
-// ---- Start ----
-{
-  const h = await startHarness({
-    out,
-    window: "start",
-    viewport: [900, 900],
-    settings: (s) => {
-      s.appearance.realBlur = true;
-    },
-  });
-  try {
-    await h.open(".st-root");
-    await h.desktop("#c8d0e0");
-    await h.eval(`window.__emit("start://open", { previous: 4242 })`);
-    await h.sleep(1500);
-    const q = (js) => h.eval(`(() => ${js})()`);
-    check((await q("document.querySelector('.st-panel').dataset.bd")) === "on", "the Start panel has a picture under it");
-    const before = await q("window.__calls.filter((c) => c.cmd === 'capture_backdrop').length");
-    await h.sleep(3000);
-    const after = await q("window.__calls.filter((c) => c.cmd === 'capture_backdrop').length");
-    check(before === after, `and holds it: ${before} looks, ${after} three seconds later`);
-    check(before <= 3, `after no more than a couple of looks (${before})`);
-    const shot = await h.shot(0, 0, 900, 900, 1);
-    console.log("sheet:", await h.sheet({ start: shot }, "backdrop-start"));
-  } finally {
-    h.close();
-  }
-}
+const panes = (h) => h.eval("window.__calls.filter((c) => c.cmd === 'set_glass_pane').map((c) => c.args.pane)");
 
 // ---- the menu bar ----
 {
   const h = await startHarness({
     out,
     window: "menubar",
-    viewport: [1200, 400],
+    viewport: [1200, 300],
     settings: (s) => {
       s.appearance.realBlur = true;
       s.menuBar.enabled = true;
-      s.appearance.frost.menuBar = { blur: 12, grain: 0.2 };
+      s.menuBar.gap = 8;
+      s.appearance.frost.menuBar = { blur: 20, grain: 0.2 };
     },
   });
   try {
     await h.open(".menubar");
-    await h.desktop("#c8d0e0");
     await h.sleep(1500);
-    const q = (js) => h.eval(`(() => ${js})()`);
-    check((await q("document.querySelector('.menubar').dataset.bd")) === "on", "the menu bar has a picture under it");
-    const asked = await q("window.__calls.filter((c) => c.cmd === 'capture_backdrop')[0].args.request");
-    check(asked.blur === 12, `with its own blur (${asked.blur})`);
-    console.log("sheet:", await h.sheet({ menubar: await h.shot(0, 0, 1200, 120, 1) }, "backdrop-menubar"));
+    const all = await panes(h);
+    const last = all.at(-1);
+    const bar = await h.eval("(() => { const r = document.querySelector('.menubar').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, radius: parseFloat(getComputedStyle(document.querySelector('.menubar')).borderTopLeftRadius) }; })()");
+    check(last && last.shown, "the menu bar has its glass");
+    check(Math.abs(last.x - bar.x) < 1 && Math.abs(last.y - bar.y) < 1 && Math.abs(last.width - bar.w) < 1 && Math.abs(last.height - bar.h) < 1, `exactly where the bar is (${JSON.stringify(last)} for ${JSON.stringify(bar)})`);
+    check(Math.abs(last.radius - bar.radius) < 0.5, `with the bar's own corners (${last.radius})`);
+    check(Math.abs(last.opacity - 0.5) < 0.02, `and as much of the blur as its frost asks for (${last.opacity})`);
+    check((await h.eval("document.querySelector('.menubar').dataset.bd")) === "on", "the bar's tint is drawn over the glass");
+    // standing still: nothing more is said
+    const before = (await panes(h)).length;
+    await h.sleep(1200);
+    check((await panes(h)).length === before, `standing still, nothing more is sent (${before} in all)`);
+  } finally {
+    h.close();
+  }
+}
+
+// ---- the dock: follows the bar as it moves, and takes the glass away when the dock slides off ----
+{
+  const pins = ["Notes", "Mail", "Maps"].map((name, i) => ({ id: `p${i}`, kind: "app", path: `C:\\Tools\\${name}.exe`, name, icon: null, children: [] }));
+  const h = await startHarness({
+    out,
+    window: "dock",
+    viewport: [1200, 400],
+    running: [],
+    settings: (s) => {
+      s.appearance.realBlur = true;
+      s.pinned = pins;
+      s.appearance.frost.dock = { blur: 40, grain: 0.3 };
+    },
+  });
+  try {
+    await h.open(".dock-icon");
+    await h.sleep(1200);
+    const at = (await panes(h)).at(-1);
+    const bar = await h.eval("(() => { const r = document.querySelector('.dock-bar').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; })()");
+    check(at && at.shown && Math.abs(at.x - bar.x) < 1 && Math.abs(at.width - bar.w) < 1, `the dock's glass is under its bar (${JSON.stringify(at)})`);
+    check(Math.abs(at.opacity - 1) < 0.02, "fully frosted at full frost");
+    // the bar grows when the icons swell under the pointer: the glass follows it, frame by frame
+    const n0 = (await panes(h)).length;
+    await h.move(bar.x + 60, bar.y + bar.h / 2);
+    await h.sleep(900);
+    const grown = (await panes(h)).at(-1);
+    const bar2 = await h.eval("(() => { const r = document.querySelector('.dock-bar').getBoundingClientRect(); return { x: r.left, w: r.width }; })()");
+    check((await panes(h)).length > n0 + 2 && Math.abs(grown.width - bar2.w) < 1, `the glass followed the bar as it grew (${n0} then ${(await panes(h)).length} reports; ${grown.width} for a bar ${bar2.w} wide)`);
+  } finally {
+    h.close();
+  }
+}
+
+// ---- the Start menu: glass while it is open, gone when it closes ----
+{
+  const h = await startHarness({ out, window: "start", viewport: [900, 900], settings: (s) => { s.appearance.realBlur = true; } });
+  try {
+    await h.open(".st-root");
+    await h.eval(`window.__emit("start://open", { previous: 4242 })`);
+    await h.sleep(1500);
+    const open = (await panes(h)).at(-1);
+    const panel = await h.eval("(() => { const r = document.querySelector('.st-panel').getBoundingClientRect(); return { x: r.left, w: r.width }; })()");
+    check(open && open.shown && Math.abs(open.x - panel.x) < 1 && Math.abs(open.width - panel.w) < 1, `open, the panel has its glass, where the panel is (${JSON.stringify(open)})`);
+    await h.eval(`window.__emit("start://outside")`);
+    await h.sleep(1500);
+    const closed = (await panes(h)).at(-1);
+    check(closed && !closed.shown, "closed, it is taken away");
   } finally {
     h.close();
   }
@@ -157,10 +116,10 @@ for (const [window, ready, extra] of [["dock", ".dock-icon", ""], ["start", ".st
   try {
     await h.open(ready);
     if (extra === "start") await h.eval(`window.__emit("start://open", { previous: 4242 })`);
-    await h.sleep(2500);
-    const asks = await h.eval("window.__calls.filter((c) => c.cmd === 'capture_backdrop').length");
+    await h.sleep(2000);
+    const shown = (await panes(h)).filter((p) => p.shown).length;
     const on = await h.eval("document.querySelectorAll('[data-bd]').length");
-    check(asks === 0 && on === 0, `${window}: with the frosted glass off nothing is asked for (${asks} asks, ${on} glasses with a picture)`);
+    check(shown === 0 && on === 0, `${window}: with the frosted glass off no glass is put down (${shown} panes, ${on} glasses)`);
     const grain = await h.eval("(() => { const l = document.querySelector('.bd-layer'); return l ? +getComputedStyle(l, '::before').opacity : -1; })()");
     check(grain > 0.3 && grain < 0.4, `${window}: and the grain, which is the glass's own, is still there (${grain})`);
   } finally {

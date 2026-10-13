@@ -298,15 +298,11 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     return () => observer.disconnect();
   }, [vertical]);
 
-  // Real frosted glass: Windows blurs what is behind the bar, in a pane of its
-  // own that Rust keeps exactly under it (see platform/windows/backdrop.rs).
-  // This says where the bar is within the window: the bar alone, not the room
-  // the window keeps for flyouts, at its resting place (layout offsets, which a
-  // transform does not move). It is there once the dock has arrived and goes
-  // the moment it starts to leave.
+  // Where the bar is within the window (the bar alone, not the room the window keeps for flyouts), for Rust: the
+  // Start menu rests above it. It is there once the dock has arrived and goes the moment it starts to leave. (The
+  // frosted glass under the bar follows it by itself: see BackdropLayer.)
   const reduced = useReduced();
   const realBlur = settings.appearance.realBlur && !reduced.transparency;
-  const reducedMotion = reduced.motion;
   useEffect(() => {
     const el = barRef.current;
     if (!el) return;
@@ -320,7 +316,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       const w = el.offsetWidth ? box.width : 0;
       const h = el.offsetHeight ? box.height : 0;
       const radius = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, w / 2, h / 2);
-      const shown = realBlur && !slidAway && w > 0 && h > 0;
+      const shown = !slidAway && w > 0 && h > 0;
       const half = (v: number) => Math.round(v * 2) / 2;
       const key = shown ? [box.left, box.top, w, h, radius].map(half).join() : "off";
       if (key === last) return false;
@@ -354,7 +350,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       changed.disconnect();
       window.removeEventListener("resize", wake);
     };
-  }, [realBlur, slidAway, vertical]);  // and none left behind when the dock goes
+  }, [slidAway, vertical]);  // and none left behind when the dock goes
   useEffect(
     () => () => {
       ipc.reportDockBar(0, 0, 0, 0, 0, false).catch(() => undefined);
@@ -863,9 +859,6 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
             ambient sweep gets its own clipping layer */}
         <BackdropLayer
           active={realBlur && !slidAway}
-          interval={asleep ? 2400 : 500}
-          margin={56}
-          fade={reducedMotion ? 0 : 800}
           blur={settings.appearance.frost.dock.blur}
           grain={settings.appearance.frost.dock.grain}
         />
