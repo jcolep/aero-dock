@@ -4,6 +4,7 @@
  * live while you drag a slider.
  */
 
+import { playCue, type Cue } from "../../engine/sound/ui";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { Fragment, useEffect, useRef, useState } from "react";
@@ -1056,7 +1057,7 @@ export function SettingsApp() {
           <AeroToggle
             label="Soft interface sounds"
             checked={settings.accessibility.uiSounds}
-            hint="Quiet tones for menus opening and closing, switches, the lens and launching an app. Off unless you want them"
+            hint="Quiet tones, all in one key: a menu is low and soft, a switch is an octave above it, the Start menu is a small chime. They sit under music that is playing. Off unless you want them"
             onChange={(v) => set((d) => void (d.accessibility.uiSounds = v))}
           />
           {settings.accessibility.uiSounds && (
@@ -1069,6 +1070,23 @@ export function SettingsApp() {
               format={(v) => `${Math.round(v * 100)}%`}
               onChange={(v) => set((d) => void (d.accessibility.uiSoundVolume = v))}
             />
+          )}
+          {settings.accessibility.uiSounds && (
+            <div className="ctl-row">
+              <span className="ctl-label">Hear them</span>
+              <div className="ctl-actions">
+                <button
+                  className="aero-button"
+                  onClick={() => {
+                    // a menu, a switch on and off, the lens, and the Start menu: in the order they are met
+                    const run: Array<[Cue, number]> = [["open", 0], ["close", 450], ["on", 900], ["off", 1350], ["tick", 1800], ["startOpen", 2200], ["startClose", 3000]];
+                    for (const [cue, at] of run) window.setTimeout(() => playCue(cue), at);
+                  }}
+                >
+                  Play the sounds
+                </button>
+              </div>
+            </div>
           )}
         </SettingsSection>
 

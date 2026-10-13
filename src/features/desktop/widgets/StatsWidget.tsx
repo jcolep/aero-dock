@@ -6,6 +6,7 @@
  * draw a bar is a worse citizen than one that updates every two.
  */
 
+import { Roll } from "../../../engine/type/Roll";
 import { useEffect, useState } from "react";
 import { ipc } from "../../../ipc/commands";
 import type { SystemLoad } from "../../../ipc/types";
@@ -27,7 +28,7 @@ function Meter({ label, percent, detail }: { label: string; percent: number; det
     <div className="w-stat">
       <div className="w-stat-top">
         <span className="w-stat-label">{label}</span>
-        <span className="w-stat-value">{percent}%</span>
+        <span className="w-stat-value"><Roll text={`${percent}%`} /></span>
       </div>
       <div className="w-stat-track">
         <div className="w-stat-fill" style={{ width: `${Math.min(100, Math.max(0, percent))}%` }} />

@@ -1,11 +1,13 @@
 /* Folder flyout: same deep glass family as the context menu. */
 
 .folder-flyout {
-  padding: 10px;
+  --r: 16px;
+  --pad: 10px;
+  padding: var(--pad);
   --glass-tint-top: rgba(120, 185, 235, 0.6);
   --glass-tint-mid: rgba(35, 95, 155, 0.55);
   --glass-tint-bottom: rgba(18, 60, 110, 0.66);
-  --glass-radius: 16px;
+  --glass-radius: var(--r);
   transform-origin: bottom center;
 }
 
@@ -70,7 +72,7 @@
   gap: 4px;
   padding: 8px 4px 6px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: calc(var(--r) - var(--pad));
   background: none;
   cursor: pointer;
   font-family: inherit;

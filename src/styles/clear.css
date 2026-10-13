@@ -200,7 +200,7 @@
   box-shadow:
     0 8px 22px rgba(0, 0, 0, 0.32),
     inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.55),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.1);
 }
 
 [data-surface="clear"] .aero-button {

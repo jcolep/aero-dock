@@ -18,19 +18,46 @@ body,
   overflow: hidden;
 }
 
+/* One typeface for everything: Inter, as a variable font, so every weight from 100 to 900 is a real one and not
+   the nearest the system has. It is bundled (the latin subset, 48 KB), so the type is the same on every machine
+   and there is no moment of another font while it loads (`block`); text in any other script falls back to the
+   system's own face, below. Its tabular figures keep a changing number from jostling its neighbours. */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-display: block;
+  font-weight: 100 900;
+  src: url("../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+    U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 body {
-  /* SF Pro first: "SF Pro" is the variable family, "Display" and "Text" are
-     the optical sizes Apple ships for large and small type. Everything
-     else is the old stack, for a machine without it. */
   font-family:
-    "SF Pro Text", "SF Pro Display", "SF Pro", "Segoe UI Variable Display", "Segoe UI",
-    "Frutiger", system-ui, sans-serif;
+    "Inter Variable", "Segoe UI Variable Text", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  /* Inter's own refinements: the single-storey a is not wanted, but a slashed-less zero and open digits read better
+     at the small sizes of a dock; contextual alternates tidy things like "->" */
+  font-feature-settings: "calt", "kern", "cv11" 0, "ss03" 0;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   color: var(--aero-text);
   user-select: none;
   cursor: default;
 }
 
+/* every number that changes: the same width for every digit */
+.num,
+time,
+[class*="clock"],
+[class*="time"],
+[class*="battery"],
+[class*="stat"],
+[class*="percent"],
+.ctl-value {
+  font-variant-numeric: tabular-nums;
+}
 img {
   -webkit-user-drag: none;
 }
@@ -347,4 +374,33 @@ html[data-reduce-transparency="on"] .mb-lens::after {
 /* the lens, with nothing to refract, is an outlined capsule */
 html[data-reduce-transparency="on"] .mb-lens {
   background: rgba(255, 255, 255, 0.18) !important;
+}
+/* ---- how a control answers a hand ---- */
+
+/* Pressed: it gives a little, quickly, and comes back as the press is let go. Low specificity on purpose, so a control
+   that moves itself (a lens, a magnifying icon) keeps its own. */
+:where(button, [role="button"], [role="menuitem"], [role="switch"], [role="tab"], summary):not(:disabled):active {
+  transform: scale(0.965);
+  transition-duration: var(--m-quick);
+}
+
+:where(button, [role="button"], [role="menuitem"], [role="switch"], [role="tab"]) {
+  transition-property: transform, background-color, box-shadow, opacity, filter;
+  transition-timing-function: var(--e-out);
+}
+
+/* Focus, from the keyboard only: a ring of light in the glass's own manner, a bright hairline and a soft halo of
+   the theme's colour, following the control's corners. */
+:where(button, [role="button"], [role="menuitem"], [role="switch"], [role="tab"], input, select, textarea, a, summary, [tabindex]):focus-visible {
+  outline: calc(var(--hair) * 2) solid rgba(255, 255, 255, 0.92);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 calc(2px + var(--hair) * 2) color-mix(in srgb, var(--aero-accent, #4aa8ff) 55%, transparent);
+}
+
+:where(button, [role="button"], input, select, textarea, a, summary, [tabindex]):focus:not(:focus-visible) {
+  outline: none;
+}
+
+html[data-reduce-motion="on"] :where(button, [role="button"], [role="menuitem"], [role="switch"], [role="tab"]):not(:disabled):active {
+  transform: none;
 }

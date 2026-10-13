@@ -48,14 +48,19 @@
      the browser draws once. */
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0.07'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
   --grain-strong: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0.22'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+  /* One device pixel, whatever the screen''s scale: a hairline of 1px is 1.25 or 1.5 pixels of the screen on a scaled one,
+     and is drawn soft across two. main.tsx writes the scale as --dpr (and again when the window moves to another screen). */
+  --dpr: 1;
+  --hair: calc(1px / var(--dpr));
+
   /* One light, high on the upper left, for every surface. What it lights has a rim: bright along the edges that face it,
      fainter along the ones that do not, and a hairline all round so the shape never dissolves. What it casts falls
      down and a little to the right, and falls further the higher the thing is off the desktop: a surface is at one of
      four heights, and says which by using its shadow, so depth reads the same everywhere. */
   --rim:
-    inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.9),
-    inset -1px -1px 0.5px -0.5px rgba(255, 255, 255, 0.4),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    inset var(--hair) var(--hair) 0 0 rgba(255, 255, 255, 0.78),
+    inset calc(var(--hair) * -1) calc(var(--hair) * -1) 0 0 rgba(255, 255, 255, 0.34),
+    inset 0 0 0 var(--hair) rgba(255, 255, 255, 0.14);
   /* a bar, a card */
   --elev-1: 1px 6px 14px rgba(2, 8, 20, 0.26), 0 1px 3px rgba(2, 8, 20, 0.3);
   /* a panel, a flyout */

@@ -5,6 +5,7 @@ import { DockApp } from "./app/DockApp";
 import { useEffect, useRef } from "react";
 import { useReduced } from "./engine/accessibility/policy";
 import { accentForTheme, normalizeHex } from "./engine/themes/accent";
+import { trackScale } from "./engine/themes/scale";
 import { useDockIcons } from "./state/dockStore";
 import { useSettings } from "./state/settingsStore";
 import { DesktopWidgets } from "./features/desktop/DesktopWidgets";
@@ -70,6 +71,8 @@ function Policy() {
     </MotionConfig>
   );
 }
+
+trackScale();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

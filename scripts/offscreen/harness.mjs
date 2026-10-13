@@ -72,7 +72,7 @@ const ICON =
  * @param {object[]} [o.downloads] what `list_recent_downloads` returns
  * @param {object}   [o.profile] what `user_profile` returns
  */
-export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running, privacy = [], media = {}, art = null, apps = [], recent = [], files = [], downloads = [], profile = { name: "Jake Pascoe", picture: "" } }) {
+export async function startHarness({ dist = join(projectRoot, "dist"), out: outFolder, window = "menubar", viewport = [1920, 700], settings: patch, status = {}, running, privacy = [], media = {}, art = null, apps = [], recent = [], files = [], downloads = [], profile = { name: "Jake Pascoe", picture: "" }, scale = 1 }) {
   // absolute, because the browser reads its profile path from its own directory,
   // not from this script's
   const out = resolve(outFolder);
@@ -262,7 +262,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
   await send("Page.enable");
   await send("Runtime.enable");
   await send("Page.addScriptToEvaluateOnNewDocument", { source: mock });
-  await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: viewport[1], deviceScaleFactor: 1, mobile: false });
+  await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: viewport[1], deviceScaleFactor: scale, mobile: false });
 
   const api = {
     out,

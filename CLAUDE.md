@@ -88,6 +88,9 @@ node --experimental-websocket scripts/offscreen/dockhide.mjs src-tauri/target/of
 node --experimental-websocket scripts/offscreen/backdrop.mjs src-tauri/target/offscreen    # the frosted picture under the dock, Start and menu bar (and that off means off)
 node --experimental-websocket scripts/offscreen/startturn.mjs src-tauri/target/offscreen    # Start turns back from where it is
 node --experimental-websocket scripts/offscreen/perf.mjs src-tauri/target/offscreen         # the frame timings table
+node --experimental-websocket scripts/offscreen/type.mjs src-tauri/target/offscreen         # the typeface, rolling numbers
+node --experimental-websocket scripts/offscreen/crisp.mjs src-tauri/target/offscreen        # hairlines at 125%/150%, nested corners
+node --experimental-websocket scripts/offscreen/sound.mjs src-tauri/target/offscreen        # every cue rendered and measured
 node --experimental-websocket scripts/offscreen/insight.mjs src-tauri/target/offscreen    # privacy dots, stats
 node --experimental-websocket scripts/offscreen/attention.mjs src-tauri/target/offscreen  # attention bounce
 node --experimental-websocket scripts/offscreen/mission.mjs src-tauri/target/offscreen    # Mission Control
@@ -292,7 +295,17 @@ Say plainly in a report when something native was not seen.
   `appearance.frameOverlay` on, every window times its animation frames and says how they went twice a second; a window
   of its own (`perf`, click-through, top left of the main screen) lists them with each screen's refresh rate. It keeps
   every window drawing at its screen's rate, so it is a diagnostic, off by default; "Save a report" writes
-  `frame-report.txt`. Grading is the slowest 5% against one frame of the window's own screen.- **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
+  `frame-report.txt`. Grading is the slowest 5% against one frame of the window's own screen.- **Type, numbers, edges, sound** (the "premium" pass, second half). Type: Inter, a bundled variable font (latin subset,
+  `@fontsource-variable/inter`, OFL), is the one face (`global.css`); anything that changes uses tabular figures, and
+  a changing number is `<Roll text="42%" />` (`engine/type/Roll.tsx`: only the digits that changed move, 9 to 0 keeps
+  going up, only transforms run). Edges: `--hair` is one device pixel at any scale (`trackScale` writes `--dpr`), the
+  rim is built from it, and a nested shape's radius is its container's less its padding (`--r`/`--pad`, e.g. the
+  menu bar's panel and cards, the context menu, the folder flyout; `crisp.mjs` checks both). Pressed and focus-visible
+  states are global (`global.css`, low specificity). Sound (`engine/sound/ui.ts`): one key, E (pentatonic: E F# G# B C#),
+  a menu is E4-E5, a switch an octave above, the tick near E6; a voice of three partials with a natural decay; a short
+  room (convolver) and a compressor under everything; everything halves while the media session is playing
+  (`DUCK`). `renderCue` takes any audio context, so `sound.mjs` renders every cue offline, checks key, level, tail and
+  ducking, and writes WAV files to `<out>/sounds` for listening. A new cue must have every note in `inKey`.- **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
   page that has not been clicked (the Start menu, opened from the dock) plays its cues silently.
 - **The settings window** is a sidebar and a column of collapsible sections in groups (`sections.ts` is the
   registry: id, title, blurb, search keywords, group). A new section is a `<SettingsSection id="...">`

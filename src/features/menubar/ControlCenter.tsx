@@ -12,6 +12,7 @@
  * commands, simply shows less.
  */
 
+import { Roll } from "../../engine/type/Roll";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playCue } from "../../engine/sound/ui";
 import { normalizeHex } from "../../engine/themes/accent";
@@ -343,7 +344,7 @@ export function ControlCenter() {
           </span>
           <span className="cc-card-title">Battery</span>
           <span className="cc-battery-value">
-            {status.battery.percent}%{status.battery.charging ? " · Charging" : ""}
+            <Roll text={`${status.battery.percent}%${status.battery.charging ? " · Charging" : ""}`} />
           </span>
         </div>
       )}

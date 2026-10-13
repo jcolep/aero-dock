@@ -1,0 +1,45 @@
+/* Numbers that roll (see Roll.tsx). The cell is one line tall and clips the column, which a transform moves. */
+
+.roll {
+  display: inline-flex;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+  --roll-h: 1.28em;
+}
+
+.roll-d {
+  display: inline-block;
+  height: var(--roll-h);
+  overflow: hidden;
+  /* the digit rolling in and out fades at the cell's edge instead of being cut */
+  -webkit-mask-image: linear-gradient(transparent 0, #000 22%, #000 78%, transparent 100%);
+  mask-image: linear-gradient(transparent 0, #000 22%, #000 78%, transparent 100%);
+  vertical-align: bottom;
+}
+
+.roll-col {
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--m-settle) var(--e-spring);
+  will-change: transform;
+}
+
+.roll-col[data-snap] {
+  transition: none;
+}
+
+.roll-col > span {
+  display: block;
+  height: var(--roll-h);
+  line-height: var(--roll-h);
+  text-align: center;
+}
+
+.roll-ch {
+  display: inline-block;
+  line-height: var(--roll-h);
+}
+
+html[data-reduce-motion="on"] .roll-col {
+  transition: none;
+}

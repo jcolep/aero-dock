@@ -13,6 +13,7 @@
  * and gives the focus back to the app that had it when the menu closes.
  */
 
+import { Roll } from "../../engine/type/Roll";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { listen } from "@tauri-apps/api/event";
@@ -557,7 +558,7 @@ export function MenuBarApp() {
           {status?.battery.present && (
             <button className="mb-item" title="Battery" {...trigger("control")}>
               <BatteryGlyph percent={status.battery.percent} charging={status.battery.charging} />
-              <span className="mb-battery">{status.battery.percent}%</span>
+              <span className="mb-battery"><Roll text={`${status.battery.percent}%`} /></span>
             </button>
           )}
           <button className="mb-item" title="Control Center" {...trigger("control")}>
@@ -584,7 +585,7 @@ export function MenuBarApp() {
             <GearIcon />
           </button>
           <button className="mb-item mb-clock" title="Calendar" {...trigger("calendar")}>
-            {settings.menuBar.showDate ? `${date}  ${time}` : time}
+            <Roll text={settings.menuBar.showDate ? `${date}  ${time}` : time} />
           </button>
         </div>
       </div>

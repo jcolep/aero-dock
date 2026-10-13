@@ -3,6 +3,7 @@
  * launch bounce, idle float. All motion is springs on transform.
  */
 
+import { Roll } from "../../engine/type/Roll";
 import {
   animate,
   motion,
@@ -297,7 +298,7 @@ export function DockIcon({
         >
           <Speaker level={audio.volume} muted={audio.muted} />
           <span className="dock-volume-value">
-            {audio.muted ? "Muted" : `${audio.volume}%`}
+            <Roll text={audio.muted ? "Muted" : `${audio.volume}%`} />
           </span>
           <span className="dock-volume-track" aria-hidden>
             <span

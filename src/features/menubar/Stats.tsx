@@ -8,6 +8,7 @@
  * anything more.
  */
 
+import { Roll } from "../../engine/type/Roll";
 import { useEffect, useState } from "react";
 import { ipc } from "../../ipc/commands";
 import type { Program } from "../../ipc/types";
@@ -77,7 +78,7 @@ export function StatsPanel() {
       <div className="cc-card">
         <div className="stats-head">
           <span className="cc-card-title">Processor</span>
-          <strong className="stats-big">{latest ? `${latest.cpuPercent}%` : "…"}</strong>
+          <strong className="stats-big">{latest ? <Roll text={`${latest.cpuPercent}%`} /> : "…"}</strong>
         </div>
         <div className="stats-graph">
           <Line values={cpu} max={100} width={290} height={46} />
@@ -87,7 +88,7 @@ export function StatsPanel() {
       <div className="cc-card">
         <div className="stats-head">
           <span className="cc-card-title">Memory</span>
-          <strong className="stats-big">{latest ? `${latest.memoryPercent}%` : "…"}</strong>
+          <strong className="stats-big">{latest ? <Roll text={`${latest.memoryPercent}%`} /> : "…"}</strong>
         </div>
         <div className="stats-bar" role="meter" aria-label="Memory in use" aria-valuenow={latest?.memoryPercent ?? 0} aria-valuemin={0} aria-valuemax={100}>
           <span style={{ width: `${latest?.memoryPercent ?? 0}%` }} />

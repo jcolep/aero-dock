@@ -6,6 +6,7 @@
  * click the bin to open it, right-click to empty (system confirmation).
  */
 
+import { Roll } from "../../engine/type/Roll";
 import { useEffect, useState } from "react";
 import { useReduced } from "../../engine/accessibility/policy";
 import { useGlideHighlight } from "../../engine/lens/useGlideHighlight";
@@ -89,7 +90,7 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
         title={`${date} - click for notifications and the calendar`}
         onClick={() => ipc.openNotificationCenter().catch(notify.on("Could not open the calendar"))}
       >
-        <span className="widget-time">{time}</span>
+        <span className="widget-time"><Roll text={time} /></span>
         <span className="widget-date">{date}</span>
       </button>
       )}

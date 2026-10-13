@@ -3,6 +3,7 @@
  * and segmented picker. Purely presentational; parents own the values.
  */
 
+import { Roll } from "../../engine/type/Roll";
 import { useId, useState } from "react";
 
 interface SliderProps {
@@ -68,7 +69,9 @@ export function AeroSlider({
         onKeyUp={commitOnRelease ? commit : undefined}
         onBlur={commitOnRelease ? commit : undefined}
       />
-      <span className="ctl-value">{format ? format(shown) : shown.toFixed(2)}</span>
+      <span className="ctl-value">
+          <Roll text={format ? format(shown) : shown.toFixed(2)} />
+        </span>
     </div>
   );
 }

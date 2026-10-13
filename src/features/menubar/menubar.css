@@ -293,8 +293,10 @@ html[data-pointer-light="on"] .menubar:hover::before {
 .mb-menu {
   top: calc(var(--mb-gap, 0px) + var(--menubar-height) + 4px);
   min-width: 232px;
-  padding: 6px;
-  border-radius: 12px;
+  --r: 12px;
+  --pad: 6px;
+  padding: var(--pad);
+  border-radius: var(--r);
 }
 
 .mb-menu-item {
@@ -708,8 +710,11 @@ html[data-pointer-light="on"] .menubar:hover::before {
   top: calc(var(--mb-gap, 0px) + var(--menubar-height) + 6px);
   right: calc(var(--mb-gap, 0px) + 8px);
   width: 340px;
-  padding: 12px;
-  border-radius: 22px;
+  padding: var(--pad);
+  /* concentric: what lies in the panel is round by the panel's radius less the room it is given */
+  --r: 22px;
+  --pad: 12px;
+  border-radius: var(--r);
 }
 
 .cc {
@@ -807,7 +812,7 @@ html[data-pointer-light="on"] .menubar:hover::before {
 
 .cc-tile,
 .cc-card {
-  border-radius: 16px;
+  border-radius: calc(var(--r, 22px) - var(--pad, 12px));
   background: rgba(255, 255, 255, 0.11);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);

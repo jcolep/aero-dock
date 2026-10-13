@@ -3,6 +3,7 @@
  * dissolves closed. Window list on top (for running apps), then actions.
  */
 
+import { Roll } from "../../engine/type/Roll";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { ipc } from "../../ipc/commands";
@@ -281,7 +282,7 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
                 >
                   {audio.muted ? "Unmute" : "Mute"}
                   <span className="aero-menu-hint">
-                    {audio.muted ? "muted" : `${audio.volume}%`}
+                    <Roll text={audio.muted ? "muted" : `${audio.volume}%`} />
                   </span>
                 </button>
               )}

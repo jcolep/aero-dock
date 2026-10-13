@@ -3,11 +3,13 @@
 
 /* position/width/z-index set inline by the component (HMR-safe) */
 .aero-menu {
-  padding: 6px;
+  --r: 14px;
+  --pad: 6px;
+  padding: var(--pad);
   --glass-tint-top: rgba(120, 185, 235, 0.6);
   --glass-tint-mid: rgba(35, 95, 155, 0.55);
   --glass-tint-bottom: rgba(18, 60, 110, 0.66);
-  --glass-radius: 14px;
+  --glass-radius: var(--r);
   transform-origin: bottom center;
 }
 
@@ -16,7 +18,7 @@
   width: 100%;
   padding: 8px 12px;
   border: 1px solid transparent;
-  border-radius: 9px;
+  border-radius: calc(var(--r) - var(--pad));
   background: none;
   text-align: left;
   font-family: inherit;
