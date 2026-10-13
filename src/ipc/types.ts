@@ -16,6 +16,8 @@ export interface DockSettings {
   iconSize: number;
   magnification: boolean;
   magnificationScale: number;
+  magnificationLift: number;
+  magnificationReach: number;
   autoHide: boolean;
   /** Pointer-away delay before the dock slides out, in milliseconds. */
   autoHideDelayMs: number;
@@ -300,6 +302,7 @@ export interface MenuBarSettings {
   /** Play the dock's ambient scene inside the bar. */
   ambient: boolean;
   showDate: boolean;
+  showSeconds: boolean;
   /** Space between the bar and the top and sides of the screen, in px. Above
    *  0 the bar floats and is rounded on every corner. */
   gap: number;
@@ -334,6 +337,8 @@ export interface MenuBarSettings {
   mediaTint: boolean;
   /** The card draws what is playing as moving bars (listens to the output). */
   mediaSpectrum: boolean;
+  mediaIsland: boolean;
+  mediaIslandPinned: boolean;
 }
 
 /** Which animation each kind of thing uses: the id of a preset in
@@ -365,6 +370,10 @@ export interface FrameSettings {
   tint: number;
   /** Play the ambient scene in the margin. */
   ambient: boolean;
+  /** A bevel of glass round the opening the apps sit in. */
+  glassBorder: boolean;
+  /** Width of that bevel, in px. */
+  borderWidth: number;
 }
 
 /** How the app behaves for people who need it quieter, and how it feels. */

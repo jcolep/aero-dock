@@ -35,6 +35,10 @@ interface DockIconProps {
   iconSize: number;
   magnify: boolean;
   magScale: number;
+  /** How far the icon under the pointer rises as it grows, as a fraction of the icon size. */
+  lift: number;
+  /** How far from the pointer an icon still swells, in icon widths. */
+  reach: number;
   vertical: boolean;
   edge: DockEdge;
   /** A reorder drag is in progress somewhere in the dock. */
@@ -85,6 +89,8 @@ export function DockIcon({
   iconSize,
   magnify,
   magScale,
+  lift,
+  reach,
   vertical,
   edge,
   dragging,
@@ -124,14 +130,30 @@ export function DockIcon({
     return cursor - center;
   });
 
-  const reach = iconSize * 2.6;
+  // The swell is a hill of cosine: the icon at the pointer is at the top, and it falls away to nothing `reach` icon
+  // widths out, flat at both ends, so there is no point where it starts or stops being swollen. (A straight-sided
+  // hill has a ridge at the top and a kink where it meets the floor, and the icons passing under it show both.)
+  const reachPx = iconSize * reach;
   const peak = magnify ? magScale : 1;
-  const targetWidth = useTransform(distance, [-reach, 0, reach], [
-    iconSize,
-    iconSize * peak,
-    iconSize,
-  ]);
+  const bell = useTransform(distance, (d) => {
+    if (!Number.isFinite(d)) return 0;
+    const t = Math.min(1, Math.abs(d) / reachPx);
+    return 0.5 + 0.5 * Math.cos(Math.PI * t);
+  });
+  const targetWidth = useTransform(bell, (b) => iconSize * (1 + (peak - 1) * b));
   const width = useSpring(targetWidth, magnifySpring(magnifyFeel));
+  // The space it takes is `width`, and the icon is drawn that much larger, from the side of the dock nearest the
+  // screen edge: it grows away from the edge, as a Mac dock's does, and rises a little more than it grows.
+  const growth = Math.max(1e-6, iconSize * (peak - 1));
+  const liftPx = magnify ? iconSize * lift : 0;
+  const away = edge === "bottom" || edge === "right" ? -1 : 1;
+  const drawn = useTransform(width, (w) => Math.max(1, w / iconSize));
+  const risen = useTransform(width, (w) => away * liftPx * Math.min(1.25, Math.max(0, (w - iconSize) / growth)));
+  // how far the top of the icon stands above where it rests, for the name that hangs over it
+  const rise = useTransform(width, (w) => {
+    const grown = Math.max(0, w - iconSize);
+    return `${(grown + liftPx * Math.min(1.25, grown / growth)).toFixed(1)}px`;
+  });
 
   // A new icon grows into its place instead of appearing whole, so the ones
   // beside it ease apart to make room rather than jumping. Done before the
@@ -209,8 +231,9 @@ export function DockIcon({
               scaleX: squashX,
               scaleY: squashY,
               transformOrigin: nearSide(edge),
+              ["--mag-rise" as string]: rise,
             }
-          : { width, x, y, scaleX: squashX, scaleY: squashY, transformOrigin: nearSide(edge) }
+          : { width, x, y, scaleX: squashX, scaleY: squashY, transformOrigin: nearSide(edge), ["--mag-rise" as string]: rise }
       }
       onClick={handleClick}
       onContextMenu={(e) => {
@@ -322,6 +345,14 @@ export function DockIcon({
           </motion.span>
         )
       )}
+      <motion.span
+        className="dock-icon-mag"
+        style={
+          vertical
+            ? { scale: drawn, x: risen, transformOrigin: nearSide(edge) }
+            : { scale: drawn, y: risen, transformOrigin: nearSide(edge) }
+        }
+      >
       <span
         className="dock-icon-float"
         // each icon a step further round the cycle than the one before
@@ -347,6 +378,7 @@ export function DockIcon({
           <span className="dock-icon-glyph">{initial}</span>
         )}
       </span>
+      </motion.span>
       {audio?.muted && (
         <span className="dock-muted-badge" title={`${item.name} is muted`}>
           <Speaker level={0} muted />

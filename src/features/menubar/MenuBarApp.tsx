@@ -32,7 +32,9 @@ import { exeDisplayName, useRunning } from "../../state/runningStore";
 import { useSettings } from "../../state/settingsStore";
 import { useSystem } from "../../state/systemStore";
 import { notify } from "../feedback/toastStore";
-import { BatteryGlyph, useClock } from "../widgets/WidgetCluster";
+import { BatteryGlyph } from "../widgets/WidgetCluster";
+import { BarClock } from "./BarClock";
+import { MediaIsland } from "./MediaIsland";
 import { BarScene } from "./BarScene";
 import { Calendar } from "./Calendar";
 import { PrivacyDots, PrivacyPanel, privacySummary, usePrivacyUse } from "./Privacy";
@@ -178,7 +180,6 @@ export function MenuBarApp() {
   const { windows, focused, hydrate: hydrateRunning } = useRunning();
   const { status, hydrate: hydrateSystem } = useSystem();
   const hydrateIdle = useUserIdle((s) => s.hydrate);
-  const now = useClock();
 
   const [open, setOpen] = useState<OpenMenu | null>(null);
   // the sliding lens under the buttons, and light that follows the pointer
@@ -457,9 +458,6 @@ export function MenuBarApp() {
       ]
     : [{ label: "Show All", run: () => ipc.showAllApps() }];
 
-  const time = now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  const date = now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
-
   /** A top-level item: click opens its menu, and hovering over it while
    *  another is open switches to it, as on the Mac. */
   const trigger = (id: MenuId) => ({
@@ -530,6 +528,9 @@ export function MenuBarApp() {
         />
         {showScene && <BarScene settings={settings} />}
         {Lens}
+        {look.mediaIsland && (
+          <MediaIsland look={look} suspended={open !== null} onOpenCard={(el) => openMenu("control", el)} />
+        )}
         <div className="mb-side">
           <button className="mb-item mb-logo" title="Aero Dock" {...trigger("apple")}>
             <Logo />
@@ -585,7 +586,7 @@ export function MenuBarApp() {
             <GearIcon />
           </button>
           <button className="mb-item mb-clock" title="Calendar" {...trigger("calendar")}>
-            <Roll text={settings.menuBar.showDate ? `${date}  ${time}` : time} />
+            <BarClock showDate={settings.menuBar.showDate} showSeconds={settings.menuBar.showSeconds} />
           </button>
         </div>
       </div>

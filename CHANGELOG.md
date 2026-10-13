@@ -7,7 +7,16 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Added
+
+- **Seconds in the menu bar clock**, with a switch for it under Menu bar. The clock is a component of its own, so a tick redraws only the clock.
+- **A media pill in the menu bar.** While something is playing, resting the pointer in the middle of the bar slides out a pill (cover, title and artist, previous / play / next, a hairline of progress), tinted by the cover; it grows out of the middle on a spring and goes back when the pointer leaves. A setting keeps it slid out instead. A click on the cover opens the Control Center card. Not drawn, and the player not asked about, when the setting is off.
+- **A glass border for the frame**, with a width: a bevel along the opening the apps sit in, lit from above.
+- **Dock magnification is Mac-like**: the icon under the pointer is drawn larger, growing away from the screen edge and rising a little further, along a cosine hill that is flat at both ends. New sliders for the lift and for how many icons either side swell (Reach). Before, icons only spread apart and did not grow.
+
 ### Changed
+
+- The dock's Search and Settings buttons are redrawn to match the glass: a lens with a glint on a metal handle, and a metal gear, on an orb with the dock's gloss.
 
 - **Lighter ambient scenes.** The scenes in the menu bar and the frame round the screen are drawn at 12 frames a second, not 24-30; idle CPU with the frame on fell from about 55% to 25% of a core.
 

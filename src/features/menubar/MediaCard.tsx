@@ -37,9 +37,9 @@ export function clock(ms: number): string {
 
 // ---- glyphs: drawn here, not letters from a font, so they are the same everywhere ----
 
-type GlyphName = "play" | "pause" | "prev" | "next" | "back" | "forward" | "shuffle" | "repeat" | "repeat-one" | "note" | "live";
+export type GlyphName = "play" | "pause" | "prev" | "next" | "back" | "forward" | "shuffle" | "repeat" | "repeat-one" | "note" | "live";
 
-function Glyph({ name }: { name: GlyphName }) {
+export function Glyph({ name }: { name: GlyphName }) {
   const stroke = { fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" } as const;
   switch (name) {
     case "play":

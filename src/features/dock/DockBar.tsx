@@ -145,6 +145,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     iconSize,
     magnification,
     magnificationScale,
+    magnificationLift,
+    magnificationReach,
     padding: PAD_CROSS,
     iconSpacing,
     statusIconSize,
@@ -185,6 +187,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   } = useLocalOrder(runningItems, dragging);
 
   const peak = magnification ? magnificationScale : 1;
+  // how far above where it rests the icon under the pointer reaches, in px, beyond what its growth gives it
+  const liftPx = magnification ? iconSize * magnificationLift : 0;
   const welcomeOpen = primary && !settings.onboardingComplete && pinnedItems.length === 0;
   const modesOpen = useModeSwitcher((m) => m.open);
   const modesOn = settings.modes.enabled && settings.modes.modes.length > 0;
@@ -462,8 +466,9 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     const n = Math.max(items.length, 1);
     const dividers = runningItems.length > 0 ? 1 : 0;
     const mainBase = n * iconSize + (n - 1 + dividers) * iconSpacing + dividers * 8 + PAD_MAIN * 2;
-    // neighbors near the cursor grow too; ~2.5 icons' worth covers the worst case
-    const mainGrowth = iconSize * (peak - 1) * 2.5;
+    // neighbors near the cursor grow too: the swollen stretch is as wide as the reach, and the growth over it adds
+    // up to no more than the peak times the reach, in icons
+    const mainGrowth = iconSize * (peak - 1) * Math.max(1, magnificationReach);
     // the clock and the row of status glyphs, which grows with their size
     const cluster =
       (showClock ? CLOCK_SPACE : 0) + (showStatus ? 4 * (statusIconSize + 9) : 0) + 24;
@@ -480,7 +485,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       (modesOn ? MODE_TILE_SPACE : 0);
     const label = vertical ? LABEL_SPACE_SIDE : LABEL_SPACE;
     // The dock band itself: icons at full magnification plus tooltip room.
-    const band = iconSize * peak + PAD_CROSS * 2 + label;
+    const band = iconSize * peak + liftPx + PAD_CROSS * 2 + label;
     // Open surfaces are taller than the band. Each reports the total cross
     // size it needs, and the window takes the largest.
     const crossFull = Math.max(
@@ -529,6 +534,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     revealMode,
     PAD_CROSS,
     peak,
+    liftPx,
+    magnificationReach,
     vertical,
     menu.item,
     welcomeOpen,
@@ -682,6 +689,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     iconSize,
     magnify: magnification,
     magScale: magnificationScale,
+    lift: magnificationLift,
+    reach: magnificationReach,
     vertical,
     edge,
     dragging,

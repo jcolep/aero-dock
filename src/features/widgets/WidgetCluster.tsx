@@ -19,20 +19,22 @@ import "./widgets.css";
 
 export { BatteryGlyph };
 
-export function useClock(): Date {
+/** The time, ticking exactly on the minute, or on the second when the seconds are shown. */
+export function useClock(everySecond = false): Date {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    // tick exactly on the minute
+    const step = everySecond ? 1000 : 60_000;
+    setNow(new Date());
     let timer: ReturnType<typeof setTimeout>;
     const schedule = () => {
       timer = setTimeout(() => {
         setNow(new Date());
         schedule();
-      }, 60_000 - (Date.now() % 60_000) + 20);
+      }, step - (Date.now() % step) + 20);
     };
     schedule();
     return () => clearTimeout(timer);
-  }, []);
+  }, [everySecond]);
   return now;
 }
 

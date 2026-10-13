@@ -47,6 +47,11 @@ pub struct DockSettings {
     pub magnification: bool,
     /// Peak scale at the cursor (1.0 = off, 1.5 = 150%).
     pub magnification_scale: f32,
+    /// How far the icon under the pointer rises, as it grows, above where it rests, as a fraction of the
+    /// icon size (0 = it only grows).
+    pub magnification_lift: f32,
+    /// How far from the pointer an icon is still swollen, in icon widths. Wider is a gentler, longer hill.
+    pub magnification_reach: f32,
     /// Slide off-screen when not in use.
     pub auto_hide: bool,
     /// How long the pointer must be away before auto-hide slides the dock
@@ -109,6 +114,8 @@ impl Default for DockSettings {
             icon_size: 48,
             magnification: true,
             magnification_scale: 1.45,
+            magnification_lift: 0.12,
+            magnification_reach: 2.6,
             auto_hide: false,
             auto_hide_delay_ms: 1400,
             floating: true,
@@ -429,6 +436,8 @@ pub struct MenuBarSettings {
     pub ambient: bool,
     /// Show the day and date beside the time.
     pub show_date: bool,
+    /// Show the seconds in the time.
+    pub show_seconds: bool,
     /// Space in logical px between the bar and the top and sides of the
     /// screen. Above 0 the bar floats, rounded on all four corners.
     pub gap: u32,
@@ -468,6 +477,10 @@ pub struct MenuBarSettings {
     /// The card draws the sound that is playing as moving bars. This listens to the
     /// output (a loopback capture; nothing is recorded or kept).
     pub media_spectrum: bool,
+    /// A pill for the media that is playing, which slides out of the middle of the bar when the pointer rests there.
+    pub media_island: bool,
+    /// Keep that pill slid out while something is playing, instead of waiting for the pointer.
+    pub media_island_pinned: bool,
 }
 
 impl Default for MenuBarSettings {
@@ -478,6 +491,7 @@ impl Default for MenuBarSettings {
             takes_over_dock_status: true,
             ambient: true,
             show_date: true,
+            show_seconds: false,
             gap: 0,
             corner_radius: 12,
             tint: 1.0,
@@ -494,6 +508,8 @@ impl Default for MenuBarSettings {
             show_stats: true,
             media_tint: true,
             media_spectrum: true,
+            media_island: true,
+            media_island_pinned: false,
         }
     }
 }
@@ -557,6 +573,10 @@ pub struct FrameSettings {
     pub tint: f32,
     /// Play the ambient scene in the margin.
     pub ambient: bool,
+    /// A bevel of glass round the opening the apps sit in.
+    pub glass_border: bool,
+    /// Width of that bevel, in logical px.
+    pub border_width: u32,
 }
 
 impl Default for FrameSettings {
@@ -567,6 +587,8 @@ impl Default for FrameSettings {
             corner_radius: 18,
             tint: 1.0,
             ambient: true,
+            glass_border: false,
+            border_width: 3,
         }
     }
 }
@@ -747,6 +769,8 @@ impl Settings {
         let d = &mut self.dock;
         d.icon_size = d.icon_size.clamp(16, 96);
         d.magnification_scale = d.magnification_scale.clamp(1.0, 2.0);
+        d.magnification_lift = if d.magnification_lift.is_finite() { d.magnification_lift.clamp(0.0, 0.5) } else { 0.12 };
+        d.magnification_reach = if d.magnification_reach.is_finite() { d.magnification_reach.clamp(1.5, 4.5) } else { 2.6 };
         d.floating_margin = d.floating_margin.min(64);
         d.padding = d.padding.clamp(2, 24);
         d.indicator_gap = d.indicator_gap.min(16);
@@ -762,6 +786,7 @@ impl Settings {
         // the opening cannot be rounder than half of its own margin allows
         f.corner_radius = f.corner_radius.min(48);
         f.tint = if f.tint.is_finite() { f.tint.clamp(0.2, 2.0) } else { 1.0 };
+        f.border_width = f.border_width.clamp(1, 10);
         keep_known(&mut self.dock.minimize_effect, &["genie", "scale", "off"], "genie");
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
         let a11y = &mut self.accessibility;
@@ -1107,6 +1132,30 @@ mod tests {
         s.frame.padding = 0;
         s.sanitize();
         assert_eq!(s.frame.padding, 4);
+        // the glass border is off until asked for, and cannot be wider than the margin is likely to be
+        assert!(!old.frame.glass_border);
+        s.frame.border_width = 400;
+        s.sanitize();
+        assert_eq!(s.frame.border_width, 10);
+    }
+
+    #[test]
+    fn the_new_menu_bar_and_dock_settings_start_where_nothing_changes_and_stay_sensible() {
+        let old: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true},"dock":{"iconSize":40}}"#)
+            .expect("an older file must still load");
+        assert!(!old.menu_bar.show_seconds, "the clock keeps to minutes until asked");
+        assert!(old.menu_bar.media_island && !old.menu_bar.media_island_pinned);
+        let mut s = Settings::default();
+        s.dock.magnification_lift = f32::NAN;
+        s.dock.magnification_reach = 90.0;
+        s.sanitize();
+        assert!((s.dock.magnification_lift - 0.12).abs() < f32::EPSILON);
+        assert_eq!(s.dock.magnification_reach, 4.5);
+        s.dock.magnification_lift = -3.0;
+        s.dock.magnification_reach = 0.1;
+        s.sanitize();
+        assert_eq!(s.dock.magnification_lift, 0.0);
+        assert_eq!(s.dock.magnification_reach, 1.5);
     }
 
     #[test]

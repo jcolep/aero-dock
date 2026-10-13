@@ -59,7 +59,7 @@ export const GROUPS: GroupDef[] = [
         title: "Dock",
         blurb: "Position, size, magnification, auto-hide",
         keywords:
-          "dock position edge bottom top left right monitor screen every monitor icon size spacing magnification padding corner radius floating edge gap reserve screen space running applications running dot minimise effect genie scale bounce attention auto hide",
+          "dock position edge bottom top left right monitor screen every monitor icon size spacing magnification lift reach hill swell rise grow mac padding corner radius floating edge gap reserve screen space running applications running dot minimise effect genie scale bounce attention auto hide",
       },
       {
         id: "dock-items",
@@ -90,7 +90,7 @@ export const GROUPS: GroupDef[] = [
         title: "Menu bar",
         blurb: "The bar along the top, the lens, the Control Center",
         keywords:
-          "menu bar height gap corner radius tint item spacing text size edge light lens size magnification warp control center wi-fi bluetooth circle colour now playing cover sound wave spectrum camera microphone dots privacy cpu memory network readout stats date clock status icons close menus pointer away ambient scene",
+          "menu bar height gap corner radius seconds clock time media pill island now playing hover controls play pause next previous tint item spacing text size edge light lens size magnification warp control center wi-fi bluetooth circle colour now playing cover sound wave spectrum camera microphone dots privacy cpu memory network readout stats date clock status icons close menus pointer away ambient scene",
       },
       {
         id: "start",
@@ -102,7 +102,7 @@ export const GROUPS: GroupDef[] = [
         id: "frame",
         title: "Window frame",
         blurb: "A margin of glass round maximised windows",
-        keywords: "window frame glass margin maximized maximised padding corner radius tint rounded corners ambient",
+        keywords: "window frame glass border bevel edge rim margin maximized maximised padding corner radius tint rounded corners ambient",
       },
       {
         id: "widgets",

@@ -43,3 +43,21 @@
   position: absolute;
   pointer-events: none;
 }
+
+/* the glass border: a bevel along the opening the apps sit in (see FrameApp) */
+.frame-bevel {
+  fill: url(#frame-bevel);
+}
+
+.frame-bevel-lit {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.5);
+  stroke-width: var(--hair, 1px);
+}
+
+/* straddles the opening's edge: the half inside is clipped away, so one hairline of it shows */
+.frame-bevel-edge {
+  fill: none;
+  stroke: rgba(4, 16, 32, 0.4);
+  stroke-width: calc(2 * var(--hair, 1px));
+}

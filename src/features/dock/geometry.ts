@@ -22,7 +22,8 @@ export function dockBandSize(dock: Settings["dock"]): number {
   const peak = dock.magnification ? dock.magnificationScale : 1;
   // the gap between the bar and the screen edge is inside the window too
   const edgeGap = dock.floating ? dock.floatingMargin : 0;
+  const lift = dock.magnification ? dock.iconSize * dock.magnificationLift : 0;
   return (
-    dock.iconSize * peak + dock.padding * 2 + (vertical ? LABEL_SPACE_SIDE : LABEL_SPACE) + edgeGap
+    dock.iconSize * peak + lift + dock.padding * 2 + (vertical ? LABEL_SPACE_SIDE : LABEL_SPACE) + edgeGap
   );
 }

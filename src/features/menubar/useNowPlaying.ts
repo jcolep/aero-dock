@@ -11,7 +11,14 @@ import type { NowPlaying } from "../../ipc/types";
 
 const POLL_MS = 2000;
 
-export function useNowPlaying() {
+interface Options {
+  /** Fetch the cover too (it is a large thing to send): off for a reader that only needs to know what is playing. */
+  art?: boolean;
+  /** How often to ask, in ms. */
+  pollMs?: number;
+}
+
+export function useNowPlaying({ art: wantArt = true, pollMs = POLL_MS }: Options = {}) {
   const [np, setNp] = useState<NowPlaying | null>(null);
   const [art, setArt] = useState<string | null>(null);
   const alive = useRef(true);
@@ -26,16 +33,16 @@ export function useNowPlaying() {
   useEffect(() => {
     alive.current = true;
     void refresh();
-    const timer = setInterval(refresh, POLL_MS);
+    const timer = setInterval(refresh, pollMs);
     return () => {
       alive.current = false;
       clearInterval(timer);
     };
-  }, [refresh]);
+  }, [refresh, pollMs]);
 
   // the cover, when the track changes; players often post it a moment after the
   // title, so it is read once more shortly after
-  const key = np?.active && np.hasArtwork ? np.key : "";
+  const key = wantArt && np?.active && np.hasArtwork ? np.key : "";
   useEffect(() => {
     if (!key) {
       setArt(null);

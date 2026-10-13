@@ -1,0 +1,205 @@
+/* The media pill in the middle of the menu bar (see MediaIsland). The layer covers the bar and takes no clicks
+   itself; only the zone in the middle does, and the zone is as wide as the pill when it is out and a little wider
+   than a thumb when it is not, so that it is easy to find without being in the way of the bar's own items. */
+
+.mb-island-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.mb-island-zone {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 210px;
+  transition: width var(--m-standard, 220ms) var(--e-out, ease-out);
+}
+
+.mb-island-zone[data-out] {
+  width: 342px;
+}
+
+/* the pill: glass tinted by the cover, darker than the bar so that it reads as a thing laid on it */
+.mb-island {
+  --isl-h: calc(var(--menubar-height) - 8px);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--isl-h);
+  overflow: hidden;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(120deg, var(--isl-a, rgb(30 40 58)), var(--isl-b, rgb(14 20 32)));
+  box-shadow:
+    0 0 0 var(--hair, 1px) rgba(255, 255, 255, 0.24),
+    inset 0 var(--hair, 1px) 0 rgba(255, 255, 255, 0.32),
+    0 6px 18px rgba(0, 0, 0, 0.34);
+  color: #fff;
+  text-shadow: none;
+  will-change: width, transform, opacity;
+}
+
+.mb-island-body {
+  flex: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 318px;
+  height: 100%;
+  padding: 0 6px 0 4px;
+  font-size: 12.5px;
+}
+
+/* the cover, which opens the card */
+.isl-art {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--isl-h) - 8px);
+  height: calc(var(--isl-h) - 8px);
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.75);
+  cursor: default;
+  transition: transform var(--m-quick, 140ms) var(--e-out, ease-out);
+}
+
+.isl-art:hover {
+  transform: scale(1.08);
+}
+
+.isl-art:active {
+  transform: scale(0.94);
+}
+
+.isl-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.isl-art svg {
+  width: 62%;
+  height: 62%;
+}
+
+/* title and artist on one line; a line too long for the room fades at its end and slides to show the rest */
+.isl-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(90deg, #000 calc(100% - 14px), transparent);
+}
+
+.isl-title > span {
+  display: inline-block;
+}
+
+.isl-title b {
+  font-weight: 650;
+}
+
+.isl-title i {
+  margin-left: 8px;
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.isl-title[data-scroll] > span {
+  animation: np-marquee 9s ease-in-out 1.4s infinite alternate;
+}
+
+.isl-controls {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.isl-btn {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: default;
+  transition:
+    background var(--m-quick, 140ms) var(--e-out, ease-out),
+    transform var(--m-quick, 140ms) var(--e-out, ease-out);
+}
+
+.isl-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.isl-play svg {
+  width: 15px;
+  height: 15px;
+}
+
+.isl-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.isl-btn:active {
+  transform: scale(0.88);
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.isl-btn[aria-disabled="true"] {
+  opacity: 0.38;
+}
+
+.isl-btn:focus-visible,
+.isl-art:focus-visible {
+  outline: 2px solid var(--isl-accent, rgba(255, 255, 255, 0.9));
+  outline-offset: 1px;
+}
+
+/* where in the track it is: a hairline along the foot of the pill, in the cover's own light colour */
+.isl-progress {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+}
+
+.isl-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--isl-accent, rgba(255, 255, 255, 0.85));
+  transform-origin: 0 50%;
+  transition: transform 500ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isl-progress > span,
+  .mb-island-zone {
+    transition: none;
+  }
+}

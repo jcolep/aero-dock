@@ -569,12 +569,6 @@ export function SettingsApp() {
               )}
             </>
           )}
-          <AeroToggle
-            label="A dock on every monitor"
-            checked={dock.allMonitors}
-            hint="Each screen gets its own dock, with the same apps and settings"
-            onChange={(v) => set((d) => void (d.dock.allMonitors = v))}
-          />
           {dock.floating && (
             <AeroSlider
               label="Edge gap"
@@ -586,18 +580,6 @@ export function SettingsApp() {
               onChange={(v) => set((d) => void (d.dock.floatingMargin = v))}
             />
           )}
-          <AeroToggle
-            label="A dock on every monitor"
-            checked={dock.allMonitors}
-            hint="Each screen gets its own dock, with the same apps and settings"
-            onChange={(v) => set((d) => void (d.dock.allMonitors = v))}
-          />
-          <AeroToggle
-            label="A dock on every monitor"
-            checked={dock.allMonitors}
-            hint="Each screen gets its own dock, with the same apps and settings"
-            onChange={(v) => set((d) => void (d.dock.allMonitors = v))}
-          />
           {dock.autoHide && (
             <AeroSlider
               label="Hide after"
@@ -619,41 +601,37 @@ export function SettingsApp() {
             format={(v) => `${v}px`}
             onChange={(v) => set((d) => void (d.dock.iconSize = v))}
           />
-          <AeroSlider
-            label="Icon size"
-            value={dock.iconSize}
-            min={16}
-            max={80}
-            step={2}
-            format={(v) => `${v}px`}
-            onChange={(v) => set((d) => void (d.dock.iconSize = v))}
-          />
-          <AeroToggle
-            label="A dock on every monitor"
-            checked={dock.allMonitors}
-            hint="Each screen gets its own dock, with the same apps and settings"
-            onChange={(v) => set((d) => void (d.dock.allMonitors = v))}
-          />
           {dock.magnification && (
-            <AeroSlider
-              label="Magnification amount"
-              value={dock.magnificationScale}
-              min={1.1}
-              max={1.9}
-              step={0.05}
-              format={(v) => `${Math.round((v - 1) * 100)}%`}
-              onChange={(v) => set((d) => void (d.dock.magnificationScale = v))}
-            />
+            <>
+              <AeroSlider
+                label="Magnification amount"
+                value={dock.magnificationScale}
+                min={1.1}
+                max={2}
+                step={0.05}
+                format={(v) => `${Math.round((v - 1) * 100)}%`}
+                onChange={(v) => set((d) => void (d.dock.magnificationScale = v))}
+              />
+              <AeroSlider
+                label="Lift"
+                value={dock.magnificationLift}
+                min={0}
+                max={0.5}
+                step={0.01}
+                format={(v) => (v === 0 ? "None" : `${Math.round(v * 100)}%`)}
+                onChange={(v) => set((d) => void (d.dock.magnificationLift = v))}
+              />
+              <AeroSlider
+                label="Reach"
+                value={dock.magnificationReach}
+                min={1.5}
+                max={4.5}
+                step={0.1}
+                format={(v) => `${v.toFixed(1)} icons`}
+                onChange={(v) => set((d) => void (d.dock.magnificationReach = v))}
+              />
+            </>
           )}
-          <AeroSlider
-            label="Icon size"
-            value={dock.iconSize}
-            min={16}
-            max={80}
-            step={2}
-            format={(v) => `${v}px`}
-            onChange={(v) => set((d) => void (d.dock.iconSize = v))}
-          />
           {dock.showRunningApps && (
             <AeroSlider
               label="Running dot gap"
@@ -666,12 +644,6 @@ export function SettingsApp() {
             />
           )}
           <SettingsSub>Shape</SettingsSub>
-          <AeroToggle
-            label="A dock on every monitor"
-            checked={dock.allMonitors}
-            hint="Each screen gets its own dock, with the same apps and settings"
-            onChange={(v) => set((d) => void (d.dock.allMonitors = v))}
-          />
           {dock.cornerRadius !== null && (
             <AeroSlider
               label="Corner radius"
@@ -684,12 +656,6 @@ export function SettingsApp() {
             />
           )}
           <SettingsSub>Behaviour</SettingsSub>
-          <AeroToggle
-            label="A dock on every monitor"
-            checked={dock.allMonitors}
-            hint="Each screen gets its own dock, with the same apps and settings"
-            onChange={(v) => set((d) => void (d.dock.allMonitors = v))}
-          />
           <AeroSegmented<DockSettings["minimizeEffect"]>
             label="Minimise effect"
             value={dock.minimizeEffect}
@@ -704,12 +670,6 @@ export function SettingsApp() {
             A window pours into its dock icon when you minimise it from the dock, and back out when you open it.
             Windows minimised any other way just minimise. Follows Reduce motion.
           </p>
-          <AeroToggle
-            label="A dock on every monitor"
-            checked={dock.allMonitors}
-            hint="Each screen gets its own dock, with the same apps and settings"
-            onChange={(v) => set((d) => void (d.dock.allMonitors = v))}
-          />
         </SettingsSection>
 
         <SettingsSection id="dock-items">
@@ -904,6 +864,27 @@ export function SettingsApp() {
                 checked={settings.menuBar.showDate}
                 onChange={(v) => set((d) => void (d.menuBar.showDate = v))}
               />
+              <AeroToggle
+                label="Show seconds in the clock"
+                checked={settings.menuBar.showSeconds}
+                hint="The seconds turn over as they pass. The bar wakes once a second to do it"
+                onChange={(v) => set((d) => void (d.menuBar.showSeconds = v))}
+              />
+              <SettingsSub>Now Playing</SettingsSub>
+              <AeroToggle
+                label="A media pill in the middle of the bar"
+                checked={settings.menuBar.mediaIsland}
+                hint="While something is playing, rest the pointer in the middle of the bar and a pill slides out with the cover, the title and the controls. It is not there at all when nothing is playing"
+                onChange={(v) => set((d) => void (d.menuBar.mediaIsland = v))}
+              />
+              {settings.menuBar.mediaIsland && (
+                <AeroToggle
+                  label="Keep it slid out while something plays"
+                  checked={settings.menuBar.mediaIslandPinned}
+                  hint="Instead of waiting for the pointer"
+                  onChange={(v) => set((d) => void (d.menuBar.mediaIslandPinned = v))}
+                />
+              )}
               <SettingsSub>The Control Center</SettingsSub>
               <BubbleColor
                 label="Wi-Fi circle in the Control Center"
@@ -1015,6 +996,23 @@ export function SettingsApp() {
                 hint="The scene chosen under Glass & Light, drawn only inside the margin. It rests while you are away from the keyboard. Needs a scene other than None"
                 onChange={(v) => set((d) => void (d.frame.ambient = v))}
               />
+              <AeroToggle
+                label="A glass border round the apps"
+                checked={settings.frame.glassBorder}
+                hint="A bevel of glass along the edge of the opening the apps sit in: a bright edge catching the light from above, falling away below"
+                onChange={(v) => set((d) => void (d.frame.glassBorder = v))}
+              />
+              {settings.frame.glassBorder && (
+                <AeroSlider
+                  label="Border width"
+                  value={settings.frame.borderWidth}
+                  min={1}
+                  max={10}
+                  step={1}
+                  format={(v) => `${v}px`}
+                  onChange={(v) => set((d) => void (d.frame.borderWidth = v))}
+                />
+              )}
               <p className="settings-note">
                 Maximized apps are given rounded corners by shaping their windows, so the glass shows
                 through the cut corners. An app running as administrator cannot be shaped by Aero Dock
