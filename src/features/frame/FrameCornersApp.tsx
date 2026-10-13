@@ -1,33 +1,33 @@
-/**
- * The frame's fringe: the thin anti-aliased edge along the four rounded corners.
+﻿/**
+ * The frame's corner pieces: what the margin's glass is in each corner of the window on top, drawn over it.
  *
- * A maximised app is given rounded corners by shaping its own window (see
- * platform/windows/shaper.rs), and a window shape is stepped: a pixel is in or
- * out. This window is kept on top and Rust clips it to a band a few pixels wide
- * along each arc, just inside that cut. What is drawn here is the margin's
- * colour outside the ideal curve, smoothly edged, so over the stepped edge it
- * blends into the app a pixel at a time instead of leaving a staircase.
+ * A maximised app fills the opening, and its own corners are square. This window is kept on top and Rust clips it
+ * to the four little corner pieces, what is outside the app's rounded edge and inside its square one, so that is
+ * the only part of it that draws or takes a click. What is drawn here is the margin's colour, edged by the curve,
+ * anti-aliased, so the app's square corners are behind the frame there and the app looks to have rounded ones.
+ * Nothing is done to the app's window, so it works for every app, and costs nothing while nothing changes.
  *
- * Only a few pixels of the app's own edge are ever covered, so the colour only
- * has to be near: the margin's tint over the wallpaper's dominant colour. It is
- * shown only while the app on top is one that has been shaped.
+ * Rust says where the app's window is (it is the opening's, or a few pixels off for a program that has not been
+ * told of a change to the work area) and what the margin looks like beside each corner, read off the screen: a
+ * wallpaper is rarely one colour, so each corner is drawn in its own. It is shown only while the app on top fills
+ * the opening, and nothing is drawn until Rust has said where it is.
  */
 
+import { listen } from "@tauri-apps/api/event";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useEffect, useState } from "react";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { ipc } from "../../ipc/commands";
+import type { CornerPaint } from "../../ipc/types";
 import { useSettings } from "../../state/settingsStore";
-import { fitShape, ringPath } from "./frameGeometry";
+import { outsidePath } from "./frameGeometry";
 import { useWindowSize } from "./FrameApp";
 import "./frame.css";
-
-/** Used until the wallpaper's colour is known, or if it cannot be read. */
-const FALLBACK_WALLPAPER = "#1b2236";
 
 export function FrameCornersApp() {
   const { settings, hydrate } = useSettings();
   const { w, h } = useWindowSize();
-  const [wallpaper, setWallpaper] = useState(FALLBACK_WALLPAPER);
+  const [paint, setPaint] = useState<CornerPaint | null>(null);
 
   useEffect(() => {
     hydrate();
@@ -37,30 +37,48 @@ export function FrameCornersApp() {
     if (settings) applyAppearance(settings, null, "dock");
   }, [settings]);
 
-  // the wallpaper's own colour is what the margin shows through to
+  // listened for before it is asked for, so that nothing sent in between is missed
   useEffect(() => {
-    ipc
-      .getWallpaperAccent()
-      .then((hex) => hex && setWallpaper(hex))
-      .catch(() => undefined);
+    const label = getCurrentWebviewWindow().label;
+    let live = true;
+    const heard = listen<CornerPaint>("frame://corners", (e) => live && setPaint(e.payload));
+    void heard.then(() =>
+      ipc
+        .frameCornerColours(label)
+        .then((p) => live && p && setPaint((was) => was ?? p))
+        .catch(() => undefined),
+    );
+    return () => {
+      live = false;
+      void heard.then((un) => un());
+    };
   }, []);
 
-  if (!settings) return null;
-  const f = settings.frame;
-  const shape = fitShape(w, h, f.padding, f.cornerRadius);
+  if (!settings || !paint || paint.colours.length !== 4) return null;
+  const { rect, radius, colours } = paint;
+  // each corner's own square of the window, as far along each edge as the curve reaches (and a little more)
+  const reach = Math.min(radius + 4, Math.floor(Math.min(rect.width, rect.height) / 2));
+  const boxes = [
+    { x: rect.x, y: rect.y },
+    { x: rect.x + rect.width - reach, y: rect.y },
+    { x: rect.x + rect.width - reach, y: rect.y + rect.height - reach },
+    { x: rect.x, y: rect.y + rect.height - reach },
+  ];
+  const outside = outsidePath(w, h, rect.x, rect.y, rect.width, rect.height, radius);
 
   return (
-    <div
-      className="frame-root frame-corners"
-      style={
-        {
-          ["--frame-tint" as string]: f.tint * settings.menuBar.tint,
-          ["--frame-wallpaper" as string]: wallpaper,
-        } as React.CSSProperties
-      }
-    >
+    <div className="frame-root frame-corners">
       <svg className="frame-body" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
-        <path className="frame-solid" d={ringPath(shape)} fillRule="evenodd" />
+        <defs>
+          {boxes.map((b, i) => (
+            <clipPath key={i} id={`frame-corner-${i}`}>
+              <rect x={b.x} y={b.y} width={reach} height={reach} />
+            </clipPath>
+          ))}
+        </defs>
+        {boxes.map((_, i) => (
+          <path key={i} d={outside} fillRule="evenodd" fill={colours[i]} clipPath={`url(#frame-corner-${i})`} />
+        ))}
       </svg>
     </div>
   );

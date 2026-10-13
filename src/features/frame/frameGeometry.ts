@@ -43,3 +43,22 @@ export function openingPath({ w, h, pad, radius: r }: Shape): string {
 export function ringPath(shape: Shape): string {
   return `M0 0H${shape.w}V${shape.h}H0Z${openingPath(shape)}`;
 }
+
+/** A rounded rectangle anywhere in the window (the radius never more than half of either side). */
+export function roundedRectPath(x: number, y: number, w: number, h: number, radius: number): string {
+  const r = Math.max(0, Math.min(radius, Math.floor(Math.min(w, h) / 2)));
+  const x1 = x + w;
+  const y1 = y + h;
+  if (r <= 0) return `M${x} ${y}H${x1}V${y1}H${x}Z`;
+  return (
+    `M${x + r} ${y}H${x1 - r}A${r} ${r} 0 0 1 ${x1} ${y + r}` +
+    `V${y1 - r}A${r} ${r} 0 0 1 ${x1 - r} ${y1}` +
+    `H${x + r}A${r} ${r} 0 0 1 ${x} ${y1 - r}` +
+    `V${y + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z`
+  );
+}
+
+/** The whole window with a rounded rectangle cut out of it (fill it evenodd): what is outside a window's rounded corners. */
+export function outsidePath(w: number, h: number, x: number, y: number, rw: number, rh: number, radius: number): string {
+  return `M0 0H${w}V${h}H0Z${roundedRectPath(x, y, rw, rh, radius)}`;
+}

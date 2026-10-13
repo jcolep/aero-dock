@@ -14,26 +14,24 @@
 //!   ordinary window, clipped to the margin so that the opening in the middle
 //!   neither draws nor takes clicks. The page draws the glass and the scene in
 //!   it.
-//! * **The shaping.** A maximised app's corners are square. Its own window is
-//!   cut round them with a window region (see `platform/windows/shaper.rs`), so
-//!   what shows through is the ring's glass, which is behind it, with nothing
-//!   laid over the app. Only an app that cannot be shaped (an elevated one) is
-//!   left square.
-//! * **The fringe.** A window region is stepped, so a second small window, kept
-//!   on top, draws a thin anti-aliased edge along each of the four arcs, a few
-//!   pixels wide and clipped to just that. It is shown only while the app on
-//!   top is one that has been shaped, and hidden while a fullscreen app, game
-//!   or video is running.//! * **The hook.** The menu bar and dock tell the frame when how much they
+//! * **The corner pieces.** A maximised app's corners are square, and nothing is done to the app's window. A second
+//!   small window, kept on top, is clipped to the four little pieces of each corner of the opening that are outside
+//!   its rounded edge, and draws the margin's colour there, anti-aliased along the curve, so the app's corners are
+//!   behind the frame and it looks to have rounded ones (see `platform/windows/shaper.rs`, which says when an app
+//!   fills the opening, and `corner_colours`, which reads what the margin looks like beside each corner). It is
+//!   hidden while a fullscreen app, game or video is running.
+//! * **The hook.** The menu bar and dock tell the frame when how much they
 //!   claim changes, and it lays out again.
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use parking_lot::Mutex;
+use serde::Serialize;
 use tauri::{AppHandle, Manager, WebviewWindow};
 use windows::Win32::Foundation::HWND;
 use windows::Win32::Graphics::Gdi::{
-    CombineRgn, CreateRectRgn, CreateRoundRectRgn, DeleteObject, HRGN, RGN_AND, RGN_DIFF, RGN_OR,
+    CombineRgn, CreateRectRgn, CreateRoundRectRgn, DeleteObject, HRGN, RGN_DIFF, RGN_OR,
 };
 
 use crate::commands::dock::on_main_thread;
@@ -130,53 +128,35 @@ unsafe fn ring_region(g: &Geometry) -> HRGN {
     }
 }
 
-/// How far in from the edge of the opening the fringe reaches, in pixels. The
-/// clip an app is shaped with is up to a pixel off the ideal curve and the
-/// edge itself is a pixel more, so this is a little over both.
-const FRINGE: i32 = 3;
+/// How far inside the ideal curve the corner pieces' window reaches, in pixels. The page draws each piece anti-aliased
+/// along the ideal curve, and a pixel only blends if the window has it, so the window has to take in the pixels the
+/// curve passes through: a pixel or two inside it, which is where the app's square corner has to be hidden anyway.
+const OVERLAP: i32 = 2;
 
-/// The fringe as a region: a thin band along each of the opening's four
-/// corner arcs, just inside the clip an app is shaped with. Nothing else, so
-/// it takes no clicks anywhere else. Empty when the corners are square.
-unsafe fn fringe_region(g: &Geometry) -> HRGN {
+/// The four corner pieces of a window's rectangle (`app`, in the corner window's own coordinates) as a region: in
+/// each corner, what is outside its rounded edge and inside its square one. A maximised app's square corners are
+/// there, and the corner window draws the margin's colour over them. Nothing else is in it, so the rest of the
+/// window takes no clicks and draws nothing. Empty when the corners are square.
+unsafe fn corner_region(app: &Rect, radius: i32) -> HRGN {
     unsafe {
-        let band = CreateRectRgn(0, 0, 0, 0);
-        if g.radius <= 0 {
-            return band;
+        let pieces = CreateRectRgn(0, 0, 0, 0);
+        if radius <= 0 {
+            return pieces;
         }
-        let clip = round_rect(
-            g.pad,
-            g.pad,
-            g.w - g.pad,
-            g.h - g.pad,
-            crate::platform::windows::shaper::clip_radius(g.radius),
-        );
-        let inner = round_rect(
-            g.pad + FRINGE,
-            g.pad + FRINGE,
-            g.w - g.pad - FRINGE,
-            g.h - g.pad - FRINGE,
-            (g.radius - 1 - FRINGE).max(0),
-        );
-        CombineRgn(Some(band), Some(clip), Some(inner), RGN_DIFF);
-        // only near the four corners, not along the straight edges
-        let reach = g.radius + 2 * FRINGE;
-        let near = CreateRectRgn(0, 0, 0, 0);
-        for (x, y) in [
-            (g.pad, g.pad),
-            (g.w - g.pad - reach, g.pad),
-            (g.pad, g.h - g.pad - reach),
-            (g.w - g.pad - reach, g.h - g.pad - reach),
-        ] {
+        // each corner's square, as far along each edge as the curve reaches
+        let reach = radius + OVERLAP;
+        let (left, top, right, bottom) = (app.x, app.y, app.x + app.width, app.y + app.height);
+        for (x, y) in [(left, top), (right - reach, top), (right - reach, bottom - reach), (left, bottom - reach)] {
             let square = CreateRectRgn(x, y, x + reach, y + reach);
-            CombineRgn(Some(near), Some(near), Some(square), RGN_OR);
+            CombineRgn(Some(pieces), Some(pieces), Some(square), RGN_OR);
             let _ = DeleteObject(square.into());
         }
-        CombineRgn(Some(band), Some(band), Some(near), RGN_AND);
-        let _ = DeleteObject(clip.into());
-        let _ = DeleteObject(inner.into());
-        let _ = DeleteObject(near.into());
-        band
+        // less what is inside the curve: the same curve a couple of pixels in from every edge, so that the pieces take
+        // in the pixels the drawn curve passes through
+        let inside = round_rect(left + OVERLAP, top + OVERLAP, right - OVERLAP, bottom - OVERLAP, (radius - OVERLAP).max(0));
+        CombineRgn(Some(pieces), Some(pieces), Some(inside), RGN_DIFF);
+        let _ = DeleteObject(inside.into());
+        pieces
     }
 }
 /// Hidden anchor windows by monitor name, as raw handles, in the order of
@@ -286,30 +266,38 @@ fn layout_monitor(
         dock_window::keep_caption_off(hwnd);
     }
     if changed {
-        for (hwnd, region) in [
-            (ring_hwnd, unsafe { ring_region(&g) }),
-            (corners_hwnd, unsafe { fringe_region(&g) }),
-        ] {
+        // the corner pieces are put in when there is a window to cover (below)
+        for (hwnd, region) in [(ring_hwnd, unsafe { ring_region(&g) }), (corners_hwnd, unsafe { CreateRectRgn(0, 0, 0, 0) })] {
             dock_window::set_bounds(hwnd, g.x, g.y, g.w, g.h)?;
             dock_window::set_region(hwnd, region)?;
         }
         LAST.lock().insert(monitor.name.clone(), g);
+        PIECES.lock().remove(corners.label());
     }
-
     // shown only now it is in place, so it never appears in the wrong spot
     if !ring.is_visible().unwrap_or(false) {
         let _ = ring.show();
     }
     let _ = ring.set_always_on_bottom(true);
     let _ = corners.set_always_on_top(true);
-    // the fringe is shown only over an app that has been shaped
-    set_corners_visible(
-        &corners,
-        !FULLSCREEN.load(Ordering::Relaxed)
-            && g.radius > 0
-            && shaper::fringe_wanted(&monitor.name),
-    );
-    Ok(Some(Opening {
+    // The corner pieces are over the maximised app on top, if it is the one that fills the opening, once it has
+    // arrived. They are put where that app's own corners are (which is the opening's, or a few pixels off for one
+    // that has not been told of a change to the work area), in the colour of the margin beside each, looked at
+    // before the window is shown so that what is read is the margin and not the pieces.
+    let cover = if FULLSCREEN.load(Ordering::Relaxed) || g.radius <= 0 { None } else { shaper::cover_rect(&monitor.name) };
+    if let Some(app_rect) = cover {
+        // in the corner window's own coordinates
+        let rel = Rect { x: app_rect.x - g.x, y: app_rect.y - g.y, width: app_rect.width, height: app_rect.height };
+        let wanted = (rel, g.radius);
+        if PIECES.lock().get(corners.label()) != Some(&wanted) {
+            let region = unsafe { corner_region(&rel, g.radius) };
+            if dock_window::set_region(corners_hwnd, region).is_ok() {
+                PIECES.lock().insert(corners.label().to_string(), wanted);
+            }
+        }
+        paint_corners(app, corners.label(), &app_rect, &rel, g.radius);
+    }
+    set_corners_visible(&corners, cover.is_some());    Ok(Some(Opening {
         monitor: monitor.name.clone(),
         screen: monitor.bounds,
         rect: Rect { x: g.x + g.pad, y: g.y + g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad },
@@ -317,6 +305,67 @@ fn layout_monitor(
     }))
 }
 
+/// What the margin looks like beside each corner of a window's rectangle, as `#rrggbb`, in the order top left, top
+/// right, bottom right, bottom left: a few pixels of it, on either side of the corner, read off the screen. The piece
+/// of a corner is drawn in this colour, so it matches the glass whatever the wallpaper is there (a single colour for
+/// the whole screen is a poor match for any wallpaper that is not flat).
+fn corner_colours(app: &Rect, radius: i32) -> Option<[String; 4]> {
+    // just outside the window's edge, in the margin
+    let d = 3;
+    let (x, y) = (app.x, app.y);
+    let (right, bottom) = (app.x + app.width - 1, app.y + app.height - 1);
+    // along the margin from the corner, past the curve
+    let along = [radius + 6, radius + 14, radius + 22];
+    let hex = |points: Vec<(i32, i32)>| {
+        crate::platform::windows::screenpick::mean_colour(&points).map(|[r, g, b]| format!("#{r:02x}{g:02x}{b:02x}"))
+    };
+    Some([
+        hex(along.iter().flat_map(|a| [(x + a, y - d), (x - d, y + a)]).collect())?,
+        hex(along.iter().flat_map(|a| [(right - a, y - d), (right + d, y + a)]).collect())?,
+        hex(along.iter().flat_map(|a| [(right - a, bottom + d), (right + d, bottom - a)]).collect())?,
+        hex(along.iter().flat_map(|a| [(x + a, bottom + d), (x - d, bottom - a)]).collect())?,
+    ])
+}
+
+/// What the corner window's page draws: where the window it covers is, in the page's own coordinates, how round its
+/// corners are, and the colour of each.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CornerPaint {
+    pub colours: [String; 4],
+    pub rect: Rect,
+    pub radius: i32,
+}
+
+/// What was last sent to each corner window, by its label, for a page that starts after it was sent.
+static PAINT: Mutex<Vec<(String, CornerPaint)>> = Mutex::new(Vec::new());
+
+/// The pieces last put into each corner window: the rectangle they are round and the radius.
+static PIECES: std::sync::LazyLock<Mutex<HashMap<String, (Rect, i32)>>> =
+    std::sync::LazyLock::new(|| Mutex::new(HashMap::new()));
+
+/// The page asks for what it should draw when it starts (see `paint_corners`).
+#[tauri::command]
+pub fn frame_corner_colours(label: String) -> Option<CornerPaint> {
+    PAINT.lock().iter().find(|(l, _)| *l == label).map(|(_, p)| p.clone())
+}
+
+/// Read the colours beside the corners of the window being covered and give them, with where it is, to the corner
+/// window's page, if they have changed. `screen` is the window's rectangle on the screen, `rel` in the corner window.
+fn paint_corners(app: &AppHandle, label: &str, screen: &Rect, rel: &Rect, radius: i32) {
+    use tauri::Emitter;
+    let Some(colours) = corner_colours(screen, radius) else { return };
+    let paint = CornerPaint { colours, rect: *rel, radius };
+    {
+        let mut held = PAINT.lock();
+        match held.iter_mut().find(|(l, _)| l == label) {
+            Some((_, old)) if *old == paint => return,
+            Some((_, old)) => *old = paint.clone(),
+            None => held.push((label.to_string(), paint.clone())),
+        }
+    }
+    let _ = app.emit_to(label, "frame://corners", paint);
+}
 /// Show or hide the corner window.
 fn set_corners_visible(corners: &WebviewWindow, visible: bool) {
     let showing = corners.is_visible().unwrap_or(false);
@@ -649,36 +698,50 @@ mod tests {
     }
 
     #[test]
-    fn the_fringe_is_a_thin_band_along_each_arc_and_nothing_else() {
-        // a 1000x600 window, 20px margin, 30px corners; the app is clipped
-        // with 29px corners, and the band reaches 3px in from that edge
+    fn the_corner_pieces_are_what_a_square_corner_has_over_a_round_one_and_nothing_else() {
+        // a 1000x600 window, 20px margin, 30px corners: the opening is x 20..980, y 20..580, and its rounded corner
+        // is cut away from its square one in the first 30px or so along each edge
         let g = geometry(&Rect { x: 0, y: 0, width: 1000, height: 600 }, [0; 4], 20, 30);
-        let band = unsafe { fringe_region(&g) };
-        // on the arc of each corner, just inside the clip's edge
-        assert!(inside(band, 29, 29) && inside(band, 970, 29));
-        assert!(inside(band, 29, 570) && inside(band, 970, 570));
-        // not the margin, and not the opening's middle
-        assert!(!inside(band, 500, 5) && !inside(band, 500, 300));
-        // not along the straight edges, where an app's edge needs no smoothing
-        assert!(!inside(band, 500, 21) && !inside(band, 21, 300));
-        assert!(!inside(band, 500, 579) && !inside(band, 978, 300));
-        // not deep inside a corner either
-        assert!(!inside(band, 60, 60));
+        let opening = Rect { x: g.pad, y: g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad };
+        let pieces = unsafe { corner_region(&opening, g.radius) };
+        // the very corner of the opening's square is in the piece, at every corner
+        assert!(inside(pieces, 21, 21) && inside(pieces, 978, 21));
+        assert!(inside(pieces, 21, 578) && inside(pieces, 978, 578));
+        // on the curve itself: the pieces reach in as far as the pixels it passes through
+        assert!(inside(pieces, 29, 29) && inside(pieces, 971, 571));
+        // not well inside the curve, where the app is
+        assert!(!inside(pieces, 33, 33) && !inside(pieces, 45, 45) && !inside(pieces, 955, 555));
+        // not the margin, and not the opening's middle or its straight edges
+        assert!(!inside(pieces, 500, 5) && !inside(pieces, 5, 300) && !inside(pieces, 500, 300));
+        assert!(!inside(pieces, 500, 22) && !inside(pieces, 22, 300));
+        assert!(!inside(pieces, 500, 578) && !inside(pieces, 978, 300));
         unsafe {
-            let _ = DeleteObject(band.into());
+            let _ = DeleteObject(pieces.into());
+        }
+    }    #[test]
+    fn the_pieces_follow_a_window_that_stands_off_the_opening() {
+        // File Explorer, maximised eight pixels higher than the opening: its corners are where it is
+        let app = Rect { x: 20, y: 12, width: 960, height: 568 };
+        let pieces = unsafe { corner_region(&app, 30) };
+        assert!(inside(pieces, 21, 13) && inside(pieces, 978, 13), "its own top corners");
+        assert!(!inside(pieces, 21, 21 + 40) && !inside(pieces, 500, 14), "and not its edge");
+        // the opening's own corner, below it, is the app's
+        assert!(!inside(pieces, 40, 40));
+        unsafe {
+            let _ = DeleteObject(pieces.into());
         }
     }
+
 
     #[test]
-    fn square_corners_have_no_fringe() {
+    fn square_corners_have_no_pieces() {
         let g = geometry(&Rect { x: 0, y: 0, width: 1000, height: 600 }, [0; 4], 20, 0);
-        let band = unsafe { fringe_region(&g) };
-        assert!(!inside(band, 21, 21) && !inside(band, 500, 21) && !inside(band, 500, 300));
+        let pieces = unsafe { corner_region(&Rect { x: 20, y: 20, width: 960, height: 560 }, g.radius) };
+        assert!(!inside(pieces, 21, 21) && !inside(pieces, 500, 21) && !inside(pieces, 500, 300));
         unsafe {
-            let _ = DeleteObject(band.into());
+            let _ = DeleteObject(pieces.into());
         }
     }
-
     #[test]
     fn a_rounded_region_has_the_same_extent_as_a_plain_one() {
         // GDI leaves a rounded region's far column and row out; round_rect

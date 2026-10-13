@@ -31,6 +31,7 @@ pub mod peek;
 pub mod radios;
 pub mod recent;
 pub mod running;
+pub mod screenpick;
 pub mod shaper;
 pub mod shell_ui;
 pub mod spectrum;
