@@ -7,6 +7,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Changed (frame corners, type)
+
+- **San Francisco** is the type where installed: SF Pro Text for reading sizes, SF Pro Display for large text, SF Pro Rounded for dock names and the pills; Inter otherwise.
+- **The frame rounds every window corner that sits in a corner of the opening**, not only a maximised window's: two windows snapped side by side get their outer corners rounded, a quarter-snapped window its one. Each corner piece shows the real wallpaper under the margin's glass.
+- **No more flicker in the corners**: the wallpaper is looked at again when Windows says it changed (a registry notification), not whenever the margin's colours move, which the ambient scene's motes did.
+
 ### Added
 
 - **Seconds in the menu bar clock**, with a switch for it under Menu bar. The clock is a component of its own, so a tick redraws only the clock.

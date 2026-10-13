@@ -369,6 +369,8 @@ export interface CornerPaint {
   colours: string[];
   rect: { x: number; y: number; width: number; height: number };
   radius: number;
+  /** Which corners to draw: 1 top left, 2 top right, 4 bottom right, 8 bottom left. */
+  mask: number;
   /** The wallpaper under each piece (RGBA rows), where it lines up with what is seen; null where it does not. */
   patches: ({ x: number; y: number; width: number; height: number; rgba: number[] } | null)[];
 }

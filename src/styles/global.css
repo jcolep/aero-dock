@@ -18,10 +18,19 @@ body,
   overflow: hidden;
 }
 
-/* One typeface for everything: Inter, as a variable font, so every weight from 100 to 900 is a real one and not
-   the nearest the system has. It is bundled (the latin subset, 48 KB), so the type is the same on every machine
+/* The type is San Francisco, where it is installed, in the cuts Apple uses it in: SF Pro Text for what is read at
+   the sizes of a bar and a menu, SF Pro Display for what is set large (headings, a big clock), and SF Pro Rounded for
+   the small soft things that float (a dock icon's name, the volume pill, the media pill). Where it is not installed
+   it is Inter, bundled as a variable font (the latin subset, 48 KB), so the type is still the same on every machine
    and there is no moment of another font while it loads (`block`); text in any other script falls back to the
-   system's own face, below. Its tabular figures keep a changing number from jostling its neighbours. */
+   system's own face. Both have tabular figures, which keep a changing number from jostling its neighbours. */
+:root {
+  --font-text: "SF Pro Text", "SF Pro", "Inter Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font-display: "SF Pro Display", "SF Pro", "Inter Variable", "Segoe UI Variable Display", "Segoe UI", system-ui,
+    sans-serif;
+  --font-rounded: "SF Pro Rounded", var(--font-text);
+}
+
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
@@ -34,11 +43,8 @@ body,
 }
 
 body {
-  font-family:
-    "Inter Variable", "Segoe UI Variable Text", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
-  /* Inter's own refinements: the single-storey a is not wanted, but a slashed-less zero and open digits read better
-     at the small sizes of a dock; contextual alternates tidy things like "->" */
-  font-feature-settings: "calt", "kern", "cv11" 0, "ss03" 0;
+  font-family: var(--font-text);
+  font-feature-settings: "calt", "kern";
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -435,4 +441,20 @@ html:not([data-ready]) body {
 html[data-ready] body {
   opacity: 1;
   transition: opacity var(--m-standard) var(--e-out);
+}
+/* set large: the Display cut, which is drawn for it (tighter, finer) */
+h1,
+h2,
+.w-weather-temp,
+.w-clock-time,
+.w-clock-digital {
+  font-family: var(--font-display);
+}
+
+/* the small soft things that float over everything else */
+.dock-label,
+.dock-volume-pill,
+.mb-island,
+.glass-tip {
+  font-family: var(--font-rounded);
 }

@@ -16,7 +16,7 @@ const check = (ok, what) => {
 };
 
 const colours = ["#c04040", "#40c040", "#4040c0", "#c0c040"];
-const paint = (rect, c = colours, patches = [null, null, null, null]) => ({ colours: c, rect, radius: 22, patches });
+const paint = (rect, c = colours, patches = [null, null, null, null], mask = 15) => ({ colours: c, rect, radius: 22, mask, patches });
 const settings = (s) => {
   s.frame.enabled = true;
   s.frame.padding = 28;
@@ -59,6 +59,11 @@ const fills = (h) => h.eval("[...document.querySelectorAll('svg.frame-body > g >
     check((await h.eval("document.querySelectorAll('svg.frame-body image').length")) === 1, "a corner with its wallpaper shows the wallpaper");
     check((await h.eval("document.querySelectorAll('svg.frame-body .frame-glass').length")) === 1, "under the margin's glass");
     shots["with its wallpaper, top left"] = await h.shot(0, 0, 90, 90, 4);
+    // a window snapped to the left half holds the top left and bottom left corners: only those are drawn
+    await h.eval(`window.__emit("frame://corners", ${JSON.stringify(paint({ x: 28, y: 28, width: 844, height: 504 }, colours, [null, null, null, null], 1 | 8))})`);
+    await h.sleep(300);
+    const held = await fills(h);
+    check(JSON.stringify(held) === JSON.stringify([colours[0], colours[3]]), `only the corners that are held are drawn (${held.join(" ")})`);
     console.log("sheet:", await h.sheet(shots, "fringe"));
   } finally {
     h.close();

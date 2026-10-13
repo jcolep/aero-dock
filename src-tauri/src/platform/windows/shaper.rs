@@ -1,19 +1,19 @@
-//! Noticing which maximised app fills each opening of the frame, so that its square corners can be covered.
+//! Noticing which corners of each opening of the frame have an app's square corner in them, so they can be covered.
 //!
-//! With the frame on, a maximised window fills exactly the opening in the frame's margin, and its own corners are
+//! With the frame on, a maximised window fills exactly the opening in the frame's margin, and a window snapped to a
+//! side or a quarter fills part of it with one or two of its corners in the opening's corners. Those corners are
 //! square. They are not altered: the frame's corner window (see `commands/frame.rs`) lies over them, a piece of the
-//! margin's own colour in each corner, shaped by the opening's rounded edge and anti-aliased along it, so the app
-//! looks to have rounded corners and is behind the frame there. Nothing is done to the app's window at all, which is
-//! why it works for every app (an elevated one, one that manages its own window shape, one that is not responding),
-//! and why it costs nothing while nothing changes.
+//! margin in each corner, shaped by the opening's rounded edge and anti-aliased along it, so the app looks to have
+//! rounded corners there and is behind the frame. Nothing is done to the app's window at all, which is why it works
+//! for every app, and why it costs nothing while nothing changes.
 //!
-//! This worker only looks. Whenever a window moves or changes state (heard through a WinEvent hook), or every so
-//! often in case one was missed, it looks at the maximised windows, and for each monitor says whether the one on top
-//! fills the opening. It says so a moment after the window has arrived (Windows takes about that long to grow a
-//! window to fill the screen, drawing it from a scaled picture with square corners, and a corner piece shown at once
-//! would be on its own in the empty space), and takes it back the moment it goes.
+//! This worker only looks. Whenever a window moves, changes state or comes to the front (heard through WinEvent
+//! hooks), or every so often in case one was missed, it looks at each corner of each opening: the window on top
+//! there, if its own corner is in that corner of the opening (it is maximised, or snapped there), is to have it
+//! covered. A corner is covered a moment after that has become so (Windows takes about that long to animate a window
+//! into place, drawing it from a scaled picture with square corners, and a piece shown at once would be on its own
+//! in the empty space), and uncovered the moment it is not.
 
-use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::OnceLock;
@@ -27,8 +27,8 @@ use windows::Win32::Graphics::Gdi::{GetWindowRgnBox, SetWindowRgn};
 use windows::Win32::UI::Accessibility::{SetWinEventHook, HWINEVENTHOOK};
 use windows::Win32::UI::WindowsAndMessaging::{
     DispatchMessageW, EnumWindows, GetMessageW, GetWindowLongPtrW, GetWindowRect, GetWindowThreadProcessId,
-    IsIconic, IsWindowVisible, IsZoomed, TranslateMessage, EVENT_OBJECT_LOCATIONCHANGE, GWL_EXSTYLE, MSG,
-    OBJID_WINDOW, WINEVENT_OUTOFCONTEXT, WINEVENT_SKIPOWNPROCESS, WS_EX_TOOLWINDOW,
+    IsIconic, IsWindowVisible, IsZoomed, TranslateMessage, EVENT_OBJECT_LOCATIONCHANGE, EVENT_SYSTEM_FOREGROUND,
+    GWL_EXSTYLE, MSG, OBJID_WINDOW, WINEVENT_OUTOFCONTEXT, WINEVENT_SKIPOWNPROCESS, WS_EX_TOOLWINDOW,
 };
 
 use super::monitors::Rect;
@@ -45,11 +45,17 @@ pub struct Opening {
     pub radius: i32,
 }
 
+/// The corners, as bits of a mask, in the order the frame's arrays use: top left, top right, bottom right, bottom left.
+pub const CORNERS: [u8; 4] = [1, 2, 4, 8];
+
 /// How far a maximised window's visible edges may be from the opening's and still be the window that fills it, in
-/// pixels. A program lays itself out for the work area it knew of when it was maximised, and one that has not been
-/// told of a change since (the frame's margin was set after it, the bar was made taller) stands a few pixels off.
-/// What matters is that it is the window that is meant to fill the opening, not that it does so exactly.
+/// pixels. What a window reports can be more than it draws (a program with the standard frame counts its resize
+/// border at the top, which is not drawn), and one laid out for a work area it has not been told has changed stands
+/// a few pixels off; what matters is that it is the window that fills the opening.
 const NEAR: i32 = 24;
+
+/// How far a window's corner may be from the opening's corner and still be snapped into it, in pixels.
+const SNAPPED: i32 = 4;
 
 /// Whether a window's visible bounds are those of the window that fills the opening: its edges are near the
 /// opening's.
@@ -62,16 +68,30 @@ pub fn fits(visible: &Rect, opening: &Rect) -> bool {
         && (bottom(visible) - bottom(opening)).abs() <= NEAR
 }
 
-fn centre(r: &Rect) -> (i32, i32) {
-    (r.x + r.width / 2, r.y + r.height / 2)
+/// The point of each corner of a rectangle, a couple of pixels in, in the order of `CORNERS`.
+fn corner_points(r: &Rect) -> [(i32, i32); 4] {
+    let (l, t, rr, b) = (r.x + 2, r.y + 2, r.x + r.width - 3, r.y + r.height - 3);
+    [(l, t), (rr, t), (rr, b), (l, b)]
+}
+
+/// Whether corner `i` of a window's rectangle is in the same corner of the opening.
+pub fn corner_snapped(visible: &Rect, opening: &Rect, i: usize) -> bool {
+    let (vr, vb, or, ob) = (visible.x + visible.width, visible.y + visible.height, opening.x + opening.width, opening.y + opening.height);
+    let near = |a: i32, b: i32| (a - b).abs() <= SNAPPED;
+    match i {
+        0 => near(visible.x, opening.x) && near(visible.y, opening.y),
+        1 => near(vr, or) && near(visible.y, opening.y),
+        2 => near(vr, or) && near(vb, ob),
+        _ => near(visible.x, opening.x) && near(vb, ob),
+    }
 }
 
 fn contains(r: &Rect, p: (i32, i32)) -> bool {
     p.0 >= r.x && p.0 < r.x + r.width && p.1 >= r.y && p.1 < r.y + r.height
 }
 
-/// How long a window that fills the opening has been the one on top before its corners are covered. Windows takes
-/// about this long to grow a window to fill the screen.
+/// How long a corner has had a window's corner in it before it is covered. Windows takes about this long to animate a
+/// window into place.
 const COVER_DELAY: Duration = Duration::from_millis(330);
 
 // ---- state ----
@@ -79,23 +99,20 @@ const COVER_DELAY: Duration = Duration::from_millis(330);
 static ENABLED: AtomicBool = AtomicBool::new(false);
 static STARTED: OnceLock<Sender<()>> = OnceLock::new();
 static OPENINGS: Mutex<Vec<Opening>> = Mutex::new(Vec::new());
-/// Per monitor: the bounds of the window whose corners are to be covered now, if there is one.
-static COVER: Mutex<Vec<(String, Option<Rect>)>> = Mutex::new(Vec::new());
-/// Per monitor: since when a window that fills the opening has been on top of it.
-static ON_TOP_SINCE: Mutex<Vec<(String, Instant)>> = Mutex::new(Vec::new());
-/// The windows that fill an opening now, so that one that stops (restored, closed) is looked at.
-static FILLING: Mutex<Vec<isize>> = Mutex::new(Vec::new());
+/// Per monitor: which corners are to be covered now.
+static COVER: Mutex<Vec<(String, u8)>> = Mutex::new(Vec::new());
+/// Per monitor and corner: since when a window's corner has been in it.
+static SINCE: Mutex<Vec<(String, usize, Instant)>> = Mutex::new(Vec::new());
 static CHANGED: OnceLock<Box<dyn Fn() + Send + Sync>> = OnceLock::new();
 
-/// Called when a monitor starts or stops needing its corners covered.
+/// Called when a monitor's covered corners change.
 pub fn set_changed_hook(hook: impl Fn() + Send + Sync + 'static) {
     let _ = CHANGED.set(Box::new(hook));
 }
 
-/// The rectangle whose corners are to be covered on a monitor right now (the opening), while the maximised window on
-/// top fills it and has had time to arrive.
-pub fn cover_rect(monitor: &str) -> Option<Rect> {
-    COVER.lock().iter().find(|(m, _)| m == monitor).and_then(|(_, r)| *r)
+/// Which corners of a monitor's opening are to be covered right now, as a mask of `CORNERS`.
+pub fn cover_mask(monitor: &str) -> u8 {
+    COVER.lock().iter().find(|(m, _)| m == monitor).map_or(0, |(_, mask)| *mask)
 }
 
 /// Set where the openings are. An empty list switches the looking off.
@@ -111,12 +128,11 @@ pub fn set_openings(openings: Vec<Opening>) {
     if empty {
         let changed = {
             let mut c = COVER.lock();
-            let any = c.iter().any(|(_, r)| r.is_some());
+            let any = c.iter().any(|(_, mask)| *mask != 0);
             c.clear();
             any
         };
-        ON_TOP_SINCE.lock().clear();
-        FILLING.lock().clear();
+        SINCE.lock().clear();
         if changed {
             if let Some(hook) = CHANGED.get() {
                 hook();
@@ -156,13 +172,18 @@ fn visible_bounds(hwnd: HWND) -> Option<Rect> {
     (r.right > r.left && r.bottom > r.top).then(|| rect_of(r))
 }
 
-/// Maximised, visible, ordinary windows of other programs, top of the stack
-/// first.
-fn maximised_windows() -> Vec<HWND> {
+/// A window that can be on top of a corner: its visible bounds, and whether it is maximised.
+struct Seen {
+    visible: Rect,
+    maximised: bool,
+}
+
+/// Visible, ordinary windows of other programs that are on screen, top of the stack first.
+fn windows_on_screen() -> Vec<Seen> {
     unsafe extern "system" fn each(hwnd: HWND, lparam: LPARAM) -> BOOL {
-        let out = unsafe { &mut *(lparam.0 as *mut Vec<HWND>) };
+        let out = unsafe { &mut *(lparam.0 as *mut Vec<Seen>) };
         unsafe {
-            if !IsWindowVisible(hwnd).as_bool() || IsIconic(hwnd).as_bool() || !IsZoomed(hwnd).as_bool() {
+            if !IsWindowVisible(hwnd).as_bool() || IsIconic(hwnd).as_bool() {
                 return true.into();
             }
             if GetWindowLongPtrW(hwnd, GWL_EXSTYLE) as u32 & WS_EX_TOOLWINDOW.0 != 0 {
@@ -183,73 +204,73 @@ fn maximised_windows() -> Vec<HWND> {
             if pid == std::process::id() {
                 return true.into();
             }
+            if let Some(visible) = visible_bounds(hwnd) {
+                out.push(Seen { visible, maximised: IsZoomed(hwnd).as_bool() });
+            }
         }
-        out.push(hwnd);
         true.into()
     }
-    let mut found: Vec<HWND> = Vec::new();
+    let mut found: Vec<Seen> = Vec::new();
     unsafe {
-        let _ = EnumWindows(Some(each), LPARAM(&mut found as *mut Vec<HWND> as isize));
+        let _ = EnumWindows(Some(each), LPARAM(&mut found as *mut Vec<Seen> as isize));
     }
     found
 }
 
-/// One look at the screen. Returns how soon it wants another, if it does (a window has just arrived and its corners
-/// are waiting to be covered).
+/// Which corners of an opening have the corner of the window on top there in them, given the windows top first.
+fn corners_held(opening: &Opening, windows: &[Seen]) -> u8 {
+    if opening.radius <= 0 {
+        return 0;
+    }
+    let mut mask = 0;
+    for (i, point) in corner_points(&opening.rect).into_iter().enumerate() {
+        // the window on top at that corner (the desktop, if nothing else, which does not hold it)
+        let Some(top) = windows.iter().find(|w| contains(&w.visible, point)) else { continue };
+        let held = if top.maximised { fits(&top.visible, &opening.rect) } else { corner_snapped(&top.visible, &opening.rect, i) };
+        if held {
+            mask |= CORNERS[i];
+        }
+    }
+    mask
+}
+
+/// One look at the screen. Returns how soon it wants another, if it does (a corner is waiting to be covered).
 fn tick() -> Option<Duration> {
     let openings = OPENINGS.lock().clone();
     if openings.is_empty() {
         return None;
     }
-    // for each monitor, the bounds of the window on top of its maximised ones, if that is the one that fills the opening
-    let mut top: HashMap<String, Option<Rect>> = HashMap::new();
-    let mut filling: Vec<isize> = Vec::new();
-    for hwnd in maximised_windows() {
-        let Some(visible) = visible_bounds(hwnd) else { continue };
-        let Some(opening) = openings.iter().find(|o| contains(&o.screen, centre(&visible))) else {
-            continue;
-        };
-        let fills = opening.radius > 0 && fits(&visible, &opening.rect);
-        if fills {
-            filling.push(hwnd.0 as isize);
-        }
-        // A maximised window is laid out by Windows to the work area, which is the opening, and that is where it is
-        // drawn. What it reports as its visible bounds can be larger: a program with the standard frame counts its
-        // resize border at the top (File Explorer reports eight pixels more), but that border is not drawn. So the
-        // corners covered are the opening's, never what the window reports.
-        top.entry(opening.monitor.clone()).or_insert(fills.then_some(opening.rect));
-    }
-    *FILLING.lock() = filling;
-
+    let windows = windows_on_screen();
     let mut changed = false;
     let mut again: Option<Duration> = None;
     {
         let mut cover = COVER.lock();
-        let mut since = ON_TOP_SINCE.lock();
+        let mut since = SINCE.lock();
         for opening in &openings {
-            let on_top = top.get(&opening.monitor).copied().flatten();
-            // it goes the moment the window goes, and comes only when the window has had time to arrive
-            let want = if let Some(bounds) = on_top {
-                let at = match since.iter().find(|(m, _)| *m == opening.monitor) {
-                    Some((_, at)) => *at,
+            let held = corners_held(opening, &windows);
+            // a corner comes when it has been held a moment, and goes the moment it is not
+            let mut want = 0u8;
+            for (i, bit) in CORNERS.into_iter().enumerate() {
+                if held & bit == 0 {
+                    since.retain(|(m, c, _)| !(*m == opening.monitor && *c == i));
+                    continue;
+                }
+                let at = match since.iter().find(|(m, c, _)| *m == opening.monitor && *c == i) {
+                    Some((_, _, at)) => *at,
                     None => {
                         let now = Instant::now();
-                        since.push((opening.monitor.clone(), now));
+                        since.push((opening.monitor.clone(), i, now));
                         now
                     }
                 };
                 let waited = at.elapsed();
                 if waited >= COVER_DELAY {
-                    Some(bounds)
+                    want |= bit;
                 } else {
                     let left = COVER_DELAY - waited + Duration::from_millis(8);
                     again = Some(again.map_or(left, |a| a.min(left)));
-                    None
                 }
-            } else {
-                since.retain(|(m, _)| *m != opening.monitor);
-                None
-            };
+            }
             match cover.iter_mut().find(|(m, _)| *m == opening.monitor) {
                 Some((_, now)) if *now == want => {}
                 Some((_, now)) => {
@@ -258,7 +279,7 @@ fn tick() -> Option<Duration> {
                 }
                 None => {
                     cover.push((opening.monitor.clone(), want));
-                    changed |= want.is_some();
+                    changed |= want != 0;
                 }
             }
         }
@@ -310,16 +331,12 @@ unsafe extern "system" fn on_event(
     _thread: u32,
     _time: u32,
 ) {
-    // only a window itself moving or resizing, and only ones that matter: a maximised one (that may now fill an
-    // opening) or one that did (that may have stopped)
+    // a window itself (not a caret or a scroll bar in it) moving, changing state, or coming to the front: any of them
+    // can change what is on top at a corner
     if id_object != OBJID_WINDOW.0 || id_child != 0 || hwnd.0.is_null() {
         return;
     }
-    let key = hwnd.0 as isize;
-    let interesting = unsafe { IsZoomed(hwnd).as_bool() } || FILLING.lock().contains(&key);
-    if interesting {
-        wake();
-    }
+    wake();
 }
 
 /// Start the worker, once.
@@ -336,7 +353,7 @@ fn start() {
         let mut sooner: Option<Duration> = None;
         let mut straight_on = false;
         loop {
-            // woken by an event, or every so often in case one was missed (or a window has arrived and is due)
+            // woken by an event, or every so often in case one was missed (or a corner is due)
             if !straight_on {
                 let _ = rx.recv_timeout(sooner.take().map_or(Duration::from_millis(400), |s| s.min(Duration::from_millis(400))));
             }
@@ -346,7 +363,7 @@ fn start() {
             if ENABLED.load(Ordering::Relaxed) {
                 sooner = tick();
             }
-            std::thread::sleep(Duration::from_millis(12));
+            std::thread::sleep(Duration::from_millis(16));
             while rx.try_recv().is_ok() {
                 straight_on = true;
             }
@@ -359,15 +376,9 @@ fn start() {
     // out-of-context hooks are delivered through the queue of the thread that
     // set them, so that thread has to pump one
     let hook = std::thread::Builder::new().name("frame-shaper-events".into()).spawn(|| unsafe {
-        SetWinEventHook(
-            EVENT_OBJECT_LOCATIONCHANGE,
-            EVENT_OBJECT_LOCATIONCHANGE,
-            None,
-            Some(on_event),
-            0,
-            0,
-            WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS,
-        );
+        for event in [EVENT_OBJECT_LOCATIONCHANGE, EVENT_SYSTEM_FOREGROUND] {
+            SetWinEventHook(event, event, None, Some(on_event), 0, 0, WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
+        }
         let mut msg = MSG::default();
         while GetMessageW(&mut msg, None, 0, 0).as_bool() {
             let _ = TranslateMessage(&msg);
@@ -385,39 +396,63 @@ mod tests {
 
     const OPENING: Rect = Rect { x: 1934, y: -117, width: 2532, height: 1346 };
 
+    fn opening() -> Opening {
+        Opening { monitor: "m".into(), screen: Rect { x: 1920, y: -165, width: 2560, height: 1440 }, rect: OPENING, radius: 18 }
+    }
+
     #[test]
     fn a_window_that_fills_the_opening_fits_it() {
         // a pixel or two off, as a maximised window is
         let almost = Rect { x: 1935, y: -116, width: 2530, height: 1345 };
         assert!(fits(&almost, &OPENING));
         assert!(fits(&OPENING, &OPENING));
-        // a few pixels off, as one that was laid out for another work area stands (File Explorer, eight pixels
-        // taller than the opening at the top)
-        let stale = Rect { x: 1934, y: -125, width: 2532, height: 1354 };
-        assert!(fits(&stale, &OPENING));
+        // File Explorer: eight pixels more at the top, its undrawn resize border
+        let explorer = Rect { x: 1934, y: -125, width: 2532, height: 1354 };
+        assert!(fits(&explorer, &OPENING));
     }
 
     #[test]
     fn a_window_that_does_not_fill_it_does_not() {
         let small = Rect { x: 2100, y: 100, width: 900, height: 600 };
         assert!(!fits(&small, &OPENING));
-        // one on a monitor with no frame, filling the whole screen
         let full = Rect { x: 1920, y: -165, width: 2560, height: 1440 };
         assert!(!fits(&full, &OPENING));
-        // one snapped to half
-        let half = Rect { x: 1934, y: -117, width: 1266, height: 1346 };
-        assert!(!fits(&half, &OPENING));
     }
 
     #[test]
-    fn a_point_is_on_the_monitor_that_contains_it() {
-        let a = Rect { x: 0, y: 0, width: 1920, height: 1080 };
-        assert!(contains(&a, (0, 0)) && contains(&a, (1919, 1079)));
-        assert!(!contains(&a, (1920, 500)) && !contains(&a, (-1, 5)));
+    fn a_maximised_window_holds_all_four_corners() {
+        let w = [Seen { visible: OPENING, maximised: true }];
+        assert_eq!(corners_held(&opening(), &w), 0b1111);
+    }
+
+    #[test]
+    fn two_windows_snapped_side_by_side_hold_their_outer_corners() {
+        let half = OPENING.width / 2;
+        let left = Seen { visible: Rect { x: OPENING.x, y: OPENING.y, width: half, height: OPENING.height }, maximised: false };
+        let right = Seen { visible: Rect { x: OPENING.x + half, y: OPENING.y, width: OPENING.width - half, height: OPENING.height }, maximised: false };
+        // the left one holds top left and bottom left, the right one top right and bottom right: all four, between them
+        assert_eq!(corners_held(&opening(), &[left, right]), 0b1111);
+        // with only the left one there, only its two
+        let left_only = [Seen { visible: Rect { x: OPENING.x, y: OPENING.y, width: half, height: OPENING.height }, maximised: false }];
+        assert_eq!(corners_held(&opening(), &left_only), CORNERS[0] | CORNERS[3]);
+    }
+
+    #[test]
+    fn a_window_snapped_to_a_quarter_holds_one_corner() {
+        let q = Seen { visible: Rect { x: OPENING.x + OPENING.width / 2, y: OPENING.y + OPENING.height / 2, width: OPENING.width / 2, height: OPENING.height / 2 }, maximised: false };
+        assert_eq!(corners_held(&opening(), &[q]), CORNERS[2]);
+    }
+
+    #[test]
+    fn a_window_over_a_corner_that_is_not_snapped_there_hides_what_is_under_it() {
+        // a small window dragged over the top left corner, on top of a maximised one: that corner is not covered
+        let floating = Seen { visible: Rect { x: OPENING.x - 30, y: OPENING.y - 20, width: 400, height: 300 }, maximised: false };
+        let maximised = Seen { visible: OPENING, maximised: true };
+        assert_eq!(corners_held(&opening(), &[floating, maximised]), 0b1110);
     }
 
     #[test]
     fn nothing_is_covered_where_nothing_is_known() {
-        assert_eq!(cover_rect("no such monitor"), None);
+        assert_eq!(cover_mask("no such monitor"), 0);
     }
 }

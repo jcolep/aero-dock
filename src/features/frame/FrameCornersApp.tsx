@@ -108,7 +108,9 @@ export function FrameCornersApp() {
             </clipPath>
           ))}
         </defs>
-        {boxes.map((_, i) => (
+        {boxes.map((_, i) =>
+          // only the corners that have an app's corner in them (a window snapped to one side holds two)
+          (paint.mask ?? 15) & (1 << i) ? (
           <g key={i} clipPath={`url(#frame-corner-${i})`}>
             {urls[i] && paint.patches[i] ? (
               // the wallpaper that is under the corner, with the margin's own glass over it: what the margin is there
@@ -135,7 +137,8 @@ export function FrameCornersApp() {
               </g>
             )}
           </g>
-        ))}
+          ) : null,
+        )}
       </svg>
     </div>
   );

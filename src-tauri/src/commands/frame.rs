@@ -137,7 +137,7 @@ const OVERLAP: i32 = 2;
 /// each corner, what is outside its rounded edge and inside its square one. A maximised app's square corners are
 /// there, and the corner window draws the margin's colour over them. Nothing else is in it, so the rest of the
 /// window takes no clicks and draws nothing. Empty when the corners are square.
-unsafe fn corner_region(app: &Rect, radius: i32) -> HRGN {
+unsafe fn corner_region(app: &Rect, radius: i32, mask: u8) -> HRGN {
     unsafe {
         let pieces = CreateRectRgn(0, 0, 0, 0);
         if radius <= 0 {
@@ -146,7 +146,11 @@ unsafe fn corner_region(app: &Rect, radius: i32) -> HRGN {
         // each corner's square, as far along each edge as the curve reaches
         let reach = radius + OVERLAP;
         let (left, top, right, bottom) = (app.x, app.y, app.x + app.width, app.y + app.height);
-        for (x, y) in [(left, top), (right - reach, top), (right - reach, bottom - reach), (left, bottom - reach)] {
+        let squares = [(left, top), (right - reach, top), (right - reach, bottom - reach), (left, bottom - reach)];
+        for (i, (x, y)) in squares.into_iter().enumerate() {
+            if mask & shaper::CORNERS[i] == 0 {
+                continue;
+            }
             let square = CreateRectRgn(x, y, x + reach, y + reach);
             CombineRgn(Some(pieces), Some(pieces), Some(square), RGN_OR);
             let _ = DeleteObject(square.into());
@@ -272,7 +276,7 @@ fn layout_monitor(
             dock_window::set_region(hwnd, region)?;
         }
         LAST.lock().insert(monitor.name.clone(), g);
-        PIECES.lock().remove(corners.label());
+        PIECES.lock().retain(|(l, _)| l != corners.label());
     }
     // shown only now it is in place, so it never appears in the wrong spot
     if !ring.is_visible().unwrap_or(false) {
@@ -280,33 +284,35 @@ fn layout_monitor(
     }
     let _ = ring.set_always_on_bottom(true);
     let _ = corners.set_always_on_top(true);
-    // The corner pieces are over the maximised app on top, if it is the one that fills the opening, once it has
-    // arrived. They are put where that app's own corners are (which is the opening's, or a few pixels off for one
-    // that has not been told of a change to the work area), in the colour of the margin beside each, looked at
-    // before the window is shown so that what is read is the margin and not the pieces.
-    let cover = if FULLSCREEN.load(Ordering::Relaxed) || g.radius <= 0 { None } else { shaper::cover_rect(&monitor.name) };
-    if let Some(app_rect) = cover {
+    // The corner pieces are over the corners of the opening that have an app's own corner in them (a maximised app
+    // holds all four, one snapped to a side two, one snapped to a quarter one), once it has arrived there.
+    let mask = if FULLSCREEN.load(Ordering::Relaxed) || g.radius <= 0 { 0 } else { shaper::cover_mask(&monitor.name) };
+    let opening = Rect { x: g.x + g.pad, y: g.y + g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad };
+    if mask != 0 {
         // in the corner window's own coordinates
-        let rel = Rect { x: app_rect.x - g.x, y: app_rect.y - g.y, width: app_rect.width, height: app_rect.height };
-        let wanted = (rel, g.radius);
-        if PIECES.lock().get(corners.label()) != Some(&wanted) {
-            let region = unsafe { corner_region(&rel, g.radius) };
+        let rel = Rect { x: g.pad, y: g.pad, width: opening.width, height: opening.height };
+        let wanted = (rel, g.radius, mask);
+        if PIECES.lock().iter().find(|(l, _)| l == corners.label()).map(|(_, p)| *p) != Some(wanted) {
+            let region = unsafe { corner_region(&rel, g.radius, mask) };
             if dock_window::set_region(corners_hwnd, region).is_ok() {
-                PIECES.lock().insert(corners.label().to_string(), wanted);
+                let mut pieces = PIECES.lock();
+                pieces.retain(|(l, _)| l != corners.label());
+                pieces.push((corners.label().to_string(), wanted));
             }
         }
-        // off this thread: the first look at the wallpaper under the pieces takes a few tens of milliseconds
+        // off this thread: a first look at the wallpaper under the pieces takes a few tens of milliseconds
         {
             let (app, label, pad, radius) = (app.clone(), corners.label().to_string(), g.pad, g.radius);
-            std::thread::spawn(move || paint_corners(&app, &label, &app_rect, &rel, pad, radius));
+            std::thread::spawn(move || paint_corners(&app, &label, &opening, &rel, pad, radius, mask, false));
         }
         let mut covering = COVERING.lock();
         covering.retain(|c| c.label != corners.label());
-        covering.push(Covering { label: corners.label().to_string(), screen: app_rect, rel, pad: g.pad, radius: g.radius });
+        covering.push(Covering { label: corners.label().to_string(), screen: opening, rel, pad: g.pad, radius: g.radius, mask });
     } else {
         COVERING.lock().retain(|c| c.label != corners.label());
     }
-    set_corners_visible(&corners, cover.is_some());    Ok(Some(Opening {
+    set_corners_visible(&corners, mask != 0);
+    Ok(Some(Opening {
         monitor: monitor.name.clone(),
         screen: monitor.bounds,
         rect: Rect { x: g.x + g.pad, y: g.y + g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad },
@@ -357,6 +363,8 @@ pub struct CornerPaint {
     pub colours: [String; 4],
     pub rect: Rect,
     pub radius: i32,
+    /// Which corners to draw: bits of `shaper::CORNERS` (top left, top right, bottom right, bottom left).
+    pub mask: u8,
     pub patches: Vec<Option<Patch>>,
 }
 
@@ -384,13 +392,20 @@ fn corner_patches(screen: &Rect, rel: &Rect, pad: i32, radius: i32) -> Vec<Optio
                 pts.push((cx + sx * a, cy - sy * d));
                 pts.push((cx - sx * d, cy + sy * a));
             }
-            let pairs: Vec<([u8; 3], [u8; 3])> = colours_at(&pts)
-                .into_iter()
-                .zip(&pts)
-                .filter_map(|(seen, &(px, py))| Some((seen?, desk.rgb(px, py)?)))
-                .collect();
-            let (seen, drawn): (Vec<_>, Vec<_>) = pairs.into_iter().unzip();
-            if !lines_up(&seen, &drawn) {
+            // a few looks, a moment apart: a mote of the ambient scene drifting through the margin can upset one
+            let lined_up = (0..3).any(|attempt| {
+                if attempt > 0 {
+                    std::thread::sleep(std::time::Duration::from_millis(120));
+                }
+                let pairs: Vec<([u8; 3], [u8; 3])> = colours_at(&pts)
+                    .into_iter()
+                    .zip(&pts)
+                    .filter_map(|(seen, &(px, py))| Some((seen?, desk.rgb(px, py)?)))
+                    .collect();
+                let (seen, drawn): (Vec<_>, Vec<_>) = pairs.into_iter().unzip();
+                lines_up(&seen, &drawn)
+            });
+            if !lined_up {
                 return None;
             }
             // the square from the corner, inward
@@ -404,9 +419,11 @@ fn corner_patches(screen: &Rect, rel: &Rect, pad: i32, radius: i32) -> Vec<Optio
 /// What was last sent to each corner window, by its label, for a page that starts after it was sent.
 static PAINT: Mutex<Vec<(String, CornerPaint)>> = Mutex::new(Vec::new());
 
-/// The pieces last put into each corner window: the rectangle they are round and the radius.
-static PIECES: std::sync::LazyLock<Mutex<HashMap<String, (Rect, i32)>>> =
-    std::sync::LazyLock::new(|| Mutex::new(HashMap::new()));
+/// The pieces last put into each corner window: the rectangle they are round, the radius and which corners.
+static PIECES: Mutex<Vec<(String, Pieces)>> = Mutex::new(Vec::new());
+
+/// The rectangle the pieces are round, the radius, and which corners.
+type Pieces = (Rect, i32, u8);
 
 /// What each corner window is covering now, so that its colours can be looked at again while it does.
 struct Covering {
@@ -415,45 +432,65 @@ struct Covering {
     rel: Rect,
     pad: i32,
     radius: i32,
+    mask: u8,
 }
 
 static COVERING: Mutex<Vec<Covering>> = Mutex::new(Vec::new());
 
-/// How often the colours beside the covered corners are looked at again: the wallpaper can change (a new one, a
-/// slideshow), and so can the margin's glass. Twenty-four pixels read and compared; nothing is sent unless they changed.
-const REPAINT_EVERY: std::time::Duration = std::time::Duration::from_millis(1500);
-
-/// Look at the colours beside the covered corners every so often, for as long as the app runs.
-fn start_repaint(app: AppHandle) {
-    let _ = std::thread::Builder::new().name("frame-corner-colours".into()).spawn(move || loop {
-        std::thread::sleep(REPAINT_EVERY);
-        let now: Vec<(String, Rect, Rect, i32, i32)> =
-            COVERING.lock().iter().map(|c| (c.label.clone(), c.screen, c.rel, c.pad, c.radius)).collect();
-        for (label, screen, rel, pad, radius) in now {
-            paint_corners(&app, &label, &screen, &rel, pad, radius);
+/// Wait for the wallpaper to change, for as long as the app runs, and when it has, look at what is under the covered
+/// corners again. Windows writes the wallpaper's settings under `HKCU\Control Panel\Desktop` whenever it changes
+/// (a new picture from Personalisation, a slideshow moving on, Spotlight), so the registry is asked to say when that
+/// key changes, and nothing is done in between: no polling, and nothing the ambient scene drifting through the margin
+/// could be mistaken for.
+fn watch_wallpaper(app: AppHandle) {
+    use windows::core::w;
+    use windows::Win32::System::Registry::{
+        RegCloseKey, RegNotifyChangeKeyValue, RegOpenKeyExW, HKEY, HKEY_CURRENT_USER, KEY_NOTIFY, REG_NOTIFY_CHANGE_LAST_SET,
+    };
+    let _ = std::thread::Builder::new().name("frame-wallpaper".into()).spawn(move || unsafe {
+        let mut key = HKEY::default();
+        if RegOpenKeyExW(HKEY_CURRENT_USER, w!("Control Panel\\Desktop"), None, KEY_NOTIFY, &mut key).is_err() {
+            log::warn!("could not watch for the wallpaper changing");
+            return;
         }
+        loop {
+            // blocks until a value under the key is written
+            if RegNotifyChangeKeyValue(key, false, REG_NOTIFY_CHANGE_LAST_SET, None, false).is_err() {
+                break;
+            }
+            // the new wallpaper fades in over the old for about a second, and is written in several steps
+            std::thread::sleep(std::time::Duration::from_millis(1500));
+            let now: Vec<(String, Rect, Rect, i32, i32, u8)> =
+                COVERING.lock().iter().map(|c| (c.label.clone(), c.screen, c.rel, c.pad, c.radius, c.mask)).collect();
+            for (label, screen, rel, pad, radius, mask) in now {
+                paint_corners(&app, &label, &screen, &rel, pad, radius, mask, true);
+            }
+        }
+        let _ = RegCloseKey(key);
     });
 }
-
 /// The page asks for what it should draw when it starts (see `paint_corners`).
 #[tauri::command]
 pub fn frame_corner_colours(label: String) -> Option<CornerPaint> {
     PAINT.lock().iter().find(|(l, _)| *l == label).map(|(_, p)| p.clone())
 }
 
-/// Read the colours beside the corners of the window being covered and give them, with where it is, to the corner
-/// window's page, if they have changed. `screen` is the window's rectangle on the screen, `rel` in the corner window.
-fn paint_corners(app: &AppHandle, label: &str, screen: &Rect, rel: &Rect, pad: i32, radius: i32) {
+/// Give the corner window's page what to draw: where the opening is, which corners, and what is under each. What is
+/// under them (the wallpaper, and the margin's colour beside them) is looked at only when the pieces have moved or
+/// `fresh` asks for it (the wallpaper has changed): it is the desktop drawn whole, tens of milliseconds. `screen` is
+/// the opening on the screen, `rel` in the corner window.
+#[allow(clippy::too_many_arguments)]
+fn paint_corners(app: &AppHandle, label: &str, screen: &Rect, rel: &Rect, pad: i32, radius: i32, mask: u8, fresh: bool) {
     use tauri::Emitter;
-    let Some(colours) = corner_colours(screen, pad, radius) else { return };
-    // The wallpaper under the pieces is looked at again only when the margin beside them has changed (a new
-    // wallpaper) or they have moved: it is the desktop drawn whole, tens of milliseconds.
     let previous = PAINT.lock().iter().find(|(l, _)| l == label).map(|(_, p)| p.clone());
-    let patches = match previous {
-        Some(p) if p.rect == *rel && p.radius == radius && p.colours == colours => p.patches,
-        _ => corner_patches(screen, rel, pad, radius),
+    let (colours, patches) = match previous {
+        Some(p) if !fresh && p.rect == *rel && p.radius == radius => (p.colours, p.patches),
+        _ => {
+            let Some(colours) = corner_colours(screen, pad, radius) else { return };
+            (colours, corner_patches(screen, rel, pad, radius))
+        }
     };
-    let paint = CornerPaint { colours, rect: *rel, radius, patches };
+    let paint = CornerPaint { colours, rect: *rel, radius, mask, patches };
     {
         let mut held = PAINT.lock();
         match held.iter_mut().find(|(l, _)| l == label) {
@@ -520,7 +557,7 @@ pub fn layout_later(app: &AppHandle) {
 pub fn init(app: &AppHandle) {
     let handle = app.clone();
     appbar::set_claims_hook(move || layout_later(&handle));
-    start_repaint(app.clone());
+    watch_wallpaper(app.clone());
     let handle = app.clone();
     shaper::set_changed_hook(move || layout_later(&handle));
 
@@ -802,7 +839,7 @@ mod tests {
         // is cut away from its square one in the first 30px or so along each edge
         let g = geometry(&Rect { x: 0, y: 0, width: 1000, height: 600 }, [0; 4], 20, 30);
         let opening = Rect { x: g.pad, y: g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad };
-        let pieces = unsafe { corner_region(&opening, g.radius) };
+        let pieces = unsafe { corner_region(&opening, g.radius, 0b1111) };
         // the very corner of the opening's square is in the piece, at every corner
         assert!(inside(pieces, 21, 21) && inside(pieces, 978, 21));
         assert!(inside(pieces, 21, 578) && inside(pieces, 978, 578));
@@ -821,7 +858,7 @@ mod tests {
     fn the_pieces_follow_a_window_that_stands_off_the_opening() {
         // File Explorer, maximised eight pixels higher than the opening: its corners are where it is
         let app = Rect { x: 20, y: 12, width: 960, height: 568 };
-        let pieces = unsafe { corner_region(&app, 30) };
+        let pieces = unsafe { corner_region(&app, 30, 0b1111) };
         assert!(inside(pieces, 21, 13) && inside(pieces, 978, 13), "its own top corners");
         assert!(!inside(pieces, 21, 21 + 40) && !inside(pieces, 500, 14), "and not its edge");
         // the opening's own corner, below it, is the app's
@@ -835,7 +872,7 @@ mod tests {
     #[test]
     fn square_corners_have_no_pieces() {
         let g = geometry(&Rect { x: 0, y: 0, width: 1000, height: 600 }, [0; 4], 20, 0);
-        let pieces = unsafe { corner_region(&Rect { x: 20, y: 20, width: 960, height: 560 }, g.radius) };
+        let pieces = unsafe { corner_region(&Rect { x: 20, y: 20, width: 960, height: 560 }, g.radius, 0b1111) };
         assert!(!inside(pieces, 21, 21) && !inside(pieces, 500, 21) && !inside(pieces, 500, 300));
         unsafe {
             let _ = DeleteObject(pieces.into());
