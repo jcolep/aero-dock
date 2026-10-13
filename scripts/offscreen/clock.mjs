@@ -32,7 +32,10 @@ for (const scale of [1, 1.5, 2]) {
     await h.desktop("#7f93b5");
     const worst = { cells: 0, rest: 0, centre: 0, steady: true };
     for (let i = 0; i < 6; i++) {
-      await h.sleep(i === 0 ? 700 : 1000);
+      // looked at when the digits have settled: half a second after the clock last turned over (it turns over on
+      // the second, and a roll takes a fifth of one)
+      const into = await h.eval("Date.now() % 1000");
+      await h.sleep(((600 - into + 1000) % 1000) + (i === 0 ? 600 : 1000));
       const m = await h.eval(`(() => {
         const dpr = window.devicePixelRatio;
         const roll = document.querySelector('.mb-clock .roll');
