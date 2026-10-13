@@ -89,6 +89,8 @@ export interface AppearanceSettings {
   frost: FrostSettings;
   /** A table of how smoothly each window draws, on each screen (a diagnostic). */
   frameOverlay: boolean;
+  /** Draw the windows with the graphics card (read when the program starts). */
+  hardwareAcceleration: boolean;
 }
 
 /** One window's frame timings (see commands/perf.rs). */

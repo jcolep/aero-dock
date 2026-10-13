@@ -46,7 +46,7 @@ export const GROUPS: GroupDef[] = [
         id: "animations",
         title: "Animations",
         blurb: "How menus, flyouts, the dock and Start open and close",
-        keywords: "frame timings smoothness fps stutter refresh rate hz overlay performance animation animations menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close",
+        keywords: "hardware acceleration gpu graphics card software rendering restart frame timings smoothness fps stutter refresh rate hz overlay performance animation animations menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close",
       },
     ],
   },

@@ -23,6 +23,10 @@ pub fn run() {
         std::env::set_var("WEBVIEW2_USER_DATA_FOLDER", &dir);
     }
 
+    let mut context = tauri::generate_context!();
+    // draw with the graphics card or in software, by the setting, before any window is made
+    #[cfg(windows)]
+    commands::settings::apply_gpu_choice(context.config_mut());
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             // Second launch: just make sure the existing docks are visible.
@@ -195,6 +199,7 @@ pub fn run() {
             commands::start::user_profile,
             commands::start::list_recent_downloads,
             commands::glass::capture_backdrop,
+            commands::settings::restart_app,
             commands::perf::report_frame_stats,
             commands::perf::frame_stats,
             commands::perf::frame_report,
@@ -283,7 +288,7 @@ pub fn run() {
             commands::widgets::media_focus_source,
             commands::widgets::media_spectrum,
         ])
-        .build(tauri::generate_context!())
+        .build(context)
         .expect("error while building Aero Dock")
         .run(|_app, event| {
             match &event {

@@ -289,11 +289,58 @@ pub(crate) fn dock_browser_args(app: &AppHandle) -> Option<String> {
         .and_then(|w| w.additional_browser_args.clone())
 }
 
+/// The browser arguments for the windows: the ones in tauri.conf.json, which draw in software, with the
+/// flag that does so taken out when the graphics card is to be used.
+pub(crate) fn browser_args(base: &str, hardware: bool) -> String {
+    base.split_whitespace().filter(|a| !(hardware && *a == "--disable-gpu")).collect::<Vec<_>>().join(" ")
+}
+
+/// Settle the browser arguments before any window is made: they are the same for every window (see above), and are
+/// read back from the config by `dock_browser_args`, so this is the one place they are decided.
+#[cfg(windows)]
+pub(crate) fn apply_gpu_choice(config: &mut tauri::Config) {
+    let hardware = crate::core::settings::hardware_acceleration_wanted();
+    crate::trace!("hardware acceleration: {hardware}");
+    for window in config.app.windows.iter_mut() {
+        if let Some(args) = window.additional_browser_args.as_mut() {
+            *args = browser_args(args, hardware);
+        }
+    }
+}
+
+/// Close the program and start it again, for the things that are read only at the start. The new copy is
+/// started a moment after this one has gone, or it would find this one still holding the single-instance lock.
+#[tauri::command]
+pub fn restart_app(app: AppHandle) -> AeroResult<()> {
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        let exe = std::env::current_exe()?;
+        let command = format!("ping -n 3 127.0.0.1 >nul & start \"\" \"{}\"", exe.display());
+        std::process::Command::new("cmd").args(["/C", &command]).creation_flags(0x0800_0000).spawn()?;
+    }
+    app.exit(0);
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
+    use super::browser_args;
+
+    #[test]
+    fn the_graphics_card_is_used_when_wanted_and_not_when_not() {
+        let base = "--disable-features=msWebOOUI --disable-gpu --autoplay-policy=no-user-gesture-required";
+        assert_eq!(browser_args(base, false), base);
+        let hardware = browser_args(base, true);
+        assert!(!hardware.contains("--disable-gpu"), "{hardware}");
+        assert!(hardware.contains("--autoplay-policy=no-user-gesture-required"), "{hardware}");
+        assert!(hardware.contains("--disable-features=msWebOOUI"), "{hardware}");
+    }
+
     /// The browser arguments live in tauri.conf.json. Setting them there
     /// replaces Tauri's own defaults rather than adding to them, so those
-    /// have to be repeated, and the GPU flag is what saves the memory.
+    /// have to be repeated, and the GPU flag is what saves the memory
+    /// (it is taken out at start when hardware acceleration is switched on: see `apply_gpu_choice`).
     #[test]
     fn the_dock_keeps_tauris_defaults_and_renders_in_software() {
         let conf: serde_json::Value =

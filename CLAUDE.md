@@ -52,8 +52,12 @@ and the WebView2 runtime. `pnpm install` first.
 - **Colour** comes from the tokens (`--aero-*`, `--clear-tint`, ...), never raw
   values in components, so every theme and the picked colour keep working.
 - **Comments say why**, in full sentences, as the surrounding code does.
-- **Performance rules.** WebView2 runs with `--disable-gpu` (`tauri.conf.json`,
-  asserted by a test), so everything is composited in software, and the cost of an
+- **Performance rules.** `tauri.conf.json` launches WebView2 with `--disable-gpu` (asserted by a test), and that flag
+  is taken out at start when `appearance.hardwareAcceleration` is on, which is the default (`apply_gpu_choice`, read
+  from the settings file before any window exists; the setting waits for a restart, `restart_app`). The rules below were
+  written for software and still save work on the GPU, but with it the cost model differs: compare with the frame
+  timings table (`perf.mjs`, Settings > Animations > Smoothness) before assuming either way. In software, everything is
+  composited on the CPU, and the cost of an
   animation is mostly how many frames the page produces (a 165 Hz monitor makes a
   smooth animation 165 frames a second). Prefer `steps()` or a low-rate value
   write to a smooth animation, avoid filters on large surfaces, pace ambient

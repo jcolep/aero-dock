@@ -475,6 +475,23 @@ export function SettingsApp() {
           />
           <SettingsSub>Smoothness</SettingsSub>
           <AeroToggle
+            label="Hardware acceleration"
+            checked={appearance.hardwareAcceleration}
+            hint="Draw the dock, the Start menu and the menu bar with the graphics card instead of the processor. Smoother on a fast screen, and it costs about 60 MB more memory. It is read when Aero Dock starts, so a change waits for a restart"
+            onChange={(v) => set((d) => void (d.appearance.hardwareAcceleration = v))}
+          />
+          <div className="ctl-row">
+            <span className="ctl-label">Apply it</span>
+            <div className="ctl-actions">
+              <button
+                className="aero-button"
+                onClick={() => ipc.restartApp().catch((e) => setStatus({ tone: "error", text: `Could not restart: ${e}` }))}
+              >
+                Restart Aero Dock
+              </button>
+            </div>
+          </div>
+          <AeroToggle
             label="Show frame timings"
             checked={appearance.frameOverlay}
             hint="A small table at the top left of the main screen: for every window, the screen it is on and that screen's rate, its frames a second, the average gap between frames, the slowest 5% and the worst in ten seconds, in green, amber or red. It is how to tell whether something is smooth on each of your screens with numbers. A diagnostic: it keeps every window drawing at its screen's rate while it is on, so turn it off when you are done"

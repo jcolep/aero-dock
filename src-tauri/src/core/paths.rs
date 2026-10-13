@@ -62,6 +62,14 @@ pub fn config_dir(app: &AppHandle) -> AeroResult<PathBuf> {
     Ok(resolve(app.path().app_config_dir()?))
 }
 
+/// Where `settings.json` lives, found without the app (see `settings::hardware_acceleration_wanted`).
+pub fn config_dir_early() -> Option<PathBuf> {
+    if is_portable() {
+        return exe_dir().map(|dir| dir.join(PORTABLE_DIR));
+    }
+    std::env::var_os("APPDATA").map(|appdata| PathBuf::from(appdata).join("com.aerodock.desktop"))
+}
+
 /// Where the icon cache lives.
 pub fn data_dir(app: &AppHandle) -> AeroResult<PathBuf> {
     Ok(resolve(app.path().app_data_dir()?))

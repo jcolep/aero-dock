@@ -202,6 +202,10 @@ pub struct AppearanceSettings {
     /// A table of how smoothly each window draws, on each screen (see `commands::perf`). A diagnostic: timing
     /// the frames keeps every window drawing at its screen's rate.
     pub frame_overlay: bool,
+    /// Draw the windows with the graphics card. Off, the web views are drawn in software, which keeps the
+    /// graphics process small (about 60 MB less) and costs frames on a fast screen. Read when the program
+    /// starts (the browser's arguments cannot change under a window that is open), so a change waits for a restart.
+    pub hardware_acceleration: bool,
 }
 
 /// How frosted one surface's glass is.
@@ -267,6 +271,7 @@ impl Default for AppearanceSettings {
             icon_style: "glass".into(),
             frost: FrostSettings::default(),
             frame_overlay: false,
+            hardware_acceleration: true,
         }
     }
 }
@@ -1034,6 +1039,18 @@ impl SettingsStore {
     }
 }
 
+/// Whether the windows are to be drawn with the graphics card, read from the settings file before the
+/// program has started anything (the browser's arguments are fixed when its first window is made, and the
+/// settings store needs the app, which needs them). Anything missing or unreadable is "yes".
+pub fn hardware_acceleration_wanted() -> bool {
+    let path = match crate::core::paths::config_dir_early() {
+        Some(dir) => dir.join("settings.json"),
+        None => return true,
+    };
+    let Ok(text) = std::fs::read_to_string(path) else { return true };
+    let Ok(value) = serde_json::from_str::<serde_json::Value>(text.trim_start_matches('\u{feff}')) else { return true };
+    value["appearance"]["hardwareAcceleration"].as_bool().unwrap_or(true)
+}
 #[cfg(test)]
 mod tests {
     use super::*;

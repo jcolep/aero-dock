@@ -204,8 +204,9 @@ needs until then. No preset blurs: a blur on something moving is redrawn every
 frame, and the web views draw in software.
 
 Ambient motion (icon float, glass sweep) is deliberately **low frame rate**.
-The dock's web view renders in software (`--disable-gpu`, which keeps the GPU
-process small), and there a smooth animation has a hidden cost: while one plays,
+The web views can render in software (`--disable-gpu`, which keeps the GPU process
+small; it is what `tauri.conf.json` says, and it is taken out at launch when Settings > Animations > Smoothness >
+Hardware acceleration is on, the default), and in software a smooth animation has a hidden cost: while one plays,
 the page draws a frame at the display's refresh rate, 165 a second on a fast
 monitor, each one composited and handed to the window system on the CPU. Nine
 icons floating as a CSS keyframe animation cost a quarter of a core to move
