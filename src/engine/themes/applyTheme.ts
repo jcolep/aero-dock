@@ -110,6 +110,8 @@ export function applyAppearance(
   // A reflection with no strength is still a second copy of every icon to
   // draw, so it is switched off outright rather than made transparent.
   document.documentElement.dataset.reflect = a.reflectionStrength < 0.01 ? "off" : "on";
+  // the dock's own symbols follow the icon look, as an app's icon does (see GlyphFilters)
+  document.documentElement.dataset.iconStyle = a.iconStyle;
   // depth: a fine grain over the glass, and light that follows the pointer
   document.documentElement.dataset.grain = a.glassGrain ? "on" : "off";
   document.documentElement.dataset.pointerLight = a.pointerLight ? "on" : "off";
@@ -125,6 +127,11 @@ export function applyAppearance(
   for (const [token, value] of Object.entries(tokensFromAccent(effectiveAccent(settings, wallpaperAccent)))) {
     root.setProperty(token, value);
   }
+
+  // the colours of a symbol in the tinted look: the theme's colour, pale and deep
+  const glyphAccent = effectiveAccent(settings, wallpaperAccent);
+  root.setProperty("--glyph-tint", `color-mix(in srgb, ${glyphAccent} 46%, #ffffff)`);
+  root.setProperty("--glyph-tint-deep", `color-mix(in srgb, ${glyphAccent} 72%, #06142a)`);
 
   // numeric appearance tokens
   root.setProperty("--icon-size", `${d.iconSize}px`);

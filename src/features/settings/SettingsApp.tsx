@@ -30,6 +30,7 @@ import { ModesCard } from "./ModesCard";
 import { WidgetsCard } from "./WidgetsCard";
 import {
   FLYOUT_ANIMS,
+  ISLAND_ANIMS,
   LAUNCH_ANIMS,
   MAGNIFY_FEELS,
   MENU_ANIMS,
@@ -39,6 +40,7 @@ import {
 import {
   AnimationPicker,
   FlyoutPreview,
+  IslandPreview,
   LaunchPreview,
   MagnifyPreview,
   MenuPreview,
@@ -439,6 +441,14 @@ export function SettingsApp() {
             )}
           />
           <AnimationPicker
+            label="Media pill and peek"
+            summary="The pill in the middle of the menu bar, and the card that hangs from the Control Center button"
+            value={settings.animations.island}
+            options={ISLAND_ANIMS}
+            onChange={(id) => set((d) => void (d.animations.island = id))}
+            preview={(id, run) => <IslandPreview preset={id} run={run} speed={appearance.animationSpeed} />}
+          />
+          <AnimationPicker
             label="Start menu"
             summary="Opening and closing the Start menu"
             value={settings.animations.start}
@@ -591,6 +601,20 @@ export function SettingsApp() {
               onChange={(v) => set((d) => void (d.dock.autoHideDelayMs = v))}
             />
           )}
+          <AeroSegmented<"endTask" | "close">
+            label="Middle click on an app"
+            value={dock.middleClick}
+            options={[
+              { value: "endTask", label: "End Task" },
+              { value: "close", label: "Close windows" },
+            ]}
+            onChange={(v) => set((d) => void (d.dock.middleClick = v))}
+          />
+          <p className="settings-note">
+            End Task ends the app at once, the way Task Manager's button does, so one that is hung goes too; anything not
+            saved is lost. Close windows asks each window to close as its own button would, and an app with unsaved work
+            asks first. End Task is also in an app's right-click menu.
+          </p>
           <SettingsSub>Icons</SettingsSub>
           <AeroSlider
             label="Icon size"
@@ -876,6 +900,12 @@ export function SettingsApp() {
                 checked={settings.menuBar.mediaIsland}
                 hint="While something is playing, rest the pointer in the middle of the bar and a pill slides out with the cover, the title and the controls. It is not there at all when nothing is playing"
                 onChange={(v) => set((d) => void (d.menuBar.mediaIsland = v))}
+              />
+              <AeroToggle
+                label="Peek at what is playing from the Control Center button"
+                checked={settings.menuBar.mediaPeek}
+                hint="While something plays, rest the pointer on the Control Center button and its Now Playing card hangs from it: the cover, the scrubber, the buttons, the list of players. A click on the button opens the whole Control Center as ever"
+                onChange={(v) => set((d) => void (d.menuBar.mediaPeek = v))}
               />
               {settings.menuBar.mediaIsland && (
                 <AeroToggle

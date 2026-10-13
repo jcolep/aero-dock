@@ -1,20 +1,31 @@
-/* Numbers that roll (see Roll.tsx). The cell is one line tall and clips the column, which a transform moves. */
+﻿/* Numbers that roll (see Roll.tsx). Every character, a digit or not, sits in a cell of one height, so that all of
+   them have the same baseline and the same centre however they are reached.
+
+   The cell is a whole number of device pixels tall. The column is moved by a multiple of it, so with a fractional
+   height (1.28em of 13px is 16.64px) each digit came to rest at a different fraction of a pixel, the text of each was
+   drawn at its own offset, and a row of numbers stood a little askew. With a whole number they all rest alike. */
 
 .roll {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   font-variant-numeric: tabular-nums;
-  --roll-h: 1.28em;
+  --roll-h: 1.3em;
+}
+
+@supports (width: round(nearest, 1px, 1px)) {
+  .roll {
+    --roll-h: round(nearest, 1.3em, calc(1px / var(--dpr, 1)));
+  }
 }
 
 .roll-d {
   display: inline-block;
   height: var(--roll-h);
   overflow: hidden;
-  /* the digit rolling in and out fades at the cell's edge instead of being cut */
-  -webkit-mask-image: linear-gradient(transparent 0, #000 22%, #000 78%, transparent 100%);
-  mask-image: linear-gradient(transparent 0, #000 22%, #000 78%, transparent 100%);
-  vertical-align: bottom;
+  /* the digit rolling in and out fades at the cell's edge instead of being cut; at rest the whole digit is inside
+     the clear part */
+  -webkit-mask-image: linear-gradient(transparent 0, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(transparent 0, #000 14%, #000 86%, transparent 100%);
 }
 
 .roll-col {
@@ -22,6 +33,12 @@
   flex-direction: column;
   transition: transform var(--m-settle) var(--e-spring);
   will-change: transform;
+}
+
+/* a clock: it turns over steadily and stops dead, with no overshoot, because it turns over every second and a
+   digit that is always in the middle of settling looks like one that is out of line */
+.roll-steady .roll-col {
+  transition: transform var(--m-standard) var(--e-out);
 }
 
 .roll-col[data-snap] {
@@ -37,6 +54,7 @@
 
 .roll-ch {
   display: inline-block;
+  height: var(--roll-h);
   line-height: var(--roll-h);
 }
 

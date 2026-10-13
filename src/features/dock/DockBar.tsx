@@ -24,6 +24,7 @@ import { ContextMenu } from "./ContextMenu";
 import { useReduced } from "../../engine/accessibility/policy";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { SearchButton, SettingsButton } from "./DockControls";
+import { GlyphFilters } from "./GlyphFilters";
 import { playCue } from "../../engine/sound/ui";
 import { usePointerLight } from "../../engine/light/usePointerLight";
 import { DockSatellite } from "./DockSatellite";
@@ -843,6 +844,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       }}
       onMouseMove={handleOutside}
     >
+      <GlyphFilters />
       <div className="dock-shell">
       <motion.div
         ref={barRef}

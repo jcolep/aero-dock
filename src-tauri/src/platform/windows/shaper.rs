@@ -171,7 +171,7 @@ fn clear(hwnd: isize) {
     let w = HWND(hwnd as *mut _);
     unsafe {
         if IsWindow(Some(w)).as_bool() {
-            let _ = SetWindowRgn(w, None, true);
+            let _ = SetWindowRgn(w, None, false);
         }
     }
 }
@@ -267,7 +267,12 @@ fn ensure_shaped(hwnd: HWND, visible: &Rect, radius: i32) -> bool {
         return false;
     }
     let region = region_of(&rel, clip);
-    let applied = unsafe { SetWindowRgn(hwnd, Some(region), true) } != 0;
+    // Without a redraw. With one the system sends the window a WM_WINDOWPOSCHANGED, which a program takes for its
+    // window having moved or changed size: it lays itself out again and paints again, in the middle of Windows'
+    // own animation of it growing to fill the screen, and the window jerks and flashes. The region needs no
+    // such thing: the window is composited from the picture it has already drawn, and the region only says how
+    // much of that picture is shown.
+    let applied = unsafe { SetWindowRgn(hwnd, Some(region), false) } != 0;
     if !applied {
         // the system did not take it, so it is still ours to free
         unsafe {
@@ -281,7 +286,7 @@ fn ensure_shaped(hwnd: HWND, visible: &Rect, radius: i32) -> bool {
     if !region_in_place(hwnd, &rel, clip) {
         crate::trace!("shaper: {key:x} took a shape but does not show it, leaving it square");
         unsafe {
-            let _ = SetWindowRgn(hwnd, None, true);
+            let _ = SetWindowRgn(hwnd, None, false);
         }
         remember_refused(key, rel, clip);
         return false;
@@ -361,11 +366,19 @@ fn r_eq(a: &Rect, b: &Rect) -> bool {
     a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height
 }
 
-/// One look at the screen.
-fn tick() {
+/// How long a window has been the one on top and shaped before the fringe is shown over its corners. Windows takes
+/// about this long to grow a window to fill the screen, drawing it from a picture that has square corners and is
+/// scaled; the fringe, drawn along the final corners, would show on its own in the empty space for that time.
+const FRINGE_DELAY: Duration = Duration::from_millis(330);
+
+/// Per monitor: since when a shaped window has been on top of it.
+static ON_TOP_SINCE: Mutex<Vec<(String, Instant)>> = Mutex::new(Vec::new());
+
+/// One look at the screen. Returns how soon it wants another, if it does (the fringe is waiting to be shown).
+fn tick() -> Option<Duration> {
     let openings = OPENINGS.lock().clone();
     if openings.is_empty() {
-        return;
+        return None;
     }
     let mut keep: HashSet<isize> = HashSet::new();
     // for each monitor, whether the window on top of its maximised ones is shaped
@@ -397,10 +410,34 @@ fn tick() {
     REFUSED.lock().retain(|(h, _, _)| unsafe { IsWindow(Some(HWND(*h as *mut _))) }.as_bool());
 
     let mut changed = false;
+    let mut again: Option<Duration> = None;
     {
         let mut fringe = FRINGE.lock();
+        let mut since = ON_TOP_SINCE.lock();
         for opening in &openings {
-            let want = top.get(&opening.monitor).copied().unwrap_or(false);
+            let on_top = top.get(&opening.monitor).copied().unwrap_or(false);
+            // it goes the moment the shaped window goes, and comes only when the window has had time to arrive
+            let want = if on_top {
+                let at = match since.iter().find(|(m, _)| *m == opening.monitor) {
+                    Some((_, at)) => *at,
+                    None => {
+                        let now = Instant::now();
+                        since.push((opening.monitor.clone(), now));
+                        now
+                    }
+                };
+                let waited = at.elapsed();
+                if waited >= FRINGE_DELAY {
+                    true
+                } else {
+                    let left = FRINGE_DELAY - waited + Duration::from_millis(8);
+                    again = Some(again.map_or(left, |a| a.min(left)));
+                    false
+                }
+            } else {
+                since.retain(|(m, _)| *m != opening.monitor);
+                false
+            };
             match fringe.iter_mut().find(|(m, _)| *m == opening.monitor) {
                 Some((_, on)) if *on == want => {}
                 Some((_, on)) => {
@@ -419,6 +456,7 @@ fn tick() {
             hook();
         }
     }
+    again
 }
 
 // ---- the worker ----
@@ -454,14 +492,25 @@ fn start() {
     if STARTED.set(tx).is_err() {
         return;
     }
-    let worker = std::thread::Builder::new().name("frame-shaper".into()).spawn(move || loop {
-        // woken by an event, or every so often in case one was missed
-        let _ = rx.recv_timeout(Duration::from_millis(400));
-        // a burst of events (a window being dragged) is one look, not many
-        std::thread::sleep(Duration::from_millis(40));
-        while rx.try_recv().is_ok() {}
-        if ENABLED.load(Ordering::Relaxed) {
-            tick();
+    let worker = std::thread::Builder::new().name("frame-shaper".into()).spawn(move || {
+        let mut sooner: Option<Duration> = None;
+        let mut straight_on = false;
+        loop {
+            // woken by an event, or every so often in case one was missed (or the fringe is due)
+            if !straight_on {
+                let _ = rx.recv_timeout(sooner.take().map_or(Duration::from_millis(400), |s| s.min(Duration::from_millis(400))));
+            }
+            straight_on = false;
+            // The first event of a change is looked at at once: a window that has just grown to fill the screen
+            // should have its corners cut in the next frame, not several frames on. What follows it in the next
+            // few milliseconds (one change is a burst of events) is one more look at the end of it, not many.
+            if ENABLED.load(Ordering::Relaxed) {
+                sooner = tick();
+            }
+            std::thread::sleep(Duration::from_millis(12));
+            while rx.try_recv().is_ok() {
+                straight_on = true;
+            }
         }
     });
     if let Err(e) = worker {
@@ -579,6 +628,59 @@ mod tests {
         unsafe {
             let _ = DestroyWindow(hwnd);
         }
+    }
+    /// What the program sees when its window is shaped: the system tells it (WM_WINDOWPOSCHANGED) whether or not a
+    /// redraw is asked for, and what it is told must be that nothing moved and nothing was resized, or a program
+    /// lays itself out again and paints in the middle of the system's own animation of it growing to fill the screen.
+    #[test]
+    fn shaping_a_window_tells_it_that_nothing_moved_or_was_resized() {
+        use std::sync::atomic::AtomicU32;
+        use windows::core::w;
+        use windows::Win32::Foundation::{LRESULT, WPARAM};
+        use windows::Win32::UI::Shell::{DefSubclassProc, SetWindowSubclass};
+        use windows::Win32::UI::WindowsAndMessaging::{
+            CreateWindowExW, DestroyWindow, ShowWindow, SW_SHOWNOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, WINDOWPOS, WINDOW_EX_STYLE,
+            WM_WINDOWPOSCHANGED, WS_POPUP,
+        };
+
+        static NOTICES: AtomicU32 = AtomicU32::new(0);
+        static MOVED_OR_SIZED: AtomicU32 = AtomicU32::new(0);
+        unsafe extern "system" fn watch(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM, _id: usize, _data: usize) -> LRESULT {
+            if msg == WM_WINDOWPOSCHANGED {
+                NOTICES.fetch_add(1, Ordering::SeqCst);
+                let at = unsafe { &*(lparam.0 as *const WINDOWPOS) };
+                if at.flags.0 & SWP_NOMOVE.0 == 0 || at.flags.0 & SWP_NOSIZE.0 == 0 {
+                    MOVED_OR_SIZED.fetch_add(1, Ordering::SeqCst);
+                }
+            }
+            unsafe { DefSubclassProc(hwnd, msg, wparam, lparam) }
+        }
+
+        let hwnd = unsafe {
+            CreateWindowExW(WINDOW_EX_STYLE(0), w!("STATIC"), w!(""), WS_POPUP, -30000, -30000, 800, 600, None, None, None, None)
+        }
+        .expect("a test window");
+        unsafe {
+            let _ = ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+            assert!(SetWindowSubclass(hwnd, Some(watch), 1, 0).as_bool());
+        }
+        let rel = Rect { x: 0, y: 0, width: 800, height: 600 };
+        assert!(shape_for_test(hwnd, &rel, 17));
+        unsafe {
+            let _ = SetWindowRgn(hwnd, None, false);
+        }
+        assert!(NOTICES.load(Ordering::SeqCst) > 0, "the test heard the notices at all");
+        assert_eq!(MOVED_OR_SIZED.load(Ordering::SeqCst), 0, "none of them said it moved or was resized");
+        unsafe {
+            let _ = DestroyWindow(hwnd);
+        }
+    }
+
+    /// `ensure_shaped` looks at the screen to find the window's bounds; this is the part of it that sets the shape.
+    fn shape_for_test(hwnd: HWND, rel: &Rect, clip: i32) -> bool {
+        let region = region_of(rel, clip);
+        let applied = unsafe { SetWindowRgn(hwnd, Some(region), false) } != 0;
+        applied && region_in_place(hwnd, rel, clip)
     }
     #[test]
     fn a_point_is_on_the_monitor_that_contains_it() {

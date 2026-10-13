@@ -77,6 +77,17 @@ export const START_ANIMS: PresetInfo[] = [
   { id: "none", label: "None", hint: "Appears at once" },
 ];
 
+export const ISLAND_ANIMS: PresetInfo[] = [
+  { id: "gloop", label: "Gloop", hint: "A drop that swells out of a point, stretches wide, and wobbles into shape" },
+  { id: "jelly", label: "Jelly", hint: "Springs out and squashes, bouncing until it is still" },
+  { id: "drop", label: "Drop", hint: "Falls in from the top of the bar and lands with a squash" },
+  { id: "unfurl", label: "Unfurl", hint: "Opens from the middle outward, like a scroll" },
+  { id: "bloom", label: "Bloom", hint: "Swells from a soft focus into place" },
+  { id: "spring", label: "Spring", hint: "One smooth spring, with a little overshoot" },
+  { id: "fade", label: "Fade", hint: "Just fades" },
+  { id: "none", label: "None", hint: "Appears at once" },
+];
+
 export const MAGNIFY_FEELS: PresetInfo[] = [
   { id: "soft", label: "Soft", hint: "Smooth and unhurried" },
   { id: "snappy", label: "Snappy", hint: "Tight, follows the pointer closely" },
@@ -567,6 +578,211 @@ export function startExitMs(preset: string, speed = 1): number {
   return ms === 0 ? 0 : Math.ceil(ms / speed) + 20;
 }
 
+// ---- the media pill and its peek ----
+
+/** What the media pill (in the bar) and the peek (the card under the Control Center) do to arrive and to leave. Each
+ *  is a target for `motion`, so a pointer that goes and comes back turns the motion round from where it has got to
+ *  instead of starting it over. */
+export interface IslandMotion {
+  /** Where it is while it is away. */
+  closed: TargetAndTransition;
+  /** Where it is while it is out, and how it gets there. */
+  open: TargetAndTransition;
+  /** How long it takes to leave, in ms, for whatever keeps room for it. */
+  exitMs: number;
+  /** When what is inside begins to appear, in seconds after the shell has begun. */
+  bodyDelay: number;
+  /** Whether what is inside comes into focus (a blur) as well as fading in. */
+  bodyBlur: boolean;
+}
+
+const ISLAND_EXIT_MS: Record<string, number> = { gloop: 360, jelly: 360, drop: 260, unfurl: 320, bloom: 260, spring: 300, fade: 220, none: 0 };
+
+export function islandExitMs(preset: string, speed = 1): number {
+  const ms = ISLAND_EXIT_MS[preset] ?? ISLAND_EXIT_MS.gloop;
+  return ms === 0 ? 0 : Math.ceil(ms / speed) + 30;
+}
+
+const EASE_OUT = [0.2, 0.8, 0.3, 1] as const;
+const EASE_IN = [0.6, 0, 0.8, 0.4] as const;
+
+/** The motion of the pill in the bar. It is `width` wide when out. */
+export function islandMotion(preset: string, kind: "pill" | "card", speed: number, width = 318): IslandMotion {
+  const s = (sec: number) => sec / speed;
+  const none: IslandMotion = {
+    closed: kind === "pill" ? { width: 0, opacity: 0, scale: 1, scaleX: 1, scaleY: 1, y: 0, clipPath: "none", transition: { duration: 0 } } : { opacity: 0, scale: 1, scaleX: 1, scaleY: 1, y: 0, clipPath: "none", transition: { duration: 0 } },
+    open: kind === "pill" ? { width, opacity: 1, scale: 1, scaleX: 1, scaleY: 1, y: 0, clipPath: "none", transition: { duration: 0 } } : { opacity: 1, scale: 1, scaleX: 1, scaleY: 1, y: 0, clipPath: "none", transition: { duration: 0 } },
+    exitMs: 0,
+    bodyDelay: 0,
+    bodyBlur: false,
+  };
+  if (preset === "none") return none;
+  // everything starts from the same neutral values, so that one preset can be left for another cleanly
+  const rest = { scale: 1, scaleX: 1, scaleY: 1, y: 0, clipPath: "none" } as const;
+  const exitMs = islandExitMs(preset, speed);
+
+  if (kind === "pill") {
+    const gone = { width: 0, opacity: 0 };
+    switch (preset) {
+      case "jelly":
+        return {
+          closed: { ...rest, ...gone, scaleY: 0.4, transition: { width: { type: "spring", stiffness: 520, damping: 40 }, scaleY: { duration: s(0.2) }, opacity: { duration: s(0.16), delay: s(0.06) } } },
+          open: { ...rest, width, opacity: 1, transition: { width: { type: "spring", stiffness: 210, damping: 8.5, mass: 1 }, scaleY: { type: "spring", stiffness: 330, damping: 7 }, opacity: { duration: s(0.1) } } },
+          exitMs,
+          bodyDelay: s(0.16),
+          bodyBlur: false,
+        };
+      case "drop":
+        return {
+          closed: { ...rest, width, opacity: 0, y: -26, scaleY: 1.25, scaleX: 0.85, transition: { duration: s(0.22), ease: EASE_IN } },
+          open: {
+            ...rest,
+            width,
+            opacity: 1,
+            y: [null, 3, 0] as unknown as number,
+            scaleY: [null, 0.7, 1.08, 0.98, 1] as unknown as number,
+            scaleX: [null, 1.07, 0.98, 1.01, 1] as unknown as number,
+            transition: { y: { duration: s(0.46), times: [0, 0.6, 1], ease: "easeOut" }, scaleY: { duration: s(0.7), times: [0, 0.5, 0.72, 0.88, 1], ease: "easeOut" }, scaleX: { duration: s(0.7), times: [0, 0.5, 0.72, 0.88, 1], ease: "easeOut" }, opacity: { duration: s(0.12) } },
+          },
+          exitMs,
+          bodyDelay: s(0.18),
+          bodyBlur: false,
+        };
+      case "unfurl":
+        return {
+          closed: { ...rest, width, opacity: 0, scaleY: 0.5, clipPath: "inset(0% 50% 0% 50% round 999px)", transition: { duration: s(0.26), ease: EASE_IN } },
+          open: { ...rest, width, opacity: 1, clipPath: "inset(0% 0% 0% 0% round 999px)", transition: { clipPath: { duration: s(0.5), ease: EASE_OUT }, scaleY: { type: "spring", stiffness: 300, damping: 20 }, opacity: { duration: s(0.1) } } },
+          exitMs,
+          bodyDelay: s(0.22),
+          bodyBlur: false,
+        };
+      case "bloom":
+        return {
+          closed: { ...rest, width, opacity: 0, scale: 0.7, transition: { duration: s(0.2), ease: EASE_IN } },
+          open: { ...rest, width, opacity: 1, transition: { scale: { type: "spring", stiffness: 300, damping: 21 }, opacity: { duration: s(0.16) } } },
+          exitMs,
+          bodyDelay: s(0.06),
+          bodyBlur: true,
+        };
+      case "spring":
+        return {
+          closed: { ...rest, ...gone, scale: 0.55, transition: { type: "spring", stiffness: 520, damping: 40 } },
+          open: { ...rest, width, opacity: 1, transition: { type: "spring", stiffness: 360, damping: 28, mass: 0.95 } },
+          exitMs,
+          bodyDelay: s(0.07),
+          bodyBlur: true,
+        };
+      case "fade":
+        return {
+          closed: { ...rest, width, opacity: 0, y: 3, transition: { duration: s(0.18) } },
+          open: { ...rest, width, opacity: 1, transition: { duration: s(0.22) } },
+          exitMs,
+          bodyDelay: 0,
+          bodyBlur: false,
+        };
+      case "gloop":
+      default:
+        // a drop: from a thin sliver it stretches past its width a little flat, then wobbles in and out of its height
+        // as its width swings back, the two swinging opposite ways, which is what makes it read as a thing with volume
+        return {
+          closed: { ...rest, ...gone, scaleY: 0.3, transition: { width: { type: "spring", stiffness: 520, damping: 40 }, scaleY: { duration: s(0.2), ease: EASE_IN }, opacity: { duration: s(0.14), delay: s(0.08) } } },
+          open: {
+            ...rest,
+            width: [null, width * 0.64, width * 1.11, width * 0.94, width * 1.03, width] as unknown as number,
+            scaleY: [null, 1.3, 0.78, 1.1, 0.96, 1] as unknown as number,
+            opacity: 1,
+            transition: {
+              width: { duration: s(0.82), times: [0, 0.2, 0.46, 0.66, 0.84, 1], ease: "easeOut" },
+              scaleY: { duration: s(0.82), times: [0, 0.2, 0.46, 0.66, 0.84, 1], ease: "easeOut" },
+              opacity: { duration: s(0.1) },
+            },
+          },
+          exitMs,
+          bodyDelay: s(0.3),
+          bodyBlur: true,
+        };
+    }
+  }
+
+  // the peek: a card that hangs from the bar, growing from a point at its top (the caller sets the origin)
+  switch (preset) {
+    case "jelly":
+      return {
+        closed: { ...rest, opacity: 0, scaleX: 0.5, scaleY: 0.2, transition: { duration: s(0.2), ease: EASE_IN } },
+        open: { ...rest, opacity: 1, transition: { scaleX: { type: "spring", stiffness: 230, damping: 9 }, scaleY: { type: "spring", stiffness: 280, damping: 8 }, opacity: { duration: s(0.1) } } },
+        exitMs,
+        bodyDelay: s(0.14),
+        bodyBlur: false,
+      };
+    case "drop":
+      return {
+        closed: { ...rest, opacity: 0, y: -22, scaleY: 0.6, transition: { duration: s(0.22), ease: EASE_IN } },
+        open: {
+          ...rest,
+          opacity: 1,
+          y: [null, 4, 0] as unknown as number,
+          scaleY: [null, 1.05, 0.98, 1] as unknown as number,
+          transition: { y: { duration: s(0.5), times: [0, 0.6, 1], ease: "easeOut" }, scaleY: { duration: s(0.6), times: [0, 0.55, 0.78, 1], ease: "easeOut" }, opacity: { duration: s(0.12) } },
+        },
+        exitMs,
+        bodyDelay: s(0.16),
+        bodyBlur: false,
+      };
+    case "unfurl":
+      return {
+        closed: { ...rest, opacity: 0, scaleY: 0.92, clipPath: "inset(0% 0% 100% 0% round 22px)", transition: { duration: s(0.26), ease: EASE_IN } },
+        open: { ...rest, opacity: 1, clipPath: "inset(0% 0% 0% 0% round 22px)", transition: { clipPath: { duration: s(0.5), ease: EASE_OUT }, scaleY: { type: "spring", stiffness: 300, damping: 22 }, opacity: { duration: s(0.1) } } },
+        exitMs,
+        bodyDelay: s(0.2),
+        bodyBlur: false,
+      };
+    case "bloom":
+      return {
+        closed: { ...rest, opacity: 0, scale: 0.88, transition: { duration: s(0.2), ease: EASE_IN } },
+        open: { ...rest, opacity: 1, transition: { scale: { type: "spring", stiffness: 300, damping: 22 }, opacity: { duration: s(0.16) } } },
+        exitMs,
+        bodyDelay: s(0.06),
+        bodyBlur: true,
+      };
+    case "spring":
+      return {
+        closed: { ...rest, opacity: 0, scale: 0.8, transition: { type: "spring", stiffness: 520, damping: 40 } },
+        open: { ...rest, opacity: 1, transition: { type: "spring", stiffness: 340, damping: 26 } },
+        exitMs,
+        bodyDelay: s(0.07),
+        bodyBlur: false,
+      };
+    case "fade":
+      return {
+        closed: { ...rest, opacity: 0, y: 4, transition: { duration: s(0.18) } },
+        open: { ...rest, opacity: 1, transition: { duration: s(0.22) } },
+        exitMs,
+        bodyDelay: 0,
+        bodyBlur: false,
+      };
+    case "gloop":
+    default:
+      // the Control Center's own goo, so that the peek and the panel it leads to are of one family
+      return {
+        closed: { ...rest, opacity: 0, scaleX: 0.3, scaleY: 0.14, transition: { scaleX: { duration: s(0.3), ease: EASE_IN }, scaleY: { duration: s(0.3), ease: EASE_IN }, opacity: { duration: s(0.14), delay: s(0.16) } } },
+        open: {
+          ...rest,
+          opacity: 1,
+          scaleX: [null, 1.05, 0.98, 1.015, 0.995, 1] as unknown as number,
+          scaleY: [null, 1.1, 0.95, 1.03, 0.99, 1] as unknown as number,
+          transition: {
+            scaleX: { duration: s(0.74), times: [0, 0.26, 0.46, 0.64, 0.82, 1], ease: [0.4, 0, 0.3, 1] },
+            scaleY: { duration: s(0.74), times: [0, 0.26, 0.46, 0.64, 0.82, 1], ease: [0.4, 0, 0.3, 1] },
+            opacity: { duration: s(0.1) },
+          },
+        },
+        exitMs,
+        bodyDelay: s(0.2),
+        bodyBlur: false,
+      };
+  }
+}
+
 /** Read this part of the settings, with anything missing filled in. */
 export function animationsOf(settings: { animations?: Partial<AnimationSettings> } | null): AnimationSettings {
   const a = settings?.animations ?? {};
@@ -577,5 +793,6 @@ export function animationsOf(settings: { animations?: Partial<AnimationSettings>
     launch: a.launch ?? "bounce",
     magnify: a.magnify ?? "soft",
     start: a.start ?? "rise",
+    island: a.island ?? "gloop",
   };
 }

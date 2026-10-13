@@ -14,9 +14,18 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - **A glass border for the frame**, with a width: a bevel along the opening the apps sit in, lit from above.
 - **Dock magnification is Mac-like**: the icon under the pointer is drawn larger, growing away from the screen edge and rising a little further, along a cosine hill that is flat at both ends. New sliders for the lift and for how many icons either side swell (Reach). Before, icons only spread apart and did not grow.
 
+### Fixed
+
+- **Programs that use WebView2 crashed when started from the dock or Start in the portable build** (DriveWorks Administrator, with a NullReferenceException in `WebView2_CoreWebViewInitialized`). The portable profile folder was put in the environment, every program started from here inherited it, and was told to use a folder that was open here with other arguments. Each window is now given the folder by name, and nothing is left in the environment.
+- **Clock digits stood a little askew**: each rested at a fraction of a pixel of its own and the characters shared no baseline. The cell is a whole number of device pixels and every character is in one, and a clock turns over without overshoot.
+- Settings had eight copies of one toggle and two of a slider.
+
 ### Changed
 
-- The dock's Search and Settings buttons are redrawn to match the glass: a lens with a glint on a metal handle, and a metal gear, on an orb with the dock's gloss.
+- **Middle click on a dock icon is End Task** (the app is ended at once, with what it started, so a hung one goes too; the shell is never ended and a Store app is ended through its own process). A setting returns it to closing the windows politely. End Task is also in the right-click menu.
+- **The dock's own symbols follow the icon look** as an app's icon does: plain is white as ever, and glass, clear and tinted treat Search, Settings and the glyphs by the clock the way an app's icon is treated.
+- **The media pill and the peek**: eight ways to come out (Gloop, Jelly, Drop, Unfurl, Bloom, Spring, Fade, None) chosen under Animations. The pill is robust: it narrows in a narrow bar, leaves with its contents when the music stops, changes track with a slide, and its hairline is a scrubber. Resting the pointer on the Control Center button hangs its Now Playing card from the button, by the same motion.
+- **Windows growing into the frame**: a maximised window is shaped at once (the first change is looked at in the same frame, not forty milliseconds on), without a redraw, and the fringe over its corners waits until Windows has finished growing it.
 
 - **Lighter ambient scenes.** The scenes in the menu bar and the frame round the screen are drawn at 12 frames a second, not 24-30; idle CPU with the frame on fell from about 55% to 25% of a core.
 

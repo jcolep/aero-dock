@@ -17,16 +17,20 @@ pub fn run() {
 
     // A portable copy takes WebView2's profile with it. Left alone, WebView2
     // writes one under %LOCALAPPDATA% on whatever machine it was plugged into.
+    // Each window is given the folder by name (`data_directory`, see the builders and the dock's in `setup`), and it is
+    // not put in the environment: every program started from the dock or Start inherits the environment, and a
+    // WebView2 program (DriveWorks Administrator) told to use this profile folder, which is open here with other
+    // arguments, fails to initialise and crashes.
     #[cfg(windows)]
     if let Some(dir) = core::paths::webview_dir() {
         let _ = std::fs::create_dir_all(&dir);
-        std::env::set_var("WEBVIEW2_USER_DATA_FOLDER", &dir);
     }
 
     let mut context = tauri::generate_context!();
     // draw with the graphics card or in software, by the setting, before any window is made
     #[cfg(windows)]
     commands::settings::apply_gpu_choice(context.config_mut());
+
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             // Second launch: just make sure the existing docks are visible.
@@ -60,9 +64,27 @@ pub fn run() {
                 }
             }
 
-            let window = app
-                .get_webview_window("dock")
-                .expect("dock window declared in tauri.conf.json");
+            // The dock window is declared in tauri.conf.json with `create: false` and made here, because a window
+            // made from the configuration cannot be given an absolute profile folder (only one under the app's
+            // own data folder), and the portable profile has to be named without the environment (see the note
+            // in `run`).
+            let window = {
+                let config = app
+                    .config()
+                    .app
+                    .windows
+                    .iter()
+                    .find(|w| w.label == "dock")
+                    .cloned()
+                    .expect("dock window declared in tauri.conf.json");
+                let builder = tauri::WebviewWindowBuilder::from_config(app.handle(), &config)?;
+                #[cfg(windows)]
+                let builder = match core::paths::webview_dir() {
+                    Some(dir) => builder.data_directory(dir),
+                    None => builder,
+                };
+                builder.build()?
+            };
 
             #[cfg(windows)]
             {
@@ -238,6 +260,7 @@ pub fn run() {
             commands::windows_cmd::toggle_window,
             commands::windows_cmd::minimize_window,
             commands::windows_cmd::close_window,
+            commands::windows_cmd::end_task,
             commands::windows_cmd::show_window_previews,
             commands::windows_cmd::hide_window_previews,
             commands::windows_cmd::peek_window,

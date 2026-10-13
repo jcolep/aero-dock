@@ -260,20 +260,25 @@ export function DockIcon({
       onAuxClick={(e) => {
         if (e.button !== 1) return;
         e.preventDefault();
-        // Middle-click closes the app: every window it has open, asked to close
-        // the way its own close button would (one with unsaved work still asks
-        // first). The windows listed here are the ones this dock shows for the
-        // app, which for a pin or a running app alike is all of them; a pin that
-        // is not running, a stack or a folder has none, and nothing happens.
+        // Middle-click ends the app, as Task Manager's End Task does: every program that owns one of its
+        // windows is terminated at once, with what it started, so one that is hung or sitting on a dialog goes
+        // too (Settings > Dock can make it ask the windows to close instead, which lets an app with unsaved
+        // work ask first). The windows listed here are the ones this dock shows for the app, which for a pin or
+        // a running app alike is all of them; a pin that is not running, a stack or a folder has none, and
+        // nothing happens.
         if (item.windows.length === 0) return;
         clearTimeout(dwellTimer.current);
         // a preview of the windows that are closing would be left pointing at nothing
         const m = useMenu.getState();
         if (m.kind === "windows" && m.item?.id === item.id) m.close();
         playCue("close");
-        for (const w of item.windows) {
-          ipc.closeWindow(w.hwnd).catch(notify.on(`Could not close ${item.name}`));
+        if (useSettings.getState().settings?.dock.middleClick === "close") {
+          for (const w of item.windows) {
+            ipc.closeWindow(w.hwnd).catch(notify.on(`Could not close ${item.name}`));
+          }
+          return;
         }
+        ipc.endTask(item.windows.map((w) => w.hwnd)).catch(notify.on(`Could not end ${item.name}`));
       }}
       onMouseEnter={(e) => {
         setHovered(true);

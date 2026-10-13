@@ -46,7 +46,7 @@ export const GROUPS: GroupDef[] = [
         id: "animations",
         title: "Animations",
         blurb: "How menus, flyouts, the dock and Start open and close",
-        keywords: "hardware acceleration gpu graphics card software rendering restart frame timings smoothness fps stutter refresh rate hz overlay performance animation animations menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close",
+        keywords: "hardware acceleration gpu graphics card software rendering restart frame timings smoothness fps stutter refresh rate hz overlay performance animation animations menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close media pill island peek gloop jelly drop unfurl bloom spring",
       },
     ],
   },
@@ -59,7 +59,7 @@ export const GROUPS: GroupDef[] = [
         title: "Dock",
         blurb: "Position, size, magnification, auto-hide",
         keywords:
-          "dock position edge bottom top left right monitor screen every monitor icon size spacing magnification lift reach hill swell rise grow mac padding corner radius floating edge gap reserve screen space running applications running dot minimise effect genie scale bounce attention auto hide",
+          "dock position edge bottom top left right monitor screen every monitor icon size spacing magnification lift reach hill swell rise grow mac padding corner radius floating edge gap reserve screen space running applications running dot middle click end task close windows minimise effect genie scale bounce attention auto hide",
       },
       {
         id: "dock-items",

@@ -92,7 +92,7 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
         title={`${date} - click for notifications and the calendar`}
         onClick={() => ipc.openNotificationCenter().catch(notify.on("Could not open the calendar"))}
       >
-        <span className="widget-time"><Roll text={time} /></span>
+        <span className="widget-time"><Roll className="roll-steady" text={time} /></span>
         <span className="widget-date">{date}</span>
       </button>
       )}

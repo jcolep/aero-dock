@@ -250,6 +250,13 @@ pub async fn open_settings(app: AppHandle) -> AeroResult<()> {
     // same browser arguments, or the second one fails to appear at all.
     // The dock's come from tauri.conf.json, so read them from there rather
     // than keeping a second copy that could drift.
+    // the profile is named here, not in the environment: a program started from this one would inherit the
+    // environment, and a WebView2 app (DriveWorks) given our profile folder fails to start
+    #[cfg(windows)]
+    let builder = match crate::core::paths::webview_dir() {
+        Some(dir) => builder.data_directory(dir),
+        None => builder,
+    };
     #[cfg(windows)]
     let builder = match dock_browser_args(&app) {
         Some(args) => builder.additional_browser_args(&args),
@@ -326,6 +333,37 @@ pub fn restart_app(app: AppHandle) -> AeroResult<()> {
 #[cfg(test)]
 mod tests {
     use super::browser_args;
+
+    /// A window made without the profile folder would open a second profile (and clash with the first over its
+    /// arguments), and the environment can no longer be relied on to name it: every place that builds a window
+    /// has to say where its profile is.
+    #[test]
+    fn every_window_builder_names_the_profile_folder() {
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src").join("commands");
+        let mut bad = Vec::new();
+        for entry in std::fs::read_dir(&dir).expect("the commands folder") {
+            let path = entry.expect("an entry").path();
+            if path.extension().is_none_or(|e| e != "rs") {
+                continue;
+            }
+            let text = std::fs::read_to_string(&path).expect("a source file");
+            // the test module itself says these words
+            let code = text.split("#[cfg(test)]").next().unwrap_or("");
+            let builds = code.matches("WebviewWindowBuilder::new").count();
+            let named = code.matches("crate::core::paths::webview_dir()").count();
+            if builds > named {
+                bad.push(format!("{}: {builds} windows built, {named} name the profile", path.display()));
+            }
+        }
+        // and the dock window, which is made from the configuration by hand in lib.rs
+        let lib = std::fs::read_to_string(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src").join("lib.rs")).expect("lib.rs");
+        let from = lib.matches("WebviewWindowBuilder::from_config").count();
+        let named = lib.matches("core::paths::webview_dir()").count();
+        if from > named {
+            bad.push(format!("lib.rs: {from} windows built from the configuration, {named} name the profile"));
+        }
+        assert!(bad.is_empty(), "{bad:?}");
+    }
 
     #[test]
     fn the_graphics_card_is_used_when_wanted_and_not_when_not() {

@@ -102,6 +102,10 @@ pub struct DockSettings {
     /// How a window goes into the dock when minimised from it, and comes out:
     /// genie (squeezed down to the icon), scale (shrunk to it) or off.
     pub minimize_effect: String,
+    /// What a middle click on an icon does: `endTask` ends the app (every process of it, at once, as Task Manager's
+    /// End Task does, so unsaved work is lost), `close` asks its windows to close the way their own close button
+    /// would (one with unsaved work still asks first).
+    pub middle_click: String,
 }
 
 impl Default for DockSettings {
@@ -134,6 +138,7 @@ impl Default for DockSettings {
             show_clock: true,
             show_system_status: true,
             attention_bounce: true,
+            middle_click: "endTask".into(),
             minimize_effect: "genie".into(),
         }
     }
@@ -481,6 +486,8 @@ pub struct MenuBarSettings {
     pub media_island: bool,
     /// Keep that pill slid out while something is playing, instead of waiting for the pointer.
     pub media_island_pinned: bool,
+    /// Resting the pointer on the Control Center button shows its Now Playing card, hanging from the button.
+    pub media_peek: bool,
 }
 
 impl Default for MenuBarSettings {
@@ -510,6 +517,7 @@ impl Default for MenuBarSettings {
             media_spectrum: true,
             media_island: true,
             media_island_pinned: false,
+            media_peek: true,
         }
     }
 }
@@ -613,6 +621,8 @@ pub struct AnimationSettings {
     pub magnify: String,
     /// The Start menu, opening and closing.
     pub start: String,
+    /// The media pill in the menu bar, and the card that hangs from the Control Center button, arriving and leaving.
+    pub island: String,
 }
 
 impl AnimationSettings {
@@ -625,6 +635,7 @@ impl AnimationSettings {
     pub const LAUNCH: &'static [&'static str] = &["bounce", "hop", "jelly", "pulse", "none"];
     pub const MAGNIFY: &'static [&'static str] = &["soft", "snappy", "bouncy", "liquid"];
     pub const START: &'static [&'static str] = &["rise", "bloom", "genie", "slide", "fade", "none"];
+    pub const ISLAND: &'static [&'static str] = &["gloop", "jelly", "drop", "unfurl", "bloom", "spring", "fade", "none"];
 }
 
 impl Default for AnimationSettings {
@@ -638,6 +649,7 @@ impl Default for AnimationSettings {
             launch: "bounce".into(),
             magnify: "soft".into(),
             start: "rise".into(),
+            island: "gloop".into(),
         }
     }
 }
@@ -788,6 +800,7 @@ impl Settings {
         f.tint = if f.tint.is_finite() { f.tint.clamp(0.2, 2.0) } else { 1.0 };
         f.border_width = f.border_width.clamp(1, 10);
         keep_known(&mut self.dock.minimize_effect, &["genie", "scale", "off"], "genie");
+        keep_known(&mut self.dock.middle_click, &["endTask", "close"], "endTask");
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
         let a11y = &mut self.accessibility;
         keep_known(&mut a11y.reduce_motion, AccessibilitySettings::POLICIES, "system");
@@ -800,6 +813,7 @@ impl Settings {
         keep_known(&mut n.launch, AnimationSettings::LAUNCH, "bounce");
         keep_known(&mut n.magnify, AnimationSettings::MAGNIFY, "soft");
         keep_known(&mut n.start, AnimationSettings::START, "rise");
+        keep_known(&mut n.island, AnimationSettings::ISLAND, "gloop");
         let m = &mut self.menu_bar;
         m.height = m.height.clamp(22, 44);
         m.gap = m.gap.min(24);

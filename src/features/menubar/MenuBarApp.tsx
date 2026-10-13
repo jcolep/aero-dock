@@ -35,6 +35,7 @@ import { notify } from "../feedback/toastStore";
 import { BatteryGlyph } from "../widgets/WidgetCluster";
 import { BarClock } from "./BarClock";
 import { MediaIsland } from "./MediaIsland";
+import { MediaPeek, usePeek } from "./MediaPeek";
 import { BarScene } from "./BarScene";
 import { Calendar } from "./Calendar";
 import { PrivacyDots, PrivacyPanel, privacySummary, usePrivacyUse } from "./Privacy";
@@ -175,13 +176,28 @@ function ControlIcon() {
   );
 }
 
+/** The width of the window, which is the width of the screen the bar is on. */
+function useWindowWidth(): number {
+  const [width, setWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return width;
+}
+
 export function MenuBarApp() {
   const { settings, hydrate } = useSettings();
+  const windowWidth = useWindowWidth();
   const { windows, focused, hydrate: hydrateRunning } = useRunning();
   const { status, hydrate: hydrateSystem } = useSystem();
   const hydrateIdle = useUserIdle((s) => s.hydrate);
 
   const [open, setOpen] = useState<OpenMenu | null>(null);
+  // the Now Playing card that hangs from the Control Center button while the pointer rests on it
+  const peek = usePeek({ enabled: settings?.menuBar.mediaPeek ?? false, suspended: open !== null });
+  const [peekRoom, setPeekRoom] = useState(false);
   // the sliding lens under the buttons, and light that follows the pointer
   const reduced = useReduced();
   // the privacy dots, and the load graph (read while the bar is showing it)
@@ -253,8 +269,8 @@ export function MenuBarApp() {
   // a tip below a button hangs under the bar, so it needs the window to reach that far too
   const [tipBottom, setTipBottom] = useState<number | null>(null);
   useEffect(() => {
-    ipc.resizeMenubar(Math.max(barHeight + gap + (inUse ? PANEL_ROOM : 0), tipBottom ?? 0)).catch(() => undefined);
-  }, [barHeight, gap, inUse, tipBottom]);
+    ipc.resizeMenubar(Math.max(barHeight + gap + (inUse || peekRoom ? PANEL_ROOM : 0), tipBottom ?? 0)).catch(() => undefined);
+  }, [barHeight, gap, inUse, peekRoom, tipBottom]);
 
   // Clicking the bar makes its window the foreground one (Chromium takes the
   // focus for the web view whatever the window asks), so the app the user was
@@ -503,7 +519,7 @@ export function MenuBarApp() {
     >
       {/* anywhere in the window outside the bar and the open menu */}
       {open && <div className="mb-backdrop" onMouseDown={() => closeMenu(true)} />}
-      <GlassTips side="below" onRoom={setTipBottom} off={inUse} />
+      <GlassTips side="below" onRoom={setTipBottom} off={inUse || peek.at !== null} />
 
       <div
         ref={barRef}
@@ -529,7 +545,13 @@ export function MenuBarApp() {
         {showScene && <BarScene settings={settings} />}
         {Lens}
         {look.mediaIsland && (
-          <MediaIsland look={look} suspended={open !== null} onOpenCard={(el) => openMenu("control", el)} />
+          <MediaIsland
+            settings={settings}
+            look={look}
+            barWidth={windowWidth - look.gap * 2}
+            suspended={open !== null}
+            onOpenCard={(el) => openMenu("control", el)}
+          />
         )}
         <div className="mb-side">
           <button className="mb-item mb-logo" title="Aero Dock" {...trigger("apple")}>
@@ -562,7 +584,7 @@ export function MenuBarApp() {
               <span className="mb-battery"><Roll text={`${status.battery.percent}%`} /></span>
             </button>
           )}
-          <button className="mb-item" title="Control Center" {...trigger("control")}>
+          <button className="mb-item" title="Control Center" {...trigger("control")} {...peek.trigger}>
             <ControlIcon />
           </button>
           <button
@@ -617,6 +639,8 @@ export function MenuBarApp() {
           ))}
         </div>
       )}
+
+      {settings.menuBar.mediaPeek && <MediaPeek settings={settings} at={peek.at} handlers={peek.card} onRoom={setPeekRoom} />}
 
       {(shown?.id === "control" || shown?.id === "calendar" || shown?.id === "stats" || shown?.id === "privacy") && (
         <div

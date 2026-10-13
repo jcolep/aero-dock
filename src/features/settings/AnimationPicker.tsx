@@ -20,6 +20,8 @@ import {
 } from "motion/react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
+  islandExitMs,
+  islandMotion,
   magnifySpring,
   menuExitMs,
   panelMotion,
@@ -146,6 +148,73 @@ export function MenuPreview({ preset, run, speed }: { preset: string; run: numbe
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** The media pill in the bar, and the card that hangs from the Control Center button, coming out and going back by the
+ *  same function the real ones use. */
+export function IslandPreview({ preset, run, speed }: { preset: string; run: number; speed: number }) {
+  const phase = useCycle(preset, run, islandExitMs(preset, speed) + 200);
+  const pill = useMemo(() => islandMotion(preset, "pill", speed, 150), [preset, speed]);
+  const card = useMemo(() => islandMotion(preset, "card", speed), [preset, speed]);
+  const out = phase === "in";
+  return (
+    <div
+      className="menubar-root anim-menu-stage"
+      data-anim="none"
+      style={{ ["--anim-speed" as string]: speed } as React.CSSProperties}
+    >
+      <div className="menubar" data-rim="true">
+        <div className="mb-side">
+          <span className="mb-item anim-bar-item">
+            <span className="anim-orb" />
+          </span>
+          <span className="mb-item anim-bar-item anim-bar-text" />
+        </div>
+        <div className="mb-island-layer">
+          <div className="mb-island-zone" style={{ ["--isl-w" as string]: "150px" }}>
+            <motion.div key={`${preset}-${run}`} className="mb-island" data-anim={preset} initial={pill.closed} animate={out ? pill.open : pill.closed}>
+              <motion.div
+                className="mb-island-body"
+                style={{ width: 150 }}
+                initial={false}
+                animate={out ? { opacity: 1, transition: { delay: pill.bodyDelay, duration: 0.24 } } : { opacity: 0, transition: { duration: 0.1 } }}
+              >
+                <span className="anim-orb isl-mini-art" />
+                <span className="anim-line isl-mini-line" />
+                <span className="isl-mini-dots">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+        <div className="mb-side">
+          <span className="mb-item anim-bar-item anim-bar-text" />
+          <span className="mb-item anim-bar-item" data-active={out}>
+            <span className="anim-toggle" />
+          </span>
+          <span className="mb-item anim-bar-item anim-bar-text" />
+        </div>
+      </div>
+      <motion.div
+        key={`card-${preset}-${run}`}
+        className="mb-panel mb-peek anim-mini-panel"
+        data-instant="true"
+        initial={card.closed}
+        animate={out ? card.open : card.closed}
+      >
+        <div className="cc">
+          <div className="cc-card anim-line-card">
+            <span className="anim-line" style={{ width: "60%" }} />
+            <span className="anim-line" style={{ width: "38%" }} />
+            <span className="anim-track" />
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

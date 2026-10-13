@@ -183,6 +183,14 @@ function buildActions(item: DockItemView, settings: Settings): Action[] {
       run: () => Promise.all(item.windows.map((w) => ipc.closeWindow(w.hwnd))),
     });
   }
+  if (item.windows.length > 0) {
+    // ends it at once, whatever it is doing: for an app that will not close (the middle click does the same)
+    actions.push({
+      label: "End Task",
+      danger: true,
+      run: () => ipc.endTask(item.windows.map((w) => w.hwnd)),
+    });
+  }
 
   return actions;
 }

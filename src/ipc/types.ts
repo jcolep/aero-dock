@@ -50,6 +50,8 @@ export interface DockSettings {
   attentionBounce: boolean;
   /** How a window goes into the dock when minimised from it. */
   minimizeEffect: "genie" | "scale" | "off";
+  /** What a middle click on an icon does: end the app, or ask its windows to close. */
+  middleClick: "endTask" | "close";
 }
 
 /** How a surface is rendered. Both are Frutiger Aero; they differ in how
@@ -339,6 +341,7 @@ export interface MenuBarSettings {
   mediaSpectrum: boolean;
   mediaIsland: boolean;
   mediaIslandPinned: boolean;
+  mediaPeek: boolean;
 }
 
 /** Which animation each kind of thing uses: the id of a preset in
@@ -356,6 +359,8 @@ export interface AnimationSettings {
   magnify: string;
   /** The Start menu, opening and closing. */
   start: string;
+  /** The media pill in the menu bar and the card under the Control Center button. */
+  island: string;
 }
 
 /** A frame of glass round the free space of every monitor, between the menu bar

@@ -10,6 +10,9 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  /* a pill that falls in from the top of the bar comes out of its edge and goes back into it */
+  overflow: hidden;
+  border-radius: inherit;
 }
 
 .mb-island-zone {
@@ -18,12 +21,12 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  width: 210px;
+  width: calc(var(--isl-w, 318px) * 0.66);
   transition: width var(--m-standard, 220ms) var(--e-out, ease-out);
 }
 
 .mb-island-zone[data-out] {
-  width: 342px;
+  width: calc(var(--isl-w, 318px) + 24px);
 }
 
 /* the pill: glass tinted by the cover, darker than the bar so that it reads as a thing laid on it */
@@ -54,7 +57,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 318px;
   height: 100%;
   padding: 0 6px 0 4px;
   font-size: 12.5px;
@@ -107,6 +109,19 @@
 
 .isl-title > span {
   display: inline-block;
+  /* a new track comes up from below and the old one is gone */
+  animation: isl-swap 320ms var(--e-out, ease-out) both;
+}
+
+@keyframes isl-swap {
+  from {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .isl-title b {
@@ -188,6 +203,21 @@
   pointer-events: none;
 }
 
+.isl-progress[data-seek] {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* a hairline is not a thing to aim a pointer at: the part that answers is a good deal taller than it looks */
+.isl-progress[data-seek]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -7px;
+  bottom: -4px;
+}
+
 .isl-progress > span {
   display: block;
   height: 100%;
@@ -198,8 +228,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .isl-title > span {
+    animation: none;
+  }
+
   .isl-progress > span,
   .mb-island-zone {
     transition: none;
   }
+}
+
+/* the peek: the Control Center's own panel, but arriving by the motion chosen for it (island motion), so the
+   menu animation the bar is set to must not also play on it */
+.menubar-root[data-anim] .mb-panel.mb-peek {
+  animation: none !important;
 }

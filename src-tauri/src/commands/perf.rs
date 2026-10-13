@@ -156,6 +156,13 @@ pub async fn sync(app: &AppHandle) {
                 .focused(false)
                 .shadow(false)
                 .visible(false);
+            // the profile is named here, not in the environment: a program started from this one would inherit the
+            // environment, and a WebView2 app (DriveWorks) given our profile folder fails to start
+            #[cfg(windows)]
+            let builder = match crate::core::paths::webview_dir() {
+                Some(dir) => builder.data_directory(dir),
+                None => builder,
+            };
             #[cfg(windows)]
             let builder = match crate::commands::settings::dock_browser_args(app) {
                 Some(args) => builder.additional_browser_args(&args),

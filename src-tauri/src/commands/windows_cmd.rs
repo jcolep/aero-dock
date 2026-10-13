@@ -120,6 +120,23 @@ pub fn quit_app_windows(exe: String) {
     }
 }
 
+/// End the programs that own these windows at once, as Task Manager's End Task does. Returns the names of the
+/// programs ended. The shell's own windows are asked to close instead (see `endtask`).
+#[tauri::command]
+pub fn end_task(hwnds: Vec<isize>) -> crate::core::AeroResult<Vec<String>> {
+    let ended = crate::platform::windows::endtask::end_windows(&hwnds);
+    for hwnd in &ended.asked {
+        running::close_window(*hwnd);
+    }
+    if ended.names.is_empty() && ended.asked.is_empty() && !ended.refused.is_empty() {
+        return Err(crate::core::AeroError::other(format!(
+            "Windows would not end {} (it may be running as administrator)",
+            ended.refused.join(", ")
+        )));
+    }
+    Ok(ended.names)
+}
+
 /// Show live DWM previews at the given client-area rects (physical px), in
 /// the dock window that asked: with a dock on each monitor, the preview has
 /// to be drawn into the one the pointer is on.

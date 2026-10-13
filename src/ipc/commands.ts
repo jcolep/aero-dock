@@ -86,6 +86,8 @@ export const ipc = {
     invoke<void>("toggle_window", { hwnd, target: target ?? null }),
   minimizeWindow: (hwnd: number) => invoke<void>("minimize_window", { hwnd }),
   closeWindow: (hwnd: number) => invoke<void>("close_window", { hwnd }),
+  /** End the programs that own these windows at once; the names of those ended. */
+  endTask: (hwnds: number[]) => invoke<string[]>("end_task", { hwnds }),
 
   // system widgets
   getSystemStatus: () => invoke<SystemStatus>("get_system_status"),

@@ -14,6 +14,7 @@
     "windows": [
       {
         "label": "dock",
+        "create": false,
         "title": "Aero Dock",
         "width": 1200,
         "height": 220,

@@ -106,6 +106,102 @@ const shots = {};
   }
 }
 
+// ---- the peek: the card under the Control Center button ----
+{
+  const h = await open({});
+  try {
+    await h.open(".menubar");
+    await h.desktop("#8aa0c0");
+    const cc = await h.rect('.mb-item[title="Control Center"]');
+    await h.move(cc.x, cc.y);
+    await h.sleep(200);
+    check((await h.eval("!!document.querySelector('.mb-peek')")) === false, "resting on the Control Center button does not show it at once");
+    await h.sleep(1500);
+    check((await h.eval("!!document.querySelector('.mb-peek .np')")) === true, "after a moment its Now Playing card hangs from the button");
+    const box = await h.eval("(() => { const r = document.querySelector('.mb-peek').getBoundingClientRect(); return { right: r.right, top: r.top, w: r.width }; })()");
+    check(Math.abs(box.w - 340) < 3 && box.top > 20, `at the Control Center's own place and size (${JSON.stringify(box)})`);
+    shots.peek = await h.shot(1000, 0, 400, 330, 2);
+    await h.move(box.right - 60, box.top + 90);
+    await h.sleep(900);
+    check((await h.eval("!!document.querySelector('.mb-peek')")) === true, "it stays while the pointer is on the card");
+    await h.move(300, 150);
+    await h.sleep(1800);
+    check((await h.eval("!!document.querySelector('.mb-peek')")) === false, "and goes when the pointer has left both");
+    // a click opens the whole Control Center, in the peek's place
+    await h.move(cc.x, cc.y);
+    await h.sleep(1500);
+    await h.click(cc.x, cc.y);
+    await h.sleep(1100);
+    check((await h.eval("document.querySelectorAll('.mb-peek').length")) === 0 && (await h.eval("!!document.querySelector('.mb-panel[data-kind=control]')")) === true, "a click opens the Control Center and the peek is gone");
+  } finally {
+    h.close();
+  }
+}
+{
+  const h = await open({}, { active: false });
+  try {
+    await h.open(".menubar");
+    const cc = await h.rect('.mb-item[title="Control Center"]');
+    await h.move(cc.x, cc.y);
+    await h.sleep(1600);
+    check((await h.eval("!!document.querySelector('.mb-peek')")) === false, "with nothing playing there is no peek");
+  } finally {
+    h.close();
+  }
+}
+{
+  const h = await open({ mediaPeek: false });
+  try {
+    await h.open(".menubar");
+    const cc = await h.rect('.mb-item[title="Control Center"]');
+    await h.move(cc.x, cc.y);
+    await h.sleep(1600);
+    check((await h.eval("!!document.querySelector('.mb-peek')")) === false, "with the peek switched off there is none");
+  } finally {
+    h.close();
+  }
+}
+
+// ---- every way of coming out ends in the same place, and goes ----
+for (const preset of ["gloop", "jelly", "drop", "unfurl", "bloom", "spring", "fade", "none"]) {
+  const h = await startHarness({
+    out,
+    window: "menubar",
+    viewport: [1400, 300],
+    media,
+    art,
+    settings: (s) => {
+      s.menuBar.enabled = true;
+      s.menuBar.ambient = false;
+      s.animations.island = preset;
+    },
+  });
+  try {
+    await h.open(".menubar");
+    await h.desktop("#8aa0c0");
+    await h.move(700, 14);
+    // sampled through the arrival: the widths and heights it passes through
+    const seen = [];
+    for (let i = 0; i < 16; i++) {
+      await h.sleep(70);
+      seen.push(await h.eval(`(() => { const p = document.querySelector('.mb-island'); const r = p.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), o: +getComputedStyle(p).opacity }; })()`));
+    }
+    await h.sleep(900);
+    const end = await state(h);
+    check(end && end.visible && Math.abs(end.width - 318) < 2 && end.opacity > 0.98, `${preset}: settles out at its width (${end && Math.round(end.width)})`);
+    const hs = seen.map((s) => s.h), ws = seen.map((s) => s.w);
+    const moved = new Set([...ws, ...hs]).size;
+    console.log(`  ${preset}: widths ${ws.join(" ")} | heights ${hs.join(" ")}`);
+    if (preset !== "none" && preset !== "fade") check(moved > 5, `${preset}: it moves through shapes on its way (${moved} different sizes seen)`);
+    await h.move(300, 150);
+    await h.sleep(1700);
+    const away = await state(h);
+    check(away && !away.visible, `${preset}: and is gone again`);
+  } finally {
+    h.close();
+  }
+}
+
 // ---- kept out ----
 {
   const h = await open({ mediaIslandPinned: true });

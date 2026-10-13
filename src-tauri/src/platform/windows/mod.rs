@@ -14,6 +14,7 @@ pub mod bluetooth;
 pub mod brightness;
 pub mod dock_window;
 pub mod downloads;
+pub mod endtask;
 pub mod filesearch;
 pub mod genie;
 pub mod hotkeys;
