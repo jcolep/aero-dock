@@ -6,6 +6,7 @@
  * twice and the overlay redraws itself.
  */
 
+import { humane } from "../../engine/errors/humane";
 import { SettingsSection } from "./SettingsSection";
 import { useState } from "react";
 import { WIDGETS } from "../desktop/registry";
@@ -31,7 +32,7 @@ function WidgetRow({
 }) {
   const [open, setOpen] = useState(false);
   const def = WIDGETS.find((w) => w.kind === widget.kind);
-  const fail = (what: string) => (e: unknown) => onStatus("error", `${what}: ${e}`);
+  const fail = (what: string) => (e: unknown) => onStatus("error", `${what}: ${humane(e)}`);
   const style = (patch: Parameters<typeof ipc.styleWidget>[1]) =>
     ipc.styleWidget(widget.id, patch).catch(fail("Could not change the widget"));
 
@@ -209,7 +210,7 @@ function WidgetRow({
 
 export function WidgetsCard({ settings, onStatus }: Props) {
   const w = settings.widgets;
-  const fail = (what: string) => (e: unknown) => onStatus("error", `${what}: ${e}`);
+  const fail = (what: string) => (e: unknown) => onStatus("error", `${what}: ${humane(e)}`);
   const hasWeather = w.widgets.some((x) => x.kind === "weather");
 
   return (

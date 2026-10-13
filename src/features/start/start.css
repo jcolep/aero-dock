@@ -766,3 +766,50 @@
   position: relative;
   z-index: 1;
 }
+
+/* ---- a list that has not arrived ---- */
+
+.st-skel {
+  pointer-events: none;
+}
+
+.st-skel-icon,
+.st-skel-line {
+  display: block;
+  background: rgba(255, 255, 255, 0.12);
+  /* a slow, stepped rest: it breathes about twice a second and draws a frame only when it steps */
+  animation: st-skel 1.8s steps(9, end) infinite;
+}
+
+.st-skel-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  flex: none;
+}
+
+.st-skel-line {
+  height: 11px;
+  border-radius: 6px;
+}
+
+.st-skel-small {
+  height: 8px;
+  margin-top: 6px;
+  opacity: 0.7;
+}
+
+@keyframes st-skel {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.st-root[data-still] .st-skel-icon,
+.st-root[data-still] .st-skel-line {
+  animation: none;
+}

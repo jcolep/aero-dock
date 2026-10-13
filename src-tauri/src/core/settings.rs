@@ -206,6 +206,9 @@ pub struct AppearanceSettings {
     /// graphics process small (about 60 MB less) and costs frames on a fast screen. Read when the program
     /// starts (the browser's arguments cannot change under a window that is open), so a change waits for a restart.
     pub hardware_acceleration: bool,
+    /// How the settings window looks: `night` (dark liquid glass, like everything else) or `sky` (the Frutiger Aero
+    /// sky and bubbles it always had).
+    pub settings_look: String,
 }
 
 /// How frosted one surface's glass is.
@@ -272,6 +275,7 @@ impl Default for AppearanceSettings {
             frost: FrostSettings::default(),
             frame_overlay: false,
             hardware_acceleration: true,
+            settings_look: "night".into(),
         }
     }
 }
@@ -726,6 +730,9 @@ impl Settings {
     fn sanitize(&mut self) {
         let a = &mut self.appearance;
         a.transparency = a.transparency.clamp(0.3, 1.0);
+        if !["night", "sky"].contains(&a.settings_look.as_str()) {
+            a.settings_look = "night".into();
+        }
         for look in [&mut a.frost.dock, &mut a.frost.start, &mut a.frost.menu_bar] {
             look.blur = if look.blur.is_finite() { look.blur.clamp(*FrostLook::BLUR.start(), *FrostLook::BLUR.end()) } else { 30.0 };
             look.grain = if look.grain.is_finite() { look.grain.clamp(0.0, 1.0) } else { 0.35 };
@@ -1166,6 +1173,19 @@ mod tests {
         s.sanitize();
         assert!((s.menu_bar.tint - 1.0).abs() < f32::EPSILON);
         assert_eq!(s.menu_bar.thickness(), s.menu_bar.height + 24);
+    }
+
+    #[test]
+    fn the_settings_window_is_night_glass_unless_it_is_asked_to_be_the_sky() {
+        assert_eq!(Settings::default().appearance.settings_look, "night");
+        let old: Settings = serde_json::from_str(r#"{"appearance":{"realBlur":true}}"#).expect("loads");
+        assert_eq!(old.appearance.settings_look, "night");
+        let mut sky: Settings = serde_json::from_str(r#"{"appearance":{"settingsLook":"sky"}}"#).expect("loads");
+        sky.sanitize();
+        assert_eq!(sky.appearance.settings_look, "sky");
+        let mut odd: Settings = serde_json::from_str(r#"{"appearance":{"settingsLook":"plaid"}}"#).expect("loads");
+        odd.sanitize();
+        assert_eq!(odd.appearance.settings_look, "night");
     }
 
     #[test]

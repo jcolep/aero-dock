@@ -6,6 +6,7 @@
  * settings struct on `settings://changed`, so nothing is mirrored twice.
  */
 
+import { humane } from "../../engine/errors/humane";
 import { SettingsSection } from "./SettingsSection";
 import { useState } from "react";
 import { ipc } from "../../ipc/commands";
@@ -45,7 +46,7 @@ function ModeRow({
   const [glyph, setGlyph] = useState(mode.glyph);
   const [apps, setApps] = useState(mode.autoSwitchApps.join(", "));
 
-  const fail = (what: string) => (e: unknown) => onStatus("error", `${what}: ${e}`);
+  const fail = (what: string) => (e: unknown) => onStatus("error", `${what}: ${humane(e)}`);
 
   return (
     <div className="mode-card" data-active={active}>
@@ -221,7 +222,7 @@ export function ModesCard({ settings, onStatus }: Props) {
                   : "Modes are off. The dock keeps the pins it is showing.",
               ),
             )
-            .catch((e) => onStatus("error", `Could not change modes: ${e}`))
+            .catch((e) => onStatus("error", `Could not change modes: ${humane(e)}`))
         }
       />
 
@@ -234,7 +235,7 @@ export function ModesCard({ settings, onStatus }: Props) {
             onChange={(v) =>
               ipc
                 .setRestoreWorkspaceOnSwitch(v)
-                .catch((e) => onStatus("error", `Could not change that: ${e}`))
+                .catch((e) => onStatus("error", `Could not change that: ${humane(e)}`))
             }
           />
           <AeroToggle
@@ -244,7 +245,7 @@ export function ModesCard({ settings, onStatus }: Props) {
             onChange={(v) =>
               ipc
                 .setAutoSwitch(v)
-                .catch((e) => onStatus("error", `Could not change that: ${e}`))
+                .catch((e) => onStatus("error", `Could not change that: ${humane(e)}`))
             }
           />
           {modes.autoSwitch && (
@@ -284,7 +285,7 @@ export function ModesCard({ settings, onStatus }: Props) {
                       onStatus("ok", `Added ${newName.trim()}.`);
                       setNewName("");
                     })
-                    .catch((e) => onStatus("error", `Could not add the mode: ${e}`))
+                    .catch((e) => onStatus("error", `Could not add the mode: ${humane(e)}`))
                 }
               >
                 Add empty
@@ -299,7 +300,7 @@ export function ModesCard({ settings, onStatus }: Props) {
                       onStatus("ok", `Added ${newName.trim()} with the current pins.`);
                       setNewName("");
                     })
-                    .catch((e) => onStatus("error", `Could not add the mode: ${e}`))
+                    .catch((e) => onStatus("error", `Could not add the mode: ${humane(e)}`))
                 }
               >
                 Copy current

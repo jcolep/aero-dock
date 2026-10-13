@@ -6,6 +6,7 @@
  * has no volume to set.
  */
 
+import { humane } from "../../engine/errors/humane";
 import { SettingsSection } from "./SettingsSection";
 import { useEffect } from "react";
 import { ipc } from "../../ipc/commands";
@@ -91,7 +92,7 @@ export function AudioCard({ settings, onStatus }: Props) {
               ipc
                 .enableModes(true)
                 .then(() => onStatus("ok", "Modes are on."))
-                .catch((e) => onStatus("error", `Could not turn on modes: ${e}`))
+                .catch((e) => onStatus("error", `Could not turn on modes: ${humane(e)}`))
             }
           >
             Turn on Modes

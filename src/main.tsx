@@ -74,6 +74,31 @@ function Policy() {
 
 trackScale();
 
+// the settings window is in the look it had last time from its first frame, and not the sky for a moment before its settings arrive
+if (isSettings) {
+  let look = "night";
+  try {
+    look = localStorage.getItem("aero-settings-look") === "sky" ? "sky" : "night";
+  } catch {
+    /* the night look */
+  }
+  document.documentElement.dataset.look = look;
+  if (look === "night") document.documentElement.dataset.surface = "clear";
+}
+
+// No rough first frame: the page is clear until the typeface is in (it would otherwise show a moment of another face and
+// then jump), and fades in. A window that is hidden when it loads (Start, the overview) is ready before it is shown, since
+// this does not wait for a frame. If the font never comes, the page shows anyway after a second.
+{
+  const show = () => document.documentElement.setAttribute("data-ready", "");
+  const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
+  const limit = window.setTimeout(show, 1000);
+  (fonts ? fonts.ready : Promise.resolve()).then(() => {
+    window.clearTimeout(limit);
+    window.setTimeout(show, 0);
+  });
+}
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <Policy />

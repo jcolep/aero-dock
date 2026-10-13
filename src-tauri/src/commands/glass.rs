@@ -189,7 +189,7 @@ fn plan_backdrop(app: &AppHandle, window: &WebviewWindow, request: &BackdropRequ
 }
 
 /// Four little-endian `i32`s say what the picture is of: where (from the window's top left) and how big, in
-/// physical pixels. A PNG follows. An empty answer is "no picture" (the blur is off, or cannot be had).
+/// physical pixels; a little-endian `f32` says how bright it is, 0 to 1. A PNG follows. An empty answer is "no picture" (the blur is off, or cannot be had).
 #[tauri::command]
 pub async fn capture_backdrop(
     app: AppHandle,
@@ -209,10 +209,11 @@ pub async fn capture_backdrop(
     .map_err(|e| crate::core::AeroError::other(format!("the capture failed: {e}")))?;
     let Some((picture, window_x, window_y)) = picture else { return none() };
 
-    let mut bytes = Vec::with_capacity(16 + picture.cols * picture.rows);
+    let mut bytes = Vec::with_capacity(20 + picture.cols * picture.rows);
     for v in [picture.region.x - window_x, picture.region.y - window_y, picture.region.width, picture.region.height] {
         bytes.extend_from_slice(&v.to_le_bytes());
     }
+    bytes.extend_from_slice(&picture.luma.to_le_bytes());
     PngEncoder::new_with_quality(&mut bytes, CompressionType::Fast, FilterType::NoFilter)
         .write_image(&picture.rgba, picture.cols as u32, picture.rows as u32, ExtendedColorType::Rgba8)
         .map_err(|e| crate::core::AeroError::other(format!("the picture could not be made: {e}")))?;

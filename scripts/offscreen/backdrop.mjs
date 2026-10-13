@@ -64,6 +64,29 @@ const check = (ok, what) => {
   }
 }
 
+// ---- the glass adapts to what is behind it ----
+{
+  const h = await startHarness({ out, window: "dock", viewport: [1400, 500], running: [], settings: (s) => { s.appearance.realBlur = true; } });
+  try {
+    await h.open(".dock-icon");
+    await h.desktop("#c8d0e0");
+    const bar = await h.eval("(() => { const b = document.querySelector('.dock-bar').getBoundingClientRect(); return { x: (b.left + b.right) / 2, y: (b.top + b.bottom) / 2 }; })()");
+    await h.move(bar.x, bar.y);
+    const state = () => h.eval("(() => { const l = document.querySelector('.dock-bar > .bd-layer'); const a = getComputedStyle(l, '::after'); return { luma: +getComputedStyle(l).getPropertyValue('--bd-luma'), opacity: +a.opacity }; })()");
+    await h.eval("window.__bdLuma = 0.95");
+    await h.sleep(2600);
+    const bright = await state();
+    await h.eval("window.__bdLuma = 0.05");
+    await h.sleep(3200);
+    const dark = await state();
+    console.log("over a bright desktop:", JSON.stringify(bright), " over a dark one:", JSON.stringify(dark));
+    check(bright.luma > 0.8 && dark.luma < 0.2, "the glass has been told how bright what is behind it is");
+    check(dark.opacity < bright.opacity - 0.05, `its tint is thinner over a dark desktop (${dark.opacity.toFixed(2)} against ${bright.opacity.toFixed(2)})`);
+  } finally {
+    h.close();
+  }
+}
+
 // ---- Start ----
 {
   const h = await startHarness({
@@ -92,6 +115,7 @@ const check = (ok, what) => {
     h.close();
   }
 }
+
 // ---- the menu bar ----
 {
   const h = await startHarness({

@@ -214,9 +214,10 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
           grad.addColorStop(0, "#d03030"); grad.addColorStop(0.25 + (window.__bdTick % 5) * 0.12, "#e8c030"); grad.addColorStop(1, "#3050d0");
           g.fillStyle = grad; g.fillRect(0, 0, w, h);
           const bin = atob(c.toDataURL("image/png").split(",")[1]);
-          const buf = new ArrayBuffer(16 + bin.length), dv = new DataView(buf), bytes = new Uint8Array(buf);
+          const buf = new ArrayBuffer(20 + bin.length), dv = new DataView(buf), bytes = new Uint8Array(buf);
           [r.x, r.y, r.width, r.height].forEach((v, i) => dv.setInt32(i * 4, Math.round(v * dpr), true));
-          for (let i = 0; i < bin.length; i++) bytes[16 + i] = bin.charCodeAt(i);
+          dv.setFloat32(16, window.__bdLuma ?? 0.5, true);
+          for (let i = 0; i < bin.length; i++) bytes[20 + i] = bin.charCodeAt(i);
           return buf;
         }
         case "list_recent_downloads": return ${JSON.stringify(downloads)};

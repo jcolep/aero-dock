@@ -76,7 +76,7 @@ export function PrivacyPanel({ uses }: { uses: PrivacyUse[] }) {
     <div className="cc">
       {section("Microphone", "microphone", mic)}
       {section("Camera", "camera", cam)}
-      {uses.length === 0 && <div className="cc-card privacy-card">Nothing is using the microphone or camera.</div>}
+      {uses.length === 0 && <div className="cc-card privacy-card">All quiet: nothing is using the microphone or camera.</div>}
       <div className="cc-links">
         <button onClick={() => ipc.launch("ms-settings:privacy-microphone").catch(() => undefined)}>Microphone settings…</button>
         <button onClick={() => ipc.launch("ms-settings:privacy-webcam").catch(() => undefined)}>Camera settings…</button>

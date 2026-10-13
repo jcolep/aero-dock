@@ -51,9 +51,20 @@ export function Welcome({ edge }: { edge: DockEdge }) {
           Start empty
         </button>
       </div>
-      <p className="welcome-hint">
-        Tip: drop any app or folder from Explorer onto the dock to pin it.
-      </p>
+      <ul className="welcome-tips">
+        <li>
+          <b>Hover</b> over the dock and the icons swell toward you.
+        </li>
+        <li>
+          <b>Drop</b> an app or folder from Explorer onto it to pin it; drag an icon off to unpin it.
+        </li>
+        <li>
+          <b>Press Ctrl + Alt + Space</b> for Start, or use the magnifier beside the dock.
+        </li>
+        <li>
+          <b>Right-click</b> anything for its options; the gear opens Settings.
+        </li>
+      </ul>
       <p className="welcome-support">
         Free and independently developed.{" "}
         <button

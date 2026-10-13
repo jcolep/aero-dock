@@ -133,8 +133,20 @@ pub fn grade(rgba: &mut [u8], saturate: f32, brightness: f32) {
     }
 }
 
+/// How bright a picture is on the whole, 0 (black) to 1 (white), by the weights the eye gives red, green and blue.
+pub fn luma_of(rgba: &[u8]) -> f32 {
+    let pixels = rgba.len() / 4;
+    if pixels == 0 {
+        return 0.5;
+    }
+    let sum: f64 = rgba.chunks_exact(4).map(|p| 0.2126 * p[0] as f64 + 0.7152 * p[1] as f64 + 0.0722 * p[2] as f64).sum();
+    (sum / pixels as f64 / 255.0) as f32
+}
+
 /// A picture of the screen behind a rectangle.
 pub struct Picture {
+    /// How bright it is, which the glass in front of it adapts to (more scrim over a bright one, less tint over a dark one).
+    pub luma: f32,
     /// The rectangle it is of, in screen pixels (what could be had of the one asked for).
     pub region: Rect,
     pub cols: usize,
@@ -147,8 +159,10 @@ pub fn finish(raw: &Raw, region: Rect, sigma: f32, saturate: f32, brightness: f3
     let scale = CAPTURE_SHRINK as usize * REDUCE;
     let (mut rgba, cols, rows) = reduce(&raw.bytes, raw.width, raw.height, raw.stride, REDUCE);
     blur(&mut rgba, cols, rows, (sigma / scale as f32).round().max(1.0) as usize);
+    // the brightness of the desktop itself, not of the picture as graded for the glass
+    let luma = luma_of(&rgba);
     grade(&mut rgba, saturate, brightness);
-    Picture { region, cols, rows, rgba }
+    Picture { luma, region, cols, rows, rgba }
 }
 
 // ---- the magnifier ----
@@ -439,6 +453,15 @@ mod tests {
         let mut over = vec![250, 250, 250, 255];
         grade(&mut over, 1.0, 1.5);
         assert_eq!(&over[0..3], &[255, 255, 255]);
+    }
+
+    #[test]
+    fn brightness_is_how_light_a_picture_is_to_the_eye() {
+        assert!(luma_of(&[255, 255, 255, 255, 255, 255, 255, 255]) > 0.99);
+        assert!(luma_of(&[0, 0, 0, 255]) < 0.01);
+        // green counts for more than blue
+        assert!(luma_of(&[0, 255, 0, 255]) > luma_of(&[0, 0, 255, 255]) * 5.0);
+        assert_eq!(luma_of(&[]), 0.5);
     }
 
     #[test]

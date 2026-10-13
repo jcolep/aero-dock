@@ -136,13 +136,33 @@ html[data-grain="off"] .bd-layer::before {
   background-image: none;
 }
 
-/* with a picture the glass's tint is drawn over it, by the layer */
+/* How bright the desktop behind the glass is (0 to 1, from the picture of it), which the glass adapts to: over a bright
+   one a scrim of the theme's deep colour lies under the tint so that the white on the glass stays legible (up to 30%),
+   and over a dark one the tint thins a little (to 80%) so that the desktop shows through more. It is a number the page
+   can ease, so the glass follows a wallpaper that changes, or a window dragged under it, without a jump. */
+@property --bd-luma {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.5;
+}
+
+.bd-layer {
+  transition: --bd-luma var(--m-heavy) var(--e-inout);
+}
+
+/* with a picture the glass's tint is drawn over it, by the layer, over the scrim */
 [data-bd="on"] > .bd-layer::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 4;
-  background: var(--bd-tint);
+  background:
+    var(--bd-tint),
+    linear-gradient(
+      rgb(6 12 26 / clamp(0, calc((var(--bd-luma) - 0.42) * 0.62), 0.3)),
+      rgb(6 12 26 / clamp(0, calc((var(--bd-luma) - 0.42) * 0.62), 0.3))
+    );
+  opacity: clamp(0.8, calc(1 - (0.34 - var(--bd-luma)) * 0.6), 1);
 }
 
 /* the surfaces' own, older grain gives way to it */
@@ -403,4 +423,16 @@ html[data-reduce-transparency="on"] .mb-lens {
 
 html[data-reduce-motion="on"] :where(button, [role="button"], [role="menuitem"], [role="switch"], [role="tab"]):not(:disabled):active {
   transform: none;
+}
+/* ---- the first frame ---- */
+
+/* clear until the page has its typeface (main.tsx says when), then in; so that no window ever shows a frame of the wrong face
+   or of half-made glass */
+html:not([data-ready]) body {
+  opacity: 0;
+}
+
+html[data-ready] body {
+  opacity: 1;
+  transition: opacity var(--m-standard) var(--e-out);
 }

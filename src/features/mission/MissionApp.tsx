@@ -247,7 +247,7 @@ export function MissionApp() {
         />
       </div>
 
-      {shown.length === 0 && <div className="mc-empty">{mine.length === 0 ? "No windows open on this screen" : "No window matches"}</div>}
+      {shown.length === 0 && <div className="mc-empty">{mine.length === 0 ? "A tidy screen: nothing is open here" : "No window matches that"}</div>}
 
       <div className="mc-grid" role="listbox" aria-label="Windows">
         {shown.map((w, i) => {

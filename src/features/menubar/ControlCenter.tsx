@@ -241,7 +241,7 @@ export function ControlCenter() {
           <div className="cc-list">
             {networks === null && <div className="cc-empty">Looking…</div>}
             {networks?.length === 0 && (
-              <div className="cc-empty">{wifiOn ? "No networks in range" : "Wi-Fi is off"}</div>
+              <div className="cc-empty">{wifiOn ? "No networks in range. It is quiet out there" : "Wi-Fi is off"}</div>
             )}
             {networks?.map((n) => (
               <button
@@ -267,7 +267,7 @@ export function ControlCenter() {
           <div className="cc-list">
             {devices === null && <div className="cc-empty">Looking…</div>}
             {devices?.length === 0 && (
-              <div className="cc-empty">{bluetooth?.on ? "No paired devices" : "Bluetooth is off"}</div>
+              <div className="cc-empty">{bluetooth?.on ? "No paired devices yet" : "Bluetooth is off"}</div>
             )}
             {devices?.map((d) => (
               <button

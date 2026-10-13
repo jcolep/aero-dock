@@ -183,11 +183,11 @@ export function BackdropLayer({ active, interval = 220, margin = 48, looks, fade
           if (same) {
             // nothing behind the glass has changed: nothing to swap, and no hurry to look again
             quiet = Math.min(quiet + 1, 6);
-          } else if (buf.byteLength > 20) {
+          } else if (buf.byteLength > 24) {
             quiet = 0;
             lastBytes = bytes;
             const header = new DataView(buf);
-            const next = URL.createObjectURL(new Blob([new Uint8Array(buf, 16)], { type: "image/png" }));
+            const next = URL.createObjectURL(new Blob([new Uint8Array(buf, 20)], { type: "image/png" }));
             // decoded before it is shown, or the glass shows its bare tint for a moment at each look
             const img = new Image();
             img.src = next;
@@ -203,6 +203,8 @@ export function BackdropLayer({ active, interval = 220, margin = 48, looks, fade
               height: header.getInt32(12, true) / dpr,
             };
             show(next);
+            // how bright the desktop behind it is: the glass takes more scrim over a bright one and less tint over a dark one
+            layer.style.setProperty("--bd-luma", header.getFloat32(16, true).toFixed(3));
             host.dataset.bd = "on";
             lastPose = "";
             place();

@@ -91,6 +91,8 @@ export interface AppearanceSettings {
   frameOverlay: boolean;
   /** Draw the windows with the graphics card (read when the program starts). */
   hardwareAcceleration: boolean;
+  /** The settings window: dark liquid glass, or the classic sky. */
+  settingsLook: "night" | "sky";
 }
 
 /** One window's frame timings (see commands/perf.rs). */

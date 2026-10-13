@@ -91,8 +91,19 @@ export function applyAppearance(
 
   // The material is an attribute rather than a token because it swaps a
   // whole block of tokens at once, plus the shape of the gloss layer.
-  document.documentElement.dataset.surface =
-    target === "settings" ? a.settingsSurface : a.dockSurface;
+  // the settings window's night look is the clear glass over a dark ground
+  const night = target === "settings" && a.settingsLook === "night";
+  document.documentElement.dataset.surface = night ? "clear" : target === "settings" ? a.settingsSurface : a.dockSurface;
+  if (target === "settings") {
+    document.documentElement.dataset.look = a.settingsLook;
+    // remembered, so that the next time the window opens it is in its look from the first frame (main.tsx)
+    try {
+      localStorage.setItem("aero-settings-look", a.settingsLook);
+    } catch {
+      /* no storage: the default look is the night one */
+    }
+  }
+  else delete document.documentElement.dataset.look;
   // The two windows composite differently, so a material has to know
   // which one it is in. See surfaces.css for why that matters.
   document.documentElement.dataset.window = target;

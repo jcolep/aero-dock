@@ -4,6 +4,7 @@
  * live while you drag a slider.
  */
 
+import { humane } from "../../engine/errors/humane";
 import { playCue, type Cue } from "../../engine/sound/ui";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
@@ -130,7 +131,7 @@ export function SettingsApp() {
   const set = (fn: (draft: Settings) => void) => {
     apply(fn).catch((e) => {
       console.error("settings update failed", e);
-      setStatus({ tone: "error", text: `Could not save that change: ${e}` });
+      setStatus({ tone: "error", text: `Could not save that change: ${humane(e)}` });
     });
   };
 
@@ -144,7 +145,7 @@ export function SettingsApp() {
       });
     } catch (e) {
       console.error("autostart toggle failed", e);
-      setStatus({ tone: "error", text: `Could not change the startup setting: ${e}` });
+      setStatus({ tone: "error", text: `Could not change the startup setting: ${humane(e)}` });
     }
   };
 
@@ -155,14 +156,14 @@ export function SettingsApp() {
       setStatus({ tone: "ok", text: `Imported settings from ${file.name}.` });
     } catch (e) {
       console.error("import failed", e);
-      setStatus({ tone: "error", text: `Could not import that file: ${e}` });
+      setStatus({ tone: "error", text: `Could not import that file: ${humane(e)}` });
     }
   };
 
   const openLink = (url: string) =>
     ipc
       .launch(url)
-      .catch((e) => setStatus({ tone: "error", text: `Could not open the browser: ${e}` }));
+      .catch((e) => setStatus({ tone: "error", text: `Could not open the browser: ${humane(e)}` }));
 
   return (
     <div className="settings-root">
@@ -224,8 +225,17 @@ export function SettingsApp() {
             ]}
             onChange={(v) => set((d) => void (d.appearance.dockSurface = v))}
           />
+          <AeroSegmented<"night" | "sky">
+            label="This window"
+            value={appearance.settingsLook}
+            options={[
+              { value: "night", label: "Night glass" },
+              { value: "sky", label: "Classic sky" },
+            ]}
+            onChange={(v) => set((d) => void (d.appearance.settingsLook = v))}
+          />
           <AeroSegmented<SurfaceStyle>
-            label="Settings material"
+            label="Material of the classic sky"
             value={appearance.settingsSurface}
             options={[
               { value: "aero", label: "Classic" },
@@ -276,7 +286,7 @@ export function SettingsApp() {
                   ipc
                     .blurReport()
                     .then(() => setStatus({ tone: "ok", text: "Saved blur-report.txt in Aero Dock's data folder." }))
-                    .catch((e) => setStatus({ tone: "error", text: `Could not save the report: ${e}` }))
+                    .catch((e) => setStatus({ tone: "error", text: `Could not save the report: ${humane(e)}` }))
                 }
               >
                 Save a report
@@ -486,7 +496,7 @@ export function SettingsApp() {
             <div className="ctl-actions">
               <button
                 className="aero-button"
-                onClick={() => ipc.restartApp().catch((e) => setStatus({ tone: "error", text: `Could not restart: ${e}` }))}
+                onClick={() => ipc.restartApp().catch((e) => setStatus({ tone: "error", text: `Could not restart: ${humane(e)}` }))}
               >
                 Restart Aero Dock
               </button>
@@ -508,7 +518,7 @@ export function SettingsApp() {
                   ipc
                     .frameReport()
                     .then(() => setStatus({ tone: "ok", text: "Saved frame-report.txt in Aero Dock's data folder." }))
-                    .catch((e) => setStatus({ tone: "error", text: `Could not save the report: ${e}` }))
+                    .catch((e) => setStatus({ tone: "error", text: `Could not save the report: ${humane(e)}` }))
                 }
               >
                 Save a report
@@ -1103,7 +1113,7 @@ export function SettingsApp() {
             onChange={(v) => {
               ipc.setTaskbarHidden(v).catch((e) => {
                 console.error("taskbar toggle failed", e);
-                setStatus({ tone: "error", text: `Could not change the taskbar: ${e}` });
+                setStatus({ tone: "error", text: `Could not change the taskbar: ${humane(e)}` });
               });
               set((d) => void (d.hideTaskbar = v));
             }}
@@ -1119,7 +1129,7 @@ export function SettingsApp() {
                     .then((path) => setStatus({ tone: "ok", text: `Saved to ${path}` }))
                     .catch((e) => {
                       console.error("export failed", e);
-                      setStatus({ tone: "error", text: `Could not export settings: ${e}` });
+                      setStatus({ tone: "error", text: `Could not export settings: ${humane(e)}` });
                     })
                 }
               >
@@ -1150,7 +1160,7 @@ export function SettingsApp() {
                   ipc
                     .quitApp()
                     .catch((e) =>
-                      setStatus({ tone: "error", text: `Could not quit: ${e}` }),
+                      setStatus({ tone: "error", text: `Could not quit: ${humane(e)}` }),
                     )
                 }
               >

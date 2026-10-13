@@ -7,8 +7,31 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Added
+
+- **Start menu.** A centred, liquid-glass Start menu (Ctrl+Alt+Space, or the magnifier beside the dock) with pinned
+  apps, Recommended, Recently downloaded, a calculator and settings search, its own animations and sounds, and a
+  closing animation. It turns back from where it is if it is closed while arriving or opened while leaving, and its
+  lists are read before it is first opened, with placeholders of their own size.
+- **Frosted glass that is as round as the glass.** What is behind the dock, the Start menu and the menu bar is
+  blurred from a picture of the screen taken with Aero Dock's own windows left out, so the corners are true curves
+  (Windows' own blur is only ever a rectangle). Per surface blur and grain sliders; the glass adapts to how bright
+  the wallpaper behind it is. Off until chosen, and nothing runs while it is off.
+- **A motion language.** Four springs, durations and curves that everything moves with; every surface is lit by one
+  light and sits at one of four heights.
+- **Type and numbers.** Inter, bundled as a variable font; numbers that change (the clock, percentages, sliders)
+  roll, digit by digit.
+- **Sound as a system.** One key (E), a glassy voice and a little room; a switch is an octave above a menu; every
+  cue is half as loud while music is playing.
+- **Night glass.** The settings window is dark liquid glass by default (the classic sky is an option), and opens in
+  its look from the first frame.
+- **Frame timings.** A table of how smoothly each window draws on each screen (Settings > Animations > Smoothness).
+- **Hardware acceleration** is a setting, on by default (it was software rendering, to save memory), read at start.
+- Pressed and keyboard-focus states on every control; hairlines one device pixel wide at 125% and 150%.
+
 ### Changed
 
+- Errors are said in a few plain words and not as what Windows or Rust said.
 - Middle-clicking an app on the dock now closes it: every window it has open is
   asked to close, as its own close button would, so an app with unsaved work still
   asks first. It works for pinned and running apps alike. Muting an app, which

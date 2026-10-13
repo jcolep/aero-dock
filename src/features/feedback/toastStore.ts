@@ -6,6 +6,7 @@
  */
 
 import { create } from "zustand";
+import { because } from "../../engine/errors/humane";
 
 export interface Toast {
   id: number;
@@ -33,12 +34,7 @@ export const useToasts = create<ToastState>((set, get) => ({
   dismiss: (id) => set((s) => ({ items: s.items.filter((t) => t.id !== id) })),
 }));
 
-/** Turn an unknown thrown value into one readable line. */
-function describe(error: unknown): string {
-  if (typeof error === "string") return error;
-  if (error instanceof Error) return error.message;
-  return String(error);
-}
+
 
 export const notify = {
   /** Report a failed user action, and keep the detail in the console. */
@@ -46,7 +42,7 @@ export const notify = {
     if (error !== undefined) console.error(what, error);
     useToasts
       .getState()
-      .push(error === undefined ? what : `${what}: ${describe(error)}`, "error");
+      .push(error === undefined ? what : because(what, error), "error");
   },
   info(message: string): void {
     useToasts.getState().push(message, "info");

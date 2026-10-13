@@ -305,7 +305,14 @@ Say plainly in a report when something native was not seen.
   a menu is E4-E5, a switch an octave above, the tick near E6; a voice of three partials with a natural decay; a short
   room (convolver) and a compressor under everything; everything halves while the media session is playing
   (`DUCK`). `renderCue` takes any audio context, so `sound.mjs` renders every cue offline, checks key, level, tail and
-  ducking, and writes WAV files to `<out>/sounds` for listening. A new cue must have every note in `inKey`.- **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
+  ducking, and writes WAV files to `<out>/sounds` for listening. A new cue must have every note in `inKey`.- **First frames, errors, empty states, adaptive glass, night settings** (same pass). A page is clear until its typeface is
+  in (`data-ready`, `main.tsx`), a hidden window is ready before it is shown, Start reads its lists when the page starts
+  and shows placeholders of the right size until they arrive (`Skeletons`), and the settings window opens in its
+  remembered look (`aero-settings-look`) from the first frame. An error reaches a person through `humane()`
+  (`engine/errors`, tested by `errors.mjs`), never as Windows or Rust said it. `capture_backdrop` also says how bright
+  the desktop behind is (the 20-byte header); the glass thins its tint over a dark one and lays a scrim under it over a
+  bright one (`--bd-luma`, a registered property, so it eases). The settings window is night glass by default
+  (`html[data-look="night"]` overrides at the end of `settings.css`, on the `clear` material); `sky` is the old look.- **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
   page that has not been clicked (the Start menu, opened from the dock) plays its cues silently.
 - **The settings window** is a sidebar and a column of collapsible sections in groups (`sections.ts` is the
   registry: id, title, blurb, search keywords, group). A new section is a `<SettingsSection id="...">`

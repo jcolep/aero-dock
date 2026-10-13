@@ -253,6 +253,22 @@ interface MenuState {
   item: Item;
 }
 
+/** Placeholders for a list that has not arrived: rows of the size of the real ones, resting softly. */
+function Skeletons({ count }: { count: number }) {
+  return (
+    <>
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className="st-rec st-skel" aria-hidden>
+          <span className="st-skel-icon" />
+          <span className="st-row-text">
+            <span className="st-skel-line" style={{ width: `${62 + ((i * 17) % 30)}%` }} />
+            <span className="st-skel-line st-skel-small" style={{ width: `${34 + ((i * 11) % 24)}%` }} />
+          </span>
+        </div>
+      ))}
+    </>
+  );
+}
 export function StartApp() {
   const { settings, hydrate } = useSettings();
   const reduced = useReduced();
@@ -277,6 +293,9 @@ export function StartApp() {
   const [apps, setApps] = useState<AppEntry[]>([]);
   const [recent, setRecent] = useState<RecentFile[]>([]);
   const [downloads, setDownloads] = useState<Download[]>([]);
+  // whether each list has been read yet: until it has, the section shows placeholders of its own size, so that nothing
+  // jumps when the lists arrive
+  const [loaded, setLoaded] = useState({ recent: false, downloads: false });
   const [files, setFiles] = useState<FoundFile[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [menu, setMenu] = useState<MenuState | null>(null);
@@ -371,6 +390,26 @@ export function StartApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduced.motion]);
 
+  // ---- what the lists are made of ----
+  const readLists = useCallback(() => {
+    ipc.listApps().then(setApps).catch(() => undefined);
+    ipc
+      .listRecentFiles(20)
+      .then(setRecent)
+      .catch(() => undefined)
+      .finally(() => setLoaded((l) => ({ ...l, recent: true })));
+    ipc
+      .listRecentDownloads(4)
+      .then(setDownloads)
+      .catch(() => undefined)
+      .finally(() => setLoaded((l) => ({ ...l, downloads: true })));
+    ipc.userProfile().then(setProfile).catch(() => undefined);
+  }, []);
+  // read once when the page starts, while the window is still hidden, so that the first time it opens it is already full
+  useEffect(() => {
+    readLists();
+  }, [readLists]);
+
   // ---- opening ----
   useEffect(() => {
     const un = listen<Opening>("start://open", () => {
@@ -387,18 +426,16 @@ export function StartApp() {
       setPhase("open");
       playCue("startOpen");
       window.setTimeout(() => input.current?.focus(), 40);
-      // what the lists are made of, read fresh each time (cheap, and an app may have been installed)
-      ipc.listApps().then(setApps).catch(() => undefined);
-      ipc.listRecentFiles(20).then(setRecent).catch(() => undefined);
-      ipc.listRecentDownloads(4).then(setDownloads).catch(() => undefined);
-      ipc.userProfile().then(setProfile).catch(() => undefined);
+      // what the lists are made of, read again each time (cheap, and an app may have been installed); what was
+      // read last time stays on show until then
+      readLists();
     });
     const outside = listen("start://outside", () => close(false));
     return () => {
       void un.then((fn) => fn());
       void outside.then((fn) => fn());
     };
-  }, [close]);
+  }, [close, readLists]);
 
   // the pins are started from the dock's, once
   useEffect(() => {
@@ -728,7 +765,7 @@ export function StartApp() {
 
         {q ? (
           <div className="st-results" data-lens-clip role="listbox" aria-label="Search results">
-            {sections.length === 0 && <div className="st-none">Nothing found for “{q}”</div>}
+            {sections.length === 0 && <div className="st-none">Nothing found for “{q}”. Try a shorter word, or fewer letters.</div>}
             {sections.map((section) => (
               <div key={section.title} className="st-section">
                 <div className="st-heading">{section.title}</div>
@@ -785,7 +822,10 @@ export function StartApp() {
                   </button>
                 </div>
                 <div className="st-rec-grid">
-                  {recommended.length === 0 && <div className="st-none">Apps you install and files you open will appear here.</div>}
+                  {!loaded.recent && recommended.length === 0 && <Skeletons count={6} />}
+                  {loaded.recent && recommended.length === 0 && (
+                    <div className="st-none">Nothing here yet. Install something new or open a file, and it turns up here.</div>
+                  )}
                   {recommended.map((item) => (
                     <button key={item.key} type="button" className="st-rec" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
                       <ItemIcon item={item} />
@@ -800,7 +840,8 @@ export function StartApp() {
                   <h2>Recently downloaded</h2>
                 </div>
                 <div className="st-rec-grid">
-                  {downloaded.length === 0 && <div className="st-none">Nothing downloaded lately.</div>}
+                  {!loaded.downloads && downloaded.length === 0 && <Skeletons count={4} />}
+                  {loaded.downloads && downloaded.length === 0 && <div className="st-none">Nothing downloaded lately. A clean slate.</div>}
                   {downloaded.map((item) => (
                     <button key={item.key} type="button" className="st-rec" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
                       <ItemIcon item={item} />
