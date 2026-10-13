@@ -199,6 +199,9 @@ pub struct AppearanceSettings {
     pub icon_style: String,
     /// How the frosted glass is made on each surface (it only is while `real_blur` is on).
     pub frost: FrostSettings,
+    /// A table of how smoothly each window draws, on each screen (see `commands::perf`). A diagnostic: timing
+    /// the frames keeps every window drawing at its screen's rate.
+    pub frame_overlay: bool,
 }
 
 /// How frosted one surface's glass is.
@@ -263,6 +266,7 @@ impl Default for AppearanceSettings {
             glass_grain: true,
             icon_style: "glass".into(),
             frost: FrostSettings::default(),
+            frame_overlay: false,
         }
     }
 }

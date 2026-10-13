@@ -56,3 +56,62 @@ export function reverseEntrance(root: HTMLElement): Promise<unknown> | null {
   }
   return Promise.all(done);
 }
+
+/** What `turnBack` is playing, and how to let go of it. */
+export interface Turning {
+  /** Resolves when everything has got back to where it was turned from. */
+  done: Promise<void>;
+  /** Cancel the copies, so that the stylesheet's own state shows again. */
+  release: () => void;
+}
+
+/** The copies this file has made, so that turning one back again (a thing opened, closed and opened in a
+ *  moment) reverses it where it is rather than copying a copy. */
+const copies = new WeakSet<Animation>();
+
+/**
+ * The same, for a thing that stays (Start's panel, as against a menu that is taken away): the running
+ * animations under `root` are turned back from where they are, whether the stylesheet's or the copies an
+ * earlier turn made, and the caller says when it has had enough (`release`). Turning back in the middle of
+ * a turn works the same way, so a thing pressed open, shut and open again goes where it was asked at every
+ * moment and never restarts from its first frame.
+ */
+export function turnBack(root: HTMLElement): Turning | null {
+  const running = root.getAnimations({ subtree: true }).filter((a) => {
+    if (a.playState !== "running") return false;
+    const timing = (a.effect as KeyframeEffect | null)?.getComputedTiming();
+    return !!timing && Number.isFinite(timing.iterations) && Number(timing.endTime) <= 2500;
+  });
+  const turned: Animation[] = [];
+  for (const a of running) {
+    if (copies.has(a)) {
+      a.reverse();
+      turned.push(a);
+    } else if (a instanceof CSSAnimation) {
+      const effect = a.effect as KeyframeEffect;
+      const target = effect.target;
+      if (!target) continue;
+      const timing = effect.getTiming();
+      const copy = target.animate(effect.getKeyframes(), {
+        duration: timing.duration,
+        delay: timing.delay,
+        endDelay: timing.endDelay,
+        easing: timing.easing,
+        direction: timing.direction,
+        iterations: 1,
+        fill: "both",
+        pseudoElement: effect.pseudoElement ?? undefined,
+      });
+      copy.pause();
+      copy.currentTime = a.currentTime;
+      copy.reverse();
+      copies.add(copy);
+      turned.push(copy);
+    }
+  }
+  if (turned.length === 0) return null;
+  return {
+    done: Promise.all(turned.map((c) => c.finished.then(() => undefined, () => undefined))).then(() => undefined),
+    release: () => turned.forEach((c) => c.cancel()),
+  };
+}

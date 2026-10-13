@@ -59,7 +59,7 @@ img {
   border-bottom-color: var(--glass-border-dark);
   box-shadow:
     var(--shadow-dock),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    var(--rim),
     inset 0 -1px 12px rgba(140, 210, 255, 0.18);
   isolation: isolate;
 }
@@ -68,8 +68,6 @@ img {
    always and shows only while the glass has a picture (data-bd), and then the glass's own tint, which is
    under the layer, is not drawn: the layer draws it over the picture. */
 .bd-layer {
-  /* hidden, not removed: it is measured to say where the picture goes before there is one */
-  visibility: hidden;
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -80,10 +78,6 @@ img {
 
 [data-bd="on"] {
   background: none !important;
-}
-
-[data-bd="on"] > .bd-layer {
-  visibility: visible;
 }
 
 /* the picture: two of them, one fading in over the other (see BackdropLayer) */
@@ -97,36 +91,36 @@ img {
   background-size: var(--bd-w, 100%) var(--bd-h, 100%);
 }
 
-/* A blurred picture is smooth to the point that its gradients show their steps (eight bits a colour, stretched
-   over a wide soft shape), and the steps move as the picture changes. The grain over it breaks them up, as
-   it does on the rest of the glass. */
-[data-bd="on"] > .bd-layer::before {
+/* The grain of a glass surface lies in this layer, with a picture under it or not, and is the one grain the
+   surface has (the slider under Settings > Glass & light is its strength). A blurred picture is smooth to the
+   point that its gradients show their steps (eight bits a colour, stretched over a wide soft shape), and the
+   steps move as the picture changes; the grain breaks them up. */
+.bd-layer::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 3;
   background-image: var(--grain-strong);
   background-size: 160px 160px;
-  /* the slider under Settings > Glass & light, for this surface */
   opacity: var(--bd-grain, 0.35);
 }
 
-/* the grain the picture has replaces the grain the glass had */
-[data-bd="on"] > .glass-sweep,
-[data-bd="on"] .glass-sweep {
+html[data-grain="off"] .bd-layer::before {
   background-image: none;
 }
 
-html[data-grain="off"] [data-bd="on"] > .bd-layer::before {
-  background-image: none;
-}
-
+/* with a picture the glass's tint is drawn over it, by the layer */
 [data-bd="on"] > .bd-layer::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 4;
   background: var(--bd-tint);
+}
+
+/* the surfaces' own, older grain gives way to it */
+.glass-sweep {
+  background-image: none !important;
 }
 /* Vista's curved top-gloss highlight */
 .glass::before {
@@ -211,7 +205,7 @@ html[data-grain="off"] .glass-sweep {
     rgba(255, 255, 255, 0.22),
     transparent 70%
   );
-  transition: opacity 220ms ease-out;
+  transition: opacity var(--m-standard) var(--e-out);
 }
 
 html[data-pointer-light="on"] .dock-bar:hover .glass-sweep::before {

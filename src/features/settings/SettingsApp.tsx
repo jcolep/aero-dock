@@ -318,8 +318,9 @@ export function SettingsApp() {
             </Fragment>
           ))}
           <p className="settings-note">
-            How far what is behind each surface is blurred, and how much grain lies over it. They take effect while
-            Frosted glass is on; with it off nothing here runs. The grain switch below turns all of the grain off.
+            The grain is always on the glass. The blur is how far what is behind the surface is blurred: the picture of
+            your desktop when Frosted glass is on, and, with it off, only whatever the page itself has behind the glass
+            (the ambient scene), since there is no desktop for it to blur. The grain switch below turns all grain off.
           </p>
           <AeroToggle
             label="Light that follows the pointer"
@@ -472,6 +473,30 @@ export function SettingsApp() {
             onChange={(id) => set((d) => void (d.animations.magnify = id))}
             preview={(id, run) => <MagnifyPreview feel={id} run={run} />}
           />
+          <SettingsSub>Smoothness</SettingsSub>
+          <AeroToggle
+            label="Show frame timings"
+            checked={appearance.frameOverlay}
+            hint="A small table at the top left of the main screen: for every window, the screen it is on and that screen's rate, its frames a second, the average gap between frames, the slowest 5% and the worst in ten seconds, in green, amber or red. It is how to tell whether something is smooth on each of your screens with numbers. A diagnostic: it keeps every window drawing at its screen's rate while it is on, so turn it off when you are done"
+            onChange={(v) => set((d) => void (d.appearance.frameOverlay = v))}
+          />
+          <div className="ctl-row">
+            <span className="ctl-label">Frame timings report</span>
+            <div className="ctl-actions">
+              <button
+                className="aero-button"
+                disabled={!appearance.frameOverlay}
+                onClick={() =>
+                  ipc
+                    .frameReport()
+                    .then(() => setStatus({ tone: "ok", text: "Saved frame-report.txt in Aero Dock's data folder." }))
+                    .catch((e) => setStatus({ tone: "error", text: `Could not save the report: ${e}` }))
+                }
+              >
+                Save a report
+              </button>
+            </div>
+          </div>
         </SettingsSection>
 
         <SettingsGroup id="dock" />

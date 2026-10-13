@@ -117,6 +117,11 @@ pub fn run() {
             // another program (Mica For Everyone) can put a grey material behind every window
             #[cfg(windows)]
             platform::windows::system_backdrop::start();
+            // the table of frame timings, if it was left on
+            {
+                let h = handle.clone();
+                tauri::async_runtime::spawn(async move { commands::perf::sync(&h).await });
+            }
             // the shortcuts that bring the keyboard to the menu bar and the dock
             #[cfg(windows)]
             {
@@ -190,6 +195,9 @@ pub fn run() {
             commands::start::user_profile,
             commands::start::list_recent_downloads,
             commands::glass::capture_backdrop,
+            commands::perf::report_frame_stats,
+            commands::perf::frame_stats,
+            commands::perf::frame_report,
             commands::glass::blur_report,
             commands::start::search_files,
             commands::insight::get_privacy_use,

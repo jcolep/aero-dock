@@ -37,7 +37,7 @@
    useGlideHighlight.tsx), which travels from one to the next, and the one it is on swells a little. */
 .widget-clock-button,
 .widget-chip-button {
-  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform var(--m-standard) var(--e-overshoot);
 }
 
 .widget-clock-button[data-lensed="true"],

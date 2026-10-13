@@ -99,3 +99,13 @@ pub fn pick_monitor<'a>(monitors: &'a [MonitorInfoEx], name: Option<&str>) -> &'
         .or_else(|| monitors.iter().find(|m| m.is_primary))
         .unwrap_or(&monitors[0])
 }
+
+/// A screen's refresh rate in hertz, by its device name (`\\.\DISPLAY2`): what it is running at now.
+pub fn refresh_hz(device: &str) -> Option<u32> {
+    use windows::core::PCWSTR;
+    use windows::Win32::Graphics::Gdi::{EnumDisplaySettingsW, DEVMODEW, ENUM_CURRENT_SETTINGS};
+    let wide: Vec<u16> = device.encode_utf16().chain(std::iter::once(0)).collect();
+    let mut mode = DEVMODEW { dmSize: std::mem::size_of::<DEVMODEW>() as u16, ..Default::default() };
+    let ok = unsafe { EnumDisplaySettingsW(PCWSTR(wide.as_ptr()), ENUM_CURRENT_SETTINGS, &mut mode) }.as_bool();
+    (ok && mode.dmDisplayFrequency > 1).then_some(mode.dmDisplayFrequency)
+}

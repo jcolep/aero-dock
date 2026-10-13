@@ -10,6 +10,7 @@ pub mod menubar;
 pub mod mission;
 pub mod start;
 pub mod modes;
+pub mod perf;
 pub mod settings;
 pub mod system_cmd;
 pub mod widgets;

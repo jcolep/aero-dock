@@ -17,6 +17,7 @@ import { listen } from "@tauri-apps/api/event";
 import { motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useReduced } from "../../engine/accessibility/policy";
+import { spring } from "../../engine/motion/tokens";
 import { playCue } from "../../engine/sound/ui";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { ipc } from "../../ipc/commands";
@@ -270,7 +271,7 @@ export function MissionApp() {
                   : { left: cell.x, top: cell.y, width: cell.w, height: cell.h, opacity: 0 }
               }
               animate={{ left: cell.x, top: cell.y, width: cell.w, height: cell.h, opacity: 1 }}
-              transition={reduced.motion ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 30, mass: 0.9 }}
+              transition={reduced.motion ? { duration: 0 } : spring.heavy}
               onMouseEnter={() => setSelected(i)}
               onClick={() => go(w.hwnd)}
             >

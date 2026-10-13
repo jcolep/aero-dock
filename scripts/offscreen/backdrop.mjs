@@ -137,6 +137,8 @@ for (const [window, ready, extra] of [["dock", ".dock-icon", ""], ["start", ".st
     const asks = await h.eval("window.__calls.filter((c) => c.cmd === 'capture_backdrop').length");
     const on = await h.eval("document.querySelectorAll('[data-bd]').length");
     check(asks === 0 && on === 0, `${window}: with the frosted glass off nothing is asked for (${asks} asks, ${on} glasses with a picture)`);
+    const grain = await h.eval("(() => { const l = document.querySelector('.bd-layer'); return l ? +getComputedStyle(l, '::before').opacity : -1; })()");
+    check(grain > 0.3 && grain < 0.4, `${window}: and the grain, which is the glass's own, is still there (${grain})`);
   } finally {
     h.close();
   }

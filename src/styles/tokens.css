@@ -40,10 +40,7 @@
   /* ---- depth ---- */
   /* three layers, as light has: a hairline of contact, a close soft shadow, and
      a wide faint one. One shadow of a single blur reads as a sticker. */
-  --shadow-dock:
-    0 1px 1px rgba(8, 30, 56, 0.3),
-    0 5px 12px rgba(10, 45, 80, 0.24),
-    0 20px 44px rgba(10, 45, 80, 0.26);
+  --shadow-dock: var(--elev-2);
   --shadow-icon: drop-shadow(0 3px 6px rgba(8, 40, 70, 0.45));
 
   /* A fine grain, laid over glass at a few percent: grey specks of noise, so a
@@ -51,6 +48,33 @@
      the browser draws once. */
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0.07'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
   --grain-strong: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0.22'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+  /* One light, high on the upper left, for every surface. What it lights has a rim: bright along the edges that face it,
+     fainter along the ones that do not, and a hairline all round so the shape never dissolves. What it casts falls
+     down and a little to the right, and falls further the higher the thing is off the desktop: a surface is at one of
+     four heights, and says which by using its shadow, so depth reads the same everywhere. */
+  --rim:
+    inset 1px 1px 0.5px -0.5px rgba(255, 255, 255, 0.9),
+    inset -1px -1px 0.5px -0.5px rgba(255, 255, 255, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  /* a bar, a card */
+  --elev-1: 1px 6px 14px rgba(2, 8, 20, 0.26), 0 1px 3px rgba(2, 8, 20, 0.3);
+  /* a panel, a flyout */
+  --elev-2: 2px 14px 32px rgba(2, 8, 20, 0.38), 0 3px 9px rgba(2, 8, 20, 0.26);
+  /* a popover, a menu */
+  --elev-3: 2px 18px 42px rgba(2, 8, 20, 0.44), 0 4px 12px rgba(2, 8, 20, 0.3);
+  /* a tooltip */
+  --elev-4: 1px 10px 24px rgba(2, 8, 20, 0.38), 0 2px 5px rgba(2, 8, 20, 0.3);
+
+  /* The motion language (see engine/motion/tokens.ts, which these agree with) */
+  --m-quick: calc(140ms / var(--anim-speed, 1));
+  --m-standard: calc(240ms / var(--anim-speed, 1));
+  --m-settle: calc(360ms / var(--anim-speed, 1));
+  --m-heavy: calc(560ms / var(--anim-speed, 1));
+  --e-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --e-in: cubic-bezier(0.5, 0, 0.75, 0);
+  --e-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --e-spring: cubic-bezier(0.2, 1.05, 0.3, 1);
+  --e-overshoot: cubic-bezier(0.2, 1.4, 0.3, 1);
 
   /* ---- user-tunable (settings-driven, written by ThemeApplier) ---- */
   --dock-opacity: 0.92;

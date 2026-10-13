@@ -25,7 +25,7 @@
   /* the region makes the rest of the window click-through, so a widget
      is allowed to be a normal interactive element */
   cursor: grab;
-  transition: filter 160ms ease;
+  transition: filter var(--m-quick) var(--e-inout);
 }
 
 .aero-widget[data-locked="true"] {
@@ -263,7 +263,7 @@
   border-radius: 6px;
   background: linear-gradient(90deg, #d9f4ff, var(--aero-accent, #2f9de3) 55%, var(--aero-life, #7ad03a));
   box-shadow: 0 0 8px rgba(160, 225, 255, 0.6);
-  transition: width 420ms ease-out;
+  transition: width var(--m-settle) var(--e-out);
 }
 
 .w-stat-detail {
@@ -378,7 +378,7 @@
     rgba(120, 190, 235, 0.32) 100%
   );
   box-shadow: 0 2px 6px rgba(8, 40, 74, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  transition: transform var(--m-quick) var(--e-inout), box-shadow var(--m-quick) var(--e-inout);
 }
 
 .w-music-btn[data-primary="true"] {

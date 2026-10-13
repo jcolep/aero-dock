@@ -30,7 +30,7 @@ import type {
   WidgetStyle,
   WifiNetwork,
 } from "./types";
-import type { DesktopBounds, Download, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
+import type { DesktopBounds, FrameRow, Download, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
 
 export const ipc = {
   // settings
@@ -265,5 +265,10 @@ export const ipc = {
   /** Look at each screen (a window of stripes shows on each for a second) to see whether the frosted glass keeps its shape. */
   /** Where each blur pane is now, written to blur-report.txt as well. */
   blurReport: () => invoke<string>("blur_report"),
+  /** How this window's frames went, for the table of frame timings. */
+  reportFrameStats: (stats: { fps: number; avgMs: number; p95Ms: number; worstMs: number; late: number; frames: number; dpr: number }) =>
+    invoke<void>("report_frame_stats", { stats }),
+  frameStats: () => invoke<FrameRow[]>("frame_stats"),
+  frameReport: () => invoke<string>("frame_report"),
   listRecentDownloads: (limit?: number) => invoke<Download[]>("list_recent_downloads", { limit: limit ?? null }),
 };

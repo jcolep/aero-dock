@@ -12,6 +12,8 @@ import { FrameApp } from "./features/frame/FrameApp";
 import { FrameCornersApp } from "./features/frame/FrameCornersApp";
 import { MenuBarApp } from "./features/menubar/MenuBarApp";
 import { MissionApp } from "./features/mission/MissionApp";
+import { PerfApp } from "./features/perf/PerfApp";
+import { useFrameMeter } from "./engine/perf/useFrameMeter";
 import { SettingsApp } from "./features/settings/SettingsApp";
 import { StartApp } from "./features/start/StartApp";
 import "./styles/global.css";
@@ -26,6 +28,7 @@ const isFrame = requested === "frame";
 const isFrameCorners = requested === "framecorners";
 const isMission = requested === "mission";
 const isStart = requested === "start";
+const isPerf = requested === "perf";
 
 function Root() {
   if (isSettings) return <SettingsApp />;
@@ -35,6 +38,7 @@ function Root() {
   if (isFrameCorners) return <FrameCornersApp />;
   if (isMission) return <MissionApp />;
   if (isStart) return <StartApp />;
+  if (isPerf) return <PerfApp />;
   return <DockApp />;
 }
 
@@ -57,6 +61,8 @@ function useIconLook() {
 
 function Policy() {
   useIconLook();
+  // how smoothly this window draws, for the table of frame timings (only while that is on)
+  useFrameMeter();
   const reduced = useReduced();
   return (
     <MotionConfig reducedMotion={reduced.motion ? "always" : "never"}>

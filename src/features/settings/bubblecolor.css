@@ -21,8 +21,8 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
   cursor: pointer;
   transition:
-    transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 160ms ease-out;
+    transform var(--m-quick) var(--e-overshoot),
+    box-shadow var(--m-quick) var(--e-out);
 }
 
 .bubble-swatch:hover {

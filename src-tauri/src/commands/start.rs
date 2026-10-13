@@ -43,6 +43,8 @@ const EDGE_GAP: f64 = 12.0;
 
 const OPEN_EVENT: &str = "start://open";
 const OUTSIDE_EVENT: &str = "start://outside";
+/// Asked to open while it is on its way out: the page turns its closing back.
+const REOPEN_EVENT: &str = "start://reopen";
 
 /// What the page is told when the menu opens.
 #[derive(Debug, Clone, Serialize)]
@@ -60,6 +62,23 @@ static GENERATION: AtomicU64 = AtomicU64::new(0);
 /// close (the dock's search button, clicked to dismiss it, arrives just after the click
 /// elsewhere was noticed) must not cut that short by hiding the window at once.
 static CLOSING: AtomicBool = AtomicBool::new(false);
+
+/// When it was told to close, so that a press of the shortcut or the button a moment later (the same
+/// gesture: the click elsewhere that closed it, and the click on the button) is not taken for a wish to open
+/// it again, and one later than that is.
+static CLOSING_AT: Mutex<Option<std::time::Instant>> = Mutex::new(None);
+
+/// How long after being told to close a second ask still means "close".
+const SAME_GESTURE: Duration = Duration::from_millis(350);
+
+/// The window and the scale of the screen it is on, for watching it again when it is reopened.
+static LAST: Mutex<(isize, f64)> = Mutex::new((0, 1.0));
+
+/// Note that it is being closed (by the page, on its way out).
+fn begin_closing() {
+    CLOSING.store(true, Ordering::SeqCst);
+    *CLOSING_AT.lock() = Some(std::time::Instant::now());
+}
 
 /// Where the window goes: the panel centred on the work area, resting above the
 /// bottom of it and above any dock bar that lies along the bottom.
@@ -98,14 +117,37 @@ fn visible(window: &WebviewWindow) -> bool {
 /// page, which plays its closing animation and then hides the window.
 pub async fn toggle(app: &AppHandle) {
     if app.get_webview_window(LABEL).is_some_and(|w| visible(&w)) {
-        if !CLOSING.swap(true, Ordering::SeqCst) {
-            let _ = app.emit_to(LABEL, OUTSIDE_EVENT, ());
+        if CLOSING.load(Ordering::SeqCst) {
+            // on its way out: a press that comes with the click that closed it is the same gesture; a later one
+            // means "open it again", and the page turns its leaving round from where it is
+            let since = CLOSING_AT.lock().map(|at| at.elapsed());
+            if since.is_some_and(|s| s > SAME_GESTURE) {
+                reopen(app);
+            }
+            return;
         }
+        begin_closing();
+        let _ = app.emit_to(LABEL, OUTSIDE_EVENT, ());
         return;
     }
     if let Err(e) = open(app).await {
         log::warn!("could not open the Start menu: {e}");
     }
+}
+
+/// Open it again while it is leaving.
+fn reopen(app: &AppHandle) {
+    CLOSING.store(false, Ordering::SeqCst);
+    *CLOSING_AT.lock() = None;
+    let (hwnd, scale) = *LAST.lock();
+    if hwnd != 0 {
+        // watched afresh: the watch that told it to close has done its part
+        watch(app.clone(), HWND(hwnd as *mut _), scale);
+    }
+    if let Some(window) = app.get_webview_window(LABEL) {
+        let _ = window.set_focus();
+    }
+    let _ = app.emit_to(LABEL, REOPEN_EVENT, ());
 }
 
 async fn build(app: &AppHandle) -> AeroResult<WebviewWindow> {
@@ -151,6 +193,8 @@ fn place_and_show(app: &AppHandle, monitor: &MonitorInfoEx) -> AeroResult<()> {
     let previous = unsafe { GetForegroundWindow() };
     *PREVIOUS.lock() = previous.0 as isize;
     CLOSING.store(false, Ordering::SeqCst);
+    *CLOSING_AT.lock() = None;
+    *LAST.lock() = (hwnd.0 as isize, monitor.scale);
     dock_window::keep_caption_off(hwnd);
     dock_window::set_no_activate(hwnd, false)?;
 
@@ -170,6 +214,7 @@ fn place_and_show(app: &AppHandle, monitor: &MonitorInfoEx) -> AeroResult<()> {
 pub fn close(app: &AppHandle, restore: bool) {
     GENERATION.fetch_add(1, Ordering::SeqCst);
     CLOSING.store(false, Ordering::SeqCst);
+    *CLOSING_AT.lock() = None;
     if let Some(window) = app.get_webview_window(LABEL) {
         let _ = window.hide();
     }
@@ -249,7 +294,7 @@ fn watch(app: AppHandle, window_handle: HWND, scale: f64) {
             }
             if outside {
                 told_at = Some(std::time::Instant::now());
-                CLOSING.store(true, Ordering::SeqCst);
+                begin_closing();
                 let _ = app.emit_to(LABEL, OUTSIDE_EVENT, ());
             }
         }

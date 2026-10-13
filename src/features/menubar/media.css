@@ -77,8 +77,8 @@
   font-weight: 600;
   cursor: default;
   transition:
-    background-color 140ms ease-out,
-    color 140ms ease-out;
+    background-color var(--m-quick) var(--e-out),
+    color var(--m-quick) var(--e-out);
 }
 
 .np-source:not(:disabled):hover {
@@ -154,7 +154,7 @@
 .np-more svg {
   width: 11px;
   height: 11px;
-  transition: transform 200ms ease-out;
+  transition: transform var(--m-standard) var(--e-out);
 }
 
 .np-more[aria-expanded="true"] svg {
@@ -362,8 +362,8 @@
   overflow: hidden;
   background: rgba(255, 255, 255, 0.24);
   transition:
-    height 160ms ease-out,
-    margin-top 160ms ease-out;
+    height var(--m-quick) var(--e-out),
+    margin-top var(--m-quick) var(--e-out);
 }
 
 .np-track[data-seek]:hover .np-rail,
@@ -380,7 +380,7 @@
   background: #fff;
   transform-origin: left center;
   transform: scaleX(var(--p, 0));
-  transition: transform 260ms linear;
+  transition: transform var(--m-standard) linear;
 }
 
 .np-track[data-held] .np-fill {
@@ -400,9 +400,9 @@
   opacity: 0;
   transform: scale(0.5);
   transition:
-    left 260ms linear,
-    opacity 140ms ease-out,
-    transform 220ms var(--mb-settle, ease-out);
+    left var(--m-standard) linear,
+    opacity var(--m-quick) var(--e-out),
+    transform var(--m-standard) var(--mb-settle, var(--e-out));
 }
 
 .np-track:hover .np-knob,
@@ -469,10 +469,10 @@
   color: rgba(255, 255, 255, 0.92);
   cursor: default;
   transition:
-    background-color 140ms ease-out,
-    color 140ms ease-out,
-    opacity 140ms ease-out,
-    transform 320ms var(--mb-settle, ease-out);
+    background-color var(--m-quick) var(--e-out),
+    color var(--m-quick) var(--e-out),
+    opacity var(--m-quick) var(--e-out),
+    transform var(--m-settle) var(--mb-settle, var(--e-out));
 }
 
 .np-btn svg {

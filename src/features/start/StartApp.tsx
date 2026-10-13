@@ -21,6 +21,7 @@ import { playCue } from "../../engine/sound/ui";
 import { useGlideHighlight } from "../../engine/lens/useGlideHighlight";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
+import { turnBack, type Turning } from "../menubar/interrupt";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { ipc } from "../../ipc/commands";
 import type { AppEntry, Download, FoundFile, PinnedItem, Profile, RecentFile, StartPin } from "../../ipc/types";
@@ -302,25 +303,73 @@ export function StartApp() {
   const realBlur = !!settings?.appearance.realBlur && !reduced.transparency;
 
   // ---- closing ----
+  // Opening, closing and opening again in a moment must go where it is asked from where the panel is, never
+  // restart from its first frame: a close that comes while the panel is still arriving turns the arrival back,
+  // and an open that comes while it is leaving turns the leaving back (see turnBack). Each ask is a "turn";
+  // what a turn was going to do when it finished is dropped if another has come since.
+  const turn = useRef(0);
+  const turning = useRef<Turning | null>(null);
+  const [turned, setTurned] = useState(false);
+  const panelEl = () => document.querySelector<HTMLElement>(".st-panel");
+
   const close = useCallback(
     (restore: boolean) => {
       if (phaseRef.current !== "open") return;
+      const mine = ++turn.current;
+      const finish = () => {
+        if (turn.current !== mine) return;
+        // the copies stay (holding the panel away) until it is opened again, which lets them go: letting go
+        // now would show the open panel for a frame before the window is hidden
+        setPhase("closed");
+        ipc.closeStart(restore).catch(() => undefined);
+      };
+      const panel = panelEl();
+      const back = !reduced.motion && panel ? turnBack(panel) : null;
       setPhase("closing");
       playCue("startClose");
       setMenu(null);
       setPop(null);
       lens.fade();
-      window.setTimeout(
-        () => {
-          setPhase("closed");
-          ipc.closeStart(restore).catch(() => undefined);
-        },
-        reduced.motion ? 0 : startExitMs(anim, speed),
-      );
+      if (back) {
+        // still arriving: it goes back the way it came, and is let go of when it is there
+        turning.current = back;
+        setTurned(true);
+        void back.done.then(finish);
+      } else {
+        window.setTimeout(finish, reduced.motion ? 0 : startExitMs(anim, speed));
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [reduced.motion, anim, speed, lens.fade],
   );
+
+  // asked to open while it is on its way out (the shortcut pressed again, a moment after it was let go)
+  useEffect(() => {
+    const un = listen("start://reopen", () => {
+      if (phaseRef.current !== "closing") return;
+      const mine = ++turn.current;
+      const panel = panelEl();
+      const back = !reduced.motion && panel ? turnBack(panel) : null;
+      setPhase("open");
+      playCue("startOpen");
+      window.setTimeout(() => input.current?.focus(), 40);
+      if (back) {
+        turning.current = back;
+        setTurned(true);
+        // back in place: the stylesheet shows the open panel itself again, and the animation it plays when it
+        // opens is held off (`data-turned`) until the next time it is opened
+        void back.done.then(() => {
+          if (turn.current !== mine) return;
+          back.release();
+          turning.current = null;
+        });
+      } else {
+        setTurned(false);
+      }
+    });
+    return () => void un.then((fn) => fn());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduced.motion]);
 
   // ---- opening ----
   useEffect(() => {
@@ -331,6 +380,10 @@ export function StartApp() {
       setMenu(null);
       setPop(null);
       setFiles([]);
+      turn.current += 1;
+      turning.current?.release();
+      turning.current = null;
+      setTurned(false);
       setPhase("open");
       playCue("startOpen");
       window.setTimeout(() => input.current?.focus(), 40);
@@ -634,7 +687,7 @@ export function StartApp() {
   const initial = (profile?.name ?? "?").charAt(0).toUpperCase();
 
   return (
-    <div className="st-root" style={{ ["--lens-scale" as string]: mb?.lensMagnify ?? 1.07 } as React.CSSProperties} data-anim={anim} data-phase={phase} data-still={reduced.motion || undefined} data-solid={reduced.transparency || undefined}>
+    <div className="st-root" style={{ ["--lens-scale" as string]: mb?.lensMagnify ?? 1.07 } as React.CSSProperties} data-anim={anim} data-phase={phase} data-turned={turned || undefined} data-still={reduced.motion || undefined} data-solid={reduced.transparency || undefined}>
       <GlassTips side="above" />
       <div
         ref={lens.rootRef}

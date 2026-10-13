@@ -15,6 +15,7 @@
 
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { lens } from "../../engine/motion/tokens";
 import { playCue } from "../../engine/sound/ui";
 import { displacementFilter } from "../../engine/glass/displacement";
 
@@ -43,14 +44,14 @@ function refraction(warp: number): string {
 const ITEM = ".mb-item";
 
 /** Spring of the edge that leads and of the edge that follows. */
-const LEAD = { type: "spring", stiffness: 640, damping: 36, mass: 0.7 } as const;
-const TRAIL = { type: "spring", stiffness: 210, damping: 24, mass: 0.9 } as const;
+const LEAD = lens.lead;
+const TRAIL = lens.trail;
 /** The most it stretches beyond the button it is heading for, however far the
  *  hop: a blob, not a bar. The leading edge keeps its pace and the trailing one
  *  is held within this of it. */
 const MAX_STRETCH = 84;
 /** For a button that is not a hop away (the same one resizing). */
-const SETTLE = { type: "spring", stiffness: 420, damping: 34, mass: 0.8 } as const;
+const SETTLE = lens.settle;
 
 interface Box {
   left: number;

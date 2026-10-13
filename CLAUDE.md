@@ -81,7 +81,9 @@ node --experimental-websocket scripts/offscreen/interrupt.mjs src-tauri/target/o
 node --experimental-websocket scripts/offscreen/dock.mjs src-tauri/target/offscreen
 node --experimental-websocket scripts/offscreen/dockglass.mjs src-tauri/target/offscreen   # satellites from outside, status buttons' glass
 node --experimental-websocket scripts/offscreen/dockhide.mjs src-tauri/target/offscreen    # satellites put away, and moving with the dock
-node --experimental-websocket scripts/offscreen/backdrop.mjs src-tauri/target/offscreen    # the frosted picture under the dock and Start
+node --experimental-websocket scripts/offscreen/backdrop.mjs src-tauri/target/offscreen    # the frosted picture under the dock, Start and menu bar (and that off means off)
+node --experimental-websocket scripts/offscreen/startturn.mjs src-tauri/target/offscreen    # Start turns back from where it is
+node --experimental-websocket scripts/offscreen/perf.mjs src-tauri/target/offscreen         # the frame timings table
 node --experimental-websocket scripts/offscreen/insight.mjs src-tauri/target/offscreen    # privacy dots, stats
 node --experimental-websocket scripts/offscreen/attention.mjs src-tauri/target/offscreen  # attention bounce
 node --experimental-websocket scripts/offscreen/mission.mjs src-tauri/target/offscreen    # Mission Control
@@ -271,7 +273,22 @@ Say plainly in a report when something native was not seen.
   leaves the window or moves off about the room (before, a button budded from outside stayed). The dock
   window's mouse-leave does not fire in the harness for a pointer that merely moves away; `dockhide.mjs`
   dispatches `mouseout`/`mouseover` itself.
-- **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
+- **One motion language, one light** (the "premium" pass). Motion: `engine/motion/tokens.ts` has the four springs
+  (`quick`, `standard`, `settle`, `heavy`), the durations and curves, and the characters a person picks (pop, jelly,
+  bounce); `styles/tokens.css` has the same as `--m-*` (durations, divided by the animation speed, so transitions follow
+  the speed slider too) and `--e-*` (curves). A new thing uses these and does not invent a fifth; every CSS
+  `transition:` is on them (a one-off script did the existing 50: overshoot curves are `--e-overshoot`). Everything must
+  be interruptible: springs and transitions are by themselves; a keyframe animation is turned back with
+  `turnBack`/`reverseEntrance` (`menubar/interrupt.ts`), which is what the Start menu does (`startturn.mjs`; Rust says
+  `start://reopen` when a press comes more than 350 ms after it was told to close, and ignores one that comes with the
+  click that closed it). Light: `tokens.css` has `--rim` (the one rim: bright upper left, fainter lower right, a hairline
+  all round) and four heights `--elev-1..4` (bar/card, panel, popover, tooltip); every surface's box-shadow is those
+  plus its own glow, and the dock bar's copies are in `dockshadow.css`. Change the light there, nowhere else.
+- **Frame timings** (`commands/perf.rs`, `engine/perf/useFrameMeter.ts`, `features/perf`): with
+  `appearance.frameOverlay` on, every window times its animation frames and says how they went twice a second; a window
+  of its own (`perf`, click-through, top left of the main screen) lists them with each screen's refresh rate. It keeps
+  every window drawing at its screen's rate, so it is a diagnostic, off by default; "Save a report" writes
+  `frame-report.txt`. Grading is the slowest 5% against one frame of the window's own screen.- **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
   page that has not been clicked (the Start menu, opened from the dock) plays its cues silently.
 - **The settings window** is a sidebar and a column of collapsible sections in groups (`sections.ts` is the
   registry: id, title, blurb, search keywords, group). A new section is a `<SettingsSection id="...">`

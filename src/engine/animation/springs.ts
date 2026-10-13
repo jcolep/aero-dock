@@ -1,26 +1,26 @@
 /**
- * Every spring in Aero Dock is defined here so the whole app's "feel"
- * is tuned from one file. Values chosen for soft, watery motion —
- * nothing snaps, nothing overshoots harshly.
+ * The springs the dock's own pieces use, named for what they do. The vocabulary they are made of is in
+ * `engine/motion/tokens.ts` (quick, standard, settle, heavy); what is here is where each of them is used.
  */
 
+import { character, spring } from "../motion/tokens";
+
 export const springs = {
-  /** Icon magnification following the cursor. */
+  /** Icon magnification following the cursor (tuned by the feel chosen; see `magnifySpring`). */
   magnify: { mass: 0.08, stiffness: 190, damping: 16 },
-  /** Launch bounce: playful but quick to settle. */
-  bounce: { type: "spring", stiffness: 320, damping: 13, mass: 0.6 } as const,
+  /** Launch bounce: a character, playful but quick to settle. */
+  bounce: character.bounce,
   /** Drag: icons feel like they're suspended in water. */
   drag: { stiffness: 260, damping: 22, mass: 0.5 },
   /** Neighbours getting out of the way during a reorder. Stiffer than
    * `drag` on purpose: the gap has to open before the cursor arrives,
    * or the drag reads as laggy even though the tile is tracking 1:1. */
-  reorder: { type: "spring", stiffness: 520, damping: 38, mass: 0.4 } as const,
+  reorder: spring.quick,
   /** Panels/menus blooming open. */
-  bloom: { type: "spring", stiffness: 240, damping: 22, mass: 0.7 } as const,
+  bloom: spring.settle,
   /** Dock slide for auto-hide. */
-  slide: { type: "spring", stiffness: 210, damping: 26, mass: 0.8 } as const,
+  slide: spring.heavy,
 } as const;
-
 /** Idle float: gentle vertical drift, phase-offset per icon. The drift itself
  *  is drawn by dock.css from a phase DockBar writes; this is its timing. The
  *  amplitude is written in the stylesheet beside the curve it scales. */

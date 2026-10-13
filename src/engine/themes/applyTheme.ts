@@ -128,6 +128,10 @@ export function applyAppearance(
   root.setProperty("--status-glyph-size", `${d.statusIconSize}px`);
   root.setProperty("--dock-opacity", String(a.transparency));
   root.setProperty("--glass-intensity", String(a.glassIntensity));
+  // the blur of each surface's glass, from its own slider (the settings window keeps its material's)
+  const surface = new URLSearchParams(window.location.search).get("window");
+  const frost = surface === "start" ? a.frost.start : surface === "menubar" ? a.frost.menuBar : target === "dock" && !surface ? a.frost.dock : null;
+  if (frost) root.setProperty("--glass-blur", `${frost.blur}px`);
   root.setProperty("--bloom-amount", String(a.bloomAmount));
   root.setProperty("--reflection-strength", String(a.reflectionStrength));
   root.setProperty("--dock-drop-shadow", dockDropShadow(a.dockShadow));

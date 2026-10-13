@@ -44,6 +44,8 @@ pub async fn set_settings(
         crate::commands::menubar::sync_menubar(&docks).await;
         // the frame goes round what they leave, so it is placed last
         crate::commands::frame::sync_frames(&docks).await;
+        // the table of frame timings, if it is asked for
+        crate::commands::perf::sync(&docks).await;
     });
     Ok(result)
 }

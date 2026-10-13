@@ -65,17 +65,7 @@
 /* the hairline of light along the edge. Inset shadows rather than a border,
    so the bar is exactly as big as the scene drawn inside it. */
 .menubar[data-rim="true"] {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.menubar[data-rim="true"][data-floating="true"] {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.3),
-    inset 1px 0 0 rgba(255, 255, 255, 0.16),
-    inset -1px 0 0 rgba(255, 255, 255, 0.16);
+  box-shadow: var(--rim);
 }
 
 /* The ambient scene: a canvas exactly the size of the bar, behind its items.
@@ -110,7 +100,7 @@
     rgba(255, 255, 255, 0.2),
     transparent 70%
   );
-  transition: opacity 220ms ease-out;
+  transition: opacity var(--m-standard) var(--e-out);
 }
 
 html[data-pointer-light="on"] .menubar:hover::before {
@@ -121,8 +111,8 @@ html[data-pointer-light="on"] .menubar:hover::before {
   background-image: var(--grain);
 }
 
-html[data-grain="off"] .menubar::after,
-.menubar[data-bd="on"]::after {
+/* the bar's grain is the backdrop layer's (BackdropLayer) */
+.menubar::after {
   display: none;
 }
 
@@ -153,8 +143,8 @@ html[data-grain="off"] .menubar::after,
   /* the highlight eases in and out rather than snapping, which is most of
      what makes a row of menu items feel soft */
   transition:
-    background-color 110ms ease-out,
-    transform 260ms var(--mb-settle);
+    background-color var(--m-quick) var(--e-out),
+    transform var(--m-standard) var(--mb-settle);
 }
 
 /* The highlight under a button is not the button's own: it is the sliding lens
@@ -191,7 +181,7 @@ html[data-grain="off"] .menubar::after,
     0 4px 14px rgba(0, 0, 0, 0.2);
   /* pressing it draws it in; `scale` is its own property, so it does not fight
      the stretch that is set on `transform` */
-  transition: scale 140ms var(--mb-settle);
+  transition: scale var(--m-quick) var(--mb-settle);
 }
 
 /* the light caught on the upper left of the edge */
@@ -249,10 +239,8 @@ html[data-grain="off"] .menubar::after,
     radial-gradient(120% 70% at 14% 0%, rgba(var(--clear-glow), 0.26), transparent 62%),
     var(--mb-body);
   box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.42),
-    0 3px 10px rgba(0, 0, 0, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    var(--elev-3),
+    var(--rim),
     inset 0 0 24px rgba(var(--clear-glow), 0.1);
 }
 
@@ -320,7 +308,7 @@ html[data-grain="off"] .menubar::after,
   font: inherit;
   text-align: left;
   cursor: default;
-  transition: background-color 90ms ease-out;
+  transition: background-color var(--m-quick) var(--e-out);
 }
 
 .mb-menu-item:hover {
@@ -836,10 +824,10 @@ html[data-grain="off"] .menubar::after,
   cursor: default;
   /* the colour comes in quickly; the lift settles with a little overshoot */
   transition:
-    background-color 160ms ease-out,
-    border-color 160ms ease-out,
-    box-shadow 220ms ease-out,
-    transform 360ms var(--mb-settle);
+    background-color var(--m-quick) var(--e-out),
+    border-color var(--m-quick) var(--e-out),
+    box-shadow var(--m-standard) var(--e-out),
+    transform var(--m-settle) var(--mb-settle);
 }
 
 /* Hovering a tile floods it with the theme colour and lifts it; pressing it
@@ -888,8 +876,8 @@ html[data-grain="off"] .menubar::after,
   color: inherit;
   cursor: default;
   transition:
-    background-color 140ms ease-out,
-    transform 320ms var(--mb-settle);
+    background-color var(--m-quick) var(--e-out),
+    transform var(--m-settle) var(--mb-settle);
 }
 
 .cc-chevron:hover {
@@ -900,7 +888,7 @@ html[data-grain="off"] .menubar::after,
 .cc-chevron-glyph {
   width: 14px;
   height: 14px;
-  transition: transform 300ms var(--mb-settle);
+  transition: transform var(--m-standard) var(--mb-settle);
 }
 
 .cc-chevron-glyph[data-open="true"] {
@@ -934,7 +922,7 @@ html[data-grain="off"] .menubar::after,
   font: inherit;
   text-align: left;
   cursor: default;
-  transition: background-color 120ms ease-out, transform 260ms var(--mb-settle);
+  transition: background-color var(--m-quick) var(--e-out), transform var(--m-standard) var(--mb-settle);
 }
 
 .cc-row:hover {
@@ -1005,8 +993,8 @@ html[data-grain="off"] .menubar::after,
   background: rgba(255, 255, 255, 0.16);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
   transition:
-    background-color 160ms ease-out,
-    transform 420ms var(--mb-settle);
+    background-color var(--m-quick) var(--e-out),
+    transform var(--m-settle) var(--mb-settle);
 }
 
 /* --cc-on and --cc-hover are the colours chosen for a circle in settings; left
@@ -1040,7 +1028,7 @@ html[data-grain="off"] .menubar::after,
 .cc-playing-text small {
   color: rgba(244, 247, 251, 0.65);
   font-size: 0.88em;
-  transition: color 160ms ease-out;
+  transition: color var(--m-quick) var(--e-out);
 }
 
 .cc-tile:hover .cc-tile-text small {
@@ -1079,9 +1067,9 @@ html[data-grain="off"] .menubar::after,
   font: inherit;
   cursor: default;
   transition:
-    background-color 140ms ease-out,
-    box-shadow 200ms ease-out,
-    transform 320ms var(--mb-settle);
+    background-color var(--m-quick) var(--e-out),
+    box-shadow var(--m-standard) var(--e-out),
+    transform var(--m-settle) var(--mb-settle);
 }
 
 .cc-icon-button:hover {
@@ -1121,7 +1109,7 @@ html[data-grain="off"] .menubar::after,
   box-shadow:
     inset 0 1px 2px rgba(0, 0, 0, 0.28),
     inset 0 -1px 0 rgba(255, 255, 255, 0.12);
-  transition: background-color 160ms ease-out;
+  transition: background-color var(--m-quick) var(--e-out);
 }
 
 .es:hover .es-track,
@@ -1153,8 +1141,8 @@ html[data-grain="off"] .menubar::after,
     0 0 0 0.5px rgba(0, 0, 0, 0.1),
     inset 0 -1px 2px rgba(0, 0, 0, 0.12);
   transition:
-    opacity 200ms ease-out,
-    box-shadow 200ms ease-out;
+    opacity var(--m-standard) var(--e-out),
+    box-shadow var(--m-standard) var(--e-out);
 }
 
 /* muted: the knob stays where the volume is, quieter */
@@ -1235,9 +1223,9 @@ html[data-grain="off"] .menubar::after,
   text-align: left;
   cursor: default;
   transition:
-    background-color 120ms ease-out,
-    color 120ms ease-out,
-    transform 260ms var(--mb-settle);
+    background-color var(--m-quick) var(--e-out),
+    color var(--m-quick) var(--e-out),
+    transform var(--m-standard) var(--mb-settle);
 }
 
 .cc-links button:hover {
@@ -1362,7 +1350,7 @@ html[data-grain="off"] .menubar::after,
   height: 32px;
   border-radius: 50%;
   font-variant-numeric: tabular-nums;
-  transition: background-color 120ms ease-out, transform 260ms var(--mb-settle);
+  transition: background-color var(--m-quick) var(--e-out), transform var(--m-standard) var(--mb-settle);
 }
 
 .cal-day:not([data-blank="true"]):hover {
@@ -1503,7 +1491,7 @@ html[data-grain="off"] .menubar::after,
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(180deg, #fff, rgba(255, 255, 255, 0.85));
-  transition: width 500ms var(--mb-settle, ease-out);
+  transition: width var(--m-heavy) var(--mb-settle, var(--e-out));
 }
 
 .stats-note {

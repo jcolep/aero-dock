@@ -197,6 +197,9 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "list_recent_files": return ${JSON.stringify(recent)};
         case "search_files": return ${JSON.stringify(files)}.filter((f) => f.name.toLowerCase().includes(String(args.query || "").toLowerCase()));
         case "blur_report": return "";
+        case "report_frame_stats": return null;
+        case "frame_stats": return window.__frameRows || [];
+        case "frame_report": return "";
         // a picture of the desktop behind a region: red, to yellow, to blue, from left to right, so that where the page
         // puts it shows (the real one is a blurred picture of the screen)
         case "capture_backdrop": {

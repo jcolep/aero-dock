@@ -18,15 +18,16 @@
 
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { lens } from "../motion/tokens";
 import { refraction } from "./refraction";
 import { playCue } from "../sound/ui";
 import "./glide.css";
 
 /** Spring of the edges that lead and of the edges that follow. */
-const LEAD = { type: "spring", stiffness: 640, damping: 36, mass: 0.7 } as const;
-const TRAIL = { type: "spring", stiffness: 210, damping: 24, mass: 0.9 } as const;
+const LEAD = lens.lead;
+const TRAIL = lens.trail;
 /** For an item that is not a hop away (the same one resizing). */
-const SETTLE = { type: "spring", stiffness: 420, damping: 34, mass: 0.8 } as const;
+const SETTLE = lens.settle;
 /** The most it stretches beyond the item it is heading for, however far the hop. */
 const MAX_STRETCH = 70;
 

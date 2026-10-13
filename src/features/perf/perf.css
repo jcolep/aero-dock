@@ -1,0 +1,61 @@
+html,
+body,
+#root {
+  background: transparent;
+}
+
+.perf-root {
+  position: fixed;
+  inset: 0;
+  padding: 8px;
+  pointer-events: none;
+}
+
+.perf {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(10, 16, 30, 0.82);
+  box-shadow: var(--elev-3), var(--rim);
+  color: #e8eefc;
+  font:
+    12px/1.55 "Cascadia Mono",
+    ui-monospace,
+    Consolas,
+    monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.perf th {
+  text-align: right;
+  font-weight: 600;
+  color: rgba(232, 238, 252, 0.55);
+  padding: 2px 8px;
+}
+
+.perf td {
+  text-align: right;
+  padding: 1px 8px;
+}
+
+.perf th:first-child,
+.perf td:first-child,
+.perf th:nth-child(2),
+.perf td:nth-child(2) {
+  text-align: left;
+}
+
+.perf tr[data-grade="good"] td:nth-child(n + 4) {
+  color: #8fe388;
+}
+.perf tr[data-grade="fair"] td:nth-child(n + 4) {
+  color: #f3cf6a;
+}
+.perf tr[data-grade="poor"] td:nth-child(n + 4) {
+  color: #ff8a80;
+}
+.perf tr[data-grade="idle"] td {
+  color: rgba(232, 238, 252, 0.45);
+}

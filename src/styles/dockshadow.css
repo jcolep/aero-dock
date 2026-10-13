@@ -16,7 +16,7 @@
 [data-surface="aero"] .dock-bar.glass {
   box-shadow:
     var(--dock-drop-shadow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    var(--rim),
     inset 0 -1px 12px rgba(140, 210, 255, 0.18);
 }
 
@@ -24,16 +24,14 @@
   box-shadow:
     var(--dock-drop-shadow),
     0 0 0 0.5px rgba(255, 255, 255, 0.34),
-    inset 0 0 6px 0 rgba(255, 255, 255, 0.85),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    var(--rim),
+    inset 0 0 6px 0 rgba(255, 255, 255, 0.5),
     inset 0 -14px 30px rgba(150, 215, 255, 0.14);
 }
 
 [data-surface="clear"] .dock-bar.glass {
   box-shadow:
     var(--dock-drop-shadow),
-    inset 1.5px 1.5px 0.5px -0.5px rgba(255, 255, 255, 0.95),
-    inset -1.5px -1.5px 0.5px -0.5px rgba(255, 255, 255, 0.5),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    var(--rim),
     inset 0 0 22px rgba(var(--clear-glow), 0.16);
 }

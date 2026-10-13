@@ -87,6 +87,22 @@ export interface AppearanceSettings {
   iconStyle: IconStyle;
   /** How frosted the glass is on each surface, while frosted glass is on. */
   frost: FrostSettings;
+  /** A table of how smoothly each window draws, on each screen (a diagnostic). */
+  frameOverlay: boolean;
+}
+
+/** One window's frame timings (see commands/perf.rs). */
+export interface FrameRow {
+  label: string;
+  monitor: string;
+  refreshHz: number;
+  fps: number;
+  avgMs: number;
+  p95Ms: number;
+  worstMs: number;
+  late: number;
+  frames: number;
+  dpr: number;
 }
 
 export type PinKind = "app" | "file" | "folder" | "stack";

@@ -18,6 +18,7 @@
 import type { MotionValue, TargetAndTransition, Transition } from "motion/react";
 import { animate } from "motion/react";
 import type { AnimationSettings, DockEdge } from "../../ipc/types";
+import { atSpeed, character, spring, time } from "../motion/tokens";
 import { springs } from "./springs";
 
 export interface PresetInfo {
@@ -152,7 +153,7 @@ export function panelMotion(preset: string, edge: DockEdge, speed = 1): PanelMot
         initial: { opacity: 0, scale: 0.78 },
         animate: { ...rest },
         exit: { opacity: 0, scale: 0.9, transition: { duration: fast(0.12), ease: "easeIn" } },
-        transition: { type: "spring", stiffness: 560 * speed, damping: 26, mass: 0.55 },
+        transition: atSpeed(character.pop, speed),
       };
     case "glide":
       return {
@@ -178,7 +179,7 @@ export function panelMotion(preset: string, edge: DockEdge, speed = 1): PanelMot
           ...tilt(42),
           transition: { duration: fast(0.17), ease: [0.5, 0, 0.8, 0.45] },
         },
-        transition: { type: "spring", stiffness: 230 * speed, damping: 20, mass: 0.8 },
+        transition: atSpeed(spring.settle, speed),
       };
     case "jelly":
       return {
@@ -262,13 +263,13 @@ export function itemMotion(preset: string, i: number, step = 0.022, cap = 0.35, 
       return {
         initial: { opacity: 0, y: 8, scaleX: 0.8, scaleY: 0.5 },
         animate: { opacity: 1, y: 0, scale: 1, scaleX: 1, scaleY: 1 },
-        transition: { type: "spring", stiffness: 380 * speed, damping: 12, mass: 0.6, delay },
+        transition: { ...atSpeed(character.jelly, speed), delay },
       };
     case "pop":
       return {
         initial: { opacity: 0, y: 10, scale: 0.8 },
         animate: { opacity: 1, y: 0, scale: 1, scaleX: 1, scaleY: 1 },
-        transition: { type: "spring", stiffness: 560 * speed, damping: 24, mass: 0.5, delay },
+        transition: { ...atSpeed(character.pop, speed), delay },
       };
     case "bloom":
     default:
@@ -342,11 +343,11 @@ function revealCore(
           ...pct(36),
           scale: 0.92,
           opacity: 0,
-          transition: { type: "spring", stiffness: 230 * speed, damping: 30, mass: 0.8 },
+          transition: atSpeed(spring.standard, speed),
         },
         shown: {
           ...base,
-          transition: { type: "spring", stiffness: 170 * speed, damping: 21, mass: 0.95 },
+          transition: atSpeed(spring.heavy, speed),
         },
         hideMs: fast(460),
       };
@@ -362,7 +363,7 @@ function revealCore(
         },
         shown: {
           ...base,
-          transition: { type: "spring", stiffness: 330 * speed, damping: 17, mass: 0.75 },
+          transition: atSpeed(character.reveal, speed),
         },
         hideMs: fast(300),
       };
@@ -551,7 +552,15 @@ export function menuExitMs(preset: string, speed = 1): number {
 }
 
 /** How long the Start menu takes to leave, per preset (the page waits this before hiding the window). */
-const START_EXIT_MS: Record<string, number> = { rise: 220, bloom: 260, genie: 340, slide: 260, fade: 180, none: 0 };
+// (the tokens' own times: see the `--st-out` rules in start.css, which say the same)
+const START_EXIT_MS: Record<string, number> = {
+  rise: time.standard * 1000,
+  bloom: time.standard * 1000,
+  genie: time.settle * 1000,
+  slide: time.standard * 1000,
+  fade: time.quick * 1000,
+  none: 0,
+};
 
 export function startExitMs(preset: string, speed = 1): number {
   const ms = START_EXIT_MS[preset] ?? START_EXIT_MS.rise;

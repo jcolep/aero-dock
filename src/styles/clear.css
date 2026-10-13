@@ -55,15 +55,11 @@
      the strip reserved for it */
   border: 1px solid transparent;
   box-shadow:
-    /* separation: one wide soft drop and one tight contact shadow */
-    0 18px 40px rgba(0, 0, 0, 0.26),
-    0 2px 6px rgba(0, 0, 0, 0.16),
-    /* specular edge: bright on the lit corner, fainter opposite. White in
+    /* separation: one wide soft drop and one tight contact shadow (the one light, tokens.css) */
+    var(--elev-2),
+    /* specular edge: bright on the lit corner, fainter opposite, a hairline all round. White in
        every theme: a lens catches white light whatever it is tinted */
-    inset 1.5px 1.5px 0.5px -0.5px rgba(255, 255, 255, 0.95),
-    inset -1.5px -1.5px 0.5px -0.5px rgba(255, 255, 255, 0.5),
-    /* a hairline all round so the shape never dissolves */
-    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    var(--rim),
     /* illumination: the body is lit from inside, in the theme's light */
     inset 0 0 22px rgba(var(--clear-glow), 0.16);
 }
@@ -256,10 +252,8 @@
   backdrop-filter: blur(10px);
   background: rgba(var(--clear-tint), calc(0.08 * var(--clear-strength)));
   box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.22),
-    inset 1.5px 1.5px 0.5px -0.5px rgba(255, 255, 255, 0.95),
-    inset -1.5px -1.5px 0.5px -0.5px rgba(255, 255, 255, 0.5),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    var(--elev-1),
+    var(--rim),
     inset 0 0 18px rgba(var(--clear-glow), 0.12);
 }
 
