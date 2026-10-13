@@ -333,6 +333,12 @@ export function StartApp() {
 
   const close = useCallback(
     (restore: boolean) => {
+      // told to close a menu that is not open (it was never opened here, or has gone since): the window is shown
+      // all the same, and is put away rather than left for the next press to find
+      if (phaseRef.current === "closed") {
+        ipc.closeStart(false).catch(() => undefined);
+        return;
+      }
       if (phaseRef.current !== "open") return;
       const mine = ++turn.current;
       const finish = () => {
@@ -361,6 +367,11 @@ export function StartApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [reduced.motion, anim, speed, lens.fade],
   );
+
+  // the listeners below are set up once and ask for whatever `close` is now, so that none of them is ever taken down and put
+  // up again (an event that arrives in between is lost)
+  const closeRef = useRef(close);
+  closeRef.current = close;
 
   // asked to open while it is on its way out (the shortcut pressed again, a moment after it was let go)
   useEffect(() => {
@@ -430,12 +441,14 @@ export function StartApp() {
       // read last time stays on show until then
       readLists();
     });
-    const outside = listen("start://outside", () => close(false));
+    const outside = listen("start://outside", () => closeRef.current(false));
+    // listening: only now can it be opened (an event sent before this is lost)
+    void Promise.all([un, outside]).then(() => ipc.startReady().catch(() => undefined));
     return () => {
       void un.then((fn) => fn());
       void outside.then((fn) => fn());
     };
-  }, [close, readLists]);
+  }, [readLists]);
 
   // the pins are started from the dock's, once
   useEffect(() => {

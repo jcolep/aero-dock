@@ -89,6 +89,8 @@ pub fn position_menubar(app: &AppHandle) -> AeroResult<()> {
         monitor.bounds,
     );
     crate::trace!("position_menubar: reserved at y {}", strip.y);
+    // pinned: once the frame has taken the strip over, the shell would move the bar into the work area
+    crate::platform::windows::dock_window::pin(hwnd, strip.x, strip.y, width, height);
     crate::platform::windows::dock_window::set_bounds(hwnd, strip.x, strip.y, width, height)?;
     crate::trace!("position_menubar: bounds set");
 

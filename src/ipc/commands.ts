@@ -258,6 +258,7 @@ export const ipc = {
   openDockSearch: () => invoke<void>("open_dock_search"),
   /** Open the Start menu, or close it if it is open. */
   toggleStart: () => invoke<void>("toggle_start"),
+  startReady: () => invoke<void>("start_ready"),
   /** The Start menu is done; `restore` gives the keyboard back to whoever had it. */
   closeStart: (restore: boolean) => invoke<void>("close_start", { restore }),
   userProfile: () => invoke<Profile>("user_profile"),

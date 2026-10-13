@@ -165,6 +165,7 @@ pub fn run() {
                 });
             }
             commands::apps::warm_app_cache();
+            commands::start::prebuild(&handle);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -196,6 +197,7 @@ pub fn run() {
             commands::mission::window_rects,
             commands::start::toggle_start,
             commands::start::close_start,
+            commands::start::start_ready,
             commands::start::user_profile,
             commands::start::list_recent_downloads,
             commands::glass::capture_backdrop,

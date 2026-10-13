@@ -71,6 +71,14 @@ static CLOSING_AT: Mutex<Option<std::time::Instant>> = Mutex::new(None);
 /// How long after being told to close a second ask still means "close".
 const SAME_GESTURE: Duration = Duration::from_millis(350);
 
+/// The page has registered what it listens for. The window is built the first time it is wanted (or a few seconds
+/// after launch), and an event sent before the page is up is lost: the window would show empty, and the next press
+/// would close it instead of opening it.
+static READY: AtomicBool = AtomicBool::new(false);
+
+/// How long to wait for a page that is still starting before showing the window regardless.
+const READY_WAIT: Duration = Duration::from_secs(8);
+
 /// The window and the scale of the screen it is on, for watching it again when it is reopened.
 static LAST: Mutex<(isize, f64)> = Mutex::new((0, 1.0));
 
@@ -181,6 +189,8 @@ async fn open(app: &AppHandle) -> AeroResult<()> {
     if app.get_webview_window(LABEL).is_none() {
         build(app).await?;
     }
+    // shown only once the page is listening, so that what it is told is not lost
+    wait_until_ready().await;
     // an open menu of the bar's is closed first: there is one thing at a time
     let _ = app.emit_to(crate::commands::menubar::LABEL, "menubar://outside", ());
     let handle = app.clone();
@@ -299,6 +309,39 @@ fn watch(app: AppHandle, window_handle: HWND, scale: f64) {
             }
         }
     });
+}
+
+/// Wait (off the runtime's threads) for the page to say it is listening, or for `READY_WAIT` to pass.
+async fn wait_until_ready() {
+    if READY.load(Ordering::SeqCst) {
+        return;
+    }
+    let _ = tauri::async_runtime::spawn_blocking(|| {
+        let waited = std::time::Instant::now();
+        while !READY.load(Ordering::SeqCst) && waited.elapsed() < READY_WAIT {
+            std::thread::sleep(Duration::from_millis(15));
+        }
+    })
+    .await;
+}
+
+/// Build the window now, hidden, so that the first press has nothing to wait for. Spawned a little after launch.
+pub fn prebuild(app: &AppHandle) {
+    let app = app.clone();
+    tauri::async_runtime::spawn(async move {
+        let _ = tauri::async_runtime::spawn_blocking(|| std::thread::sleep(Duration::from_secs(4))).await;
+        if app.get_webview_window(LABEL).is_none() {
+            if let Err(e) = build(&app).await {
+                log::warn!("could not build the Start window ahead of time: {e}");
+            }
+        }
+    });
+}
+
+/// The page is listening: it can be opened.
+#[tauri::command]
+pub fn start_ready() {
+    READY.store(true, Ordering::SeqCst);
 }
 
 /// Open or close the menu, from the dock's search button.

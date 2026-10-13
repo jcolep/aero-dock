@@ -8,12 +8,28 @@ use windows::Win32::Graphics::Gdi::{CreateRectRgn, DeleteObject, SetWindowRgn};
 use windows::Win32::UI::Shell::{DefSubclassProc, SetWindowSubclass};
 use windows::Win32::UI::WindowsAndMessaging::{
     GetWindowLongPtrW, SetWindowLongPtrW, SetWindowPos, GWL_EXSTYLE, GWL_STYLE, STYLESTRUCT,
-    SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, WM_NCACTIVATE,
-    WM_STYLECHANGING,
+    SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, WINDOWPOS, WM_NCACTIVATE,
+    WM_STYLECHANGING, WM_WINDOWPOSCHANGING,
     WS_CAPTION, WS_EX_APPWINDOW, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_SYSMENU,
 };
 
 use crate::core::AeroResult;
+
+/// Where windows that must stay put have been placed, by handle: (x, y, width, height), physical pixels.
+static PINNED: Mutex<Vec<(isize, [i32; 4])>> = Mutex::new(Vec::new());
+
+/// Say where a window belongs. Once it is guarded (see [`keep_caption_off`]), a move or resize that someone
+/// else asks of it is turned back to this; [`set_bounds`] is how it is moved on purpose, and it updates this
+/// first. The shell moves a window that was an appbar and is one no more (the menu bar, when the frame takes
+/// over its strip) into the work area, and nothing of ours asked for it.
+pub fn pin(hwnd: HWND, x: i32, y: i32, w: i32, h: i32) {
+    let key = hwnd.0 as isize;
+    let mut pinned = PINNED.lock();
+    match pinned.iter().position(|(k, _)| *k == key) {
+        Some(i) => pinned[i].1 = [x, y, w.max(1), h.max(1)],
+        None => pinned.push((key, [x, y, w.max(1), h.max(1)])),
+    }
+}
 
 /// Apply dock chrome: WS_EX_TOOLWINDOW (no Alt-Tab entry), no
 /// WS_EX_APPWINDOW (no taskbar button), WS_EX_NOACTIVATE (clicks don't
@@ -92,6 +108,26 @@ pub fn keep_caption_off(hwnd: HWND) {
         if msg == WM_NCACTIVATE {
             return unsafe { DefSubclassProc(hwnd, msg, wparam, LPARAM(-1)) };
         }
+        // a window that was told where it belongs stays there, whoever asks it to go elsewhere
+        if msg == WM_WINDOWPOSCHANGING && lparam.0 != 0 {
+            let at = unsafe { &mut *(lparam.0 as *mut WINDOWPOS) };
+            let want = PINNED.lock().iter().find(|(k, _)| *k == hwnd.0 as isize).map(|(_, r)| *r);
+            if let Some([x, y, w, h]) = want {
+                let moves = at.flags.0 & SWP_NOMOVE.0 == 0 && (at.x != x || at.y != y);
+                let sizes = at.flags.0 & SWP_NOSIZE.0 == 0 && (at.cx != w || at.cy != h);
+                if moves || sizes {
+                    crate::trace!("pinned window {:#x}: refused a move to ({}, {}) {}x{}, kept ({x}, {y}) {w}x{h}", hwnd.0 as isize, at.x, at.y, at.cx, at.cy);
+                    if moves {
+                        at.x = x;
+                        at.y = y;
+                    }
+                    if sizes {
+                        at.cx = w;
+                        at.cy = h;
+                    }
+                }
+            }
+        }
         unsafe { DefSubclassProc(hwnd, msg, wparam, lparam) }
     }
 
@@ -110,6 +146,10 @@ pub fn keep_caption_off(hwnd: HWND) {
 /// flyout opens, so that moment shows as the whole dock jumping up or down
 /// the screen for a frame or two.
 pub fn set_bounds(hwnd: HWND, x: i32, y: i32, w: i32, h: i32) -> AeroResult<()> {
+    // a window that is pinned moves where it is told, and is pinned there
+    if PINNED.lock().iter().any(|(k, _)| *k == hwnd.0 as isize) {
+        pin(hwnd, x, y, w, h);
+    }
     unsafe {
         SetWindowPos(
             hwnd,

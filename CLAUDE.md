@@ -425,3 +425,8 @@ frames, the dock's blur pane following a magnifying dock.
 
 ## Idle cost of the ambient scenes
 - Strip scenes (menu bar, and the four frame strips per monitor) draw through `Fx2D.setFrameFloor(1000/12)`: each frame there is a whole screen-wide window handed to Windows, so the cost is per frame, not per mote. Measured idle (sandbox copy, 20 s of process-tree CPU): 55% of a core at 24-30 fps, 25% at 12 fps; scene "none" is ~4%, frame off ~8.5%. The strips are the remaining ~17%; lowering the floor further trades smoothness for CPU.
+
+## Launch races (menu bar, Start)
+- The menu bar window is **pinned** (`dock_window::pin`, enforced in the `keep_caption_off` subclass on `WM_WINDOWPOSCHANGING`): when the frame takes over its appbar strip, the shell moves the window into the work area (to the frame opening, (10, 44)), which put the bar below its strip at about half of launches. `set_bounds` updates the pin; anything else that asks the window to move is turned back (traced as "pinned window ... refused").
+- Start: an event sent before its page has registered listeners is lost, and the window stayed visible but empty so the next press "closed" it. The page now calls `start_ready` once its listeners are up, Rust waits for that (up to 8 s) before showing, builds the window 4 s after launch (`prebuild`), and the page's listeners are registered once (they call `closeRef`) so none is ever torn down and re-registered. A close told to a page that is closed puts the window away.
+- Repro/diagnosis: `AERO_TRACE=1` writes `trace.log` beside the settings; poll the bar's rect during launch.
