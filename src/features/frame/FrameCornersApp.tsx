@@ -15,7 +15,7 @@
 
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { ipc } from "../../ipc/commands";
 import type { CornerPaint } from "../../ipc/types";
@@ -23,6 +23,17 @@ import { useSettings } from "../../state/settingsStore";
 import { outsidePath, roundedRectPath } from "./frameGeometry";
 import { BevelGradient, useWindowSize } from "./FrameApp";
 import "./frame.css";
+
+/** A square of RGBA rows as an address an SVG image can show. */
+function patchUrl(p: { width: number; height: number; rgba: number[] }): string | null {
+  const c = document.createElement("canvas");
+  c.width = p.width;
+  c.height = p.height;
+  const ctx = c.getContext("2d");
+  if (!ctx || p.rgba.length !== p.width * p.height * 4) return null;
+  ctx.putImageData(new ImageData(new Uint8ClampedArray(p.rgba), p.width, p.height), 0, 0);
+  return c.toDataURL("image/png");
+}
 
 export function FrameCornersApp() {
   const { settings, hydrate } = useSettings();
@@ -54,8 +65,15 @@ export function FrameCornersApp() {
     };
   }, []);
 
+  // the wallpaper squares, made into pictures once each time they change
+  const urls = useMemo(() => (paint?.patches ?? []).map((p) => (p ? patchUrl(p) : null)), [paint?.patches]);
+
   if (!settings || !paint || paint.colours.length !== 4) return null;
-  const { rect, radius, colours } = paint;
+  // Rust measures in the screen's pixels, the page in its own
+  const dpr = window.devicePixelRatio || 1;
+  const radius = paint.radius / dpr;
+  const colours = paint.colours;
+  const rect = { x: paint.rect.x / dpr, y: paint.rect.y / dpr, width: paint.rect.width / dpr, height: paint.rect.height / dpr };
   // each corner's own square of the window, as far along each edge as the curve reaches (and a little more)
   const reach = Math.min(radius + 4, Math.floor(Math.min(rect.width, rect.height) / 2));
   const boxes = [
@@ -73,7 +91,10 @@ export function FrameCornersApp() {
   const outer = roundedRectPath(rect.x - bw, rect.y - bw, rect.width + 2 * bw, rect.height + 2 * bw, radius + bw);
 
   return (
-    <div className="frame-root frame-corners">
+    <div
+      className="frame-root frame-corners"
+      style={{ ["--frame-tint" as string]: settings.frame.tint * settings.menuBar.tint } as React.CSSProperties}
+    >
       <svg className="frame-body" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
         <defs>
           {bw > 0 && <BevelGradient h={h} />}
@@ -89,7 +110,23 @@ export function FrameCornersApp() {
         </defs>
         {boxes.map((_, i) => (
           <g key={i} clipPath={`url(#frame-corner-${i})`}>
-            <path d={outside} fillRule="evenodd" fill={colours[i]} />
+            {urls[i] && paint.patches[i] ? (
+              // the wallpaper that is under the corner, with the margin's own glass over it: what the margin is there
+              <>
+                <image
+                  href={urls[i]!}
+                  x={paint.patches[i]!.x / dpr}
+                  y={paint.patches[i]!.y / dpr}
+                  width={paint.patches[i]!.width / dpr}
+                  height={paint.patches[i]!.height / dpr}
+                  preserveAspectRatio="none"
+                  clipPath="url(#frame-corner-outside)"
+                />
+                <path className="frame-glass" d={outside} fillRule="evenodd" />
+              </>
+            ) : (
+              <path d={outside} fillRule="evenodd" fill={colours[i]} />
+            )}
             {bw > 0 && (
               <g clipPath="url(#frame-corner-outside)">
                 <path className="frame-bevel" d={`${outer}${inner}`} fillRule="evenodd" />

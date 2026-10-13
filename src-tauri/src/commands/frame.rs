@@ -295,7 +295,11 @@ fn layout_monitor(
                 PIECES.lock().insert(corners.label().to_string(), wanted);
             }
         }
-        paint_corners(app, corners.label(), &app_rect, &rel, g.pad, g.radius);
+        // off this thread: the first look at the wallpaper under the pieces takes a few tens of milliseconds
+        {
+            let (app, label, pad, radius) = (app.clone(), corners.label().to_string(), g.pad, g.radius);
+            std::thread::spawn(move || paint_corners(&app, &label, &app_rect, &rel, pad, radius));
+        }
         let mut covering = COVERING.lock();
         covering.retain(|c| c.label != corners.label());
         covering.push(Covering { label: corners.label().to_string(), screen: app_rect, rel, pad: g.pad, radius: g.radius });
@@ -333,14 +337,68 @@ fn corner_colours(app: &Rect, pad: i32, radius: i32) -> Option<[String; 4]> {
     ])
 }
 
+/// A square of the wallpaper under a corner piece, in the page's own coordinates, as RGBA rows.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Patch {
+    pub x: i32,
+    pub y: i32,
+    pub width: i32,
+    pub height: i32,
+    pub rgba: Vec<u8>,
+}
+
 /// What the corner window's page draws: where the window it covers is, in the page's own coordinates, how round its
-/// corners are, and the colour of each.
+/// corners are, the colour of the margin beside each, and, where it could be had and lines up with what is seen,
+/// the wallpaper under each (which the page lays the margin's own glass over, so the piece is the margin).
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CornerPaint {
     pub colours: [String; 4],
     pub rect: Rect,
     pub radius: i32,
+    pub patches: Vec<Option<Patch>>,
+}
+
+/// How far along each edge a piece reaches: the curve, and a little more. The page uses the same.
+fn piece_reach(rect: &Rect, radius: i32) -> i32 {
+    (radius + 4).min(rect.width.min(rect.height) / 2)
+}
+
+/// The wallpaper under each corner piece of `screen` (the opening on the screen), placed in the page by `rel`, for
+/// each corner whose wallpaper lines up with what is seen in the margin beside it (checked along the margin, so a
+/// monitor the shell lays out differently, or a corner with a window over its margin, falls back to the colour).
+fn corner_patches(screen: &Rect, rel: &Rect, pad: i32, radius: i32) -> Vec<Option<Patch>> {
+    use crate::platform::windows::screenpick::{colours_at, lines_up, Desktop};
+    let Some(desk) = Desktop::capture() else { return vec![None, None, None, None] };
+    let reach = piece_reach(screen, radius);
+    let d = (pad / 2).max(2);
+    let (x, y) = (screen.x, screen.y);
+    let (right, bottom) = (screen.x + screen.width - 1, screen.y + screen.height - 1);
+    let (dx, dy) = (rel.x - screen.x, rel.y - screen.y);
+    [(x, y, 1, 1), (right, y, -1, 1), (right, bottom, -1, -1), (x, bottom, 1, -1)]
+        .into_iter()
+        .map(|(cx, cy, sx, sy)| {
+            let mut pts = Vec::new();
+            for a in (radius + 2..radius + 50).step_by(2) {
+                pts.push((cx + sx * a, cy - sy * d));
+                pts.push((cx - sx * d, cy + sy * a));
+            }
+            let pairs: Vec<([u8; 3], [u8; 3])> = colours_at(&pts)
+                .into_iter()
+                .zip(&pts)
+                .filter_map(|(seen, &(px, py))| Some((seen?, desk.rgb(px, py)?)))
+                .collect();
+            let (seen, drawn): (Vec<_>, Vec<_>) = pairs.into_iter().unzip();
+            if !lines_up(&seen, &drawn) {
+                return None;
+            }
+            // the square from the corner, inward
+            let px = if sx > 0 { cx } else { cx - reach + 1 };
+            let py = if sy > 0 { cy } else { cy - reach + 1 };
+            desk.patch(px, py, reach, reach).map(|rgba| Patch { x: px + dx, y: py + dy, width: reach, height: reach, rgba })
+        })
+        .collect()
 }
 
 /// What was last sent to each corner window, by its label, for a page that starts after it was sent.
@@ -388,7 +446,14 @@ pub fn frame_corner_colours(label: String) -> Option<CornerPaint> {
 fn paint_corners(app: &AppHandle, label: &str, screen: &Rect, rel: &Rect, pad: i32, radius: i32) {
     use tauri::Emitter;
     let Some(colours) = corner_colours(screen, pad, radius) else { return };
-    let paint = CornerPaint { colours, rect: *rel, radius };
+    // The wallpaper under the pieces is looked at again only when the margin beside them has changed (a new
+    // wallpaper) or they have moved: it is the desktop drawn whole, tens of milliseconds.
+    let previous = PAINT.lock().iter().find(|(l, _)| l == label).map(|(_, p)| p.clone());
+    let patches = match previous {
+        Some(p) if p.rect == *rel && p.radius == radius && p.colours == colours => p.patches,
+        _ => corner_patches(screen, rel, pad, radius),
+    };
+    let paint = CornerPaint { colours, rect: *rel, radius, patches };
     {
         let mut held = PAINT.lock();
         match held.iter_mut().find(|(l, _)| l == label) {

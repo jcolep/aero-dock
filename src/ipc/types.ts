@@ -369,6 +369,8 @@ export interface CornerPaint {
   colours: string[];
   rect: { x: number; y: number; width: number; height: number };
   radius: number;
+  /** The wallpaper under each piece (RGBA rows), where it lines up with what is seen; null where it does not. */
+  patches: ({ x: number; y: number; width: number; height: number; rgba: number[] } | null)[];
 }
 
 /** A frame of glass round the free space of every monitor, between the menu bar

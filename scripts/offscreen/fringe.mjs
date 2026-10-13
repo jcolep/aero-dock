@@ -16,7 +16,7 @@ const check = (ok, what) => {
 };
 
 const colours = ["#c04040", "#40c040", "#4040c0", "#c0c040"];
-const paint = (rect, c = colours) => ({ colours: c, rect, radius: 22 });
+const paint = (rect, c = colours, patches = [null, null, null, null]) => ({ colours: c, rect, radius: 22, patches });
 const settings = (s) => {
   s.frame.enabled = true;
   s.frame.padding = 28;
@@ -52,6 +52,13 @@ const fills = (h) => h.eval("[...document.querySelectorAll('svg.frame-body > g >
     await h.sleep(300);
     const again = await fills(h);
     check(again[0] === "#101010", `and the colours follow when they change (${again.join(" ")})`);
+    // the wallpaper under a corner, where Rust has it: drawn, under the margin's glass, instead of the flat colour
+    const stripes = Array.from({ length: 26 * 26 }, (_, i) => (Math.floor(i / 26) % 4 < 2 ? [240, 200, 60, 255] : [40, 60, 200, 255])).flat();
+    await h.eval(`window.__emit("frame://corners", ${JSON.stringify(paint({ x: 28, y: 28, width: 844, height: 504 }, colours, [{ x: 28, y: 28, width: 26, height: 26, rgba: stripes }, null, null, null]))})`);
+    await h.sleep(400);
+    check((await h.eval("document.querySelectorAll('svg.frame-body image').length")) === 1, "a corner with its wallpaper shows the wallpaper");
+    check((await h.eval("document.querySelectorAll('svg.frame-body .frame-glass').length")) === 1, "under the margin's glass");
+    shots["with its wallpaper, top left"] = await h.shot(0, 0, 90, 90, 4);
     console.log("sheet:", await h.sheet(shots, "fringe"));
   } finally {
     h.close();
