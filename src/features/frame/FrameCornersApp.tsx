@@ -1,4 +1,4 @@
-﻿/**
+/**
  * The frame's corner pieces: what the margin's glass is in each corner of the window on top, drawn over it.
  *
  * A maximised app fills the opening, and its own corners are square. This window is kept on top and Rust clips it
@@ -20,8 +20,8 @@ import { applyAppearance } from "../../engine/themes/applyTheme";
 import { ipc } from "../../ipc/commands";
 import type { CornerPaint } from "../../ipc/types";
 import { useSettings } from "../../state/settingsStore";
-import { outsidePath } from "./frameGeometry";
-import { useWindowSize } from "./FrameApp";
+import { outsidePath, roundedRectPath } from "./frameGeometry";
+import { BevelGradient, useWindowSize } from "./FrameApp";
 import "./frame.css";
 
 export function FrameCornersApp() {
@@ -65,11 +65,22 @@ export function FrameCornersApp() {
     { x: rect.x, y: rect.y + rect.height - reach },
   ];
   const outside = outsidePath(w, h, rect.x, rect.y, rect.width, rect.height, radius);
+  // The glass border runs round the opening's rounded edge, just outside it, which in a corner is inside the app's
+  // square corner: the piece covers it, so the piece draws it again, the same as the ring draws it everywhere else.
+  const f = settings.frame;
+  const bw = f.glassBorder ? Math.max(1, Math.min(f.borderWidth, radius)) : 0;
+  const inner = roundedRectPath(rect.x, rect.y, rect.width, rect.height, radius);
+  const outer = roundedRectPath(rect.x - bw, rect.y - bw, rect.width + 2 * bw, rect.height + 2 * bw, radius + bw);
 
   return (
     <div className="frame-root frame-corners">
       <svg className="frame-body" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
         <defs>
+          {bw > 0 && <BevelGradient h={h} />}
+          {/* only what is outside the opening's curve: the dark line along the edge must not reach over the app */}
+          <clipPath id="frame-corner-outside">
+            <path d={outside} clipRule="evenodd" />
+          </clipPath>
           {boxes.map((b, i) => (
             <clipPath key={i} id={`frame-corner-${i}`}>
               <rect x={b.x} y={b.y} width={reach} height={reach} />
@@ -77,7 +88,16 @@ export function FrameCornersApp() {
           ))}
         </defs>
         {boxes.map((_, i) => (
-          <path key={i} d={outside} fillRule="evenodd" fill={colours[i]} clipPath={`url(#frame-corner-${i})`} />
+          <g key={i} clipPath={`url(#frame-corner-${i})`}>
+            <path d={outside} fillRule="evenodd" fill={colours[i]} />
+            {bw > 0 && (
+              <g clipPath="url(#frame-corner-outside)">
+                <path className="frame-bevel" d={`${outer}${inner}`} fillRule="evenodd" />
+                <path className="frame-bevel-lit" d={outer} />
+                <path className="frame-bevel-edge" d={inner} />
+              </g>
+            )}
+          </g>
         ))}
       </svg>
     </div>

@@ -92,8 +92,8 @@ pub fn set_changed_hook(hook: impl Fn() + Send + Sync + 'static) {
     let _ = CHANGED.set(Box::new(hook));
 }
 
-/// The visible bounds of the window whose corners are to be covered on a monitor right now: the maximised window on
-/// top, once it has arrived, if it is the one that fills the opening.
+/// The rectangle whose corners are to be covered on a monitor right now (the opening), while the maximised window on
+/// top fills it and has had time to arrive.
 pub fn cover_rect(monitor: &str) -> Option<Rect> {
     COVER.lock().iter().find(|(m, _)| m == monitor).and_then(|(_, r)| *r)
 }
@@ -213,7 +213,11 @@ fn tick() -> Option<Duration> {
         if fills {
             filling.push(hwnd.0 as isize);
         }
-        top.entry(opening.monitor.clone()).or_insert(fills.then_some(visible));
+        // A maximised window is laid out by Windows to the work area, which is the opening, and that is where it is
+        // drawn. What it reports as its visible bounds can be larger: a program with the standard frame counts its
+        // resize border at the top (File Explorer reports eight pixels more), but that border is not drawn. So the
+        // corners covered are the opening's, never what the window reports.
+        top.entry(opening.monitor.clone()).or_insert(fills.then_some(opening.rect));
     }
     *FILLING.lock() = filling;
 

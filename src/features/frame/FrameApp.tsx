@@ -28,6 +28,21 @@ export function useWindowSize() {
   return size;
 }
 
+/** The glass border's light: lit from above, so the top edge of the bevel catches the light, the middle lets go of
+ *  it, and the bottom takes a little back as light from the glass itself. Across the whole window, so the corner
+ *  window, which is the same size and place, draws the same light where it continues the border round the curve. */
+export function BevelGradient({ h }: { h: number }) {
+  return (
+    <linearGradient id="frame-bevel" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={h}>
+      <stop offset="0" stopColor="#fff" stopOpacity="0.78" />
+      <stop offset="0.2" stopColor="#fff" stopOpacity="0.3" />
+      <stop offset="0.55" stopColor="#fff" stopOpacity="0.1" />
+      <stop offset="0.88" stopColor="#fff" stopOpacity="0.17" />
+      <stop offset="1" stopColor="#fff" stopOpacity="0.36" />
+    </linearGradient>
+  );
+}
+
 export function FrameApp() {
   const { settings, hydrate } = useSettings();
   const { w, h } = useWindowSize();
@@ -61,15 +76,7 @@ export function FrameApp() {
         {edge > 0 && (
           <>
             <defs>
-              {/* lit from above: the top edge of the bevel catches the light, the middle lets go of it, and the
-                  bottom takes a little back as light from the glass itself */}
-              <linearGradient id="frame-bevel" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={h}>
-                <stop offset="0" stopColor="#fff" stopOpacity="0.78" />
-                <stop offset="0.2" stopColor="#fff" stopOpacity="0.3" />
-                <stop offset="0.55" stopColor="#fff" stopOpacity="0.1" />
-                <stop offset="0.88" stopColor="#fff" stopOpacity="0.17" />
-                <stop offset="1" stopColor="#fff" stopOpacity="0.36" />
-              </linearGradient>
+              <BevelGradient h={h} />
             </defs>
             {/* the bevel itself: a band of the margin along the opening */}
             <path

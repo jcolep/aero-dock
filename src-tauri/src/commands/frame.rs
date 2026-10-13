@@ -295,7 +295,12 @@ fn layout_monitor(
                 PIECES.lock().insert(corners.label().to_string(), wanted);
             }
         }
-        paint_corners(app, corners.label(), &app_rect, &rel, g.radius);
+        paint_corners(app, corners.label(), &app_rect, &rel, g.pad, g.radius);
+        let mut covering = COVERING.lock();
+        covering.retain(|c| c.label != corners.label());
+        covering.push(Covering { label: corners.label().to_string(), screen: app_rect, rel, pad: g.pad, radius: g.radius });
+    } else {
+        COVERING.lock().retain(|c| c.label != corners.label());
     }
     set_corners_visible(&corners, cover.is_some());    Ok(Some(Opening {
         monitor: monitor.name.clone(),
@@ -309,9 +314,10 @@ fn layout_monitor(
 /// right, bottom right, bottom left: a few pixels of it, on either side of the corner, read off the screen. The piece
 /// of a corner is drawn in this colour, so it matches the glass whatever the wallpaper is there (a single colour for
 /// the whole screen is a poor match for any wallpaper that is not flat).
-fn corner_colours(app: &Rect, radius: i32) -> Option<[String; 4]> {
-    // just outside the window's edge, in the margin
-    let d = 3;
+fn corner_colours(app: &Rect, pad: i32, radius: i32) -> Option<[String; 4]> {
+    // in the middle of the margin: clear of the glass border along the opening's edge, and of whatever is beyond the
+    // margin (the menu bar, the dock, the screen edge)
+    let d = (pad / 2).max(2);
     let (x, y) = (app.x, app.y);
     let (right, bottom) = (app.x + app.width - 1, app.y + app.height - 1);
     // along the margin from the corner, past the curve
@@ -344,6 +350,33 @@ static PAINT: Mutex<Vec<(String, CornerPaint)>> = Mutex::new(Vec::new());
 static PIECES: std::sync::LazyLock<Mutex<HashMap<String, (Rect, i32)>>> =
     std::sync::LazyLock::new(|| Mutex::new(HashMap::new()));
 
+/// What each corner window is covering now, so that its colours can be looked at again while it does.
+struct Covering {
+    label: String,
+    screen: Rect,
+    rel: Rect,
+    pad: i32,
+    radius: i32,
+}
+
+static COVERING: Mutex<Vec<Covering>> = Mutex::new(Vec::new());
+
+/// How often the colours beside the covered corners are looked at again: the wallpaper can change (a new one, a
+/// slideshow), and so can the margin's glass. Twenty-four pixels read and compared; nothing is sent unless they changed.
+const REPAINT_EVERY: std::time::Duration = std::time::Duration::from_millis(1500);
+
+/// Look at the colours beside the covered corners every so often, for as long as the app runs.
+fn start_repaint(app: AppHandle) {
+    let _ = std::thread::Builder::new().name("frame-corner-colours".into()).spawn(move || loop {
+        std::thread::sleep(REPAINT_EVERY);
+        let now: Vec<(String, Rect, Rect, i32, i32)> =
+            COVERING.lock().iter().map(|c| (c.label.clone(), c.screen, c.rel, c.pad, c.radius)).collect();
+        for (label, screen, rel, pad, radius) in now {
+            paint_corners(&app, &label, &screen, &rel, pad, radius);
+        }
+    });
+}
+
 /// The page asks for what it should draw when it starts (see `paint_corners`).
 #[tauri::command]
 pub fn frame_corner_colours(label: String) -> Option<CornerPaint> {
@@ -352,9 +385,9 @@ pub fn frame_corner_colours(label: String) -> Option<CornerPaint> {
 
 /// Read the colours beside the corners of the window being covered and give them, with where it is, to the corner
 /// window's page, if they have changed. `screen` is the window's rectangle on the screen, `rel` in the corner window.
-fn paint_corners(app: &AppHandle, label: &str, screen: &Rect, rel: &Rect, radius: i32) {
+fn paint_corners(app: &AppHandle, label: &str, screen: &Rect, rel: &Rect, pad: i32, radius: i32) {
     use tauri::Emitter;
-    let Some(colours) = corner_colours(screen, radius) else { return };
+    let Some(colours) = corner_colours(screen, pad, radius) else { return };
     let paint = CornerPaint { colours, rect: *rel, radius };
     {
         let mut held = PAINT.lock();
@@ -422,6 +455,7 @@ pub fn layout_later(app: &AppHandle) {
 pub fn init(app: &AppHandle) {
     let handle = app.clone();
     appbar::set_claims_hook(move || layout_later(&handle));
+    start_repaint(app.clone());
     let handle = app.clone();
     shaper::set_changed_hook(move || layout_later(&handle));
 

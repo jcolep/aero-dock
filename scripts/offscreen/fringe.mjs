@@ -1,4 +1,4 @@
-﻿// The frame's corner pieces, off screen: nothing is drawn until Rust says where the window on top is; then each
+// The frame's corner pieces, off screen: nothing is drawn until Rust says where the window on top is; then each
 // corner is drawn in the colour Rust read off the screen beside it (sent while the page runs, or asked for if it
 // was sent before the page started), edged by the curve of that window's own corners, so a window that stands a few
 // pixels off the opening has its corners covered where they are.
@@ -21,8 +21,10 @@ const settings = (s) => {
   s.frame.enabled = true;
   s.frame.padding = 28;
   s.frame.cornerRadius = 22;
+  s.frame.glassBorder = true;
+  s.frame.borderWidth = 2;
 };
-const fills = (h) => h.eval("[...document.querySelectorAll('svg.frame-body path')].map((p) => p.getAttribute('fill') || 'none')");
+const fills = (h) => h.eval("[...document.querySelectorAll('svg.frame-body > g > path')].map((p) => p.getAttribute('fill') || 'none')");
 
 {
   const h = await startHarness({ out, window: "framecorners", viewport: [900, 560], settings });
@@ -37,6 +39,7 @@ const fills = (h) => h.eval("[...document.querySelectorAll('svg.frame-body path'
     await h.sleep(300);
     const got = await fills(h);
     check(JSON.stringify(got) === JSON.stringify(colours), `then each corner has its own colour (${got.join(" ")})`);
+    check((await h.eval("document.querySelectorAll('svg.frame-body .frame-bevel').length")) === 4, "with the glass border on, each piece carries it round its curve");
     shots["on the opening, top left"] = await h.shot(0, 0, 90, 90, 4);
     shots["on the opening, bottom right"] = await h.shot(810, 470, 90, 90, 4);
     // a window eight pixels higher than the opening: its corners are where it is
