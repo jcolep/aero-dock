@@ -41,7 +41,8 @@ for (const scale of [1, 1.5, 2]) {
         const roll = document.querySelector('.mb-clock .roll');
         const cells = [...roll.children].map((c) => c.getBoundingClientRect());
         const tops = cells.map((r) => r.top), heights = cells.map((r) => r.height);
-        const cols = [...roll.querySelectorAll('.roll-col')].map((c) => {
+        // a column that is still rolling is not at rest, and is not looked at
+        const cols = [...roll.querySelectorAll('.roll-col')].filter((c) => c.getAnimations().length === 0).map((c) => {
           const t = getComputedStyle(c).transform;
           const ty = t === 'none' ? 0 : new DOMMatrix(t).m42;
           return ty * dpr;
