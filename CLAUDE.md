@@ -422,3 +422,6 @@ frames, the dock's blur pane following a magnifying dock.
 - Running binaries from `%TEMP%` can be blocked: keep build targets in the project.
   Long `Start-Sleep` may be blocked by the harness running the session.
 - Node 20 needs `--experimental-websocket` for the harness.
+
+## Idle cost of the ambient scenes
+- Strip scenes (menu bar, and the four frame strips per monitor) draw through `Fx2D.setFrameFloor(1000/12)`: each frame there is a whole screen-wide window handed to Windows, so the cost is per frame, not per mote. Measured idle (sandbox copy, 20 s of process-tree CPU): 55% of a core at 24-30 fps, 25% at 12 fps; scene "none" is ~4%, frame off ~8.5%. The strips are the remaining ~17%; lowering the floor further trades smoothness for CPU.

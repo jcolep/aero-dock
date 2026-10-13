@@ -46,6 +46,10 @@ export function StripScene({ settings, width, height, className = "mb-fx", style
     const canvas = canvasRef.current;
     if (!canvas) return;
     const engine = new Fx2D(canvas);
+    // A strip lives in a window that is the width of a screen. Each frame drawn there is that whole window to put
+    // together and hand to Windows, which is where the cost is, not in the few motes: twelve a second is as smooth as
+    // dust drifting a few pixels a second needs to be, and costs half of twenty-four.
+    engine.setFrameFloor(1000 / 12);
     engineRef.current = engine;
     const onVisibility = () => engine.setHidden(document.visibilityState === "hidden");
     document.addEventListener("visibilitychange", onVisibility);

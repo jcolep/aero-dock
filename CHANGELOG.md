@@ -7,6 +7,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Changed
+
+- **Lighter ambient scenes.** The scenes in the menu bar and the frame round the screen are drawn at 12 frames a second, not 24-30; idle CPU with the frame on fell from about 55% to 25% of a core.
+
 ### Added
 
 - **Start menu.** A centred, liquid-glass Start menu (Ctrl+Alt+Space, or the magnifier beside the dock) with pinned

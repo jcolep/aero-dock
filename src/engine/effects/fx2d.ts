@@ -730,13 +730,21 @@ export class Fx2D {
     return false;
   }
 
-  /** The frame interval the scenes now running ask for: the quickest wins. */
+  /** The slowest the ambient scenes may be drawn, in ms a frame: set for a window that is large (a strip of the frame
+   *  round a whole screen), where every frame drawn is a whole window to put together and hand over. */
+  private floorMs = 0;
+
+  setFrameFloor(ms: number): void {
+    this.floorMs = ms;
+  }
+
+  /** The frame interval the scenes now running ask for: the quickest wins (but never quicker than the floor). */
   private ambientFrameMs(): number {
     let ms = Infinity;
     for (const fx of this.effects) {
       if (isScene(fx) && !fx.idle() && fx.frameMs < ms) ms = fx.frameMs;
     }
-    return Number.isFinite(ms) ? ms : AMBIENT_FRAME_MS;
+    return Math.max(this.floorMs, Number.isFinite(ms) ? ms : AMBIENT_FRAME_MS);
   }
 
   private cancel(): void {
