@@ -980,14 +980,6 @@ html[data-pointer-light="on"] .menubar:hover::before {
   pointer-events: none;
 }
 
-.cc-sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-
 .cc-tile-icon {
   flex: none;
   display: grid;
@@ -1029,8 +1021,7 @@ html[data-pointer-light="on"] .menubar:hover::before {
   line-height: 1.25;
 }
 
-.cc-tile-text small,
-.cc-playing-text small {
+.cc-tile-text small {
   color: rgba(244, 247, 251, 0.65);
   font-size: 0.88em;
   transition: color var(--m-quick) var(--e-out);
@@ -1166,32 +1157,6 @@ html[data-pointer-light="on"] .menubar:hover::before {
   box-shadow:
     0 2px 6px rgba(0, 0, 0, 0.4),
     0 0 0 3px color-mix(in srgb, var(--aero-life) 75%, transparent);
-}
-
-.cc-playing {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.cc-playing-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  line-height: 1.25;
-}
-
-.cc-playing-text strong,
-.cc-playing-text small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cc-playing-controls {
-  display: flex;
-  gap: 4px;
 }
 
 .cc-battery {

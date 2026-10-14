@@ -40,8 +40,8 @@ Where things live:
   "Frosted glass (rebuilt)" at the end). The menu bar's and the Control Center's were
   checked live by recording the screen. The dock's works, but the owner keeps it off:
   on their 75 Hz Dell it felt laggy. To come back to.
-- **Next, by the owner's plan:** a pass over the whole codebase to make the app as light
-  and fast as possible, cutting what is not needed and keeping every feature. Not started.
+- **The optimisation pass** (the owner's whole-codebase request) is under way: see
+  "Optimisation pass" at the end for what was measured, changed and learned.
 
 ## Working with the owner
 
@@ -513,3 +513,45 @@ hotkeys taking focus, Narrator reading the bars, a visible taskbar.
 - **`BackdropLayer` wakes vs moves**: `quiet` (frames since a wake) and `still` (frames unmoved) are separate. Only the host's *own* `animationstart`/`transitionrun` wake it (children's bubble up: Control Center's waveform kept a settling panel's glass toggling four times a second). A surface measured invisible is looked at again every 400 ms and on `visibilitychange`, because it can come into view with nothing watched changing.
 - **Debugging live glass**: start the exe with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9333` (env for that process only), then evaluate in a page via CDP (`/json` lists pages by `?window=`) and call `window.__TAURI_INTERNALS__.invoke('set_glass_pane', ...)` to add test panes. Trace lines name the window (`menubar/_r_0_`): each window counts its own ids.
 - Bench: `cargo test --lib complab -- --ignored --nocapture` (env `COMPLAB_LAYERED=1` for the glass-window recipe, `COMPLAB_TAURI=1` for a window made like Tauri's). The old Magnifier capture (`backdrop_capture`, `blurlab`, `capturelab`, `backdrop`) is gone.
+
+## Optimisation pass (October 2026)
+Measured on the owner's machine (Dell 75 Hz primary), their settings, before -> after:
+- **Memory** of the whole process tree at idle: 1003 MB -> 697 MB (-31%).
+- **Interaction smoothness** on the real GPU (`scripts/native/pacing.mjs`): worst frame on opening a menu 40 ms -> 15.5 ms,
+  the Control Center 80 ms -> 14.8 ms, Start 27 ms -> 14.8 ms; dock magnification had no late frame before or after.
+- **Idle CPU** is ~11% of one core with the menu bar's scene, the seconds and the frame's scene on, and 1.9% with all three
+  off (measured in a sandbox copy). It is the menu bar window producing frames (scene at 12 fps, the seconds' roll at the
+  display's rate); the frame's four bands now draw on one beat (17 -> 12 frames a second per frame window).
+
+What changed, and the rules that come with it:
+- **Each window loads only its own code** (`main.tsx`: `React.lazy` per `?window=`). A frame window loads 227 KB of JS,
+  not 654 KB. **The CSS is not split**: every stylesheet is imported up front in `main.tsx`, in the order the old single
+  bundle had them (`scripts/cssorder.mjs` prints it), because some windows rely on rules in another feature's sheet
+  (measured with `stylediff.mjs`: the dock's clock figures, the settings window's previews). **A new stylesheet must be
+  added to that list in `main.tsx`**, or it lands in one window's chunk and the cascade order changes.
+- **motion** loads only in windows wrapped by `animated()` in `main.tsx` (`app/MotionPolicy.tsx` holds the reduced-motion
+  config). `vite.config.ts` puts React and motion in chunks of their own. `experimentalMinChunkSize` was tried and made
+  the frame windows load motion again: do not.
+- **Ambient scenes on one page share a beat** (`fx2d.ts` `queue`, a grid on `performance.now()`).
+- **The dock's float** writes `--float-t` on each `.dock-icon-float`, not the bar (a variable on the bar restyles all of it).
+- **Sounds** (`engine/sound/ui.ts`): the engine is built ~1.5 s after a sound-making window starts (`useSoundWarmup` in
+  main.tsx) and suspended; a cue resumes it, and it sleeps 4 s after the last. `new AudioContext()` is ~25 ms of the main
+  thread, and a running one renders silence for ever.
+- **Frame corners** (`shaper::windows_on_screen`): rule a window out by `GetWindowRect` before any DWM call, and stop the
+  walk once every corner point has its top window.
+- **Settings events** identical to what a window has are dropped (`settingsStore`).
+- Dead code removed (unused wrappers, constants, ten dead CSS classes); `deadcode.mjs` and `deadcss.mjs` find more.
+
+Tools (all off screen unless said):
+- `scripts/offscreen/stylediff.mjs <out> <distA> <distB>`: every window's computed styles, build against build. JS-driven
+  animations (float, springs, progress, the settings previews) differ by timing; anything else is real.
+- `interact.mjs` (cost of interactions: script/style/layout per second, long frames), `idleprofile.mjs` (CPU profile at
+  idle with the owner's settings), `scripts/chunkmap.mjs` (what a built chunk is made of), `deadcode.mjs`, `deadcss.mjs`.
+- `scripts/native/*.mjs`: against a running app started with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9444`
+  (`pacing`, `firstopen`, `startup`, `idle`). Run a copy in `dist-portable/sandbox-test` (exe, `portable.txt`, a copy of
+  `data`) so the owner's settings are never touched; put their copy back after.
+- **Never start the app with debugging on 9333**: that is the harness's port. The harness now checks it is talking to its
+  own headless Edge and stops otherwise (it once navigated a window of the running app), and records page errors
+  (`h.errors()`).
+- Process CPU is noisy on the owner's busy machine (the same setup read 13% then 9%); compare over 30 s and repeat. `dwm.exe`
+  cannot be read.

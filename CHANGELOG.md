@@ -7,6 +7,14 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Performance
+
+- **About a third less memory**: each window now loads only its own code (the frame and corner windows no longer load the animation library or the other windows' code). Measured on the whole app at idle: 1003 MB down to 697 MB.
+- **No hitch the first time a menu, the Control Center or Start opens**: the sound engine is built quietly after start instead of on the first click, which took about 25 ms of it. The worst frame on opening a menu went from 40 ms to 15 ms, and the Control Center from 80 ms to 15 ms, on a 75 Hz screen.
+- **Sounds sleep when quiet**: the audio engine is suspended four seconds after the last cue, instead of rendering silence for as long as the app runs.
+- **The frame's dust draws on one beat**: its four bands are redrawn together, 12 frames a second instead of up to 17, for each screen.
+- **Less work while idle and while you move windows**: the dock's float restyles only its icons, and the frame's corner check stops as soon as it has its answer instead of asking Windows about every window.
+
 ### Changed (frosted glass)
 
 - **Frosted glass is rebuilt on Windows' compositor.** The dock, the menu bar and the Start menu each have a click-through glass window beneath them, where the compositor blurs what is behind, on the graphics card, clipped to the glass's own rounded corners. Nothing is captured or sent between frames, so it no longer flickers, follows the glass as it moves, and costs almost nothing: idle CPU with the glass on fell from about 55% of a core to about 13%. The Frost slider is how much of the blur shows. The old screen-capture machinery is removed.

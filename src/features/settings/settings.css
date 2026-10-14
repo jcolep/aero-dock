@@ -161,11 +161,6 @@
   background: linear-gradient(90deg, var(--aero-accent), var(--aero-life));
 }
 
-.theme-swatch[data-active="true"] .theme-swatch-preview {
-  outline: 2px solid #fff;
-  outline-offset: 1px;
-}
-
 .settings-footer {
   text-align: center;
   font-size: 11.5px;
@@ -186,47 +181,6 @@
 }
 
 /* ---- theme swatches ---- */
-
-.theme-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  position: relative;
-  z-index: 3;
-}
-
-.theme-swatch {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 6px;
-  border: 2px solid transparent;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.18);
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.theme-swatch[data-active="true"] {
-  border-color: rgba(255, 255, 255, 0.95);
-  background: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.55);
-}
-
-.theme-swatch-preview {
-  width: 100%;
-  aspect-ratio: 1.7;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: inset 0 6px 10px -4px rgba(255, 255, 255, 0.8), 0 2px 6px rgba(10, 45, 80, 0.25);
-}
-
-.theme-swatch-name {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #0d3a5c;
-}
 
 /* ---- control rows ---- */
 
@@ -438,19 +392,6 @@
 
 /* ---- interaction states: hover, active, and a real focus ring ---- */
 
-.theme-swatch {
-  transition:
-    transform calc(0.18s / var(--anim-speed)) ease,
-    box-shadow calc(0.22s / var(--anim-speed)) ease,
-    background calc(0.22s / var(--anim-speed)) ease;
-}
-
-.theme-swatch:hover {
-  background: rgba(255, 255, 255, 0.32);
-  transform: translateY(-1px);
-}
-
-.theme-swatch:active,
 .aero-button:active,
 .ctl-segmented button:active {
   transform: translateY(1px);
@@ -1263,7 +1204,6 @@ html[data-look="night"] .settings-bubbles {
 
 html[data-look="night"] .settings-header,
 html[data-look="night"] .settings-card h2,
-html[data-look="night"] .theme-swatch-name,
 html[data-look="night"] .ctl-label,
 html[data-look="night"] .settings-nav,
 html[data-look="night"] .settings-group,
@@ -1316,7 +1256,6 @@ html[data-look="night"] .settings-scroll::-webkit-scrollbar-thumb {
 }
 
 /* swatches, segmented choices, text fields and pickers: a veil, a hairline, a brighter veil under the pointer */
-html[data-look="night"] .theme-swatch,
 html[data-look="night"] .icon-picker-option,
 html[data-look="night"] .ctl-colour,
 html[data-look="night"] .ctl-segmented,
@@ -1324,12 +1263,10 @@ html[data-look="night"] .mode-card {
   background: var(--night-fill);
   border-color: var(--night-line);
 }
-html[data-look="night"] .theme-swatch:hover,
 html[data-look="night"] .icon-picker-option:hover {
   background: var(--night-fill-hover);
   border-color: rgba(255, 255, 255, 0.34);
 }
-html[data-look="night"] .theme-swatch[data-active="true"],
 html[data-look="night"] .icon-picker-option[data-active="true"],
 html[data-look="night"] .mode-card[data-active="true"] {
   background: var(--night-fill-active);

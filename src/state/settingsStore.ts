@@ -55,7 +55,11 @@ export const useSettings = create<SettingsState>((set, get) => ({
     const settings = await ipc.getSettings();
     set({ settings, hydrated: true });
     await listen<Settings>(EVENTS.settingsChanged, (event) => {
-      set({ settings: rebase(event.payload) });
+      const next = rebase(event.payload);
+      // the same settings again (the echo of a save this window has already shown): a new object would have the
+      // whole window drawn again for nothing
+      if (JSON.stringify(next) === JSON.stringify(get().settings)) return;
+      set({ settings: next });
     });
   },
 

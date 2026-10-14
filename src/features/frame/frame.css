@@ -29,13 +29,6 @@
 /* the same, opaque, for the thin fringe that smooths the cut corners: what the
    margin looks like over the wallpaper. It only ever covers a few pixels of an
    app's own edge, so it need not match exactly. */
-.frame-solid {
-  fill: color-mix(
-    in srgb,
-    rgb(var(--clear-tint)) calc(var(--frame-alpha) * 100%),
-    var(--frame-wallpaper, #1b2236)
-  );
-}
 
 /* the scene lives in the four bands of the margin, each a canvas of its own
    size so nothing is drawn where it could not be seen */
