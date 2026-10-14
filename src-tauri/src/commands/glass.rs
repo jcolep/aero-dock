@@ -145,7 +145,8 @@ pub fn set_glass_pane(window: WebviewWindow, pane: PaneReport) -> AeroResult<()>
         opacity: pane.opacity as f32,
     });
     let raw = hwnd.0 as isize;
-    let id = pane.id;
+    // each window counts its own (_r_0_ is in every one): the window's name keeps them apart in the trace
+    let id = format!("{}/{}", window.label(), pane.id);
     // composition belongs to the main thread
     window.run_on_main_thread(move || {
         match crate::platform::windows::glass::set_pane(HWND(raw as *mut _), &id, place) {

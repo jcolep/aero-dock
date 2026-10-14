@@ -34,7 +34,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
 use windows::Foundation::TimeSpan;
 use windows::System::DispatcherQueueController;
 use windows::UI::Composition::{
-    CompositionBackdropBrush, CompositionRoundedRectangleGeometry, Compositor, ContainerVisual, Desktop::DesktopWindowTarget,
+    CompositionRoundedRectangleGeometry, Compositor, ContainerVisual, Desktop::DesktopWindowTarget,
     SpriteVisual,
 };
 use windows_numerics::{Vector2, Vector3};
@@ -45,6 +45,17 @@ const USE_HOST_BACKDROP: DWMWINDOWATTRIBUTE = DWMWINDOWATTRIBUTE(17);
 const WATCH_ID: usize = 0xAE20_6A55;
 /// How long a piece of glass takes to come in, in 100 ns ticks: 140 ms. (It goes at once.)
 const FADE_IN: i64 = 140 * 10_000;
+/// How far past its edges each piece of glass reaches for what is behind it, in px.
+///
+/// The compositor blurs what is behind the glass window within the box that holds everything drawn in it, and no
+/// further: the bar alone was a blur of its own thin strip (dark, over a dark wallpaper), and turned pale whenever
+/// anything else was drawn further down the window (an open menu, even a speck), which let the blur reach the bright
+/// windows under the bar. Measured: the bar's look stops changing once that box reaches 40 px past it. So each piece
+/// has two specks of its own (one pixel, all but transparent) this far beyond two opposite corners, and its blur is
+/// always of its real surroundings, whatever else is open.
+const REACH: f32 = 96.0;
+/// How much of a speck shows: enough that the compositor counts it as drawn, too little to see.
+const SPECK: f32 = 0.01;
 
 /// Where a piece of glass is, in its window's own physical pixels.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -60,6 +71,7 @@ pub struct Place {
 
 struct Pane {
     visual: SpriteVisual,
+    specks: [SpriteVisual; 2],
     geometry: CompositionRoundedRectangleGeometry,
     place: Place,
 }
@@ -69,8 +81,6 @@ struct Host {
     window: HWND,
     _target: DesktopWindowTarget,
     root: ContainerVisual,
-    /// One blur for the whole window, shared by every piece of glass in it.
-    brush: CompositionBackdropBrush,
     panes: HashMap<String, Pane>,
     /// Pieces taken away, hidden and kept for the next to come: a label comes and goes with every icon the pointer
     /// crosses, and making and unmaking visuals for each was churn the compositor did not need.
@@ -194,19 +204,37 @@ fn host_for(glass: &mut Glass, page: HWND) -> windows::core::Result<&mut Host> {
             }
         }
         follow(page, window);
-        let brush = glass.compositor.CreateHostBackdropBrush()?;
-        glass.hosts.insert(key, Host { window, _target: target, root, brush, panes: HashMap::new(), spare: Vec::new() });
+        glass.hosts.insert(key, Host { window, _target: target, root, panes: HashMap::new(), spare: Vec::new() });
     }
     Ok(glass.hosts.get_mut(&key).expect("just made"))
 }
 
-fn new_pane(compositor: &Compositor, root: &ContainerVisual, brush: &CompositionBackdropBrush) -> windows::core::Result<Pane> {
+impl Pane {
+    fn show(&self, shown: bool) {
+        for v in [&self.visual, &self.specks[0], &self.specks[1]] {
+            let _ = v.SetIsVisible(shown);
+        }
+    }
+}
+
+fn new_pane(compositor: &Compositor, root: &ContainerVisual) -> windows::core::Result<Pane> {
     let visual = compositor.CreateSpriteVisual()?;
-    visual.SetBrush(brush)?;
+    visual.SetBrush(&compositor.CreateHostBackdropBrush()?)?;
     let geometry = compositor.CreateRoundedRectangleGeometry()?;
     visual.SetClip(&compositor.CreateGeometricClipWithGeometry(&geometry)?)?;
     root.Children()?.InsertAtTop(&visual)?;
-    Ok(Pane { visual, geometry, place: Place { x: 0.0, y: 0.0, width: 0.0, height: 0.0, radius: 0.0, opacity: -1.0 } })
+    // each speck is a visual of the window's own, with a brush of its own (measured: specks inside a container
+    // with the piece, sharing its brush, did not count)
+    let speck = || -> windows::core::Result<SpriteVisual> {
+        let s = compositor.CreateSpriteVisual()?;
+        s.SetBrush(&compositor.CreateHostBackdropBrush()?)?;
+        s.SetSize(Vector2 { X: 1.0, Y: 1.0 })?;
+        s.SetOpacity(SPECK)?;
+        root.Children()?.InsertAtBottom(&s)?;
+        Ok(s)
+    };
+    let specks = [speck()?, speck()?];
+    Ok(Pane { visual, specks, geometry, place: Place { x: 0.0, y: 0.0, width: 0.0, height: 0.0, radius: 0.0, opacity: -1.0 } })
 }
 
 /// Bring a piece of glass in from nothing to `to`, so that it does not arrive in one frame.
@@ -218,7 +246,8 @@ fn fade_in(compositor: &Compositor, visual: &SpriteVisual, to: f32) -> windows::
     visual.StartAnimation(&HSTRING::from("Opacity"), &fade)
 }
 
-fn apply(pane: &mut Pane, place: Place) -> windows::core::Result<()> {
+/// Place a piece of glass, in a window `room` px big (its specks must be inside it, or they do not count: measured).
+fn apply(pane: &mut Pane, place: Place, room: Vector2) -> windows::core::Result<()> {
     if pane.place == place {
         return Ok(());
     }
@@ -226,6 +255,9 @@ fn apply(pane: &mut Pane, place: Place) -> windows::core::Result<()> {
     pane.visual.SetOffset(Vector3 { X: place.x, Y: place.y, Z: 0.0 })?;
     pane.visual.SetSize(size)?;
     pane.geometry.SetSize(size)?;
+    let inside = |x: f32, y: f32| Vector3 { X: x.clamp(0.0, (room.X - 1.0).max(0.0)), Y: y.clamp(0.0, (room.Y - 1.0).max(0.0)), Z: 0.0 };
+    pane.specks[0].SetOffset(inside(place.x - REACH, place.y - REACH))?;
+    pane.specks[1].SetOffset(inside(place.x + size.X + REACH - 1.0, place.y + size.Y + REACH - 1.0))?;
     let radius = place.radius.min(size.X / 2.0).min(size.Y / 2.0).max(0.0);
     pane.geometry.SetCornerRadius(Vector2 { X: radius, Y: radius })?;
     if place.opacity != pane.place.opacity {
@@ -253,7 +285,7 @@ pub fn set_pane(page: HWND, id: &str, place: Option<Place>) -> windows::core::Re
         let Some(place) = place else {
             if let Some(host) = glass.hosts.get_mut(&(page.0 as isize)) {
                 if let Some(mut pane) = host.panes.remove(id) {
-                    let _ = pane.visual.SetIsVisible(false);
+                    pane.show(false);
                     pane.place.opacity = -1.0;
                     host.spare.push(pane);
                 }
@@ -262,18 +294,23 @@ pub fn set_pane(page: HWND, id: &str, place: Option<Place>) -> windows::core::Re
         };
         let compositor = glass.compositor.clone();
         let host = host_for(glass, page)?;
+        let room = unsafe {
+            let mut r = RECT::default();
+            let _ = GetWindowRect(host.window, &mut r);
+            Vector2 { X: (r.right - r.left) as f32, Y: (r.bottom - r.top) as f32 }
+        };
         if !host.panes.contains_key(id) {
             let mut pane = match host.spare.pop() {
                 Some(pane) => pane,
-                None => new_pane(&compositor, &host.root, &host.brush)?,
+                None => new_pane(&compositor, &host.root)?,
             };
             // placed before it is shown, so it is never seen where the last one was
-            apply(&mut pane, place)?;
-            pane.visual.SetIsVisible(true)?;
+            apply(&mut pane, place, room)?;
+            pane.show(true);
             fade_in(&compositor, &pane.visual, place.opacity)?;
             host.panes.insert(id.to_string(), pane);
         }
-        apply(host.panes.get_mut(id).expect("just made"), place)
+        apply(host.panes.get_mut(id).expect("just made"), place, room)
     });
     commit();
     placed

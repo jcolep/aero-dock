@@ -153,6 +153,22 @@ for (const [window, ready, extra] of [["dock", ".dock-icon", ""], ["start", ".st
     check(panel === "glass", `the Control Center has the menu bar's glass, under its own body (${panel})`);
     const n = new Set((await panes(h)).filter((p) => p.shown).map((p) => p.id)).size;
     check(n >= 2, `the bar and the panel each have a piece of glass (${n})`);
+    // open and still, with a track playing (its waveform and progress move inside it): the glass stays put
+    const before = (await panes(h)).length;
+    await h.sleep(2000);
+    const more = (await panes(h)).slice(before);
+    check(more.length === 0, `open and still, its glass is left alone, whatever moves inside it (${more.length} reports in 2 s: ${more.slice(0, 4).map((p) => p.shown).join(",")})`);
+    // the bar goes out of sight and comes back without anything the glass watches saying so (an ancestor out of its
+    // reach): the glass is looked for again, and comes back
+    const barId = (await panes(h)).find((p) => p.shown && p.y < 20)?.id;
+    const ofBar = async () => (await panes(h)).filter((p) => p.id === barId);
+    await h.eval("document.documentElement.style.opacity = '0'; window.dispatchEvent(new Event('resize'))");
+    await h.sleep(1000);
+    const hidden = (await ofBar()).at(-1);
+    await h.eval("document.documentElement.style.opacity = '1'");
+    await h.sleep(1200);
+    const back = (await ofBar()).at(-1);
+    check(hidden && !hidden.shown && back && back.shown, `out of sight, the bar's glass goes; back in sight, it comes back on its own (${hidden?.shown} then ${back?.shown})`);
   } finally {
     h.close();
   }

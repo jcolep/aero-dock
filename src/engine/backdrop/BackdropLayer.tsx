@@ -116,6 +116,14 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer",
         .catch(() => undefined);
     };
 
+    // frames since something woke the loop, and (apart) frames the glass has not moved: a wake is not a move, or every
+    // child's animation bubbling up (Control Center's waveform, its progress) kept a settling panel's glass away, over
+    // and over, four times a second
+    let quiet = 0;
+    // a surface that cannot be seen is looked at again now and then: it may come into view with nothing here told
+    // (a window shown after its page has started, a fade on some far ancestor), and its glass must not be left off
+    let again = 0;
+
     /** Follow the glass while it moves (or, settling, keep it away until the surface is at rest), and rest when it
      *  has stood still for a moment. */
     const follow = () => {
@@ -124,14 +132,21 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer",
       const key = keyOf(look);
       still = key === seen ? still + 1 : 0;
       seen = key;
+      quiet++;
       const atRest = still >= SETTLE_FRAMES && !animating(host);
       post(!settle || atRest ? look : null);
       // a settling surface that has not come back yet is watched until it does
-      if (still < 20 || (settle && look.shown && last === "off")) raf = requestAnimationFrame(follow);
+      if (quiet < 20 || still < 20 || (settle && look.shown && last === "off")) raf = requestAnimationFrame(follow);
+      else if (!look.shown) again = window.setTimeout(wake, 400);
     };
     const wake = () => {
-      still = 0;
+      quiet = 0;
+      clearTimeout(again);
       if (!raf) raf = requestAnimationFrame(follow);
+    };
+    /** An animation or transition of the surface's own (not one of its children's, which bubble up to it). */
+    const wakeOwn = (e: Event) => {
+      if (e.target === host) wake();
     };
 
     // what moves it: its own style or class changing (motion writes the transform inline), its size,
@@ -147,18 +162,21 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer",
     }
     const sizes = new ResizeObserver(wake);
     sizes.observe(host);
-    host.addEventListener("animationstart", wake);
-    host.addEventListener("transitionrun", wake);
+    host.addEventListener("animationstart", wakeOwn);
+    host.addEventListener("transitionrun", wakeOwn);
     window.addEventListener("resize", wake);
+    document.addEventListener("visibilitychange", wake);
 
     wake();
     return () => {
       if (raf) cancelAnimationFrame(raf);
+      clearTimeout(again);
       observer.disconnect();
       sizes.disconnect();
-      host.removeEventListener("animationstart", wake);
-      host.removeEventListener("transitionrun", wake);
+      host.removeEventListener("animationstart", wakeOwn);
+      host.removeEventListener("transitionrun", wakeOwn);
       window.removeEventListener("resize", wake);
+      document.removeEventListener("visibilitychange", wake);
       delete host.dataset.bd;
       void gone();
     };

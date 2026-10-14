@@ -15,6 +15,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - **Menus, cards and labels get their glass once they are open.** A dropdown flies out squashed, tilted or clipped to a circle, shapes the glass cannot take, so the glass showed around its edges. Now the glass waits until the menu is at rest and fades in, and it goes the moment the menu starts to leave.
 - **A menu closed by moving the pointer away left its blur behind** until the next click. Glass changes are now drawn right away.
 - **The menu bar's glass flickered while a menu was open** (or a tooltip or the peek came up). Each of these re-placed the bar's window, and the glass window under it, in the same spot, and Windows refreshed the blur each time. Now only the visible part of the bar changes, and the glass window is moved only when it has actually moved.
+- **The Control Center's glass flickered four times a second while open**: its waveform and progress animations kept restarting the wait for the panel to come to rest. Only the panel's own movement counts now.
+- **The menu bar's glass changed whenever a menu opened.** Windows blurs only within the box around everything drawn on the glass. The bar alone blurred just its own thin strip, and any open menu stretched that box over the windows below. Each piece of glass now always reaches 96 px around itself, so the bar looks the same whatever is open, and it now looks properly frosted.
+- A bar whose glass was measured before the bar came into view now gets its glass when it appears.
 
 ### Changed (frame corners, type)
 
