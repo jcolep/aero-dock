@@ -261,39 +261,32 @@ maximised apps in from the screen edges with rounded corners. Four pieces:
   `CreateRoundRectRgn` is a pixel short on the right and bottom, and a zero
   ellipse yields an empty region.
 
-**Real glass** (`platform/windows/backdrop_capture.rs`, `engine/backdrop/BackdropLayer.tsx`,
-`commands/glass.rs`). The windows are transparent web views, so `backdrop-filter` has nothing to
-sample, and **the system's own blur is a rectangle and nothing else**. It was measured on Windows 11
-24H2 (`platform/windows/blurlab.rs`, `cargo test --lib blur_lab -- --ignored --nocapture`, a window
-of stripes on each screen and a pane of each kind over it): a window region (`SetWindowRgn`), a
-layered window whose picture is the shape, `DwmEnableBlurBehindWindow` with a blur region and
-acrylic all blur the whole rectangle of the window, corners and all, on every screen; the system's own
-rounded corners (8 px) add a shadow. A rounded dock or panel therefore cannot have the system's blur
-behind it without a grey square showing at its corners.
+**Frosted glass** (`platform/windows/glass.rs`, `commands/glass.rs`, `engine/backdrop/BackdropLayer.tsx`,
+`engine/backdrop/useGlass.ts`). The windows are transparent web views, so `backdrop-filter` has nothing to
+sample, and **the system's own window blur is a rectangle and nothing else**: a window region, a layered
+window's alpha, `DwmEnableBlurBehindWindow` with a region and acrylic all blur the whole rectangle, so a
+rounded dock or panel cannot have it without a grey square at its corners. (A version that blurred a captured
+picture of the screen came between; it flickered and cost about half a core, and is gone.)
 
-So the dock and the Start menu blur a *picture*. `capture_backdrop` takes a picture of the screen
-behind a region of a window, shrunk and blurred and graded (saturate, brightness) in Rust, and the page
-paints it under the glass's tint (`BackdropLayer`, the first child of the glass), where the glass's own
-rounded shape clips it, antialiased. The picture comes from the **Magnification API's window with an
-exclude list** (`MagSetWindowFilterList`), which leaves this program's own windows out of the picture
-(`capturelab.rs` found it: a plain `BitBlt` of the screen has the dock in it; excluding windows from
-capture by display affinity works too but would make them vanish from the user's own screenshots and
-recordings). The magnifier needs a host window that is shown and on the primary screen: a few pixels at
-the top left at 2/255 opacity that let every click through. Pictures take 15 to 30 ms and come on a worker
-thread; the page looks about five times a second, less when the picture has not changed, and again at once
-when the glass moves out from under it. A glass that has a picture gets `data-bd="on"`, which drops its
-own background; its tint lives in `--bd-tint` (every glass rule keeps it there) and is drawn over the
-picture by the layer. `background-attachment: fixed` was tried to share one window-sized picture among
-all the glass of a window and does not hold inside a transformed parent (the dock's bar is one).
+So the blur is the compositor's. Each window with glass gets a **glass window** of its own: click-through,
+with no picture of its own (`WS_EX_NOREDIRECTIONBITMAP`), kept exactly where its page's window is and
+immediately beneath it (a subclass on the page's window follows it as it moves, shows, hides and closes).
+It holds a Windows.UI.Composition visual tree: one sprite per piece of glass, painted with the host backdrop
+brush (what is behind the window, blurred on the GPU) and clipped to the glass's own rounded rectangle. The
+page above is transparent where the glass is, save its tint and grain. Nothing is captured or sent while
+the glass stands still.
 
-The dock, the Start menu and the menu bar all do it, each with its own blur (in px) and grain (0 to 1)
-under Settings > Glass & light (`appearance.frost.dock/start/menuBar`), and none of it runs while the
-frosted glass is off or transparency is to be reduced: the layers do not ask, an ask is answered with
-nothing, and the capture thread and its magnifier window are not made until the first picture is wanted.
-The old pane (a plain popup window with the system's blur, tiled to stay inside a curve) is gone; what
-is left of it (`backdrop.rs`, `blurlab.rs`) is test-only, to say again what Windows does. The frame's ring
-is not blurred: it is cut to its shape with a region. A blur dims what it covers by about 11% on the
-machine this was measured on. It is off until chosen.
+The page side is `BackdropLayer`, the first child of each glassy element. It reports the element's box,
+corner radius and how much of the blur shows (the frost setting times its own and its ancestors' opacity)
+with `set_glass_pane`. The bars and the Start panel *follow* it frame by frame as they move; menus,
+cards, labels and tooltips *settle*: no glass while they fly in (their shapes squash and tilt), then it
+fades in once they are at rest, and goes the moment they leave. Each group (dock, Start, menu bar) has
+its own switch, frost and grain under Settings > Frosted glass (`appearance.frost.*`), and everything in a
+group follows it. Off, or with transparency reduced, nothing is asked and no glass window is made.
+
+CLAUDE.md ("Frosted glass (rebuilt)") has the measured traps: the compositor blurs only within the box
+around everything drawn in the glass window (so each piece reaches out with two invisible specks), a glass
+window must not be re-placed when it has not moved, and changes must be committed at once.
 **Depth.** Grain (`--grain`, an SVG noise tile), light that follows the pointer
 (`engine/light/usePointerLight.ts`, which writes `--lx` and `--ly` about 30 times
 a second and only while the pointer is over the glass) and a three-layer shadow.
@@ -327,7 +320,7 @@ transparency (each `system`, `on` or `off`; `system` follows Windows' switches,
 read in `accessibility.rs`), the keyboard shortcuts and the sounds.
 `applyAppearance` resolves them and writes `data-reduce-motion` and
 `data-reduce-transparency` on the page; the stylesheets, the effects engine and
-`MotionConfig` read those. Reduced transparency also stops the blur panes
+`MotionConfig` read those. Reduced transparency also stops the frosted glass
 (`glass.rs`). Global shortcuts (`hotkeys.rs`: the system's own hotkey
 registration, not a keyboard hook) bring real focus to the menu bar and the dock
 (`keyboard.rs` makes the window activatable, focuses it and tells the page, which

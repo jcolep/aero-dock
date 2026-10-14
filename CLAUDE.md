@@ -1,12 +1,62 @@
 # Aero Dock: working notes
 
 A customised fork of [TheAgencyMGE/aero-dock](https://github.com/TheAgencyMGE/aero-dock)
-(MIT, Windows only): Tauri v2, Rust and React 19. A dock, plus a menu bar, a
-Control Center, a window frame and a lot of glass.
+(MIT, Windows 11 only): Tauri v2, Rust and React 19. A macOS-style dock, plus a menu
+bar with menus and a Control Center, a Start menu, Mission Control, a frame around
+the screen's opening, and frosted glass on all of it.
 
-Read `docs/ARCHITECTURE.md` first for how it fits together. This file is what is
-**not** in the code: how to build and test, the rules the owner has set, the traps
-already fallen into, and which things have and have not been seen working.
+This file is what is **not** in the code: how to build and test, the rules the owner
+has set, the traps already fallen into, and which things have and have not been seen
+working. Read `docs/ARCHITECTURE.md` for how the pieces fit together.
+
+"The owner" is the person whose fork this is (GitHub `jcolep`). Notes marked as the
+owner's machine describe their setup, not a requirement: another machine's monitors,
+paths and settings will differ.
+
+## Start here
+
+1. Install Node 20+ with pnpm, stable Rust with the Visual Studio C++ build tools, and
+   the WebView2 runtime (Windows 11 has it). Then `pnpm install`.
+2. `pnpm tauri dev` runs it live. Only one copy runs at a time: quit any other first.
+3. Before calling a change done, run the gate (below) and the off-screen scenarios
+   that touch it.
+
+Where things live:
+- `src-tauri/src/commands/`: what the pages can ask Rust for, a file per area (dock,
+  menubar, start, frame, glass, media, ...).
+- `src-tauri/src/platform/windows/`: the Win32 and WinRT work (windows, appbars, the
+  glass, media, radios, the frame's shaper).
+- `src-tauri/src/core/`: settings (a struct per group, `sanitize`, tests), paths, the trace.
+- `src/features/<area>/`: a React app per window, picked by `?window=` (dock, menubar,
+  start, settings, frame, framecorners, mission, ...).
+- `src/engine/`: what the pages share (glass in `backdrop/`, motion, sound, tooltips, type).
+- `src/ipc/`: the typed command list, and the settings types that mirror Rust's.
+- `scripts/offscreen/`: the off-screen test harness and its scenarios.
+- `CHANGELOG.md`: what changed and why, newest first.
+
+## Where things stand (October 2026)
+
+- **Frosted glass** was rebuilt on Windows' compositor, the owner's latest work (see
+  "Frosted glass (rebuilt)" at the end). The menu bar's and the Control Center's were
+  checked live by recording the screen. The dock's works, but the owner keeps it off:
+  on their 75 Hz Dell it felt laggy. To come back to.
+- **Next, by the owner's plan:** a pass over the whole codebase to make the app as light
+  and fast as possible, cutting what is not needed and keeping every feature. Not started.
+
+## Working with the owner
+
+How they like the work done, learned over many sessions:
+- **Be economical.** Test with the off-screen harness and unit tests as you go. Build the
+  native app only when something native has to be seen (each build is about 3 minutes).
+- **Find out before rewriting.** Do some R&D on anything tricky, and measure rather than
+  guess: the last glass bugs were found by recording the screen and tracing, after two
+  plausible guesses had been wrong.
+- **Say plainly** what was and was not seen working, natively or off screen.
+- **Keep this file and CHANGELOG.md current** in the same change.
+- **Their screen, mouse and running copy are theirs.** Ask before a test that shows
+  windows, moves the mouse or clicks, unless they asked you to look ("take a look and
+  watch it" was such a request: record the screen, drive the click, put the cursor back).
+  Swapping a new build in for their running copy is expected when a build is ready.
 
 ## Keeping this file current
 
@@ -18,9 +68,11 @@ code. When a feature ships or is removed, update "State of the features" below.
 
 ## Git
 
-- `main` is the project as it was at v1.3.2. The fork's work is on `custom-fork`.
-- `origin` is the owner's own repository; `upstream` is the original. Never push
-  to `upstream`. Do not open pull requests unless asked.
+- `main` is the project as it was at v1.3.2. The fork's work is on `custom-fork`,
+  which is where to work.
+- `origin` is the owner's repository (`github.com/jcolep/aero-dock`); `upstream` is the
+  original. Never push to `upstream`. Push to `origin` only when asked, and do not
+  open pull requests unless asked.
 - Commits end with the `Co-Authored-By` line the session is told to use.
 - `dist-portable/` (built exes and the owner's real `settings.json`) is
   git-ignored on purpose. Never add it.
@@ -85,7 +137,7 @@ node --experimental-websocket scripts/offscreen/interrupt.mjs src-tauri/target/o
 node --experimental-websocket scripts/offscreen/dock.mjs src-tauri/target/offscreen
 node --experimental-websocket scripts/offscreen/dockglass.mjs src-tauri/target/offscreen   # satellites from outside, status buttons' glass
 node --experimental-websocket scripts/offscreen/dockhide.mjs src-tauri/target/offscreen    # satellites put away, and moving with the dock
-node --experimental-websocket scripts/offscreen/backdrop.mjs src-tauri/target/offscreen    # the frosted picture under the dock, Start and menu bar (and that off means off)
+node --experimental-websocket scripts/offscreen/backdrop.mjs src-tauri/target/offscreen    # the glass under every surface: where, when, per-group switches, off means off
 node --experimental-websocket scripts/offscreen/startturn.mjs src-tauri/target/offscreen    # Start turns back from where it is
 node --experimental-websocket scripts/offscreen/perf.mjs src-tauri/target/offscreen         # the frame timings table
 node --experimental-websocket scripts/offscreen/type.mjs src-tauri/target/offscreen         # the typeface, rolling numbers
@@ -121,17 +173,17 @@ Say plainly in a report when something native was not seen.
 
 ### Rules from the owner
 
-- **Do not test with their real mouse or their running dock.** They work on the
-  same machine while changes are tested. Use the harness. Ask before any test that
-  needs the native app, and do not start a second dock (its bar overlaps theirs and
-  reserves a second strip of screen).
+- **Do not test with their real mouse or their running dock** unless they ask. They
+  work on the same machine while changes are tested. Use the harness. Ask before any
+  test that needs the native app, and do not start a second dock (its bar overlaps
+  theirs and reserves a second strip of screen).
 - **Never change real system state in a test.** A scripted drag of the Control
   Center slider once set their real volume to 100% (stubbing `invoke` from the
   outside does not intercept the app's own bundled copy). Do not drive volume,
   mute, radios, brightness, sleep, taskbar or app launching on a live instance.
   Read a value before touching anything stateful, and report any change made.
-- Desktop screenshots aimed at the screen are blocked by the permission
-  classifier; capture only the page's own pages and delete them afterwards.
+- Capturing their screen is for when they have asked you to look. Keep captures in
+  the session's scratch folder, never in the repo: they show whatever they are working on.
 
 ## Design decisions and traps
 
@@ -163,12 +215,12 @@ Say plainly in a report when something native was not seen.
 - **Packaged apps** (Teams, new Outlook, Terminal) are identified by AUMID
   (`GetApplicationUserModelId`, `packaged.rs`), not by exe path, which sits in a
   versioned folder that cannot be executed.
-- **Real blur is a picture, not the system's blur.** The windows are transparent web views (`backdrop-filter`
-  has nothing to sample) and **the system's blur is a rectangle only**: measured by `blurlab.rs` (`cargo test
-  --lib blur_lab -- --ignored --nocapture`, `BLUR_LAB_OUT` set to a folder; it shows a window of stripes on each
-  screen for a few seconds, so ask the owner first) it ignores a window region, a layered window's alpha,
-  `DwmEnableBlurBehindWindow`'s region and acrylic's, on every screen. Do not shape a pane with `SetWindowRgn`
-  again: that was the grey square behind the dock and Start. The glass today is the compositor's: see
+- **The system's window blur is a rectangle only.** The windows are transparent web views (`backdrop-filter`
+  has nothing to sample), and the blur Windows puts behind a window ignores a window region, a layered window's
+  alpha, `DwmEnableBlurBehindWindow`'s region and acrylic's, on every screen (measured by a bench since deleted).
+  Do not shape a pane with `SetWindowRgn` again: that was the grey square behind the dock and Start. A later
+  version blurred a captured picture of the screen instead, which flickered and cost ~55% of a core; it is gone
+  too. The glass today is the compositor's: see
   "Frosted glass (rebuilt)" at the end. **Every glass rule keeps its tint in `--bd-tint`** (global.css,
   clear.css, start.css), and content rules like `.st-panel > :not(...)` must stay off `.bd-layer`.
 - **A `ResizeObserver` reports once on `observe()`**: reacting to that first report
@@ -233,7 +285,7 @@ Say plainly in a report when something native was not seen.
   (deleted; the dock's search button and the menu bar's both call `toggle_start`). It is a window
   only as big as the panel plus a 30 px shadow margin (`MARGIN`), centred on the work area and
   resting above the docks' bars (`glass::dock_bar_rects`), built hidden and kept like Mission
-  Control, takes the keyboard, and has a blur pane (`"start"` in `glass::sync_all`). It is closed
+  Control, takes the keyboard, and has glass like the other windows. It is closed
   by a 25 ms poll of the mouse buttons while open (`watch`), **not** a hook: `outside_click` is a
   single shared instance owned by the menu bar and cannot serve two. Pins are our own list
   (`settings.start`; Windows' real layout is an unreadable file), started from the dock's pins
@@ -273,8 +325,10 @@ Say plainly in a report when something native was not seen.
   `appearance.frameOverlay` on, every window times its animation frames and says how they went twice a second; a window
   of its own (`perf`, click-through, top left of the main screen) lists them with each screen's refresh rate. It keeps
   every window drawing at its screen's rate, so it is a diagnostic, off by default; "Save a report" writes
-  `frame-report.txt`. Grading is the slowest 5% against one frame of the window's own screen.- **Type, numbers, edges, sound** (the "premium" pass, second half). Type: Inter, a bundled variable font (latin subset,
-  `@fontsource-variable/inter`, OFL), is the one face (`global.css`); anything that changes uses tabular figures, and
+  `frame-report.txt`. Grading is the slowest 5% against one frame of the window's own screen.
+- **Type, numbers, edges, sound** (the "premium" pass, second half). Type: SF Pro where installed (see `--font-*`
+  near the end), else Inter, a bundled variable font (latin subset, `@fontsource-variable/inter`, OFL)
+  (`global.css`); anything that changes uses tabular figures, and
   a changing number is `<Roll text="42%" />` (`engine/type/Roll.tsx`: only the digits that changed move, 9 to 0 keeps
   going up, only transforms run). Edges: `--hair` is one device pixel at any scale (`trackScale` writes `--dpr`), the
   rim is built from it, and a nested shape's radius is its container's less its padding (`--r`/`--pad`, e.g. the
@@ -283,14 +337,15 @@ Say plainly in a report when something native was not seen.
   a menu is E4-E5, a switch an octave above, the tick near E6; a voice of three partials with a natural decay; a short
   room (convolver) and a compressor under everything; everything halves while the media session is playing
   (`DUCK`). `renderCue` takes any audio context, so `sound.mjs` renders every cue offline, checks key, level, tail and
-  ducking, and writes WAV files to `<out>/sounds` for listening. A new cue must have every note in `inKey`.- **First frames, errors, empty states, adaptive glass, night settings** (same pass). A page is clear until its typeface is
+  ducking, and writes WAV files to `<out>/sounds` for listening. A new cue must have every note in `inKey`.
+- **First frames, errors, empty states, night settings** (same pass). A page is clear until its typeface is
   in (`data-ready`, `main.tsx`), a hidden window is ready before it is shown, Start reads its lists when the page starts
   and shows placeholders of the right size until they arrive (`Skeletons`), and the settings window opens in its
   remembered look (`aero-settings-look`) from the first frame. An error reaches a person through `humane()`
-  (`engine/errors`, tested by `errors.mjs`), never as Windows or Rust said it. `capture_backdrop` also says how bright
-  the desktop behind is (the 20-byte header); the glass thins its tint over a dark one and lays a scrim under it over a
-  bright one (`--bd-luma`, a registered property, so it eases). The settings window is night glass by default
-  (`html[data-look="night"]` overrides at the end of `settings.css`, on the `clear` material); `sky` is the old look.- **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
+  (`engine/errors`, tested by `errors.mjs`), never as Windows or Rust said it. The settings window is night glass by
+  default (`html[data-look="night"]` overrides at the end of `settings.css`, on the `clear` material); `sky` is the old
+  look.
+- **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
   page that has not been clicked (the Start menu, opened from the dock) plays its cues silently.
 - **The settings window** is a sidebar and a column of collapsible sections in groups (`sections.ts` is the
   registry: id, title, blurb, search keywords, group). A new section is a `<SettingsSection id="...">`
@@ -360,18 +415,21 @@ reversal when interrupted, the status icons, the frame's look.
 Read from the real machine and known to work: Wi-Fi and Bluetooth radio state,
 Wi-Fi networks in range, DDC brightness reads on external monitors.
 
+In daily use by the owner, on two monitors (so seen natively, if not every detail
+measured): the dock, the menu bar and its menus, the Control Center with its Now Playing card
+while something plays, the Start menu opening from the dock, the frame and its corners on
+both monitors (corners checked pixel by pixel on the primary), the media pill, middle-click
+End Task. The compositor glass under the menu bar and the Control Center was recorded on
+screen and is steady; the dock's glass was seen working but is off on the owner's machine.
+
 **Never exercised natively** (needs the owner to try, or a native test they have
-agreed to): the Start menu (its window, focus, placement above the dock, closing on a click
-elsewhere, the blur pane, Ctrl+Esc being taken from Windows), the Now Playing card while sound is playing (the sound wave with real audio, the
-live view of a real window, seeking in a player that allows it; the session read itself works,
-checked against Apple Music), the genie minimise and restore (capture, overlay, timing, windows that
+agreed to): the Start menu's finer points (focus, closing on a click elsewhere, Ctrl+Esc being
+taken from Windows), the sound wave with real audio, the live view of a real window, seeking in
+a player that allows it, the genie minimise and restore (capture, overlay, timing, windows that
 refuse `PrintWindow`), Mission Control (the hotkey taking focus, live thumbnails in
 the overlay), the flash notice reaching the dock, the privacy registry reads with a
 real app on the microphone or camera, switching a radio, setting a brightness, joining a network, the global
-hotkeys taking focus, Narrator reading the bars, the blur panes (the first
-version showed a black backing; the plain-blur rework is unconfirmed), shaping a
-real maximised app on every kind of window, a visible taskbar, multi-monitor
-frames, the dock's blur pane following a magnifying dock.
+hotkeys taking focus, Narrator reading the bars, a visible taskbar.
 
 ## Deliberately not done, or removed
 
@@ -387,14 +445,22 @@ frames, the dock's blur pane following a magnifying dock.
 - A hole cut in the app window behind the dock was built and removed: the owner
   preferred it without.
 
-## Environment notes (the owner's Windows machines)
+## Environment notes (the owner's machine)
 
-- Windows PowerShell 5.1 is the shell. `Get-Content -Raw` then `Set-Content` corrupts
+- Two monitors: a Dell, the primary (`DISPLAY2`, 1920x1080 at 100%, 75 Hz over a DVI-type
+  link, IPS), and a Samsung to its right (`DISPLAY1`, 2560x1440, 165 Hz, DisplayPort, VA).
+  The glass looks best on the Samsung; the Dell shows its limits (lower contrast, coarse grain).
+- The owner runs the portable build from `dist-portable/` (git-ignored), with their real
+  settings in `dist-portable/data/settings.json`. The off-screen harness can load that file
+  to reproduce exactly what they see.
+- **Do not run `cargo fmt`**: the crate is not rustfmt-formatted (its lines are longer), so it
+  rewrites some 60 files. Match the surrounding style by hand.
+- Windows PowerShell 5.1 is the shell. In a double-quoted string a backtick escapes the next
+  letter, so a `` `room` `` or `` `to` `` in text written from one becomes a carriage return or a
+  tab (both broke a build), and `"\n"` is a literal backslash-n. `Get-Content -Raw` then `Set-Content` corrupts
   non-ASCII text (the "…" in menu labels became "â€¦"); edit with the editor tools
   or `[IO.File]::ReadAllText/WriteAllText` with `UTF8Encoding($false)`.
-- Inside a double-quoted PowerShell string a backtick is an escape: a backticked
-  `` `name` `` in Markdown or a comment becomes a newline plus text. Use here-strings
-  or the edit tool for text that contains backticks.
+- Use single-quoted here-strings or the edit tool for any text that contains backticks.
 - The shell may refuse `Remove-Item` on some paths and `rmdir /s`; use
   `Remove-Item -LiteralPath` from outside the target, or `[IO.File]::Delete`.
 - Running binaries from `%TEMP%` can be blocked: keep build targets in the project.
@@ -439,7 +505,7 @@ frames, the dock's blur pane following a magnifying dock.
 - Composition must be created and used on the main thread (it has the dispatcher queue: `CreateDispatcherQueueController(DQTYPE_THREAD_CURRENT)`). `windows-numerics` gives `Vector2/3`.
 - Frost slider is now 0-40 = how much of the blur shows (pane opacity); the blur radius is the system's.
 - **Every surface of a group has glass, one switch per group**: `appearance.frost.{dock,start,menuBar}.glass` (old `realBlur` is the default until a group has its own; sanitize migrates it). `useGlass(group)` gives `{active, blur, grain}`; a surface puts `<BackdropLayer>` first inside it. `tint="layer"` (default) is for surfaces whose tint lives in `--bd-tint` (dock bar, menu bar, Start panel, flyouts, toasts); `tint="own"` sets `data-bd="glass"` and leaves the surface's background, which global.css thins (menus, Control Center, peek, media pill, tips, dock labels and control buttons, Start popovers). Tooltips take their group from the window (`?window=`). With a group's switch off, nothing of it is asked (`backdrop.mjs` asserts all of this).
-- **Glass must never outlive its surface by a frame**: the pane is the compositor's and lands a frame or so after the page's paint, so a surface that vanishes leaves bare blur behind (the dock-label flicker). Rules: `BackdropLayer` runs as a layout effect, so it reports before paint; Rust hides and pools removed panes (`Host.spare`) and shares one host backdrop brush per glass window.
+- **Glass must never outlive its surface by a frame**: the pane is the compositor's and lands a frame or so after the page's paint, so a surface that vanishes leaves bare blur behind (the dock-label flicker). Rules: `BackdropLayer` runs as a layout effect, so it reports before paint; Rust hides and pools removed panes (`Host.spare`). Each pane and each of its specks has a host backdrop brush of its own.
 - **`track`: `follow` vs `settle` (default)**. Only the dock bar, the menu bar and the Start panel follow frame by frame. Every other glassy surface (menus, Control Center, peek, pill, popovers, flyouts, labels, tips) *settles*: no glass while it moves; it comes back once the surface has stood still `SETTLE_FRAMES` (3) with no finite animation running, and Rust fades it in (`FADE_IN`, 140 ms). It goes at once when the surface moves again, or when `data-leaving="true"` lands on it. Why: the fly-outs squash (goo), tilt (unfurl) or clip (reveal), which a rounded rectangle cannot take, and the pane lags the page by about a frame, so the glass showed around the edges.
 - **Commit explicitly**: `glass::set_pane` ends with `Compositor::RequestCommitAsync`. Without it the last change of a run (a menu's glass taken away on a hover-close) stayed on screen until something else woke the thread (a click).
 - **Never re-place a glass window that has not moved**: the compositor refreshes a window's host backdrop whenever it is placed, even in the same spot, and all its panes blink. `glass::follow` returns early when the glass is already beneath the page, visible, and the same rect. `resize_menubar` (called for every menu, peek and tooltip) only re-clips, and only when the height changed; re-reserving the strip and `set_bounds` belong to `position_menubar` (settings and display changes).
