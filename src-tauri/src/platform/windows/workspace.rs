@@ -91,17 +91,6 @@ fn monitor_of(hwnd: HWND) -> String {
     }
 }
 
-/// Read a window's restored geometry and show state.
-pub fn read_placement(hwnd: isize) -> Option<(SnapRect, WindowState)> {
-    placement_of(HWND(hwnd as *mut _))
-}
-
-/// Apply a geometry and show state to a window. Returns false when the
-/// window has gone or Windows refused the move.
-pub fn apply_placement(hwnd: isize, rect: SnapRect, state: WindowState) -> bool {
-    place(HWND(hwnd as *mut _), rect, state)
-}
-
 fn placement_of(hwnd: HWND) -> Option<(SnapRect, WindowState)> {
     unsafe {
         let mut wp = WINDOWPLACEMENT {

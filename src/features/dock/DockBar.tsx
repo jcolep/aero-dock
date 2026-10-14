@@ -450,7 +450,10 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       const now = performance.now();
       floatPhase.current = (floatPhase.current + (now - last) * perMs) % (2 * Math.PI);
       last = now;
-      bar.style.setProperty("--float-t", floatPhase.current.toFixed(3));
+      // on each icon's own float, not on the bar: a variable changed on the bar has every element inside it looked at
+      // again (the clock, the glyphs, the satellites: some 230), twenty times a second, for the nine that use it
+      const t = floatPhase.current.toFixed(3);
+      for (const el of bar.querySelectorAll<HTMLElement>(".dock-icon-float")) el.style.setProperty("--float-t", t);
     };
     write();
     const timer = setInterval(write, idleFloat.updateMs);

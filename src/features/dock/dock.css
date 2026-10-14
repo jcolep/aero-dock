@@ -276,7 +276,8 @@
 
    Now DockBar writes the phase of the cycle (`--float-t`, in radians) 20
    times a second, which is as smooth as it looks and an eighth of the
-   frames, and each icon adds its own offset (`--float-phase`). The curve is
+   frames, and each icon adds its own offset (`--float-phase`). It is written
+   on each float, not on the bar, so only the icons' styles are looked at again. The curve is
    the same cosine the ease-in-out keyframes traced. Where `cos()` is not
    understood the declaration is dropped and the icons simply sit still. */
 /* What grows and rises with the pointer: the icon is drawn larger than the room it is given, from the side

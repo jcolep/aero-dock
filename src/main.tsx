@@ -99,8 +99,21 @@ function useIconLook() {
   }, [look]);
 }
 
+/** The windows that make sounds (the dock, the menu bar, Start, settings, the overview) build their sound engine while
+ *  nothing is happening, a moment after they start, so the first click does not wait for it. */
+const PLAYS_SOUNDS = isSettings || requested === null || ["menubar", "start", "mission"].includes(requested);
+function useSoundWarmup() {
+  const on = useSettings((s) => !!s.settings?.accessibility.uiSounds);
+  useEffect(() => {
+    if (!on || !PLAYS_SOUNDS) return;
+    const id = window.setTimeout(() => void import("./engine/sound/ui").then((m) => m.warmSounds()), 1500);
+    return () => window.clearTimeout(id);
+  }, [on]);
+}
+
 function Policy() {
   useIconLook();
+  useSoundWarmup();
   // how smoothly this window draws, for the table of frame timings (only while that is on)
   useFrameMeter();
   return <Root />;

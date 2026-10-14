@@ -178,15 +178,32 @@ struct Seen {
     maximised: bool,
 }
 
-/// Visible, ordinary windows of other programs that are on screen, top of the stack first.
-fn windows_on_screen() -> Vec<Seen> {
+/// Visible, ordinary windows of other programs, top of the stack first: only those that could be the one on top at one
+/// of `points`, and only until each point has its window.
+///
+/// This runs at every window that moves (sixty times a second while one is dragged), and asking the compositor about a
+/// window (is it cloaked, where is it drawn) is the costly part. So a window is first ruled out by its plain rectangle,
+/// which is cheap and never smaller than where it is drawn, and the walk stops once every point has the window on top
+/// of it: everything further down the stack is under one.
+fn windows_on_screen(points: &[(i32, i32)]) -> Vec<Seen> {
+    struct Walk<'a> {
+        points: &'a [(i32, i32)],
+        covered: Vec<bool>,
+        out: Vec<Seen>,
+    }
     unsafe extern "system" fn each(hwnd: HWND, lparam: LPARAM) -> BOOL {
-        let out = unsafe { &mut *(lparam.0 as *mut Vec<Seen>) };
+        let walk = unsafe { &mut *(lparam.0 as *mut Walk) };
         unsafe {
             if !IsWindowVisible(hwnd).as_bool() || IsIconic(hwnd).as_bool() {
                 return true.into();
             }
-            if GetWindowLongPtrW(hwnd, GWL_EXSTYLE) as u32 & WS_EX_TOOLWINDOW.0 != 0 {
+            let mut outer = RECT::default();
+            if GetWindowRect(hwnd, &mut outer).is_err() {
+                return true.into();
+            }
+            let outer = rect_of(outer);
+            let wanted = walk.points.iter().zip(&walk.covered).any(|(p, done)| !done && contains(&outer, *p));
+            if !wanted || GetWindowLongPtrW(hwnd, GWL_EXSTYLE) as u32 & WS_EX_TOOLWINDOW.0 != 0 {
                 return true.into();
             }
             let mut cloaked = 0u32;
@@ -205,18 +222,23 @@ fn windows_on_screen() -> Vec<Seen> {
                 return true.into();
             }
             if let Some(visible) = visible_bounds(hwnd) {
-                out.push(Seen { visible, maximised: IsZoomed(hwnd).as_bool() });
+                for (i, p) in walk.points.iter().enumerate() {
+                    if contains(&visible, *p) {
+                        walk.covered[i] = true;
+                    }
+                }
+                walk.out.push(Seen { visible, maximised: IsZoomed(hwnd).as_bool() });
             }
         }
-        true.into()
+        // every point has its window: what is further down is beneath them
+        (!walk.covered.iter().all(|c| *c)).into()
     }
-    let mut found: Vec<Seen> = Vec::new();
+    let mut walk = Walk { points, covered: vec![false; points.len()], out: Vec::new() };
     unsafe {
-        let _ = EnumWindows(Some(each), LPARAM(&mut found as *mut Vec<Seen> as isize));
+        let _ = EnumWindows(Some(each), LPARAM(&mut walk as *mut Walk as isize));
     }
-    found
+    walk.out
 }
-
 /// Which corners of an opening have the corner of the window on top there in them, given the windows top first.
 fn corners_held(opening: &Opening, windows: &[Seen]) -> u8 {
     if opening.radius <= 0 {
@@ -240,7 +262,8 @@ fn tick() -> Option<Duration> {
     if openings.is_empty() {
         return None;
     }
-    let windows = windows_on_screen();
+    let points: Vec<(i32, i32)> = openings.iter().filter(|o| o.radius > 0).flat_map(|o| corner_points(&o.rect)).collect();
+    let windows = windows_on_screen(&points);
     let mut changed = false;
     let mut again: Option<Duration> = None;
     {

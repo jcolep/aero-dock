@@ -274,6 +274,29 @@ function audio(): { ctx: AudioContext; bus: Bus } | null {
   }
 }
 
+// ---- waking and sleeping ----
+
+/** How long after the last cue the engine is put to sleep: the room's tail has rung out well before. A running audio
+ *  context renders silence on its own thread for as long as it lives, in every window that has ever made a sound; a
+ *  suspended one does nothing. */
+const SLEEP_AFTER_MS = 4000;
+let sleepTimer: ReturnType<typeof setTimeout> | undefined;
+
+function sleepSoon(ctx: AudioContext): void {
+  clearTimeout(sleepTimer);
+  sleepTimer = setTimeout(() => {
+    if (ctx.state === "running") void ctx.suspend().catch(() => undefined);
+  }, SLEEP_AFTER_MS);
+}
+
+/** Build the engine before the first cue is wanted, and put it to sleep. Making an audio context holds the page's
+ *  thread for some 25 ms (measured in a real window), and the first click used to wait for it before its menu could
+ *  be drawn. */
+export function warmSounds(): void {
+  const a = audio();
+  if (a && a.ctx.state === "running") void a.ctx.suspend().catch(() => undefined);
+}
+
 /** Ask whether music is playing, at most every few seconds, and bring the cues down or up when it changes. */
 function listenForMusic(ctx: AudioContext, b: Bus): void {
   const now = performance.now();
@@ -306,6 +329,7 @@ export function playCue(cue: Cue, step = 0): void {
   if (a.ctx.state === "suspended") void a.ctx.resume().catch(() => undefined);
   listenForMusic(a.ctx, a.bus);
   renderCue(a.ctx, a.bus, cue, step, volume, a.ctx.currentTime + 0.005);
+  sleepSoon(a.ctx);
 }
 
 // for the bench (scripts/offscreen/sound.mjs), which renders the cues and measures them
