@@ -14,6 +14,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - **No flicker crossing the dock**: a dock label vanished in one frame while its glass stayed a frame or two longer, a bare patch of blur at full strength. Labels now fade out with their glass. Every glass is now updated before the page is drawn, and glass pieces are reused.
 - **Menus, cards and labels get their glass once they are open.** A dropdown flies out squashed, tilted or clipped to a circle, shapes the glass cannot take, so the glass showed around its edges. Now the glass waits until the menu is at rest and fades in, and it goes the moment the menu starts to leave.
 - **A menu closed by moving the pointer away left its blur behind** until the next click. Glass changes are now drawn right away.
+- **The menu bar's glass flickered while a menu was open** (or a tooltip or the peek came up). Each of these re-placed the bar's window, and the glass window under it, in the same spot, and Windows refreshed the blur each time. Now only the visible part of the bar changes, and the glass window is moved only when it has actually moved.
 
 ### Changed (frame corners, type)
 

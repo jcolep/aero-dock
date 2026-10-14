@@ -26,7 +26,7 @@ use windows::Win32::System::WinRT::Composition::ICompositorDesktopInterop;
 use windows::Win32::System::WinRT::{CreateDispatcherQueueController, DispatcherQueueOptions, DQTAT_COM_STA, DQTYPE_THREAD_CURRENT};
 use windows::Win32::UI::Shell::{DefSubclassProc, RemoveWindowSubclass, SetWindowSubclass};
 use windows::Win32::UI::WindowsAndMessaging::{
-    CreateWindowExW, DefWindowProcW, DestroyWindow, GetWindowLongPtrW, GetWindowRect, IsWindowVisible, RegisterClassW,
+    CreateWindowExW, DefWindowProcW, DestroyWindow, GetWindow, GetWindowLongPtrW, GetWindowRect, GW_HWNDNEXT, IsWindowVisible, RegisterClassW,
     SetLayeredWindowAttributes, SetWindowPos, ShowWindow, GWL_EXSTYLE, HWND_TOPMOST, LWA_ALPHA, SWP_NOACTIVATE,
     SWP_SHOWWINDOW, SW_HIDE, WINDOW_EX_STYLE, WM_DESTROY, WM_SHOWWINDOW, WM_WINDOWPOSCHANGED, WNDCLASSW, WS_EX_LAYERED,
     WS_EX_NOACTIVATE, WS_EX_NOREDIRECTIONBITMAP, WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_EX_TRANSPARENT, WS_POPUP,
@@ -112,14 +112,24 @@ fn compositor_on_this_thread() -> windows::core::Result<Glass> {
 }
 
 /// Put the glass window where the page's window is, just beneath it, and show it; or hide it with the page's window.
+/// Only if it is not there already: the compositor refreshes a window's blur when the window is placed, even where it
+/// already was, and the page's window hears of every clip and nudge (a menu opening, a tooltip), so placing it each
+/// time made all its glass flicker.
 fn follow(page: HWND, glass: HWND) {
     unsafe {
         if !IsWindowVisible(page).as_bool() {
-            let _ = ShowWindow(glass, SW_HIDE);
+            if IsWindowVisible(glass).as_bool() {
+                let _ = ShowWindow(glass, SW_HIDE);
+            }
             return;
         }
         let mut r = RECT::default();
         if GetWindowRect(page, &mut r).is_err() {
+            return;
+        }
+        let mut now = RECT::default();
+        let beneath = GetWindow(page, GW_HWNDNEXT).ok() == Some(glass);
+        if beneath && IsWindowVisible(glass).as_bool() && GetWindowRect(glass, &mut now).is_ok() && now == r {
             return;
         }
         // immediately beneath the page's window in the stack: what it blurs is what is behind both

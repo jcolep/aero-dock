@@ -47,10 +47,25 @@ pub fn top_inset(settings: &Settings, monitors: &[MonitorInfoEx], monitor: &Moni
 #[tauri::command]
 pub fn resize_menubar(app: AppHandle, visible_height: f64) -> AeroResult<()> {
     crate::trace!("resize_menubar: {visible_height}");
-    *VISIBLE_HEIGHT.lock() = Some(visible_height.max(1.0));
-    let placed = position_menubar(&app);
-    crate::trace!("resize_menubar: done");
-    placed
+    let wanted = Some(visible_height.max(1.0));
+    if std::mem::replace(&mut *VISIBLE_HEIGHT.lock(), wanted) == wanted {
+        return Ok(());
+    }
+    // Only the clip changes: the window keeps its place and size and the strip stays reserved. Placing it all over
+    // again (the shell's reservation, the bounds) for every menu, peek and tooltip moved the window each time, and
+    // with it the glass window beneath, whose blur the compositor refreshes when it is placed: the bar and an open
+    // menu flickered. Placing it is `position_menubar`'s, when the screens or the settings change.
+    let Some(window) = app.get_webview_window(LABEL) else {
+        return Ok(());
+    };
+    let settings = app.state::<SettingsStore>().get();
+    let monitors = enumerate_monitors()?;
+    let monitor = bar_monitor(&settings, &monitors);
+    let scale = monitor.scale;
+    let bar = (settings.menu_bar.thickness() as f64 * scale).round() as i32;
+    let height = bar + (PANEL_ROOM * scale).round() as i32;
+    let hwnd = windows::Win32::Foundation::HWND(window.hwnd()?.0);
+    clip_to_use(hwnd, scale, bar, monitor.bounds.width, height)
 }
 
 /// Place the bar's window along the top of its monitor and reserve its strip.
