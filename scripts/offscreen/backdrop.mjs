@@ -71,12 +71,16 @@ const panes = (h) => h.eval("window.__calls.filter((c) => c.cmd === 'set_glass_p
     check(at && at.shown && Math.abs(at.x - bar.x) < 1 && Math.abs(at.width - bar.w) < 1, `the dock's glass is under its bar (${JSON.stringify(at)})`);
     check(Math.abs(at.opacity - 1) < 0.02, "fully frosted at full frost");
     // the bar grows when the icons swell under the pointer: the glass follows it, frame by frame
-    const n0 = (await panes(h)).length;
+    // (the bar's own piece: the label that comes up over the icon has one of its own)
+    const barPanes = async () => (await panes(h)).filter((p) => p.id === at.id);
+    const n0 = (await barPanes()).length;
     await h.move(bar.x + 60, bar.y + bar.h / 2);
     await h.sleep(900);
-    const grown = (await panes(h)).at(-1);
+    const grown = (await barPanes()).at(-1);
     const bar2 = await h.eval("(() => { const r = document.querySelector('.dock-bar').getBoundingClientRect(); return { x: r.left, w: r.width }; })()");
-    check((await panes(h)).length > n0 + 2 && Math.abs(grown.width - bar2.w) < 1, `the glass followed the bar as it grew (${n0} then ${(await panes(h)).length} reports; ${grown.width} for a bar ${bar2.w} wide)`);
+    check((await barPanes()).length > n0 + 2 && Math.abs(grown.width - bar2.w) < 1, `the glass followed the bar as it grew (${n0} then ${(await barPanes()).length} reports; ${grown.width} for a bar ${bar2.w} wide)`);
+    const label = new Set((await panes(h)).filter((p) => p.shown && p.id !== at.id).map((p) => p.id)).size;
+    check(label >= 1, `the label over the icon has glass of its own (${label})`);
   } finally {
     h.close();
   }
@@ -122,6 +126,34 @@ for (const [window, ready, extra] of [["dock", ".dock-icon", ""], ["start", ".st
     check(shown === 0 && on === 0, `${window}: with the frosted glass off no glass is put down (${shown} panes, ${on} glasses)`);
     const grain = await h.eval("(() => { const l = document.querySelector('.bd-layer'); return l ? +getComputedStyle(l, '::before').opacity : -1; })()");
     check(grain > 0.3 && grain < 0.4, `${window}: and the grain, which is the glass's own, is still there (${grain})`);
+  } finally {
+    h.close();
+  }
+}
+// ---- everything that belongs to a group has its glass: the menu bar's Control Center, the dock's context menu ----
+{
+  const h = await startHarness({ out, window: "menubar", viewport: [1400, 800], settings: (s) => { s.menuBar.enabled = true; s.appearance.frost.menuBar.glass = true; } });
+  try {
+    await h.open(".menubar");
+    await h.sleep(600);
+    const cc = await h.rect('.mb-item[title="Control Center"]');
+    await h.click(cc.x, cc.y);
+    await h.sleep(1400);
+    const panel = await h.eval("(() => { const p = document.querySelector('.mb-panel'); return p ? p.dataset.bd : null; })()");
+    check(panel === "glass", `the Control Center has the menu bar's glass, under its own body (${panel})`);
+    const n = new Set((await panes(h)).filter((p) => p.shown).map((p) => p.id)).size;
+    check(n >= 2, `the bar and the panel each have a piece of glass (${n})`);
+  } finally {
+    h.close();
+  }
+}
+{
+  // the dock's switch on and the menu bar's off: the bar has none
+  const h = await startHarness({ out, window: "menubar", viewport: [1200, 300], settings: (s) => { s.menuBar.enabled = true; s.appearance.frost.dock.glass = true; s.appearance.frost.menuBar.glass = false; } });
+  try {
+    await h.open(".menubar");
+    await h.sleep(1200);
+    check((await panes(h)).filter((p) => p.shown).length === 0, "each group has its own switch: the menu bar's off, the bar has no glass");
   } finally {
     h.close();
   }

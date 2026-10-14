@@ -27,6 +27,10 @@ interface Props {
   blur?: number;
   /** How much grain lies over the glass, 0 to 1. */
   grain?: number;
+  /** Whose tint lies over the blur: the layer's (`layer`: the surface keeps its tint in `--bd-tint`, as `.glass`, the
+   *  menu bar and the Start panel do, and the layer draws it over the blur), or the surface's own background, left as
+   *  it is (`own`: a menu, a tooltip, a pill, whose own stylesheet says how see-through it is when frosted). */
+  tint?: "layer" | "own";
 }
 
 /** How much of the blur shows for a frost setting. */
@@ -34,7 +38,7 @@ export function frostOpacity(blur: number): number {
   return Math.max(0, Math.min(1, blur / 40));
 }
 
-export function BackdropLayer({ active, blur = 30, grain = 0.35 }: Props) {
+export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer" }: Props) {
   const ref = useRef<HTMLSpanElement>(null);
   const id = useId();
 
@@ -48,7 +52,9 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35 }: Props) {
       void gone();
       return;
     }
-    host.dataset.bd = "on";
+    host.dataset.bd = tint === "layer" ? "on" : "glass";
+    // the layer fills the surface: a surface that is not positioned is made so (which does not move it)
+    if (getComputedStyle(host).position === "static") host.style.position = "relative";
     const frost = frostOpacity(blur);
 
     let raf = 0;
@@ -124,7 +130,7 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35 }: Props) {
       delete host.dataset.bd;
       void gone();
     };
-  }, [active, blur, id]);
+  }, [active, blur, id, tint]);
 
   return <span ref={ref} className="bd-layer" aria-hidden style={{ ["--bd-grain" as string]: grain } as React.CSSProperties} />;
 }

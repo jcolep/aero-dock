@@ -4,6 +4,8 @@
  */
 
 import { AnimatePresence, motion } from "motion/react";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { useEffect, useState } from "react";
 import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
@@ -27,6 +29,7 @@ interface FolderFlyoutProps {
 }
 
 export function FolderFlyout({ edge }: FolderFlyoutProps) {
+  const dockGlass = useGlass("dock");
   const { kind, item, anchor, close } = useMenu();
   const { iconUrls, resolveIcons } = useDockIcons();
   const [entries, setEntries] = useState<FolderItem[] | null>(null);
@@ -97,6 +100,7 @@ export function FolderFlyout({ edge }: FolderFlyoutProps) {
           exit={pm.exit}
           transition={pm.transition}
         >
+          <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
           <div className="folder-flyout-header">
             <span className="folder-flyout-title">{item.name}</span>
             <button

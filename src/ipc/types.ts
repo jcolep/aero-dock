@@ -494,6 +494,8 @@ export interface FrostLook {
   blur: number;
   /** How much grain lies over it, 0 to 1. */
   grain: number;
+  /** Whether this surface, and everything that belongs to it, has frosted glass (set from the old single switch until set). */
+  glass?: boolean;
 }
 
 export interface FrostSettings {

@@ -4,6 +4,8 @@
  */
 
 import { motion } from "motion/react";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { useState } from "react";
 import { ipc } from "../../ipc/commands";
 import { KOFI_URL } from "../../links";
@@ -15,6 +17,7 @@ import { importStarterApps, startEmpty } from "./firstRun";
 import "./welcome.css";
 
 export function Welcome({ edge }: { edge: DockEdge }) {
+  const dockGlass = useGlass("dock");
   const [busy, setBusy] = useState(false);
 
   const run = (action: () => Promise<void>) => {
@@ -40,6 +43,7 @@ export function Welcome({ edge }: { edge: DockEdge }) {
       exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.2 } }}
       transition={{ ...springs.bloom, delay: 0.25 }}
     >
+      <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
       <span className="welcome-orb" aria-hidden />
       <h1>Welcome to Aero Dock</h1>
       <p>Glass, water, and light for your desktop. Let's set up your dock.</p>

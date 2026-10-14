@@ -18,8 +18,10 @@ try {
   await h.open(".ctl-value");
   await h.sleep(800);
   const face = await h.eval(`getComputedStyle(document.body).fontFamily`);
-  check(face.startsWith("\"Inter Variable\""), `the typeface is Inter (${face.slice(0, 40)})`);
-  check(await h.eval(`document.fonts.check('600 16px "Inter Variable"')`), "and it is loaded, at a weight of its own");
+  // SF Pro, installed on the machine, with the bundled Inter behind it for a machine without
+  check(face.startsWith("\"SF Pro Text\"") && face.includes("\"Inter Variable\""), `the typeface is SF Pro, Inter behind it (${face.slice(0, 60)})`);
+  // (it is fetched only when wanted, and SF Pro leaves it unwanted here: ask for it)
+  check(await h.eval(`document.fonts.load('600 16px "Inter Variable"').then((f) => f.length > 0)`), "and the fallback is bundled, at a weight of its own");
   // a slider, moved by one step
   const info = await h.eval(`(() => { const s = document.querySelector('input[type=range]'); const v = s.closest('.ctl-row').querySelector('.ctl-value .roll'); return { before: v.getAttribute('aria-label'), min: +s.min, max: +s.max, value: +s.value, step: +s.step || 1 }; })()`);
   console.log("a slider:", JSON.stringify(info));

@@ -8,6 +8,8 @@
  */
 
 import { AnimatePresence, motion } from "motion/react";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import { ipc } from "../../ipc/commands";
@@ -57,6 +59,7 @@ function describe(report: {
 }
 
 export function ModeSwitcher({ settings, edge }: { settings: Settings; edge: DockEdge }) {
+  const dockGlass = useGlass("dock");
   const { open, anchor, setOpen } = useModeSwitcher();
   const ref = useRef<HTMLButtonElement>(null);
   const [busy, setBusy] = useState(false);
@@ -130,6 +133,7 @@ export function ModeSwitcher({ settings, edge }: { settings: Settings; edge: Doc
             exit={pm.exit}
             transition={pm.transition}
           >
+            <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
             <div className="mode-flyout-title">Modes</div>
             {settings.modes.modes.map((mode) => (
               <button

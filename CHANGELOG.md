@@ -10,6 +10,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Changed (frosted glass)
 
 - **Frosted glass is rebuilt on Windows' compositor.** The dock, the menu bar and the Start menu each have a click-through glass window beneath them, where the compositor blurs what is behind, on the graphics card, clipped to the glass's own rounded corners. Nothing is captured or sent between frames, so it no longer flickers, follows the glass as it moves, and costs almost nothing: idle CPU with the glass on fell from about 55% of a core to about 13%. The Frost slider is how much of the blur shows. The old screen-capture machinery is removed.
+- **Frosted glass on everything, with a switch for each group.** Dock, Start and menu bar each have their own switch under Frosted glass. Each switch covers everything in its group: the dock's menus, flyouts, labels, buttons and notifications; Start's popovers; the menu bar's menus, Control Center, media pill and peek; and the tooltips of each. The old single switch carries over as the starting value for all three.
 
 ### Changed (frame corners, type)
 

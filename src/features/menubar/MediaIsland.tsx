@@ -11,6 +11,8 @@
  */
 
 import { motion } from "motion/react";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useReduced } from "../../engine/accessibility/policy";
 import { animationsOf, islandMotion } from "../../engine/animation/presets";
@@ -51,6 +53,7 @@ interface Props {
 }
 
 export function MediaIsland({ settings, look, barWidth, suspended, onOpenCard }: Props) {
+  const menuBarGlass = useGlass("menuBar");
   const reduced = useReduced();
   const pinned = look.mediaIslandPinned;
   const width = islandWidth(barWidth);
@@ -195,6 +198,7 @@ export function MediaIsland({ settings, look, barWidth, suspended, onOpenCard }:
           initial={false}
           animate={show ? m.open : m.closed}
         >
+          <BackdropLayer active={menuBarGlass.active} blur={menuBarGlass.blur} grain={menuBarGlass.grain} tint="own" />
           <motion.div
             className="mb-island-body"
             style={{ width }}

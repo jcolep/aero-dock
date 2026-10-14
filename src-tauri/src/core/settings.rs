@@ -231,13 +231,16 @@ pub struct FrostLook {
     pub blur: f32,
     /// How much grain lies over it, 0.0..=1.0.
     pub grain: f32,
+    /// Whether this surface (and everything that belongs to it: the dock's flyouts, the menu bar's menus) has
+    /// frosted glass. A file from before there was one for each takes the single switch there was (`real_blur`).
+    pub glass: Option<bool>,
 }
 
 impl FrostLook {
     pub const BLUR: std::ops::RangeInclusive<f32> = 0.0..=120.0;
 
     fn new(blur: f32) -> Self {
-        Self { blur, grain: 0.35 }
+        Self { blur, grain: 0.35, glass: None }
     }
 }
 
@@ -772,6 +775,11 @@ impl Settings {
             look.grain = if look.grain.is_finite() { look.grain.clamp(0.0, 1.0) } else { 0.35 };
         }
         a.glass_intensity = a.glass_intensity.clamp(0.0, 1.0);
+        // each surface has its own frosted glass switch; one not yet set takes the single switch there used to be
+        let blur = a.real_blur;
+        for look in [&mut a.frost.dock, &mut a.frost.start, &mut a.frost.menu_bar] {
+            look.glass.get_or_insert(blur);
+        }
         a.bloom_amount = a.bloom_amount.clamp(0.0, 1.0);
         a.reflection_strength = a.reflection_strength.clamp(0.0, 1.0);
         a.dock_shadow = a.dock_shadow.clamp(0.0, 1.0);
@@ -1154,6 +1162,21 @@ mod tests {
     }
 
     #[test]
+    fn each_surface_takes_the_old_single_glass_switch_until_it_has_its_own() {
+        let on: Settings = serde_json::from_str(r#"{"appearance":{"realBlur":true}}"#).expect("loads");
+        let mut on = on;
+        on.sanitize();
+        assert_eq!(on.appearance.frost.dock.glass, Some(true));
+        assert_eq!(on.appearance.frost.menu_bar.glass, Some(true));
+        let mut mixed: Settings =
+            serde_json::from_str(r#"{"appearance":{"realBlur":true,"frost":{"start":{"blur":30,"grain":0.3,"glass":false}}}}"#)
+                .expect("loads");
+        mixed.sanitize();
+        assert_eq!(mixed.appearance.frost.start.glass, Some(false), "its own switch is kept");
+        assert_eq!(mixed.appearance.frost.dock.glass, Some(true));
+    }
+
+    #[test]
     fn the_new_menu_bar_and_dock_settings_start_where_nothing_changes_and_stay_sensible() {
         let old: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true},"dock":{"iconSize":40}}"#)
             .expect("an older file must still load");
@@ -1265,11 +1288,11 @@ mod tests {
         assert_eq!(one.appearance.frost.dock, FrostSettings::default().dock);
         // out of range is brought back
         let mut wild = Settings::default();
-        wild.appearance.frost.dock = FrostLook { blur: 9000.0, grain: -3.0 };
-        wild.appearance.frost.menu_bar = FrostLook { blur: f32::NAN, grain: f32::INFINITY };
+        wild.appearance.frost.dock = FrostLook { blur: 9000.0, grain: -3.0, glass: None };
+        wild.appearance.frost.menu_bar = FrostLook { blur: f32::NAN, grain: f32::INFINITY, glass: None };
         wild.sanitize();
         let kept = wild;
-        assert_eq!(kept.appearance.frost.dock, FrostLook { blur: 120.0, grain: 0.0 });
+        assert_eq!((kept.appearance.frost.dock.blur, kept.appearance.frost.dock.grain), (120.0, 0.0));
         assert!(kept.appearance.frost.menu_bar.blur.is_finite() && kept.appearance.frost.menu_bar.grain.is_finite());
     }
 

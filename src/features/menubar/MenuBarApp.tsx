@@ -14,6 +14,7 @@
  */
 
 import { Roll } from "../../engine/type/Roll";
+import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { listen } from "@tauri-apps/api/event";
@@ -188,6 +189,7 @@ function useWindowWidth(): number {
 }
 
 export function MenuBarApp() {
+  const menuBarGlass = useGlass("menuBar");
   const { settings, hydrate } = useSettings();
   const windowWidth = useWindowWidth();
   const { windows, focused, hydrate: hydrateRunning } = useRunning();
@@ -535,9 +537,9 @@ export function MenuBarApp() {
         onPointerMove={pointerLight}
       >
         <BackdropLayer
-          active={settings.appearance.realBlur && !reduced.transparency}
-          blur={settings.appearance.frost.menuBar.blur}
-          grain={settings.appearance.frost.menuBar.grain}
+          active={menuBarGlass.active}
+          blur={menuBarGlass.blur}
+          grain={menuBarGlass.grain}
         />
         {showScene && <BarScene settings={settings} />}
         {Lens}
@@ -626,6 +628,7 @@ export function MenuBarApp() {
           }}
           role="menu"
         >
+          <BackdropLayer active={menuBarGlass.active} blur={menuBarGlass.blur} grain={menuBarGlass.grain} tint="own" />
           {menuItems.map((item, i) => (
             <div key={item.label} style={{ ["--i" as string]: i }}>
               {item.separatorAbove && <div className="mb-separator" />}
@@ -667,6 +670,7 @@ export function MenuBarApp() {
             shown.id === "calendar" ? "Calendar" : shown.id === "stats" ? "System load" : shown.id === "privacy" ? "Privacy" : "Control Center"
           }
         >
+          <BackdropLayer active={menuBarGlass.active} blur={menuBarGlass.blur} grain={menuBarGlass.grain} tint="own" />
           {shown.id === "calendar" ? (
             <Calendar />
           ) : shown.id === "stats" ? (

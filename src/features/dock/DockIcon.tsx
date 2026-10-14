@@ -4,6 +4,8 @@
  */
 
 import { Roll } from "../../engine/type/Roll";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import {
   animate,
   motion,
@@ -99,6 +101,7 @@ export function DockIcon({
   onContext,
   onHoverPreview,
 }: DockIconProps) {
+  const dockGlass = useGlass("dock");
   const ref = useRef<HTMLButtonElement>(null);
   const [hovered, setHovered] = useState(false);
   // a flyout already names what you're pointing at, and the pill would
@@ -324,6 +327,7 @@ export function DockIcon({
           animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
           transition={springs.bloom}
         >
+          <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} tint="own" />
           <Speaker level={audio.volume} muted={audio.muted} />
           <span className="dock-volume-value">
             <Roll text={audio.muted ? "Muted" : `${audio.volume}%`} />
@@ -346,6 +350,7 @@ export function DockIcon({
             animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
             transition={springs.bloom}
           >
+            <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} tint="own" />
             {item.name}
           </motion.span>
         )

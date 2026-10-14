@@ -14,6 +14,7 @@
  */
 
 import { listen } from "@tauri-apps/api/event";
+import { useGlass } from "../../engine/backdrop/useGlass";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useReduced } from "../../engine/accessibility/policy";
 import { animationsOf, startExitMs } from "../../engine/animation/presets";
@@ -270,6 +271,7 @@ function Skeletons({ count }: { count: number }) {
   );
 }
 export function StartApp() {
+  const startGlass = useGlass("start");
   const { settings, hydrate } = useSettings();
   const reduced = useReduced();
   const resolveIcons = useDockIcons((s) => s.resolveIcons);
@@ -319,7 +321,6 @@ export function StartApp() {
 
   // The frosted glass behind the panel is a picture of the desktop under it, made by Rust and laid under the panel's
   // tint by the layer inside it (see BackdropLayer); the panel's own corners shape it.
-  const realBlur = !!settings?.appearance.realBlur && !reduced.transparency;
 
   // ---- closing ----
   // Opening, closing and opening again in a moment must go where it is asked from where the panel is, never
@@ -754,9 +755,9 @@ export function StartApp() {
         }}
       >
         <BackdropLayer
-          active={realBlur && phase !== "closed"}
-          blur={settings?.appearance.frost.start.blur}
-          grain={settings?.appearance.frost.start.grain}
+          active={startGlass.active && phase !== "closed"}
+          blur={startGlass.blur}
+          grain={startGlass.grain}
         />
         {lens.Highlight}
         <div className="st-search">
@@ -941,6 +942,7 @@ export function StartApp() {
 
         {pop === "user" && (
           <div className="st-pop st-pop-user" role="menu">
+          <BackdropLayer active={startGlass.active} blur={startGlass.blur} grain={startGlass.grain} tint="own" />
             <button type="button" role="menuitem" onClick={() => { ipc.launch("ms-settings:yourinfo").catch(notify.on("Could not open Settings")); close(false); }}>
               <Glyph name="gear" />
               Change account settings
@@ -957,6 +959,7 @@ export function StartApp() {
         )}
         {pop === "power" && (
           <div className="st-pop st-pop-power" role="menu">
+          <BackdropLayer active={startGlass.active} blur={startGlass.blur} grain={startGlass.grain} tint="own" />
             <button type="button" role="menuitem" onClick={() => power("sleep")}>
               <Glyph name="sleep" />
               Sleep
@@ -974,6 +977,7 @@ export function StartApp() {
 
         {menu && (
           <div className="st-menu" role="menu" style={{ left: menu.x, top: menu.y }}>
+          <BackdropLayer active={startGlass.active} blur={startGlass.blur} grain={startGlass.grain} tint="own" />
             {menuItems(menu.item).map((m) => (
               <button
                 key={m.label}

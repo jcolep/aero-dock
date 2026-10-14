@@ -198,7 +198,9 @@ mod tests {
         assert_eq!(mean_colour(&[]), None);
     }
 
+    /// Needs a desktop to read: not there while the screen is locked.
     #[test]
+    #[ignore]
     fn a_point_on_the_screen_has_one() {
         // whatever is at the origin, it is a colour
         assert!(mean_colour(&[(0, 0), (1, 1), (2, 2)]).is_some());

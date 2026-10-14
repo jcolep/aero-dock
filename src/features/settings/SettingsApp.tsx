@@ -273,30 +273,37 @@ export function SettingsApp() {
         </SettingsSection>
 
         <SettingsSection id="glass">
-          <AeroToggle
-            label="Frosted glass: blur what is behind the dock, the Start menu and the menu bar"
-            checked={appearance.realBlur}
-            hint="Your wallpaper and windows, blurred, show through the glass instead of the glass only being tinted. Windows' own compositor does the blurring, on the graphics card, as part of drawing the screen, so it costs Aero Dock nothing while the glass stands still. It follows Windows' Transparency effects setting"
-            onChange={(v) => set((d) => void (d.appearance.realBlur = v))}
-          />
-          <SettingsSub>Frosting, for each surface</SettingsSub>
+          <SettingsSub>Frosted glass</SettingsSub>
+          <p className="settings-note">
+            Your wallpaper and windows, blurred, show through the glass. Windows' own compositor does the blurring, on the
+            graphics card, as part of drawing the screen, so it costs Aero Dock nothing while the glass stands still. It
+            follows Windows' Transparency effects setting.
+          </p>
           {(
             [
-              ["dock", "Dock"],
-              ["start", "Start menu"],
-              ["menuBar", "Menu bar"],
+              ["dock", "Dock", "The dock, its flyouts and menus, its name tags, buttons and notices"],
+              ["menuBar", "Menu bar", "The menu bar, its menus, the Control Center, the media pill and its tips"],
+              ["start", "Start menu", "The Start menu and its menus"],
             ] as const
-          ).map(([key, name]) => (
+          ).map(([key, name, what]) => (
             <Fragment key={key}>
-              <AeroSlider
-                label={`${name}: frost`}
-                value={Math.min(40, appearance.frost[key].blur)}
-                min={0}
-                max={40}
-                step={1}
-                format={(v) => (v < 1 ? "Clear" : pctFmt(v / 40))}
-                onChange={(v) => set((d) => void (d.appearance.frost[key].blur = v))}
+              <AeroToggle
+                label={`${name}: frosted glass`}
+                checked={appearance.frost[key].glass ?? appearance.realBlur}
+                hint={what}
+                onChange={(v) => set((d) => void (d.appearance.frost[key].glass = v))}
               />
+              {(appearance.frost[key].glass ?? appearance.realBlur) && (
+                <AeroSlider
+                  label={`${name}: frost`}
+                  value={Math.min(40, appearance.frost[key].blur)}
+                  min={0}
+                  max={40}
+                  step={1}
+                  format={(v) => (v < 1 ? "Clear" : pctFmt(v / 40))}
+                  onChange={(v) => set((d) => void (d.appearance.frost[key].blur = v))}
+                />
+              )}
               <AeroSlider
                 label={`${name}: grain`}
                 value={appearance.frost[key].grain}
@@ -309,8 +316,8 @@ export function SettingsApp() {
             </Fragment>
           ))}
           <p className="settings-note">
-            Frost is how much of the blur shows through the glass, from clear to fully frosted, while Frosted glass is on.
-            The grain is always on the glass; the switch below turns all grain off.
+            Frost is how much of the blur shows through the glass, from clear to fully frosted. The grain is always on the
+            glass; the switch below turns all grain off.
           </p>          <AeroToggle
             label="Light that follows the pointer"
             checked={appearance.pointerLight}

@@ -431,3 +431,43 @@ h2,
 .glass-tip {
   font-family: var(--font-rounded);
 }
+/* ---- frosted, everything else: a surface that keeps its own background over the blur (BackdropLayer tint="own") ----
+   The surface is its own stacking context (the layer sits at the bottom of it), its own backdrop filter is off (it
+   can only see the page), and its body is made a little more see-through, so that the blur is felt through it while
+   what is written on it stays legible. */
+[data-bd] {
+  isolation: isolate;
+}
+
+[data-bd="glass"] {
+  backdrop-filter: none !important;
+}
+
+.mb-menu[data-bd="glass"],
+.mb-panel[data-bd="glass"] {
+  --mb-body: color-mix(in srgb, var(--mb-surface) 66%, transparent);
+}
+
+.st-menu[data-bd="glass"],
+.st-pop[data-bd="glass"] {
+  background:
+    radial-gradient(130% 150% at 14% -10%, rgba(255, 255, 255, 0.26), transparent 56%),
+    color-mix(in srgb, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 38%, #101624) 66%, transparent);
+}
+
+.glass-tip[data-bd="glass"] {
+  background:
+    radial-gradient(130% 150% at 14% -10%, rgba(255, 255, 255, 0.3), transparent 56%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03)),
+    color-mix(in srgb, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 38%, #131925) 58%, transparent);
+}
+
+.mb-island[data-bd="glass"] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--isl-a, rgb(30 40 58)) 78%, transparent),
+      color-mix(in srgb, var(--isl-b, rgb(14 20 32)) 78%, transparent)
+    );
+}

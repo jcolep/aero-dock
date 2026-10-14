@@ -7,6 +7,8 @@
  */
 
 import { AnimatePresence, motion } from "motion/react";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useReduced } from "../../engine/accessibility/policy";
 import { animationsOf, islandMotion } from "../../engine/animation/presets";
@@ -103,6 +105,7 @@ interface Props {
 }
 
 export function MediaPeek({ settings, at, handlers, onRoom }: Props) {
+  const menuBarGlass = useGlass("menuBar");
   const reduced = useReduced();
   const preset = animationsOf(settings).island;
   const speed = settings.appearance.animationSpeed;
@@ -133,6 +136,7 @@ export function MediaPeek({ settings, at, handlers, onRoom }: Props) {
           exit={m.closed}
           {...handlers}
         >
+          <BackdropLayer active={menuBarGlass.active} blur={menuBarGlass.blur} grain={menuBarGlass.grain} tint="own" />
           <motion.div
             className="cc"
             initial={{ opacity: 0, filter: m.bodyBlur ? "blur(6px)" : "blur(0px)" }}

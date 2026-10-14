@@ -168,20 +168,10 @@ Say plainly in a report when something native was not seen.
   --lib blur_lab -- --ignored --nocapture`, `BLUR_LAB_OUT` set to a folder; it shows a window of stripes on each
   screen for a few seconds, so ask the owner first) it ignores a window region, a layered window's alpha,
   `DwmEnableBlurBehindWindow`'s region and acrylic's, on every screen. Do not shape a pane with `SetWindowRgn`
-  again: that was the grey square behind the dock and Start (both monitors, from the first frosted-glass version
-  on). So the dock and Start blur a *picture*: `capture_backdrop` (`backdrop_capture.rs`) takes one of the
-  screen with this program's windows left out (the Magnification API's window + `MagSetWindowFilterList`; its
-  host must be shown, on the primary screen and kept on top of our other topmost windows, or a window of ours lying over it makes the picture come back black there; found by `capturelab.rs`), shrinks, blurs and grades it, and
-  `engine/backdrop/BackdropLayer.tsx` lays it under the glass's tint, clipped by the glass's own corners. A glass
-  with a picture has `data-bd="on"`, which drops its own `background`; **every glass rule keeps its tint in
-  `--bd-tint`** (global.css, clear.css, start.css) and the layer draws it over the picture. A new glass surface
-  that should be frosted: give it `isolation: isolate`, a `--bd-tint`, and `<BackdropLayer>` as its first child
-  (and keep content rules like `.st-panel > :not(...)` off `.bd-layer`). The dock, Start and the menu bar all have
-  one, each with its own blur and grain sliders (`appearance.frost.*`, passed as the layer's `blur`/`grain`).
-  The old pane code (system blur on a plain window, tiled with `tile_rects`) is gone from the program;
-  `backdrop.rs` and `blurlab.rs` are test-only. **Off must mean off**: with `realBlur` false no layer is active,
-  nothing is asked, and the capture thread and the magnifier host are never made (`backdrop.mjs` asserts it
-  for all three windows). It is off by default until the owner confirms it looks right.- **A `ResizeObserver` reports once on `observe()`**: reacting to that first report
+  again: that was the grey square behind the dock and Start. The glass today is the compositor's: see
+  "Frosted glass (rebuilt)" at the end. **Every glass rule keeps its tint in `--bd-tint`** (global.css,
+  clear.css, start.css), and content rules like `.st-panel > :not(...)` must stay off `.bd-layer`.
+- **A `ResizeObserver` reports once on `observe()`**: reacting to that first report
   as if it were a change restarted the lens mid-slide. Compare sizes.
 - **Closures made once keep their first value**: the elastic slider's resize
   handler kept the volume it was mounted with (0) and reset the knob. Read through a
@@ -260,21 +250,9 @@ Say plainly in a report when something native was not seen.
   lenses. The Start menu uses it for every hover and for the key-selected search result; its own
   `:hover` backgrounds are gone on purpose.
 - **The backdrop layer follows what is drawn, not what layout says** (`BackdropLayer.tsx`). A glass moves by a
-  transform (the dock bar slides, the Start panel pours in by a CSS animation) while layout does not, so the
-  picture is placed from `getBoundingClientRect()` against `offsetWidth` (which gives the scale), at every
-  frame while the glass moves (a MutationObserver on the glass and two ancestors, a ResizeObserver,
-  `animationstart`: they wake a rAF loop that rests after 24 still frames). A picture is of the glass plus
-  `margin` px; when the glass leaves it a new one is asked for at once. It is decoded (`img.decode()`) before
-  it is shown, or the glass shows its bare tint at every look; a look that finds the same bytes does not
-  swap, and the next is later (up to 7x `interval`). A new picture fades in over the last (`fade`; two
-  `.bd-img` children, the newer on top), a surface that opens and stays still takes `looks={2}` and then holds
-  (Start), and the grain (`--grain`) is laid over the picture: a blurred picture's gradients show their 8-bit
-  steps, which move as the picture changes, and that looked like a moving gradient. `minBlur` keeps whatever
-  changes behind the glass a soft wash. Pictures are in physical pixels from the window's top
-  left (the 16-byte header) and the page divides by `devicePixelRatio`. **Unverified natively as of this
-  note**: Display affinity, Mag host behaviour on a locked screen or secure desktop, and a magnifier already
-  running (the Windows Magnifier app) were not tried. "Save a report" in Settings (Glass & light) writes
-  `blur-report.txt`: screens, docks, Start, panes, and whether and how fast a picture can be taken.- **Search and Settings (the dock's satellites) hang on `.dock-satellites`**, a layer the size of the bar that
+  transform (the dock bar slides, the Start panel pours in by a CSS animation) while layout does not, so it is
+  measured with `getBoundingClientRect()` against `offsetWidth` (which gives the scale).
+- **Search and Settings (the dock's satellites) hang on `.dock-satellites`**, a layer the size of the bar that
   takes the bar's reveal motion, so a button still out when the dock auto-hides slides away with it. They bud
   out of the room beside the bar too (`handleOutside` on the viewport), and are put away when the pointer
   leaves the window or moves off about the room (before, a button budded from outside stayed). The dock
@@ -460,4 +438,5 @@ frames, the dock's blur pane following a magnifying dock.
 - **Page side:** `BackdropLayer` reports the host element's border box, radius and opacity (frost × its own and ancestors' opacity) through `set_glass_pane` (CSS px + dpr), following every frame while it moves (MutationObserver on style/class of 4 ancestors, ResizeObserver, animation/transition events) and resting after 20 still frames. `data-bd="on"`: the layer draws the tint over the blur, and the host's own backdrop-filter is off.
 - Composition must be created and used on the main thread (it has the dispatcher queue: `CreateDispatcherQueueController(DQTYPE_THREAD_CURRENT)`). `windows-numerics` gives `Vector2/3`.
 - Frost slider is now 0-40 = how much of the blur shows (pane opacity); the blur radius is the system's.
+- **Every surface of a group has glass, one switch per group**: `appearance.frost.{dock,start,menuBar}.glass` (old `realBlur` is the default until a group has its own; sanitize migrates it). `useGlass(group)` gives `{active, blur, grain}`; a surface puts `<BackdropLayer>` first inside it. `tint="layer"` (default) is for surfaces whose tint lives in `--bd-tint` (dock bar, menu bar, Start panel, flyouts, toasts); `tint="own"` sets `data-bd="glass"` and leaves the surface's background, which global.css thins (menus, Control Center, peek, media pill, tips, dock labels and control buttons, Start popovers). Tooltips take their group from the window (`?window=`). With a group's switch off, nothing of it is asked (`backdrop.mjs` asserts all of this).
 - Bench: `cargo test --lib complab -- --ignored --nocapture` (env `COMPLAB_LAYERED=1` for the glass-window recipe, `COMPLAB_TAURI=1` for a window made like Tauri's). The old Magnifier capture (`backdrop_capture`, `blurlab`, `capturelab`, `backdrop`) is gone.

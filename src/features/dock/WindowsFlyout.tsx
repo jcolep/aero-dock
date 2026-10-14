@@ -6,6 +6,8 @@
  */
 
 import { layoutRect } from "./layoutRect";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { ipc } from "../../ipc/commands";
@@ -26,6 +28,7 @@ interface WindowsFlyoutProps {
 }
 
 export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
+  const dockGlass = useGlass("dock");
   const { kind, item, anchor, close } = useMenu();
   const allWindows = useRunning((s) => s.windows);
   const focused = useRunning((s) => s.focused);
@@ -179,6 +182,7 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
           onMouseEnter={() => useMenu.getState().cancelScheduledClose()}
           onMouseLeave={() => useMenu.getState().scheduleClose(350)}
         >
+          <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
           <div className="windows-flyout-title">{item.name}</div>
           <div
             className="windows-flyout-grid"

@@ -16,6 +16,8 @@
  * `onRoom` how far down the tip reaches, to make room for it.
  */
 
+import { BackdropLayer } from "../backdrop/BackdropLayer";
+import { useGlass, type GlassGroup } from "../backdrop/useGlass";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useReduced } from "../accessibility/policy";
 import "./tooltip.css";
@@ -83,7 +85,14 @@ export function placeTip(
   return { x, y, side };
 }
 
+/** Which group's glass a tip takes: that of the window it is in. */
+const TIP_GROUP: GlassGroup = (() => {
+  const w = new URLSearchParams(window.location.search).get("window");
+  return w === "menubar" ? "menuBar" : w === "start" ? "start" : "dock";
+})();
+
 export function GlassTips({ side = "below", onRoom, delayMs = 420, off = false }: Props) {
+  const tipGlass = useGlass(TIP_GROUP);
   const reduced = useReduced();
   const [showing, setShowing] = useState<Showing | null>(null);
   const [placed, setPlaced] = useState<Placed | null>(null);
@@ -228,6 +237,7 @@ export function GlassTips({ side = "below", onRoom, delayMs = 420, off = false }
       data-still={reduced.motion || undefined}
       style={placed ? { left: placed.x, top: placed.y } : { left: 0, top: 0, visibility: "hidden" }}
     >
+      <BackdropLayer active={tipGlass.active && !!placed} blur={tipGlass.blur} grain={tipGlass.grain} tint="own" />
       {showing.text}
     </div>
   );

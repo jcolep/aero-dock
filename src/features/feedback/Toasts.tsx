@@ -4,6 +4,8 @@
  */
 
 import { AnimatePresence, motion } from "motion/react";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { springs } from "../../engine/animation/springs";
 import type { DockEdge } from "../../ipc/types";
 import { bloomOffset, edgePanelStyle } from "../dock/menuStore";
@@ -11,6 +13,7 @@ import { useToasts } from "./toastStore";
 import "./toasts.css";
 
 export function Toasts({ edge }: { edge: DockEdge }) {
+  const dockGlass = useGlass("dock");
   const items = useToasts((s) => s.items);
   const dismiss = useToasts((s) => s.dismiss);
 
@@ -37,6 +40,7 @@ export function Toasts({ edge }: { edge: DockEdge }) {
             onClick={() => dismiss(toast.id)}
             title="Dismiss"
           >
+            <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
             {toast.message}
           </motion.button>
         ))}

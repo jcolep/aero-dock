@@ -8,6 +8,8 @@
  */
 
 import type { ReactNode } from "react";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 
 function ControlButton({
   label,
@@ -18,8 +20,10 @@ function ControlButton({
   onClick: () => void;
   children: ReactNode;
 }) {
+  const dockGlass = useGlass("dock");
   return (
     <button className="dock-control-btn" title={label} aria-label={label} onClick={onClick}>
+    <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} tint="own" />
       <svg viewBox="0 0 24 24">{children}</svg>
     </button>
   );

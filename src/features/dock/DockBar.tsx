@@ -6,6 +6,7 @@
  */
 
 import { listen } from "@tauri-apps/api/event";
+import { useGlass } from "../../engine/backdrop/useGlass";
 import { AnimatePresence, motion, Reorder, useMotionValue } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { animationsOf, PANEL_EXIT_MS, revealMotion } from "../../engine/animation/presets";
@@ -21,7 +22,6 @@ import { useFileDrag } from "../../state/dragStore";
 import { Welcome } from "../onboarding/Welcome";
 import { WidgetCluster } from "../widgets/WidgetCluster";
 import { ContextMenu } from "./ContextMenu";
-import { useReduced } from "../../engine/accessibility/policy";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { SearchButton, SettingsButton } from "./DockControls";
 import { GlyphFilters } from "./GlyphFilters";
@@ -141,6 +141,7 @@ interface DockBarProps {
 }
 
 export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
+  const dockGlass = useGlass("dock");
   const {
     edge,
     iconSize,
@@ -301,8 +302,6 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   // Where the bar is within the window (the bar alone, not the room the window keeps for flyouts), for Rust: the
   // Start menu rests above it. It is there once the dock has arrived and goes the moment it starts to leave. (The
   // frosted glass under the bar follows it by itself: see BackdropLayer.)
-  const reduced = useReduced();
-  const realBlur = settings.appearance.realBlur && !reduced.transparency;
   useEffect(() => {
     const el = barRef.current;
     if (!el) return;
@@ -855,13 +854,9 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         onPointerMove={pointerLight}
         onMouseLeave={handleLeave}
       >
+        <BackdropLayer active={dockGlass.active && !slidAway} blur={dockGlass.blur} grain={dockGlass.grain} />
         {/* the bar can't clip itself (tooltips float above it), so the
             ambient sweep gets its own clipping layer */}
-        <BackdropLayer
-          active={realBlur && !slidAway}
-          blur={settings.appearance.frost.dock.blur}
-          grain={settings.appearance.frost.dock.grain}
-        />
         <span className="glass-sweep" aria-hidden />
         <ModeSwitcher settings={settings} edge={edge} />
         {!revealMode && settings.dock.showSearchButton && (

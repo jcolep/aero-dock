@@ -4,6 +4,8 @@
  */
 
 import { Roll } from "../../engine/type/Roll";
+import { useGlass } from "../../engine/backdrop/useGlass";
+import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { ipc } from "../../ipc/commands";
@@ -196,6 +198,7 @@ function buildActions(item: DockItemView, settings: Settings): Action[] {
 }
 
 export function ContextMenu({ settings, edge }: ContextMenuProps) {
+  const dockGlass = useGlass("dock");
   const { kind, item: openItem, anchor, close } = useMenu();
   const item = kind === "menu" ? openItem : null;
 
@@ -261,6 +264,7 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
           exit={pm.exit}
           transition={pm.transition}
         >
+          <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
           {item.windows.length > 1 && (
             <div className="aero-menu-windows">
               {item.windows.slice(0, 6).map((w) => (
