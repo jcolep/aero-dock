@@ -537,6 +537,7 @@ export function MenuBarApp() {
         onPointerMove={pointerLight}
       >
         <BackdropLayer
+          track="follow"
           active={menuBarGlass.active}
           blur={menuBarGlass.blur}
           grain={menuBarGlass.grain}

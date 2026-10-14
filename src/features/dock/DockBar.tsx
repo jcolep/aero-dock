@@ -854,7 +854,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         onPointerMove={pointerLight}
         onMouseLeave={handleLeave}
       >
-        <BackdropLayer active={dockGlass.active && !slidAway} blur={dockGlass.blur} grain={dockGlass.grain} />
+        <BackdropLayer active={dockGlass.active && !slidAway} blur={dockGlass.blur} grain={dockGlass.grain} track="follow" />
         {/* the bar can't clip itself (tooltips float above it), so the
             ambient sweep gets its own clipping layer */}
         <span className="glass-sweep" aria-hidden />

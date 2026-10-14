@@ -755,6 +755,7 @@ export function StartApp() {
         }}
       >
         <BackdropLayer
+          track="follow"
           active={startGlass.active && phase !== "closed"}
           blur={startGlass.blur}
           grain={startGlass.grain}

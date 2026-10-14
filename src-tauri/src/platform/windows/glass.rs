@@ -18,7 +18,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use windows::core::{w, Interface};
+use windows::core::{w, Interface, HSTRING};
 use windows::Win32::Foundation::{COLORREF, HWND, LPARAM, LRESULT, RECT, WPARAM};
 use windows::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWINDOWATTRIBUTE};
 use windows::Win32::System::LibraryLoader::GetModuleHandleW;
@@ -31,6 +31,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
     SWP_SHOWWINDOW, SW_HIDE, WINDOW_EX_STYLE, WM_DESTROY, WM_SHOWWINDOW, WM_WINDOWPOSCHANGED, WNDCLASSW, WS_EX_LAYERED,
     WS_EX_NOACTIVATE, WS_EX_NOREDIRECTIONBITMAP, WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_EX_TRANSPARENT, WS_POPUP,
 };
+use windows::Foundation::TimeSpan;
 use windows::System::DispatcherQueueController;
 use windows::UI::Composition::{
     CompositionBackdropBrush, CompositionRoundedRectangleGeometry, Compositor, ContainerVisual, Desktop::DesktopWindowTarget,
@@ -42,6 +43,8 @@ use windows_numerics::{Vector2, Vector3};
 const USE_HOST_BACKDROP: DWMWINDOWATTRIBUTE = DWMWINDOWATTRIBUTE(17);
 /// Any one number will do for the subclass that watches a page's window; it only has to be the same each time.
 const WATCH_ID: usize = 0xAE20_6A55;
+/// How long a piece of glass takes to come in, in 100 ns ticks: 140 ms. (It goes at once.)
+const FADE_IN: i64 = 140 * 10_000;
 
 /// Where a piece of glass is, in its window's own physical pixels.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -196,6 +199,15 @@ fn new_pane(compositor: &Compositor, root: &ContainerVisual, brush: &Composition
     Ok(Pane { visual, geometry, place: Place { x: 0.0, y: 0.0, width: 0.0, height: 0.0, radius: 0.0, opacity: -1.0 } })
 }
 
+/// Bring a piece of glass in from nothing to `to`, so that it does not arrive in one frame.
+fn fade_in(compositor: &Compositor, visual: &SpriteVisual, to: f32) -> windows::core::Result<()> {
+    let fade = compositor.CreateScalarKeyFrameAnimation()?;
+    fade.InsertKeyFrame(0.0, 0.0)?;
+    fade.InsertKeyFrame(1.0, to.clamp(0.0, 1.0))?;
+    fade.SetDuration(TimeSpan { Duration: FADE_IN })?;
+    visual.StartAnimation(&HSTRING::from("Opacity"), &fade)
+}
+
 fn apply(pane: &mut Pane, place: Place) -> windows::core::Result<()> {
     if pane.place == place {
         return Ok(());
@@ -206,14 +218,20 @@ fn apply(pane: &mut Pane, place: Place) -> windows::core::Result<()> {
     pane.geometry.SetSize(size)?;
     let radius = place.radius.min(size.X / 2.0).min(size.Y / 2.0).max(0.0);
     pane.geometry.SetCornerRadius(Vector2 { X: radius, Y: radius })?;
-    pane.visual.SetOpacity(place.opacity.clamp(0.0, 1.0))?;
+    if place.opacity != pane.place.opacity {
+        // a new amount ends any fade still coming in
+        if pane.place.opacity >= 0.0 {
+            pane.visual.StopAnimation(&HSTRING::from("Opacity"))?;
+        }
+        pane.visual.SetOpacity(place.opacity.clamp(0.0, 1.0))?;
+    }
     pane.place = place;
     Ok(())
 }
 
 /// Put a piece of glass under a page's window, move it, or (with `None`) take it away. Main thread only.
 pub fn set_pane(page: HWND, id: &str, place: Option<Place>) -> windows::core::Result<()> {
-    GLASS.with(|cell| {
+    let placed = GLASS.with(|cell| {
         let mut slot = cell.borrow_mut();
         if slot.is_none() {
             if place.is_none() {
@@ -242,9 +260,23 @@ pub fn set_pane(page: HWND, id: &str, place: Option<Place>) -> windows::core::Re
             // placed before it is shown, so it is never seen where the last one was
             apply(&mut pane, place)?;
             pane.visual.SetIsVisible(true)?;
+            fade_in(&compositor, &pane.visual, place.opacity)?;
             host.panes.insert(id.to_string(), pane);
         }
         apply(host.panes.get_mut(id).expect("just made"), place)
+    });
+    commit();
+    placed
+}
+
+/// Composition draws a batch of changes when its thread next goes round its loop with work to do, so the last change
+/// of a run (a menu's glass taken away as it closes) could wait on screen for whatever happened next, a click, say.
+/// Ask for it to be drawn now.
+fn commit() {
+    GLASS.with(|cell| {
+        if let Some(glass) = cell.borrow().as_ref() {
+            let _ = glass.compositor.RequestCommitAsync();
+        }
     })
 }
 

@@ -81,16 +81,16 @@ const panes = (h) => h.eval("window.__calls.filter((c) => c.cmd === 'set_glass_p
     check((await barPanes()).length > n0 + 2 && Math.abs(grown.width - bar2.w) < 1, `the glass followed the bar as it grew (${n0} then ${(await barPanes()).length} reports; ${grown.width} for a bar ${bar2.w} wide)`);
     const label = new Set((await panes(h)).filter((p) => p.shown && p.id !== at.id).map((p) => p.id)).size;
     check(label >= 1, `the label over the icon has glass of its own (${label})`);
-    // the pointer leaves: the label fades, and its glass fades with it, rather than standing at full strength for a
-    // frame or two after the label has gone (which flickered as the pointer crossed the dock)
+    // the pointer leaves: the label's glass goes as the label starts to leave, rather than standing for a frame or
+    // two after it has gone (which flickered as the pointer crossed the dock)
     await h.move(bar.x + bar.w / 2, 5);
     await h.sleep(900);
     const labels = (await panes(h)).filter((p) => p.id !== at.id);
     const byId = {};
     for (const p of labels) (byId[p.id] ??= []).push(p);
-    const ends = Object.values(byId).map((list) => ({ gone: !list.at(-1).shown, lastSeen: list.filter((p) => p.shown).at(-1)?.opacity ?? 0 }));
+    const ends = Object.values(byId).map((list) => ({ gone: !list.at(-1).shown, shapes: new Set(list.filter((p) => p.shown).map((p) => `${p.x},${p.y},${p.width},${p.height},${p.opacity}`)).size }));
     check(ends.length > 0 && ends.every((e) => e.gone), `every label's glass is taken away with it (${JSON.stringify(ends)})`);
-    check(ends.every((e) => e.lastSeen < 0.5), "and it fades on its way, never vanishing at full strength");
+    check(ends.every((e) => e.shapes <= 1), "and it was only ever where the label came to rest, never part way in or out");
   } finally {
     h.close();
   }
@@ -153,6 +153,28 @@ for (const [window, ready, extra] of [["dock", ".dock-icon", ""], ["start", ".st
     check(panel === "glass", `the Control Center has the menu bar's glass, under its own body (${panel})`);
     const n = new Set((await panes(h)).filter((p) => p.shown).map((p) => p.id)).size;
     check(n >= 2, `the bar and the panel each have a piece of glass (${n})`);
+  } finally {
+    h.close();
+  }
+}
+{
+  // a dropdown flies out squashed (goo): its glass waits until it is at rest, and goes when the pointer leaves
+  const h = await startHarness({ out, window: "menubar", viewport: [1400, 800], settings: (s) => { s.menuBar.enabled = true; s.menuBar.closeOnLeave = true; s.appearance.frost.menuBar.glass = true; } });
+  try {
+    await h.open(".menubar");
+    await h.sleep(600);
+    const bar = new Set((await panes(h)).map((p) => p.id));
+    const apple = await h.rect('[data-menu="apple"]');
+    await h.click(apple.x, apple.y);
+    await h.sleep(1400);
+    const menu = (await panes(h)).filter((p) => !bar.has(p.id));
+    const rest = await h.eval("(() => { const r = document.querySelector('.mb-menu').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; })()");
+    const seen = menu.filter((p) => p.shown);
+    check(seen.length > 0 && seen.every((p) => Math.abs(p.width - rest.w) < 1 && Math.abs(p.height - rest.h) < 1 && Math.abs(p.y - rest.y) < 1), `the dropdown's glass came only once it was at rest, where it rests (${seen.length} reports, ${JSON.stringify(seen[0])})`);
+    await h.move(700, 600);
+    await h.sleep(2500);
+    const after = (await panes(h)).filter((p) => !bar.has(p.id));
+    check(after.at(-1) && !after.at(-1).shown && after.filter((p) => p.shown).length === seen.length, "the pointer gone, the menu closes and its glass goes with it, from its first frame of leaving");
   } finally {
     h.close();
   }

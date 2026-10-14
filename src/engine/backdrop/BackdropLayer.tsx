@@ -31,6 +31,19 @@ interface Props {
    *  menu bar and the Start panel do, and the layer draws it over the blur), or the surface's own background, left as
    *  it is (`own`: a menu, a tooltip, a pill, whose own stylesheet says how see-through it is when frosted). */
   tint?: "layer" | "own";
+  /** What the glass does while the surface moves: follow it frame by frame (`follow`: a bar, the Start panel, which
+   *  move as rectangles), or step away and come back when it has come to rest (`settle`, the default: a menu, a
+   *  card, a label, which fly in squashed, tilted or clipped, shapes the glass's rounded rectangle cannot take, and
+   *  which a frame's lag would show around the edges). It fades in as it comes back (see glass.rs). */
+  track?: "follow" | "settle";
+}
+
+/** How many frames a settling surface must stand still before its glass comes back. */
+const SETTLE_FRAMES = 3;
+
+/** Whether a finite animation is running on the element (an infinite one, a pulse say, is not travel). */
+function animating(el: HTMLElement): boolean {
+  return el.getAnimations().some((a) => a.playState === "running" && a.effect?.getComputedTiming().endTime !== Infinity);
 }
 
 /** How much of the blur shows for a frost setting. */
@@ -38,7 +51,7 @@ export function frostOpacity(blur: number): number {
   return Math.max(0, Math.min(1, blur / 40));
 }
 
-export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer" }: Props) {
+export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer", track = "settle" }: Props) {
   const ref = useRef<HTMLSpanElement>(null);
   const id = useId();
 
@@ -60,9 +73,11 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer" 
     if (getComputedStyle(host).position === "static") host.style.position = "relative";
     const frost = frostOpacity(blur);
 
+    const settle = track === "settle";
     let raf = 0;
     let still = 0;
     let last = "";
+    let seen = "";
 
     /** Where the glass is now (the whole surface, its border too), how round, and how much of it shows (its own
      *  fading, and its parents'). */
@@ -81,28 +96,38 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer" 
       return { r, radius, opacity, shown: shown && opacity > 0.01 && r.width >= 1 && r.height >= 1 };
     };
 
-    const send = () => {
-      const { r, radius, opacity, shown } = measure();
-      const key = shown
+    type Look = ReturnType<typeof measure>;
+    const keyOf = ({ r, radius, opacity, shown }: Look) =>
+      shown
         ? `${r.left.toFixed(1)},${r.top.toFixed(1)},${r.width.toFixed(1)},${r.height.toFixed(1)},${radius.toFixed(1)},${opacity.toFixed(2)}`
         : "off";
-      if (key === last) return false;
+
+    /** Say where the glass is (or, with `look` null, that there is none just now), unless that is what was said last. */
+    const post = (look: Look | null) => {
+      const key = look ? keyOf(look) : "off";
+      if (key === last) return;
       last = key;
       void ipc
         .setGlassPane(
-          shown
-            ? { id, shown, x: r.left, y: r.top, width: r.width, height: r.height, radius, opacity, dpr: window.devicePixelRatio || 1 }
+          look && look.shown
+            ? { id, shown: true, x: look.r.left, y: look.r.top, width: look.r.width, height: look.r.height, radius: look.radius, opacity: look.opacity, dpr: window.devicePixelRatio || 1 }
             : { id, shown: false },
         )
         .catch(() => undefined);
-      return true;
     };
 
-    /** Follow the glass while it moves, and rest when it has stood still for a moment. */
+    /** Follow the glass while it moves (or, settling, keep it away until the surface is at rest), and rest when it
+     *  has stood still for a moment. */
     const follow = () => {
       raf = 0;
-      still = send() ? 0 : still + 1;
-      if (still < 20) raf = requestAnimationFrame(follow);
+      const look = measure();
+      const key = keyOf(look);
+      still = key === seen ? still + 1 : 0;
+      seen = key;
+      const atRest = still >= SETTLE_FRAMES && !animating(host);
+      post(!settle || atRest ? look : null);
+      // a settling surface that has not come back yet is watched until it does
+      if (still < 20 || (settle && look.shown && last === "off")) raf = requestAnimationFrame(follow);
     };
     const wake = () => {
       still = 0;
@@ -110,11 +135,15 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer" 
     };
 
     // what moves it: its own style or class changing (motion writes the transform inline), its size,
-    // and a stylesheet animation starting
-    const observer = new MutationObserver(wake);
+    // and a stylesheet animation starting; and a surface that starts to leave gives its glass up at once, before
+    // the frame its exit begins in
+    const observer = new MutationObserver(() => {
+      if (settle && host.dataset.leaving === "true") post(null);
+      wake();
+    });
     let node: HTMLElement | null = host;
     for (let i = 0; i < 4 && node; i++, node = node.parentElement) {
-      observer.observe(node, { attributes: true, attributeFilter: ["style", "class", "data-phase", "data-reveal"] });
+      observer.observe(node, { attributes: true, attributeFilter: ["style", "class", "data-phase", "data-reveal", "data-leaving"] });
     }
     const sizes = new ResizeObserver(wake);
     sizes.observe(host);
@@ -133,7 +162,7 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer" 
       delete host.dataset.bd;
       void gone();
     };
-  }, [active, blur, id, tint]);
+  }, [active, blur, id, tint, track]);
 
   return <span ref={ref} className="bd-layer" aria-hidden style={{ ["--bd-grain" as string]: grain } as React.CSSProperties} />;
 }
