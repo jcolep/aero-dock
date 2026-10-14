@@ -81,6 +81,16 @@ const panes = (h) => h.eval("window.__calls.filter((c) => c.cmd === 'set_glass_p
     check((await barPanes()).length > n0 + 2 && Math.abs(grown.width - bar2.w) < 1, `the glass followed the bar as it grew (${n0} then ${(await barPanes()).length} reports; ${grown.width} for a bar ${bar2.w} wide)`);
     const label = new Set((await panes(h)).filter((p) => p.shown && p.id !== at.id).map((p) => p.id)).size;
     check(label >= 1, `the label over the icon has glass of its own (${label})`);
+    // the pointer leaves: the label fades, and its glass fades with it, rather than standing at full strength for a
+    // frame or two after the label has gone (which flickered as the pointer crossed the dock)
+    await h.move(bar.x + bar.w / 2, 5);
+    await h.sleep(900);
+    const labels = (await panes(h)).filter((p) => p.id !== at.id);
+    const byId = {};
+    for (const p of labels) (byId[p.id] ??= []).push(p);
+    const ends = Object.values(byId).map((list) => ({ gone: !list.at(-1).shown, lastSeen: list.filter((p) => p.shown).at(-1)?.opacity ?? 0 }));
+    check(ends.length > 0 && ends.every((e) => e.gone), `every label's glass is taken away with it (${JSON.stringify(ends)})`);
+    check(ends.every((e) => e.lastSeen < 0.5), "and it fades on its way, never vanishing at full strength");
   } finally {
     h.close();
   }

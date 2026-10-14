@@ -16,7 +16,7 @@
  * inline; its size; a stylesheet animation or transition), and left alone once it has stood still for a moment.
  */
 
-import { useEffect, useId, useRef } from "react";
+import { useId, useLayoutEffect, useRef } from "react";
 
 import { ipc } from "../../ipc/commands";
 
@@ -42,7 +42,10 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer" 
   const ref = useRef<HTMLSpanElement>(null);
   const id = useId();
 
-  useEffect(() => {
+  // a layout effect, not a passive one: it runs before the page is painted, so a surface that goes in one frame takes
+  // its glass with it in that frame, instead of leaving the bare blur standing for a frame or two after it (which
+  // flickered as the pointer crossed the dock's labels); and a new one says where it is before it is first seen
+  useLayoutEffect(() => {
     const layer = ref.current;
     const host = layer?.parentElement;
     if (!layer || !host) return;

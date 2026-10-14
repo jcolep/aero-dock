@@ -33,7 +33,8 @@ use windows::Win32::UI::WindowsAndMessaging::{
 };
 use windows::System::DispatcherQueueController;
 use windows::UI::Composition::{
-    CompositionRoundedRectangleGeometry, Compositor, ContainerVisual, Desktop::DesktopWindowTarget, SpriteVisual,
+    CompositionBackdropBrush, CompositionRoundedRectangleGeometry, Compositor, ContainerVisual, Desktop::DesktopWindowTarget,
+    SpriteVisual,
 };
 use windows_numerics::{Vector2, Vector3};
 
@@ -65,7 +66,12 @@ struct Host {
     window: HWND,
     _target: DesktopWindowTarget,
     root: ContainerVisual,
+    /// One blur for the whole window, shared by every piece of glass in it.
+    brush: CompositionBackdropBrush,
     panes: HashMap<String, Pane>,
+    /// Pieces taken away, hidden and kept for the next to come: a label comes and goes with every icon the pointer
+    /// crosses, and making and unmaking visuals for each was churn the compositor did not need.
+    spare: Vec<Pane>,
 }
 
 struct Glass {
@@ -175,14 +181,15 @@ fn host_for(glass: &mut Glass, page: HWND) -> windows::core::Result<&mut Host> {
             }
         }
         follow(page, window);
-        glass.hosts.insert(key, Host { window, _target: target, root, panes: HashMap::new() });
+        let brush = glass.compositor.CreateHostBackdropBrush()?;
+        glass.hosts.insert(key, Host { window, _target: target, root, brush, panes: HashMap::new(), spare: Vec::new() });
     }
     Ok(glass.hosts.get_mut(&key).expect("just made"))
 }
 
-fn new_pane(compositor: &Compositor, root: &ContainerVisual) -> windows::core::Result<Pane> {
+fn new_pane(compositor: &Compositor, root: &ContainerVisual, brush: &CompositionBackdropBrush) -> windows::core::Result<Pane> {
     let visual = compositor.CreateSpriteVisual()?;
-    visual.SetBrush(&compositor.CreateHostBackdropBrush()?)?;
+    visual.SetBrush(brush)?;
     let geometry = compositor.CreateRoundedRectangleGeometry()?;
     visual.SetClip(&compositor.CreateGeometricClipWithGeometry(&geometry)?)?;
     root.Children()?.InsertAtTop(&visual)?;
@@ -217,8 +224,10 @@ pub fn set_pane(page: HWND, id: &str, place: Option<Place>) -> windows::core::Re
         let glass = slot.as_mut().expect("just made");
         let Some(place) = place else {
             if let Some(host) = glass.hosts.get_mut(&(page.0 as isize)) {
-                if let Some(pane) = host.panes.remove(id) {
-                    let _ = host.root.Children().and_then(|c| c.Remove(&pane.visual));
+                if let Some(mut pane) = host.panes.remove(id) {
+                    let _ = pane.visual.SetIsVisible(false);
+                    pane.place.opacity = -1.0;
+                    host.spare.push(pane);
                 }
             }
             return Ok(());
@@ -226,7 +235,13 @@ pub fn set_pane(page: HWND, id: &str, place: Option<Place>) -> windows::core::Re
         let compositor = glass.compositor.clone();
         let host = host_for(glass, page)?;
         if !host.panes.contains_key(id) {
-            let pane = new_pane(&compositor, &host.root)?;
+            let mut pane = match host.spare.pop() {
+                Some(pane) => pane,
+                None => new_pane(&compositor, &host.root, &host.brush)?,
+            };
+            // placed before it is shown, so it is never seen where the last one was
+            apply(&mut pane, place)?;
+            pane.visual.SetIsVisible(true)?;
             host.panes.insert(id.to_string(), pane);
         }
         apply(host.panes.get_mut(id).expect("just made"), place)

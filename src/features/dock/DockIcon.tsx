@@ -7,6 +7,7 @@ import { Roll } from "../../engine/type/Roll";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import {
+  AnimatePresence,
   animate,
   motion,
   useMotionValue,
@@ -57,6 +58,8 @@ interface DockIconProps {
 const FLOAT_STEP = (2 * Math.PI * idleFloat.stagger) / idleFloat.period;
 
 const PREVIEW_DWELL_MS = 550;
+/** How a label goes: a quick fade, quick enough that crossing the dock never leaves a trail of them. */
+const LABEL_EXIT = { opacity: 0, transition: { duration: 0.09 } };
 /** How long a scroll keeps the window previews away. Matches the volume
  *  indicator's own lifetime so the two never overlap. */
 const VOLUME_PREVIEW_MUTE_MS = 1500;
@@ -319,12 +322,17 @@ export function DockIcon({
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
     >
+      {/* the label fades as it goes (it does not just vanish), so its glass fades with it rather than standing alone
+          for a frame or two after it */}
+      <AnimatePresence initial={false}>
       {adjusting && audio ? (
         <motion.span
+          key="volume"
           className="dock-label dock-volume-pill"
           data-edge={edge}
           initial={{ opacity: 0, scale: 0.9, ...labelFrom(edge) }}
           animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+          exit={LABEL_EXIT}
           transition={springs.bloom}
         >
           <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} tint="own" />
@@ -344,10 +352,12 @@ export function DockIcon({
         !flyoutOpen &&
         !dragging && (
           <motion.span
+            key="name"
             className="dock-label"
             data-edge={edge}
             initial={{ opacity: 0, scale: 0.9, ...labelFrom(edge) }}
             animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+            exit={LABEL_EXIT}
             transition={springs.bloom}
           >
             <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} tint="own" />
@@ -355,6 +365,7 @@ export function DockIcon({
           </motion.span>
         )
       )}
+      </AnimatePresence>
       <motion.span
         className="dock-icon-mag"
         style={
