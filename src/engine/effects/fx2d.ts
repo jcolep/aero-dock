@@ -775,7 +775,12 @@ export class Fx2D {
       this.frameId = requestAnimationFrame(this.frame);
       return;
     }
-    const wait = this.last + this.ambientFrameMs() - performance.now() - WAKE_AHEAD_MS;
+    // On a beat shared by every scene on the page, not counted from this engine's own last frame: the frame's four
+    // bands are four engines, and each frame any of them draws is the whole screen-wide window put together again, so
+    // drawn on four beats of their own they cost up to four times the frames for the same motion.
+    const every = this.ambientFrameMs();
+    const now = performance.now();
+    const wait = Math.max(Math.ceil((now + WAKE_AHEAD_MS) / every) * every, this.last + every * 0.5) - now - WAKE_AHEAD_MS;
     if (wait > 2) {
       this.timerId = window.setTimeout(() => {
         this.timerId = 0;

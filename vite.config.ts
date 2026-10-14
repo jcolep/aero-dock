@@ -17,13 +17,13 @@ export default defineConfig(async () => ({
   },
 
   build: {
-    // The renderer loads from disk, but splitting the big vendor out still
-    // helps: it parses in parallel with app code and stays byte-identical
-    // between releases.
+    // React in a chunk of its own, which every window loads and which stays byte-identical between releases; and the
+    // animation library in another, loaded only by the windows that animate with it (see main.tsx).
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ["react", "react-dom", "motion/react"],
+        manualChunks(id: string) {
+          if (/node_modules[\\/](\.pnpm[\\/])?(react|react-dom|scheduler)[@\\/]/.test(id)) return "react";
+          if (/node_modules[\\/](\.pnpm[\\/])?(motion|framer-motion|motion-dom|motion-utils)[@\\/]/.test(id)) return "motion";
         },
       },
     },

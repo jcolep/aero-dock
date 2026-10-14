@@ -1,50 +1,89 @@
-import { MotionConfig } from "motion/react";
-import React from "react";
+import React, { lazy, Suspense, useEffect, useRef } from "react";
 import ReactDOM from "react-dom/client";
-import { DockApp } from "./app/DockApp";
-import { useEffect, useRef } from "react";
-import { useReduced } from "./engine/accessibility/policy";
 import { accentForTheme, normalizeHex } from "./engine/themes/accent";
 import { trackScale } from "./engine/themes/scale";
 import { useDockIcons } from "./state/dockStore";
 import { useSettings } from "./state/settingsStore";
-import { DesktopWidgets } from "./features/desktop/DesktopWidgets";
-import { FrameApp } from "./features/frame/FrameApp";
-import { FrameCornersApp } from "./features/frame/FrameCornersApp";
-import { MenuBarApp } from "./features/menubar/MenuBarApp";
-import { MissionApp } from "./features/mission/MissionApp";
-import { PerfApp } from "./features/perf/PerfApp";
 import { useFrameMeter } from "./engine/perf/useFrameMeter";
-import { SettingsApp } from "./features/settings/SettingsApp";
-import { StartApp } from "./features/start/StartApp";
+// Every stylesheet, here and in this order: the order the windows were always styled in, when they were one bundle. The
+// code is split by window, the styles are not: some windows lean on rules that live in another's stylesheet (the dock's
+// clock takes its figures from the menu bar's, the settings window's previews are the menu bar's own), and one sheet in
+// one order keeps every window exactly as it was. `scripts/cssorder.mjs` lists the order from an older main.tsx.
+import "./engine/tooltip/tooltip.css";
+import "./features/feedback/toasts.css";
+import "./features/onboarding/welcome.css";
+import "./engine/type/roll.css";
+import "./engine/lens/glide.css";
+import "./features/widgets/widgets.css";
+import "./features/dock/contextmenu.css";
+import "./features/dock/modes.css";
+import "./features/dock/folderflyout.css";
+import "./features/dock/windowsflyout.css";
+import "./features/dock/dock.css";
+import "./features/desktop/desktop.css";
+import "./features/frame/frame.css";
+import "./features/menubar/media.css";
+import "./features/menubar/island.css";
+import "./features/menubar/menubar.css";
+import "./features/mission/mission.css";
+import "./features/perf/perf.css";
+import "./features/settings/colorspectrum.css";
+import "./features/settings/bubblecolor.css";
+import "./features/start/start.css";
+import "./features/settings/animations.css";
+import "./features/settings/settings.css";
 import "./styles/global.css";
 
-// One bundle, several windows, told apart by ?window=. The dock is the
-// default because it is the one that always exists.
+// Several windows, told apart by ?window=, each loading only its own app: a window is a renderer process of its own,
+// and the frame's corners have no use for the settings window's code (or its stylesheet). The dock is the default
+// because it is the one that always exists.
 const requested = new URLSearchParams(window.location.search).get("window");
 const isSettings = requested === "settings" || window.location.hash.startsWith("#/settings");
-const isWidgets = requested === "widgets";
-const isMenuBar = requested === "menubar";
-const isFrame = requested === "frame";
-const isFrameCorners = requested === "framecorners";
-const isMission = requested === "mission";
-const isStart = requested === "start";
-const isPerf = requested === "perf";
+
+type Loaded = Promise<{ default: React.ComponentType }>;
+
+/** A window's app, as it is. */
+const plain = (app: Promise<React.ComponentType>): Loaded => app.then((C) => ({ default: C }));
+/** A window's app that animates with the motion library, inside the reduced-motion policy (which loads the library). */
+const animated = (app: Promise<React.ComponentType>): Loaded =>
+  Promise.all([app, import("./app/MotionPolicy")]).then(([C, { MotionPolicy }]) => ({
+    default: () => (
+      <MotionPolicy>
+        <C />
+      </MotionPolicy>
+    ),
+  }));
+
+const App = lazy((): Loaded => {
+  if (isSettings) return animated(import("./features/settings/SettingsApp").then((m) => m.SettingsApp));
+  switch (requested) {
+    case "widgets":
+      return animated(import("./features/desktop/DesktopWidgets").then((m) => m.DesktopWidgets));
+    case "menubar":
+      return animated(import("./features/menubar/MenuBarApp").then((m) => m.MenuBarApp));
+    case "frame":
+      return plain(import("./features/frame/FrameApp").then((m) => m.FrameApp));
+    case "framecorners":
+      return plain(import("./features/frame/FrameCornersApp").then((m) => m.FrameCornersApp));
+    case "mission":
+      return animated(import("./features/mission/MissionApp").then((m) => m.MissionApp));
+    case "start":
+      return animated(import("./features/start/StartApp").then((m) => m.StartApp));
+    case "perf":
+      return plain(import("./features/perf/PerfApp").then((m) => m.PerfApp));
+    default:
+      return animated(import("./app/DockApp").then((m) => m.DockApp));
+  }
+});
 
 function Root() {
-  if (isSettings) return <SettingsApp />;
-  if (isWidgets) return <DesktopWidgets />;
-  if (isMenuBar) return <MenuBarApp />;
-  if (isFrame) return <FrameApp />;
-  if (isFrameCorners) return <FrameCornersApp />;
-  if (isMission) return <MissionApp />;
-  if (isStart) return <StartApp />;
-  if (isPerf) return <PerfApp />;
-  return <DockApp />;
+  return (
+    <Suspense fallback={null}>
+      <App />
+    </Suspense>
+  );
 }
 
-/** With motion to be kept down, the animation library moves things at once and
- *  only fades them, which is what its reduced-motion mode does. */
 /** Icons are made in the look chosen (and, for the tinted one, in the theme's colour), so a
  *  change of either throws away what has been fetched, and what shows them asks again. */
 function useIconLook() {
@@ -64,12 +103,7 @@ function Policy() {
   useIconLook();
   // how smoothly this window draws, for the table of frame timings (only while that is on)
   useFrameMeter();
-  const reduced = useReduced();
-  return (
-    <MotionConfig reducedMotion={reduced.motion ? "always" : "never"}>
-      <Root />
-    </MotionConfig>
-  );
+  return <Root />;
 }
 
 trackScale();

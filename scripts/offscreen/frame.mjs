@@ -56,4 +56,24 @@ async function h_sheet(images) {
     h.close();
   }
 }
+// ---- the ambient scene in the four bands: one beat for all of them ----
+{
+  // every frame the page draws is the whole screen-wide window put together again, so the four bands must draw
+  // together, on one beat, not each on a timer of its own (which was up to four times the frames)
+  const h = await startHarness({ out, window: "frame", viewport: [1600, 900], settings: (s) => { s.frame.enabled = true; s.frame.padding = 24; s.frame.ambient = true; s.appearance.scene = "dust"; s.appearance.particleDensity = 1; } });
+  try {
+    await h.open(".frame-root");
+    await h.sleep(1500);
+    const strips = await h.eval("document.querySelectorAll('canvas.frame-strip').length");
+    const frames = await h.eval(`new Promise((done) => {
+      const seen = new Set(); const raf = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (cb) => raf((t) => { seen.add(Math.round(t)); cb(t); });
+      setTimeout(() => done(seen.size / 3), 3000);
+    })`);
+    check(strips === 4, `four bands, each with its scene (${strips})`);
+    check(frames > 6 && frames <= 14, `and the page draws about twelve frames a second for all four together (${frames.toFixed(1)})`);
+  } finally {
+    h.close();
+  }
+}
 process.exit(failed ? 1 : 0);

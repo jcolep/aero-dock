@@ -114,6 +114,14 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
     if (!page) await sleep(200);
   }
   if (!page) throw new Error("the browser did not start");
+  // Only ever drive the headless browser started above. If the port was taken (a real Aero Dock started with
+  // remote debugging, say), whatever answers there is someone else's, and navigating its page would take over one of
+  // their windows: that happened once. So check, and stop.
+  const version = await (await fetch(`http://127.0.0.1:${debugPort}/json/version`)).json();
+  if (!/Headless/i.test(version["User-Agent"] ?? "") || page.url.startsWith("http://tauri.localhost")) {
+    edge.kill();
+    throw new Error(`port ${debugPort} belongs to another browser (${version.Browser}): set AERO_CDP_PORT to a free port`);
+  }
   const ws = new WebSocket(page.webSocketDebuggerUrl);
   await new Promise((r) => ws.addEventListener("open", r, { once: true }));
   let nextId = 0;
@@ -156,6 +164,13 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
   const RUNNING = ${JSON.stringify(running ?? [{ hwnd: 1, title: "Notes", exe: "notepad.exe", pid: 1, aumid: null, monitor: "" }])};
   window.__unknown = [];
   window.__calls = [];
+  // what went wrong in the page: an uncaught error, a rejected promise no one caught, or React's own report of a
+  // render that threw (which takes the whole page down)
+  window.__errors = [];
+  window.addEventListener("error", (e) => window.__errors.push(String(e.error?.stack ?? e.message)));
+  window.addEventListener("unhandledrejection", (e) => window.__errors.push("rejected: " + String(e.reason?.stack ?? e.reason)));
+  const consoleError = console.error.bind(console);
+  console.error = (...a) => { window.__errors.push(a.map((x) => String(x?.stack ?? x)).join(" ")); consoleError(...a); };
   // the media session: commands change it, and reading it moves a playing track on
   window.__media = Object.assign({
     active: true, title: "A song", artist: "An artist", album: "", playing: true, source: "Player", sourceName: "Player",
@@ -273,6 +288,8 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
     send,
     eval: evalJs,
     sleep,
+    /** What went wrong in the page so far: uncaught errors, unhandled rejections, console errors. */
+    errors: () => evalJs("window.__errors || []"),
     /** Open the page and wait for something in it (a selector). */
     async open(ready = ".menubar", query = "") {
       await send("Page.navigate", { url: `http://127.0.0.1:${port}/index.html?window=${window}${query}` });

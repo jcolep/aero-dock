@@ -33,7 +33,9 @@ const panes = (h) => h.eval("window.__calls.filter((c) => c.cmd === 'set_glass_p
     await h.open(".menubar");
     await h.sleep(1500);
     const all = await panes(h);
-    const last = all.at(-1);
+    // the bar's own piece (the window has others, a tooltip's, which report too, and in no set order)
+    const barId = all.find((p) => p.shown && p.y < 20)?.id;
+    const last = all.filter((p) => p.id === barId).at(-1);
     const bar = await h.eval("(() => { const r = document.querySelector('.menubar').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, radius: parseFloat(getComputedStyle(document.querySelector('.menubar')).borderTopLeftRadius) }; })()");
     check(last && last.shown, "the menu bar has its glass");
     check(Math.abs(last.x - bar.x) < 1 && Math.abs(last.y - bar.y) < 1 && Math.abs(last.width - bar.w) < 1 && Math.abs(last.height - bar.h) < 1, `exactly where the bar is (${JSON.stringify(last)} for ${JSON.stringify(bar)})`);
