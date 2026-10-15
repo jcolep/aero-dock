@@ -30,7 +30,7 @@ import type {
   WidgetStyle,
   WifiNetwork,
 } from "./types";
-import type { CornerPaint, DesktopBounds, FrameRow, Download, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
+import type { DesktopBounds, FrameRow, Download, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
 
 export const ipc = {
   // settings
@@ -88,7 +88,8 @@ export const ipc = {
   closeWindow: (hwnd: number) => invoke<void>("close_window", { hwnd }),
   /** End the programs that own these windows at once; the names of those ended. */
   /** What the margin looks like beside the four corners of the opening: top left, top right, bottom right, bottom left. */
-  frameCornerColours: (label: string) => invoke<CornerPaint | null>("frame_corner_colours", { label }),
+  /** The frame's page says what colour its glass is, for the corner pieces Rust draws. */
+  reportFrameGlass: (colour: string) => invoke<void>("report_frame_glass", { colour }),
   endTask: (hwnds: number[]) => invoke<string[]>("end_task", { hwnds }),
 
   // system widgets

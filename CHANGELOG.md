@@ -7,6 +7,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Frame corners, rebuilt
+
+- **The rounded corners over maximised and snapped apps are drawn natively.** Four tiny windows per monitor, drawn pixel by pixel, replace the web page that drew them. They are in place the moment they are wanted, look the same, and the two page processes they needed are gone (about 67 MB).
+- **No more square corner after a maximise**: the corner pieces now arrive before Windows' maximise animation lands, so the app's square corners are never seen. Before, they showed for about a tenth of a second each time.
+- **Corners no longer vanish when a fullscreen video plays on the other monitor**, or when a program puts an invisible overlay over the screen (graphics and recording tools do). Fullscreen is now decided per window and per monitor, and click-through overlays are ignored.
+- **Corners are right within 3 seconds of starting** with an app already maximised (it was 7). Looking at the wallpaper under them is now one copy of the screen instead of hundreds of single pixels.
+- **The second monitor's corners show the wallpaper again** instead of a flat colour: the check that the wallpaper lines up now ignores the dust drifting through the margin, and a corner that does not line up is looked at again by itself a few seconds later.
+- Clicks at the very corner of a maximised app now reach the app.
+
 ### Performance
 
 - **About a third less memory**: each window now loads only its own code (the frame and corner windows no longer load the animation library or the other windows' code). Measured on the whole app at idle: 1003 MB down to 697 MB.

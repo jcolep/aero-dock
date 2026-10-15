@@ -13,7 +13,6 @@ const CASES = [
   { name: "start", window: "start", ready: ".st-root", vp: [1000, 900], set: () => {}, act: async (h) => { await h.eval(`window.__emit("start://open", { previous: 1 })`); } },
   { name: "settings", window: "settings", ready: ".ctl-value", vp: [1200, 900], set: () => {} },
   { name: "frame", window: "frame", ready: ".frame-root", vp: [1200, 700], set: (s) => { s.frame.enabled = true; s.frame.glassBorder = true; } },
-  { name: "framecorners", window: "framecorners", ready: "#root", vp: [1200, 700], set: (s) => { s.frame.enabled = true; } },
   { name: "mission", window: "mission", ready: "#root", vp: [1400, 900], set: () => {} },
   { name: "widgets", window: "widgets", ready: "#root", vp: [1400, 900], set: () => {} },
   { name: "perf", window: "perf", ready: "#root", vp: [600, 400], set: () => {} },

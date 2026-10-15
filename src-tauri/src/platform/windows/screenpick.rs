@@ -1,66 +1,27 @@
-//! Reading colours off the screen as it is drawn.
+//! Pictures of the screen, for the frame's corner pieces.
 //!
-//! The frame's fringe has to match what the margin looks like beside a corner, which is the margin's glass over
-//! whatever the wallpaper is at that spot. That cannot be worked out (a wallpaper is a picture, and a slideshow
-//! changes it), but it can be looked at: a few pixels in the margin, which nothing but the glass and the wallpaper
-//! are in. The desktop's own device context gives the composed picture.
+//! A piece has to look like the margin beside it: the margin's glass over whatever the wallpaper is at that spot.
+//! Two pictures give that. The desktop's own, as the shell draws it (the wallpaper with no window over it), is what
+//! the piece shows; and the screen as it is drawn, round the opening, says whether that picture lines up with what is
+//! seen in the margin (the shell can lay a wallpaper out differently on another monitor), and what colour the margin
+//! is, for a corner where it does not.
+//!
+//! Each is one copy into memory, then read pixel by pixel there. (Reading the screen a pixel at a time, `GetPixel`,
+//! waits on the compositor at every call: a look at the four corners that way took four seconds.)
 
 use windows::core::w;
 use windows::Win32::Foundation::RECT;
 use windows::Win32::Graphics::Gdi::{
-    CreateCompatibleDC, CreateDIBSection, DeleteDC, DeleteObject, GetDC, GetPixel, ReleaseDC, SelectObject, BITMAPINFO,
-    BITMAPINFOHEADER, BI_RGB, CLR_INVALID, DIB_RGB_COLORS,
+    BitBlt, CreateCompatibleDC, CreateDIBSection, DeleteDC, DeleteObject, GetDC, ReleaseDC, SelectObject, BITMAPINFO,
+    BITMAPINFOHEADER, BI_RGB, CAPTUREBLT, DIB_RGB_COLORS, HDC, SRCCOPY,
 };
 use windows::Win32::Storage::Xps::{PrintWindow, PRINT_WINDOW_FLAGS};
 use windows::Win32::UI::WindowsAndMessaging::{FindWindowW, GetWindowRect};
 
-/// The mean colour of the pixels at these screen points, as `[r, g, b]`. Points that cannot be read are left out;
-/// none at all gives `None`.
-pub fn mean_colour(points: &[(i32, i32)]) -> Option<[u8; 3]> {
-    let dc = unsafe { GetDC(None) };
-    if dc.is_invalid() {
-        return None;
-    }
-    let (mut r, mut g, mut b, mut n) = (0u32, 0u32, 0u32, 0u32);
-    for &(x, y) in points {
-        let c = unsafe { GetPixel(dc, x, y) };
-        if c.0 == CLR_INVALID {
-            continue;
-        }
-        r += c.0 & 0xff;
-        g += (c.0 >> 8) & 0xff;
-        b += (c.0 >> 16) & 0xff;
-        n += 1;
-    }
-    unsafe {
-        ReleaseDC(None, dc);
-    }
-    (n > 0).then(|| [(r / n) as u8, (g / n) as u8, (b / n) as u8])
-}
+use super::monitors::Rect;
 
-/// The colour of each of these screen points, or `None` for one that cannot be read.
-pub fn colours_at(points: &[(i32, i32)]) -> Vec<Option<[u8; 3]>> {
-    let dc = unsafe { GetDC(None) };
-    if dc.is_invalid() {
-        return vec![None; points.len()];
-    }
-    let out = points
-        .iter()
-        .map(|&(x, y)| {
-            let c = unsafe { GetPixel(dc, x, y) };
-            (c.0 != CLR_INVALID).then_some([(c.0 & 0xff) as u8, ((c.0 >> 8) & 0xff) as u8, ((c.0 >> 16) & 0xff) as u8])
-        })
-        .collect();
-    unsafe {
-        ReleaseDC(None, dc);
-    }
-    out
-}
-
-/// The desktop's own picture: the wallpaper, as the shell draws it, without any window over it. The shell is asked
-/// to draw its desktop window into a bitmap, which is a matter of tens of milliseconds and is only done when the
-/// wallpaper has changed.
-pub struct Desktop {
+/// A picture of part of the screen, in screen coordinates.
+pub struct Picture {
     left: i32,
     top: i32,
     width: i32,
@@ -69,53 +30,69 @@ pub struct Desktop {
     bgra: Vec<u8>,
 }
 
-impl Desktop {
-    pub fn capture() -> Option<Desktop> {
+/// Draw into a bitmap of the given size with `draw` (given a memory device context and the screen's), and keep it.
+fn picture(left: i32, top: i32, width: i32, height: i32, draw: impl FnOnce(HDC, HDC) -> bool) -> Option<Picture> {
+    if width <= 0 || height <= 0 {
+        return None;
+    }
+    unsafe {
+        let screen = GetDC(None);
+        let dc = CreateCompatibleDC(Some(screen));
+        let info = BITMAPINFO {
+            bmiHeader: BITMAPINFOHEADER {
+                biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
+                biWidth: width,
+                // negative: top-down rows
+                biHeight: -height,
+                biPlanes: 1,
+                biBitCount: 32,
+                biCompression: BI_RGB.0,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+        let mut bits: *mut core::ffi::c_void = std::ptr::null_mut();
+        let result = match CreateDIBSection(Some(dc), &info, DIB_RGB_COLORS, &mut bits, None, 0) {
+            Ok(bitmap) if !bits.is_null() => {
+                let old = SelectObject(dc, bitmap.into());
+                let drawn = draw(dc, screen);
+                let len = (width * height * 4) as usize;
+                let copy = drawn.then(|| std::slice::from_raw_parts(bits as *const u8, len).to_vec());
+                SelectObject(dc, old);
+                let _ = DeleteObject(bitmap.into());
+                copy.map(|bgra| Picture { left, top, width, height, bgra })
+            }
+            _ => None,
+        };
+        let _ = DeleteDC(dc);
+        ReleaseDC(None, screen);
+        result
+    }
+}
+
+impl Picture {
+    /// The desktop's own picture: the wallpaper, as the shell draws it, without any window (or icon) over it. The
+    /// shell is asked to draw its desktop window into a bitmap: tens of milliseconds, done when the wallpaper or the
+    /// frame has changed.
+    pub fn desktop() -> Option<Picture> {
         unsafe {
             let shell = FindWindowW(w!("Progman"), None).ok()?;
             let mut r = RECT::default();
             GetWindowRect(shell, &mut r).ok()?;
-            let (width, height) = (r.right - r.left, r.bottom - r.top);
-            if width <= 0 || height <= 0 {
-                return None;
-            }
-            let screen = GetDC(None);
-            let dc = CreateCompatibleDC(Some(screen));
-            let info = BITMAPINFO {
-                bmiHeader: BITMAPINFOHEADER {
-                    biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
-                    biWidth: width,
-                    // negative: top-down rows
-                    biHeight: -height,
-                    biPlanes: 1,
-                    biBitCount: 32,
-                    biCompression: BI_RGB.0,
-                    ..Default::default()
-                },
-                ..Default::default()
-            };
-            let mut bits: *mut core::ffi::c_void = std::ptr::null_mut();
-            let bitmap = CreateDIBSection(Some(dc), &info, DIB_RGB_COLORS, &mut bits, None, 0);
-            let result = match bitmap {
-                Ok(bitmap) if !bits.is_null() => {
-                    let old = SelectObject(dc, bitmap.into());
-                    // PW_RENDERFULLCONTENT: what the compositor has for it, which is the wallpaper
-                    let drawn = PrintWindow(shell, dc, PRINT_WINDOW_FLAGS(2)).as_bool();
-                    let len = (width * height * 4) as usize;
-                    let copy = drawn.then(|| std::slice::from_raw_parts(bits as *const u8, len).to_vec());
-                    SelectObject(dc, old);
-                    let _ = DeleteObject(bitmap.into());
-                    copy.map(|bgra| Desktop { left: r.left, top: r.top, width, height, bgra })
-                }
-                _ => None,
-            };
-            let _ = DeleteDC(dc);
-            ReleaseDC(None, screen);
-            result
+            // PW_RENDERFULLCONTENT: what the compositor has for it, which is the wallpaper
+            picture(r.left, r.top, r.right - r.left, r.bottom - r.top, |dc, _| PrintWindow(shell, dc, PRINT_WINDOW_FLAGS(2)).as_bool())
         }
     }
 
-    /// The wallpaper's colour at a screen point.
+    /// A part of the screen as it is drawn now, every window and the frame's glass included: one copy, a few
+    /// milliseconds even for a whole monitor.
+    pub fn screen(area: &Rect) -> Option<Picture> {
+        picture(area.x, area.y, area.width, area.height, |dc, screen| unsafe {
+            BitBlt(dc, 0, 0, area.width, area.height, Some(screen), area.x, area.y, SRCCOPY | CAPTUREBLT).is_ok()
+        })
+    }
+
+    /// The colour at a screen point, if the picture has it.
     pub fn rgb(&self, x: i32, y: i32) -> Option<[u8; 3]> {
         let (px, py) = (x - self.left, y - self.top);
         if px < 0 || py < 0 || px >= self.width || py >= self.height {
@@ -125,40 +102,72 @@ impl Desktop {
         Some([self.bgra[i + 2], self.bgra[i + 1], self.bgra[i]])
     }
 
-    /// A square of it, as RGBA rows, from a screen point; `None` if any of it is outside.
-    pub fn patch(&self, x: i32, y: i32, w: i32, h: i32) -> Option<Vec<u8>> {
-        let mut out = Vec::with_capacity((w * h * 4) as usize);
+    /// A rectangle of it from a screen point, as RGB rows; `None` if any of it is outside.
+    pub fn pixels(&self, x: i32, y: i32, w: i32, h: i32) -> Option<Vec<[u8; 3]>> {
+        let mut out = Vec::with_capacity((w * h) as usize);
         for yy in y..y + h {
             for xx in x..x + w {
-                let [r, g, b] = self.rgb(xx, yy)?;
-                out.extend_from_slice(&[r, g, b, 255]);
+                out.push(self.rgb(xx, yy)?);
             }
         }
         Some(out)
     }
+
+    /// The mean colour at these screen points, leaving out any the picture does not have; `None` if it has none.
+    pub fn mean(&self, points: &[(i32, i32)]) -> Option<[u8; 3]> {
+        let (mut r, mut g, mut b, mut n) = (0u32, 0u32, 0u32, 0u32);
+        for c in points.iter().filter_map(|&(x, y)| self.rgb(x, y)) {
+            r += c[0] as u32;
+            g += c[1] as u32;
+            b += c[2] as u32;
+            n += 1;
+        }
+        (n > 0).then(|| [(r / n) as u8, (g / n) as u8, (b / n) as u8])
+    }
+}
+
+/// Means, variances and covariance of two runs.
+fn moments(a: &[f64], b: &[f64]) -> (f64, f64, f64, f64, f64) {
+    let n = a.len().max(1) as f64;
+    let (ma, mb) = (a.iter().sum::<f64>() / n, b.iter().sum::<f64>() / n);
+    let (mut cov, mut va, mut vb) = (0.0, 0.0, 0.0);
+    for (x, y) in a.iter().zip(b) {
+        cov += (x - ma) * (y - mb);
+        va += (x - ma) * (x - ma);
+        vb += (y - mb) * (y - mb);
+    }
+    (ma, mb, va / n, vb / n, cov / n)
 }
 
 /// Whether two runs of colours are the same picture (one may be seen through a tint: a uniform change of brightness
 /// and colour), judged by how their lightness rises and falls together. Two flat runs are the same; a flat run and a
 /// varied one are not.
+///
+/// A few points may disagree and it still is: the run seen on the screen goes through the margin, where the ambient
+/// scene's motes drift, and against a dark wallpaper one bright mote was enough to undo the whole of it (measured: the
+/// secondary monitor's corners fell back to a flat colour at every look). So the points that fit the tint worst, a
+/// fifth of them, are set aside before judging; a picture that is not the same fits badly everywhere.
 pub fn lines_up(seen: &[[u8; 3]], drawn: &[[u8; 3]]) -> bool {
     let luma = |c: &[u8; 3]| 0.299 * c[0] as f64 + 0.587 * c[1] as f64 + 0.114 * c[2] as f64;
-    let a: Vec<f64> = seen.iter().map(luma).collect();
-    let b: Vec<f64> = drawn.iter().map(luma).collect();
-    if a.len() != b.len() || a.len() < 4 {
+    let mut a: Vec<f64> = seen.iter().map(luma).collect();
+    let mut b: Vec<f64> = drawn.iter().map(luma).collect();
+    if a.len() != b.len() || a.len() < 5 {
         return false;
     }
-    let mean = |v: &[f64]| v.iter().sum::<f64>() / v.len() as f64;
-    let (ma, mb) = (mean(&a), mean(&b));
-    let (mut cov, mut va, mut vb) = (0.0, 0.0, 0.0);
-    for (x, y) in a.iter().zip(&b) {
-        cov += (x - ma) * (y - mb);
-        va += (x - ma) * (x - ma);
-        vb += (y - mb) * (y - mb);
-    }
-    let n = a.len() as f64;
+    // how the seen lightness follows the drawn (the tint), fitted to all of them, then without the worst fifth
+    let (ma, mb, _, vb, cov) = moments(&a, &b);
+    let slope = if vb > 1e-9 { cov / vb } else { 0.0 };
+    let mut order: Vec<usize> = (0..a.len()).collect();
+    order.sort_by(|&i, &j| {
+        let r = |k: usize| (a[k] - (ma + slope * (b[k] - mb))).abs();
+        r(i).total_cmp(&r(j))
+    });
+    order.truncate(a.len() - a.len() / 5);
+    a = order.iter().map(|&i| a[i]).collect();
+    b = order.iter().map(|&i| b[i]).collect();
+    let (ma, mb, va, vb, cov) = moments(&a, &b);
     // nearly flat: within a couple of levels either way
-    let (flat_a, flat_b) = (va / n < 6.0, vb / n < 6.0);
+    let (flat_a, flat_b) = (va < 6.0, vb < 6.0);
     if flat_a || flat_b {
         return flat_a && flat_b && (ma - mb).abs() < 60.0;
     }
@@ -185,44 +194,53 @@ mod tests {
     }
 
     #[test]
-    fn the_desktop_picture_can_be_had() {
-        // whatever the wallpaper is, the shell draws it, as big as the desktop
-        let d = Desktop::capture().expect("the desktop draws itself");
-        assert!(d.width > 0 && d.height > 0 && d.bgra.len() == (d.width * d.height * 4) as usize);
-        assert!(d.rgb(d.left, d.top).is_some() && d.patch(d.left, d.top, 4, 4).is_some_and(|p| p.len() == 64));
+    fn a_few_motes_drifting_through_the_margin_do_not_undo_it() {
+        // a dark starry wallpaper, flat but for a star or two, seen through glass
+        let mut drawn = vec![[20u8, 22, 38]; 48];
+        drawn[10] = [180, 180, 200];
+        drawn[30] = [150, 150, 170];
+        let mut seen: Vec<[u8; 3]> = drawn.iter().map(|c| [c[0] / 2 + 12, c[1] / 2 + 12, c[2] / 2 + 20]).collect();
+        // and three motes of the ambient scene, bright, where the wallpaper is dark
+        for i in [5, 22, 41] {
+            seen[i] = [230, 230, 240];
+        }
+        assert!(lines_up(&seen, &drawn), "the same picture, motes and all");
+        // the picture in the wrong place (shifted along the margin) is still not
+        let shifted: Vec<[u8; 3]> = (0..48).map(|i| seen[(i + 17) % 48]).collect();
+        assert!(!lines_up(&shifted, &drawn));
+        // nor is a varied run against another varied run
+        let ramp: Vec<[u8; 3]> = (0..48).map(|i| [(i * 5) as u8, (i * 5) as u8, (i * 5) as u8]).collect();
+        let other: Vec<[u8; 3]> = (0..48).map(|i| [((i * 37) % 240) as u8; 3]).collect();
+        assert!(!lines_up(&other, &ramp));
     }
 
     #[test]
-    fn a_point_off_every_screen_has_no_colour() {
-        assert_eq!(mean_colour(&[(-90_000, -90_000)]), None);
-        assert_eq!(mean_colour(&[]), None);
+    fn the_desktop_picture_can_be_had() {
+        // whatever the wallpaper is, the shell draws it, as big as the desktop
+        let d = Picture::desktop().expect("the desktop draws itself");
+        assert!(d.width > 0 && d.height > 0 && d.bgra.len() == (d.width * d.height * 4) as usize);
+        assert!(d.rgb(d.left, d.top).is_some() && d.pixels(d.left, d.top, 4, 4).is_some_and(|p| p.len() == 16));
+    }
+
+    #[test]
+    fn a_picture_has_only_what_it_was_taken_of() {
+        let p = Picture { left: 10, top: 20, width: 2, height: 1, bgra: vec![3, 2, 1, 0, 30, 20, 10, 0] };
+        assert_eq!(p.rgb(10, 20), Some([1, 2, 3]));
+        assert_eq!(p.rgb(11, 20), Some([10, 20, 30]));
+        assert_eq!(p.rgb(12, 20), None);
+        assert_eq!(p.mean(&[(10, 20), (11, 20), (500, 500)]), Some([5, 11, 16]));
+        assert_eq!(p.mean(&[(-90_000, -90_000)]), None);
+        assert_eq!(p.pixels(10, 20, 3, 1), None, "a rectangle partly outside it");
     }
 
     /// Needs a desktop to read: not there while the screen is locked.
     #[test]
     #[ignore]
-    fn a_point_on_the_screen_has_one() {
-        // whatever is at the origin, it is a colour
-        assert!(mean_colour(&[(0, 0), (1, 1), (2, 2)]).is_some());
-    }
-
-    /// A look at the live screen: does the desktop picture line up with what is seen in the margin beside each corner
-    /// of the primary monitor's opening (10, 44, 1900 by 1026 on this machine)?
-    #[test]
-    #[ignore]
-    fn live_corners_line_up() {
-        let d = Desktop::capture().expect("desktop");
-        let (x, y, w, h, d_out) = (10, 44, 1900, 1026, 5);
-        let (right, bottom) = (x + w - 1, y + h - 1);
-        for (name, cx, cy, sx, sy) in [("tl", x, y, 1, 1), ("tr", right, y, -1, 1), ("br", right, bottom, -1, -1), ("bl", x, bottom, 1, -1)] {
-            let mut pts = Vec::new();
-            for a in (12..60).step_by(2) {
-                pts.push((cx + sx * a, cy - sy * d_out));
-                pts.push((cx - sx * d_out, cy + sy * a));
-            }
-            let seen: Vec<[u8; 3]> = colours_at(&pts).into_iter().flatten().collect();
-            let drawn: Vec<[u8; 3]> = pts.iter().filter_map(|&(px, py)| d.rgb(px, py)).collect();
-            println!("{name}: {} points, lines up: {}", seen.len(), lines_up(&seen, &drawn));
-        }
+    fn the_screen_can_be_copied_quickly() {
+        let area = Rect { x: 0, y: 0, width: 1920, height: 1080 };
+        let t = std::time::Instant::now();
+        let shot = Picture::screen(&area).expect("a picture of the screen");
+        println!("a copy of {}x{} in {:?}", area.width, area.height, t.elapsed());
+        assert!(shot.rgb(5, 5).is_some());
     }
 }

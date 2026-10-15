@@ -63,8 +63,6 @@ const App = lazy((): Loaded => {
       return animated(import("./features/menubar/MenuBarApp").then((m) => m.MenuBarApp));
     case "frame":
       return plain(import("./features/frame/FrameApp").then((m) => m.FrameApp));
-    case "framecorners":
-      return plain(import("./features/frame/FrameCornersApp").then((m) => m.FrameCornersApp));
     case "mission":
       return animated(import("./features/mission/MissionApp").then((m) => m.MissionApp));
     case "start":

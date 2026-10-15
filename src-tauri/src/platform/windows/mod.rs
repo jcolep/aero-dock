@@ -2,6 +2,7 @@ pub mod accessibility;
 pub mod anchor;
 pub mod appaudio;
 pub mod appbar;
+pub mod corners;
 pub mod apps;
 #[cfg(test)]
 mod complab;

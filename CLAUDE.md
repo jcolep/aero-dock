@@ -28,7 +28,7 @@ Where things live:
   glass, media, radios, the frame's shaper).
 - `src-tauri/src/core/`: settings (a struct per group, `sanitize`, tests), paths, the trace.
 - `src/features/<area>/`: a React app per window, picked by `?window=` (dock, menubar,
-  start, settings, frame, framecorners, mission, ...).
+  start, settings, frame, mission, ...).
 - `src/engine/`: what the pages share (glass in `backdrop/`, motion, sound, tooltips, type).
 - `src/ipc/`: the typed command list, and the settings types that mirror Rust's.
 - `scripts/offscreen/`: the off-screen test harness and its scenarios.
@@ -40,6 +40,7 @@ Where things live:
   "Frosted glass (rebuilt)" at the end). The menu bar's and the Control Center's were
   checked live by recording the screen. The dock's works, but the owner keeps it off:
   on their 75 Hz Dell it felt laggy. To come back to.
+- **Frame corners** were rebuilt natively (see "Frame corners (native)" at the end), tested live on the Dell.
 - **The optimisation pass** (the owner's whole-codebase request) is under way: see
   "Optimisation pass" at the end for what was measured, changed and learned.
 
@@ -191,14 +192,9 @@ Say plainly in a report when something native was not seen.
   bar and dock register no appbars (`appbar::reserve` records a claim); the shell
   stacks appbars per edge in registration order, and a later query would push the
   bar inside the frame's strip.
-- **Rounded app corners are the app's own window region** (`SetWindowRgn`,
-  `platform/windows/shaper.rs`), not a drawn overlay (that looked scuffed and
-  dark). The region is read back and re-applied, because custom-chrome apps clear
-  their own, and abandoned for a window that keeps removing it. Apps run as
-  administrator cannot be shaped. GDI quirks: `CreateRoundRectRgn` is one pixel
-  short on the right and bottom (ask for right+1, bottom+1) and a zero ellipse is
-  an empty region.
-- **Never leave a window shaped**: regions come off on disable and on quit.
+- **Rounded app corners are native pieces laid over them**, not anything done to the app's window: see "Frame
+  corners (native)" near the end. GDI quirks for the ring's region: `CreateRoundRectRgn` is one pixel short on the
+  right and bottom (ask for right+1, bottom+1) and a zero ellipse is an empty region.
 - **Activating the menu bar window flashed it pale** (Windows repaints the frame
   on every `WM_NCACTIVATE`). Fixed in `dock_window::keep_caption_off` by passing
   `WM_NCACTIVATE` on with `lParam = -1`. A real click still makes the bar the
@@ -488,14 +484,9 @@ hotkeys taking focus, Narrator reading the bars, a visible taskbar.
 - End Task: `platform/windows/endtask.rs` (`end_task` command); shell/session processes are protected (their windows are asked to close), a Store app is ended through the process inside its frame, never the frame host. `dock.middleClick` = `endTask` | `close`.
 - The dock's symbols: `GlyphFilters.tsx` (SVG filters, in px) + `html[data-icon-style]` rules in dock.css; plain = no filter. Menu bar icons are still flat on purpose.
 - Island motion: `islandMotion(preset, "pill" | "card", speed, width)` in presets.ts returns motion targets, so a leave turns round from where the arrival had got to. `animations.island` (Rust list `AnimationSettings::ISLAND`). The peek (`MediaPeek.tsx`) is a `.mb-panel.mb-peek` with the menu's CSS animation switched off.
-- **No window regions any more.** `shaper.rs` only watches (which maximised window fills each opening, and `cover_wanted` 330 ms after it arrived: Windows' maximise animation); the corners window (`frame-corners`) is clipped by `corner_region` to the four pieces outside the opening's curve and draws the colour read by `corner_colours` (`screenpick.rs`, `GetPixel` on the screen: a few pixels of margin either side of each corner) with per-corner clip paths. `clear_old_regions` takes off the regions an older version left on maximised windows. Not verified live with a maximise: ask before running a native test that maximises a window.
 - Roll cells: `--roll-h` is rounded to whole device pixels; `scripts/offscreen/clock.mjs` checks it at 100/150/200%.
 - The dock window is declared with `"create": false` in tauri.conf.json and made in `setup` with `from_config(...).data_directory(...)`: a config window can only be given a data folder *relative* to the app's local data folder, never the portable one (checked by looking at the `--user-data-dir` of the msedgewebview2 processes: there must be exactly one folder, `data\webview\EBWebView`).
-- Frame corners, take two: a maximised window is drawn exactly in the opening, whatever `DWMWA_EXTENDED_FRAME_BOUNDS` says (File Explorer reports 8px more at the top: its resize border, which is not drawn; checked pixel by pixel, and cropping it changes nothing). So the pieces cover the opening's corners (`cover_rect` = the opening). Colours are read mid-margin (`pad / 2` out, clear of the glass border and the menu bar) and again every 1.5 s while covering (`start_repaint`), so a new wallpaper is picked up. With the glass border on, the pieces draw its arc (`BevelGradient` is shared with the ring).
 - **Quick native build without the CLI:** `cargo build --release --features tauri/custom-protocol` (plain `cargo build --release` makes a build that loads pages from the dev server: every window shows an error page). Stop the running copy before copying the exe over it.
-- Corner pieces show the **real wallpaper** under the margin's glass: `screenpick::Desktop::capture` asks Progman to draw itself (`PrintWindow`, `PW_RENDERFULLCONTENT`, ~50 ms for the whole desktop, no windows, no icons here) and `corner_patches` sends each corner's square as RGBA; the page lays `.frame-glass` over it. Each corner first checks its patch lines up with the margin as seen (`lines_up`: lightness correlation along the margin), else the flat colour. Re-taken only when the margin colours change or the pieces move, on a background thread. On the primary the desktop picture is screen-aligned 1:1 (checked live: `cargo test --lib live_corners_line_up -- --ignored --nocapture`); the secondary could not be checked (windows over its margins), hence the per-corner check. Page divides Rust's pixels by `devicePixelRatio`.
-- Corners are decided **per corner** (`shaper::corners_held`): the window on top at each corner of the opening (z-order, visible bounds) holds it if it is maximised and fills the opening, or if its own corner is within 4px of that corner (snapped to a side or a quarter). The mask goes to the page (`CornerPaint.mask`) and the region. Hooks: location change and foreground (z-order changes without moving).
-- The wallpaper is looked at again only when **`HKCU\Control Panel\Desktop` changes** (`watch_wallpaper`, `RegNotifyChangeKeyValue`, then 1.5 s for the fade), or the pieces move. The old 1.5 s colour polling is gone: the ambient scene's motes in the margin made it think the wallpaper had changed, and a mote could fail the alignment check, so corners flicked between wallpaper and flat colour. The alignment check now gets three tries 120 ms apart.
 - Type: `--font-text` (SF Pro Text), `--font-display` (h1/h2, big desktop clock/temperature), `--font-rounded` (dock labels, volume pill, media pill, glass tips), falling back to bundled Inter; set in global.css.
 
 ## Frosted glass (rebuilt): the compositor's blur
@@ -555,3 +546,40 @@ Tools (all off screen unless said):
   (`h.errors()`).
 - Process CPU is noisy on the owner's busy machine (the same setup read 13% then 9%); compare over 30 s and repeat. `dwm.exe`
   cannot be read.
+
+## Frame corners (native, October 2026)
+A maximised (or side- or quarter-snapped) app's corners in the opening are square; the frame lays a piece of the
+margin over each, so the app looks rounded. Nothing is done to the app's window.
+- **Drawing** (`platform/windows/corners.rs`): four layered windows per monitor (class `AeroDockCorner`: layered,
+  click-through, topmost, tool window, no activate), each `radius + 4` px square in its corner of the opening, painted
+  with `UpdateLayeredWindow` from a bitmap `render()` draws pixel by pixel: the ground (the wallpaper under the piece,
+  or a flat colour), the margin's glass over it, the glass border (band, bright outer hairline, dark inner one), cut by
+  the signed distance to the opening's rounded rectangle (exact anti-aliasing). Drawn again only when its inputs
+  change; raised to the top only when it comes in. Replaced the `framecorners` web window (two renderer processes,
+  ~67 MB, and a page that had to wake and render on every show).
+- **Look**: the glass colour is the frame page's own computed `.frame-glass` fill, reported by `FrameApp` with
+  `report_frame_glass`; the border's light uses the same stops as `BevelGradient` (`corners::BEVEL`: keep in step).
+  Checked against the web version on the Dell: mean difference 1.3 grey levels; the curve's inner edge is a little
+  softer (the page's clip let the dark line reach half a pixel over the app).
+- **Grounds** (`frame.rs`: `grounds_for`, `look_under`): looked at off the main thread when a monitor's opening is
+  first laid out, so a piece is ready before it is wanted, and again when the wallpaper changes (`watch_wallpaper`).
+  The desktop's own picture (`Picture::desktop`, Progman's `PrintWindow`) is checked against one copy of the screen
+  round the opening (`Picture::screen`, a `BitBlt`: 27 ms for 1920x1080; `GetPixel` per point took ~4 s) with
+  `lines_up`, which sets aside the fifth of points that fit worst (the ambient scene's motes broke every look on the
+  Samsung). A corner that does not line up uses the margin's colour and is looked at again 3, 6, 9 s later, by itself.
+- **Which corners** (`shaper.rs`): the window on top at each corner point (z-order, DWM visible bounds) holds it if it
+  is maximised and fits the opening (`NEAR` 24 px), or its own corner is within 4 px. Click-through windows
+  (`WS_EX_TRANSPARENT`: overlays) and tool windows are not "on top"; a window covering its whole monitor
+  (`fullscreen`) holds none, decided per window, so a fullscreen video on one monitor leaves the other's corners alone.
+  (The old global `SHQueryUserNotificationState` watcher hid every monitor's corners for any fullscreen app and for a
+  screen-sized overlay: a cause of corners going missing.) `COVER_DELAY` is 100 ms: the piece is in place before
+  Windows' maximise animation lands (~300 ms on the Dell), so the square corner is never seen; over an empty corner a
+  piece draws exactly what the ring does there (measured: mean 1.5-3.8 levels, invisible).
+- **Light path**: the shaper's changes, finished looks, glass reports and wallpaper changes call `corners_later`
+  (pieces only, from `PLACED`), not the full `layout_later` (strips, ring).
+- **Live tests on the primary monitor** (with the app running and the frame on; they make and move windows of their
+  own, and read the screen): `powershell -File scripts/native/corners-live.ps1 probe 5` (states: maximised, restored,
+  snapped, quarters, side by side, a window over a corner, an invisible overlay, a fullscreen window, minimised and
+  back, quick toggles: 230 checks), `timing 10` (is a square corner ever seen after a maximise: 0 of 40), `apps <png>`
+  (Notepad, Explorer, Calculator, Settings, Paint, Terminal, Edge: maximised, snapped, small), `shot <png>` (a picture
+  of the four corners, for comparing looks). Startup with a window already maximised: pieces in ~3 s (was 7 s).

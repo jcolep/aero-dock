@@ -5,9 +5,9 @@ import { readFileSync, existsSync } from "node:fs";
 import { startHarness } from "./harness.mjs";
 const [,, out, win = "menubar", secs = "10"] = process.argv;
 const mine = existsSync("dist-portable/data/settings.json") ? JSON.parse(readFileSync("dist-portable/data/settings.json", "utf8")) : null;
-const ready = { menubar: ".menubar", dock: ".dock-icon", frame: ".frame-root", framecorners: "#root", start: ".st-root" }[win] ?? "#root";
+const ready = { menubar: ".menubar", dock: ".dock-icon", frame: ".frame-root", start: ".st-root" }[win] ?? "#root";
 const pins = ["Notes", "Mail", "Maps", "Edge", "Code", "Teams"].map((name, i) => ({ id: `p${i}`, kind: "app", path: `C:\\Tools\\${name}.exe`, name, icon: null, children: [] }));
-const h = await startHarness({ out, window: win, viewport: win === "frame" || win === "framecorners" ? [1920, 1036] : [1920, 700], settings: (s) => { if (mine) Object.assign(s, mine); if (win === "dock") s.pinned = pins; } });
+const h = await startHarness({ out, window: win, viewport: win === "frame" ? [1920, 1036] : [1920, 700], settings: (s) => { if (mine) Object.assign(s, mine); if (win === "dock") s.pinned = pins; } });
 try {
   await h.open(ready);
   await h.sleep(3000);

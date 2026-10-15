@@ -6,12 +6,13 @@
  * middle neither draws nor takes clicks (see commands/frame.rs). What is drawn
  * here is the glass: the theme's colour as a flat translucent body, exactly the
  * menu bar's, and the ambient scene in the four bands of the margin, as in the
- * menu bar. The thin fringe that smooths a shaped app's corners is the other
- * page, FrameCornersApp.
+ * menu bar. The pieces laid over a maximised app's corners are drawn natively
+ * (platform/windows/corners.rs); this page tells them what colour its glass is.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { applyAppearance } from "../../engine/themes/applyTheme";
+import { ipc } from "../../ipc/commands";
 import { useSettings } from "../../state/settingsStore";
 import { StripScene } from "../menubar/BarScene";
 import { fitShape, openingPath, ringPath } from "./frameGeometry";
@@ -56,6 +57,14 @@ export function FrameApp() {
     if (settings) applyAppearance(settings, null, "dock");
   }, [settings]);
 
+  // the corner pieces lay this same glass over the wallpaper, so they are told what it is: what the stylesheet makes
+  // of the theme's colour and the tint, as drawn (Rust ignores a repeat)
+  const glass = useRef<SVGPathElement>(null);
+  useEffect(() => {
+    const fill = glass.current && getComputedStyle(glass.current).fill;
+    if (fill) ipc.reportFrameGlass(fill).catch(() => undefined);
+  });
+
   if (!settings) return null;
   const f = settings.frame;
   const shape = fitShape(w, h, f.padding, f.cornerRadius);
@@ -72,7 +81,7 @@ export function FrameApp() {
       {/* flat, as the menu bar's body is: the same colour at the same strength,
           so the two read as one material */}
       <svg className="frame-body" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
-        <path className="frame-glass" d={ringPath(shape)} fillRule="evenodd" />
+        <path ref={glass} className="frame-glass" d={ringPath(shape)} fillRule="evenodd" />
         {edge > 0 && (
           <>
             <defs>

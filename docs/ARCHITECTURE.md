@@ -240,24 +240,14 @@ maximised apps in from the screen edges with rounded corners. Four pieces:
   every ordinary window and clipped by Rust to the margin (`ring_region`).
   `FrameApp` draws the glass and plays the ambient scene in four small canvases,
   one per band, so nothing is drawn where it could not be seen.
-- *The shaped window.* The corners are the app's own: `platform/windows/shaper.rs`
-  finds each monitor's topmost maximised window (`EnumWindows` z-order, `IsZoomed`,
-  `DWMWA_EXTENDED_FRAME_BOUNDS` for its visible bounds) and gives it a window
-  region (`SetWindowRgn`) that is the opening, rounded. Nothing is drawn over the
-  app, so there is no border and no seam: the ring's glass shows through the cut
-  corners. A WinEvent hook on location changes plus a slow timer keep it current;
-  a window that stops being maximised, or the feature switching off, or quitting,
-  gets its shape back (`unshape_all`). Apps run as administrator refuse the call
-  and stay square. The region is checked, not trusted: it is read back
-  (`region_in_place`), put again if a program removed it, and abandoned for that
-  window if it keeps doing so.
-- *The fringe.* A window region is stepped, so a thin window (`FrameCornersApp`,
-  kept on top, clipped to a few pixels along each arc, shown only while the app on
-  top is shaped) draws the margin colour with a smooth edge over the step. Hidden
-  while a fullscreen app runs.
-- *One shape.* Both pages draw the path from `frameGeometry.ts` and Rust clips
-  each to its part of it, so they always meet. The clamping there mirrors
-  `geometry` in `frame.rs`; keep them in step. GDI quirks handled in `round_rect`:
+- *The corner pieces.* A maximised app fills the opening exactly, and its corners are square. Nothing is done to its
+  window: `platform/windows/shaper.rs` says which corners of each opening have an app's corner in them (a maximised
+  window, one snapped to a side or a quarter; never a fullscreen one or a click-through overlay), from WinEvent hooks
+  on location and foreground changes, and `platform/windows/corners.rs` lays a piece of the margin over each: a small
+  layered window, on top and clicked through, drawn pixel by pixel with the wallpaper under it (the desktop's own
+  picture, checked against the screen), the margin's glass (its colour reported by the frame's page) and the glass
+  border, anti-aliased along the opening's curve. The app looks rounded and sits behind the frame.- *One shape.* The ring draws the path from `frameGeometry.ts`, the pieces the same rounded rectangle in Rust, so they
+  always meet. The clamping there mirrors `geometry` in `frame.rs`; keep them in step. GDI quirks handled in `round_rect`:
   `CreateRoundRectRgn` is a pixel short on the right and bottom, and a zero
   ellipse yields an empty region.
 

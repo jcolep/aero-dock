@@ -14,12 +14,11 @@
 //!   ordinary window, clipped to the margin so that the opening in the middle
 //!   neither draws nor takes clicks. The page draws the glass and the scene in
 //!   it.
-//! * **The corner pieces.** A maximised app's corners are square, and nothing is done to the app's window. A second
-//!   small window, kept on top, is clipped to the four little pieces of each corner of the opening that are outside
-//!   its rounded edge, and draws the margin's colour there, anti-aliased along the curve, so the app's corners are
-//!   behind the frame and it looks to have rounded ones (see `platform/windows/shaper.rs`, which says when an app
-//!   fills the opening, and `corner_colours`, which reads what the margin looks like beside each corner). It is
-//!   hidden while a fullscreen app, game or video is running.
+//! * **The corner pieces.** A maximised app's corners are square, and nothing is done to the app's window. Over each
+//!   corner of the opening that an app's corner is in, a piece of the margin is laid: four small native windows per
+//!   monitor, on top, drawn pixel by pixel with what the margin is there (the wallpaper under its glass, and the glass
+//!   border), anti-aliased along the opening's curve (see `platform/windows/corners.rs`, which draws them, and
+//!   `platform/windows/shaper.rs`, which says which corners are held: a fullscreen window holds none).
 //! * **The hook.** The menu bar and dock tell the frame when how much they
 //!   claim changes, and it lays out again.
 
@@ -27,11 +26,10 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use parking_lot::Mutex;
-use serde::Serialize;
 use tauri::{AppHandle, Manager, WebviewWindow};
 use windows::Win32::Foundation::HWND;
 use windows::Win32::Graphics::Gdi::{
-    CombineRgn, CreateRectRgn, CreateRoundRectRgn, DeleteObject, HRGN, RGN_DIFF, RGN_OR,
+    CombineRgn, CreateRectRgn, CreateRoundRectRgn, DeleteObject, HRGN, RGN_DIFF,
 };
 
 use crate::commands::dock::on_main_thread;
@@ -39,18 +37,19 @@ use crate::core::settings::{DockEdge, Settings, SettingsStore};
 use crate::core::{AeroError, AeroResult};
 use crate::platform::windows::appbar::{self, Owner};
 use crate::platform::windows::monitors::{enumerate_monitors, MonitorInfoEx, Rect};
+use crate::platform::windows::corners::{self, Ground};
+use crate::platform::windows::screenpick::Picture;
 use crate::platform::windows::shaper::{self, Opening};
 use crate::platform::windows::{anchor, dock_window};
 
 const RING_PREFIX: &str = "frame-";
-const CORNERS_PREFIX: &str = "framecorners-";
 
 /// The edges, in the order the per-edge arrays here use.
 const EDGES: [DockEdge; 4] = [DockEdge::Top, DockEdge::Right, DockEdge::Bottom, DockEdge::Left];
 
 /// Whether a window label belongs to the frame.
 pub fn is_frame_label(label: &str) -> bool {
-    label.starts_with(RING_PREFIX) || label.starts_with(CORNERS_PREFIX)
+    label.starts_with(RING_PREFIX)
 }
 
 /// The part of a monitor's device name a window label can hold.
@@ -60,10 +59,6 @@ fn tail(monitor_name: &str) -> String {
 
 fn ring_label(monitor_name: &str) -> String {
     format!("{RING_PREFIX}{}", tail(monitor_name))
-}
-
-fn corners_label(monitor_name: &str) -> String {
-    format!("{CORNERS_PREFIX}{}", tail(monitor_name))
 }
 
 /// Where the frame goes on one monitor, in physical pixels.
@@ -128,51 +123,16 @@ unsafe fn ring_region(g: &Geometry) -> HRGN {
     }
 }
 
-/// How far inside the ideal curve the corner pieces' window reaches, in pixels. The page draws each piece anti-aliased
-/// along the ideal curve, and a pixel only blends if the window has it, so the window has to take in the pixels the
-/// curve passes through: a pixel or two inside it, which is where the app's square corner has to be hidden anyway.
-const OVERLAP: i32 = 2;
-
-/// The four corner pieces of a window's rectangle (`app`, in the corner window's own coordinates) as a region: in
-/// each corner, what is outside its rounded edge and inside its square one. A maximised app's square corners are
-/// there, and the corner window draws the margin's colour over them. Nothing else is in it, so the rest of the
-/// window takes no clicks and draws nothing. Empty when the corners are square.
-unsafe fn corner_region(app: &Rect, radius: i32, mask: u8) -> HRGN {
-    unsafe {
-        let pieces = CreateRectRgn(0, 0, 0, 0);
-        if radius <= 0 {
-            return pieces;
-        }
-        // each corner's square, as far along each edge as the curve reaches
-        let reach = radius + OVERLAP;
-        let (left, top, right, bottom) = (app.x, app.y, app.x + app.width, app.y + app.height);
-        let squares = [(left, top), (right - reach, top), (right - reach, bottom - reach), (left, bottom - reach)];
-        for (i, (x, y)) in squares.into_iter().enumerate() {
-            if mask & shaper::CORNERS[i] == 0 {
-                continue;
-            }
-            let square = CreateRectRgn(x, y, x + reach, y + reach);
-            CombineRgn(Some(pieces), Some(pieces), Some(square), RGN_OR);
-            let _ = DeleteObject(square.into());
-        }
-        // less what is inside the curve: the same curve a couple of pixels in from every edge, so that the pieces take
-        // in the pixels the drawn curve passes through
-        let inside = round_rect(left + OVERLAP, top + OVERLAP, right - OVERLAP, bottom - OVERLAP, (radius - OVERLAP).max(0));
-        CombineRgn(Some(pieces), Some(pieces), Some(inside), RGN_DIFF);
-        let _ = DeleteObject(inside.into());
-        pieces
-    }
-}
 /// Hidden anchor windows by monitor name, as raw handles, in the order of
 /// [`EDGES`].
 static ANCHORS: Mutex<Vec<(String, [isize; 4])>> = Mutex::new(Vec::new());
 
 /// The last geometry placed for each monitor, so a repeat is skipped.
+/// Where each monitor's frame was last laid out, and its scale: what the corner pieces are placed from between layouts.
+static PLACED: std::sync::LazyLock<Mutex<HashMap<String, (Geometry, f64)>>> = std::sync::LazyLock::new(|| Mutex::new(HashMap::new()));
+
 static LAST: std::sync::LazyLock<Mutex<HashMap<String, Geometry>>> =
     std::sync::LazyLock::new(|| Mutex::new(HashMap::new()));
-
-/// Whether a fullscreen app is up, which hides the corners.
-static FULLSCREEN: AtomicBool = AtomicBool::new(false);
 
 fn anchors_for(monitor_name: &str) -> Option<[isize; 4]> {
     ANCHORS.lock().iter().find(|(n, _)| n == monitor_name).map(|(_, a)| *a)
@@ -221,20 +181,18 @@ fn frame_windows(app: &AppHandle) -> Vec<WebviewWindow> {
         .collect()
 }
 
-/// Place the frame on one monitor: its strips, then its two windows. Main
-/// thread only.
+/// Place the frame on one monitor: its strips, its ring and its corner pieces. Main thread only.
 fn layout_monitor(
     app: &AppHandle,
     monitor: &MonitorInfoEx,
     settings: &Settings,
 ) -> AeroResult<Option<Opening>> {
-    let ring = window_of(app, &ring_label(&monitor.name));
-    let corners = window_of(app, &corners_label(&monitor.name));
-    let (Some(ring), Some(corners)) = (ring, corners) else {
+    let Some(ring) = window_of(app, &ring_label(&monitor.name)) else {
         // built a moment from now; the next layout places it
+        crate::trace!("frame {}: no ring yet", monitor.name);
         return Ok(None);
     };
-    let (Some(ring_hwnd), Some(corners_hwnd)) = (hwnd_of(&ring), hwnd_of(&corners)) else {
+    let Some(ring_hwnd) = hwnd_of(&ring) else {
         return Ok(None);
     };
     let Some(anchors) = ensure_anchors(&monitor.name) else {
@@ -263,185 +221,216 @@ fn layout_monitor(
     }
 
     let changed = LAST.lock().get(&monitor.name) != Some(&g);
-    // the two windows are not the dock's: they are never in the way of what is
-    // under them, and keep their title bars off like the menu bar does
-    for hwnd in [ring_hwnd, corners_hwnd] {
-        dock_window::apply_dock_styles(hwnd)?;
-        dock_window::keep_caption_off(hwnd);
-    }
+    // the ring is not the dock's: it is never in the way of what is under it, and keeps its title bar off like the
+    // menu bar does
+    dock_window::apply_dock_styles(ring_hwnd)?;
+    dock_window::keep_caption_off(ring_hwnd);
     if changed {
-        // the corner pieces are put in when there is a window to cover (below)
-        for (hwnd, region) in [(ring_hwnd, unsafe { ring_region(&g) }), (corners_hwnd, unsafe { CreateRectRgn(0, 0, 0, 0) })] {
-            dock_window::set_bounds(hwnd, g.x, g.y, g.w, g.h)?;
-            dock_window::set_region(hwnd, region)?;
-        }
+        dock_window::set_bounds(ring_hwnd, g.x, g.y, g.w, g.h)?;
+        dock_window::set_region(ring_hwnd, unsafe { ring_region(&g) })?;
         LAST.lock().insert(monitor.name.clone(), g);
-        PIECES.lock().retain(|(l, _)| l != corners.label());
     }
     // shown only now it is in place, so it never appears in the wrong spot
     if !ring.is_visible().unwrap_or(false) {
         let _ = ring.show();
     }
     let _ = ring.set_always_on_bottom(true);
-    let _ = corners.set_always_on_top(true);
-    // The corner pieces are over the corners of the opening that have an app's own corner in them (a maximised app
-    // holds all four, one snapped to a side two, one snapped to a quarter one), once it has arrived there.
-    let mask = if FULLSCREEN.load(Ordering::Relaxed) || g.radius <= 0 { 0 } else { shaper::cover_mask(&monitor.name) };
     let opening = Rect { x: g.x + g.pad, y: g.y + g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad };
-    if mask != 0 {
-        // in the corner window's own coordinates
-        let rel = Rect { x: g.pad, y: g.pad, width: opening.width, height: opening.height };
-        let wanted = (rel, g.radius, mask);
-        if PIECES.lock().iter().find(|(l, _)| l == corners.label()).map(|(_, p)| *p) != Some(wanted) {
-            let region = unsafe { corner_region(&rel, g.radius, mask) };
-            if dock_window::set_region(corners_hwnd, region).is_ok() {
-                let mut pieces = PIECES.lock();
-                pieces.retain(|(l, _)| l != corners.label());
-                pieces.push((corners.label().to_string(), wanted));
-            }
-        }
-        // off this thread: a first look at the wallpaper under the pieces takes a few tens of milliseconds
-        {
-            let (app, label, pad, radius) = (app.clone(), corners.label().to_string(), g.pad, g.radius);
-            std::thread::spawn(move || paint_corners(&app, &label, &opening, &rel, pad, radius, mask, false));
-        }
-        let mut covering = COVERING.lock();
-        covering.retain(|c| c.label != corners.label());
-        covering.push(Covering { label: corners.label().to_string(), screen: opening, rel, pad: g.pad, radius: g.radius, mask });
-    } else {
-        COVERING.lock().retain(|c| c.label != corners.label());
-    }
-    set_corners_visible(&corners, mask != 0);
-    Ok(Some(Opening {
-        monitor: monitor.name.clone(),
-        screen: monitor.bounds,
-        rect: Rect { x: g.x + g.pad, y: g.y + g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad },
-        radius: g.radius,
-    }))
+    PLACED.lock().insert(monitor.name.clone(), (g, monitor.scale));
+    place_corners(app, &monitor.name, monitor.scale, settings, &g);
+    Ok(Some(Opening { monitor: monitor.name.clone(), screen: monitor.bounds, rect: opening, radius: g.radius }))
 }
 
-/// What the margin looks like beside each corner of a window's rectangle, as `#rrggbb`, in the order top left, top
-/// right, bottom right, bottom left: a few pixels of it, on either side of the corner, read off the screen. The piece
-/// of a corner is drawn in this colour, so it matches the glass whatever the wallpaper is there (a single colour for
-/// the whole screen is a poor match for any wallpaper that is not flat).
-fn corner_colours(app: &Rect, pad: i32, radius: i32) -> Option<[String; 4]> {
+/// Lay the corner pieces over the corners of the opening that have an app's own corner in them (a maximised app holds
+/// all four, one snapped to a side two, one snapped to a quarter one), once it has arrived there, and take them off
+/// the others. What is under them is looked at ahead of time, so a piece is ready the moment it is wanted. Main
+/// thread only.
+fn place_corners(app: &AppHandle, name: &str, scale: f64, settings: &Settings, g: &Geometry) {
+    let opening = Rect { x: g.x + g.pad, y: g.y + g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad };
+    let pieces = [0, 1, 2, 3].map(|corner| corners::Piece { corner, opening, radius: g.radius, frame_top: g.y, frame_height: g.h });
+    let grounds = grounds_for(app, name, &pieces, g.pad);
+    let mask = if g.radius <= 0 { 0 } else { shaper::cover_mask(name) };
+    crate::trace!("corners {name}: held {mask:04b}, ground {}", if grounds.is_some() { "ready" } else { "not yet" });
+    match grounds {
+        Some(grounds) if mask != 0 => corners::show(name, pieces, &grounds, &look(settings, scale, g.pad), mask),
+        // nothing to cover, or what is under the pieces is still being looked at (they are laid when it has been)
+        _ => corners::hide(name),
+    }
+}
+
+/// How the margin looks, for the pieces: the glass as the frame's page draws it, and the border as wide as the ring
+/// draws it (FrameApp: as wide as asked, but never past the margin, nor here past the curve).
+fn look(settings: &Settings, scale: f64, pad: i32) -> corners::Look {
+    let f = &settings.frame;
+    let pad_css = (pad as f64 / scale).round() as u32;
+    let border = if f.glass_border && pad_css > 1 { f.border_width.min(pad_css - 1).min(f.corner_radius) } else { 0 };
+    corners::Look { glass: *GLASS.lock(), border: (border as f64 * scale).round() as f32 }
+}
+
+/// The margin's glass, as the frame's page reported it (see `report_frame_glass`).
+static GLASS: Mutex<Option<[f32; 4]>> = Mutex::new(None);
+
+/// The frame's page says what colour its glass is (the computed fill of `.frame-glass`), so that the corner pieces
+/// lay the very same over the wallpaper. Sent when the page starts and whenever the theme or tint changes.
+#[tauri::command]
+pub fn report_frame_glass(app: AppHandle, colour: String) {
+    let parsed = corners::parse_css_colour(&colour);
+    let changed = std::mem::replace(&mut *GLASS.lock(), parsed) != parsed;
+    if changed {
+        corners_later(&app);
+    }
+}
+
+/// What the margin looks like beside each corner of the opening, in the order top left, top right, bottom right,
+/// bottom left: a few pixels of it, on either side of the corner, in a picture of the screen (the glass over the
+/// wallpaper). A piece whose wallpaper cannot be had is drawn in this.
+fn corner_colours(seen: &Picture, opening: &Rect, pad: i32, radius: i32) -> [[u8; 3]; 4] {
     // in the middle of the margin: clear of the glass border along the opening's edge, and of whatever is beyond the
     // margin (the menu bar, the dock, the screen edge)
     let d = (pad / 2).max(2);
-    let (x, y) = (app.x, app.y);
-    let (right, bottom) = (app.x + app.width - 1, app.y + app.height - 1);
+    let (x, y) = (opening.x, opening.y);
+    let (right, bottom) = (opening.x + opening.width - 1, opening.y + opening.height - 1);
     // along the margin from the corner, past the curve
     let along = [radius + 6, radius + 14, radius + 22];
-    let hex = |points: Vec<(i32, i32)>| {
-        crate::platform::windows::screenpick::mean_colour(&points).map(|[r, g, b]| format!("#{r:02x}{g:02x}{b:02x}"))
-    };
-    Some([
-        hex(along.iter().flat_map(|a| [(x + a, y - d), (x - d, y + a)]).collect())?,
-        hex(along.iter().flat_map(|a| [(right - a, y - d), (right + d, y + a)]).collect())?,
-        hex(along.iter().flat_map(|a| [(right - a, bottom + d), (right + d, bottom - a)]).collect())?,
-        hex(along.iter().flat_map(|a| [(x + a, bottom + d), (x - d, bottom - a)]).collect())?,
-    ])
+    let mean = |pts: Vec<(i32, i32)>| seen.mean(&pts).unwrap_or([0, 0, 0]);
+    [
+        mean(along.iter().flat_map(|a| [(x + a, y - d), (x - d, y + a)]).collect()),
+        mean(along.iter().flat_map(|a| [(right - a, y - d), (right + d, y + a)]).collect()),
+        mean(along.iter().flat_map(|a| [(right - a, bottom + d), (right + d, bottom - a)]).collect()),
+        mean(along.iter().flat_map(|a| [(x + a, bottom + d), (x - d, bottom - a)]).collect()),
+    ]
 }
 
-/// A square of the wallpaper under a corner piece, in the page's own coordinates, as RGBA rows.
-#[derive(Debug, Clone, PartialEq, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Patch {
-    pub x: i32,
-    pub y: i32,
-    pub width: i32,
-    pub height: i32,
-    pub rgba: Vec<u8>,
-}
-
-/// What the corner window's page draws: where the window it covers is, in the page's own coordinates, how round its
-/// corners are, the colour of the margin beside each, and, where it could be had and lines up with what is seen,
-/// the wallpaper under each (which the page lays the margin's own glass over, so the piece is the margin).
-#[derive(Debug, Clone, PartialEq, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct CornerPaint {
-    pub colours: [String; 4],
-    pub rect: Rect,
-    pub radius: i32,
-    /// Which corners to draw: bits of `shaper::CORNERS` (top left, top right, bottom right, bottom left).
-    pub mask: u8,
-    pub patches: Vec<Option<Patch>>,
-}
-
-/// How far along each edge a piece reaches: the curve, and a little more. The page uses the same.
-fn piece_reach(rect: &Rect, radius: i32) -> i32 {
-    (radius + 4).min(rect.width.min(rect.height) / 2)
-}
-
-/// The wallpaper under each corner piece of `screen` (the opening on the screen), placed in the page by `rel`, for
-/// each corner whose wallpaper lines up with what is seen in the margin beside it (checked along the margin, so a
-/// monitor the shell lays out differently, or a corner with a window over its margin, falls back to the colour).
-fn corner_patches(screen: &Rect, rel: &Rect, pad: i32, radius: i32) -> Vec<Option<Patch>> {
-    use crate::platform::windows::screenpick::{colours_at, lines_up, Desktop};
-    let Some(desk) = Desktop::capture() else { return vec![None, None, None, None] };
-    let reach = piece_reach(screen, radius);
+/// What is under each of a monitor's pieces: the wallpaper, where the desktop's own picture of it lines up with the
+/// margin as seen beside the corner (checked along the margin, so a monitor the shell lays out differently falls back
+/// to the colour), or the margin's colour as seen. The second value says whether any corner fell back: that may only
+/// have been a window over the margin at the time, so it is looked at again later.
+fn look_under(pieces: &[corners::Piece; 4], pad: i32) -> ([Ground; 4], bool) {
+    use crate::platform::windows::screenpick::lines_up;
+    let opening = pieces[0].opening;
+    let radius = pieces[0].radius;
+    // the opening and its margin: everything looked at is in here
+    let area = Rect { x: opening.x - pad, y: opening.y - pad, width: opening.width + 2 * pad, height: opening.height + 2 * pad };
     let d = (pad / 2).max(2);
-    let (x, y) = (screen.x, screen.y);
-    let (right, bottom) = (screen.x + screen.width - 1, screen.y + screen.height - 1);
-    let (dx, dy) = (rel.x - screen.x, rel.y - screen.y);
-    [(x, y, 1, 1), (right, y, -1, 1), (right, bottom, -1, -1), (x, bottom, 1, -1)]
-        .into_iter()
-        .map(|(cx, cy, sx, sy)| {
-            let mut pts = Vec::new();
-            for a in (radius + 2..radius + 50).step_by(2) {
-                pts.push((cx + sx * a, cy - sy * d));
-                pts.push((cx - sx * d, cy + sy * a));
+    let (x, y) = (opening.x, opening.y);
+    let (right, bottom) = (opening.x + opening.width - 1, opening.y + opening.height - 1);
+    // along the margin beside each corner, both ways, past the curve
+    let margin: [Vec<(i32, i32)>; 4] = [(x, y, 1, 1), (right, y, -1, 1), (right, bottom, -1, -1), (x, bottom, 1, -1)].map(|(cx, cy, sx, sy)| {
+        (radius + 2..radius + 50).step_by(2).flat_map(|a| [(cx + sx * a, cy - sy * d), (cx - sx * d, cy + sy * a)]).collect()
+    });
+    let desk = Picture::desktop();
+    let mut flat = [[0u8; 3]; 4];
+    let mut lined = [false; 4];
+    // a few looks, a moment apart: a mote of the ambient scene drifting through the margin can upset one
+    for attempt in 0..3 {
+        if attempt > 0 {
+            std::thread::sleep(std::time::Duration::from_millis(120));
+        }
+        let Some(seen) = Picture::screen(&area) else { continue };
+        if attempt == 0 {
+            flat = corner_colours(&seen, &opening, pad, radius);
+        }
+        let Some(desk) = &desk else { break };
+        for k in 0..4 {
+            if !lined[k] {
+                let (a, b): (Vec<_>, Vec<_>) = margin[k].iter().filter_map(|&(px, py)| Some((seen.rgb(px, py)?, desk.rgb(px, py)?))).unzip();
+                lined[k] = lines_up(&a, &b);
             }
-            // a few looks, a moment apart: a mote of the ambient scene drifting through the margin can upset one
-            let lined_up = (0..3).any(|attempt| {
-                if attempt > 0 {
-                    std::thread::sleep(std::time::Duration::from_millis(120));
+        }
+        if lined.iter().all(|l| *l) {
+            break;
+        }
+    }
+    crate::trace!("corners: opening {opening:?}, pad {pad}, radius {radius}, desktop {}, lined up {lined:?}", desk.is_some());
+    let mut fell_back = false;
+    let grounds = [0, 1, 2, 3].map(|k| {
+        let (px, py) = pieces[k].origin();
+        let size = pieces[k].size();
+        match desk.as_ref().filter(|_| lined[k]).and_then(|desk| desk.pixels(px, py, size, size)) {
+            Some(rgb) => Ground::Wallpaper(rgb),
+            None => {
+                fell_back = true;
+                Ground::Flat(flat[k])
+            }
+        }
+    });
+    (grounds, fell_back)
+}
+/// What is under a monitor's pieces, as last looked at, for the opening and radius it was looked at for.
+struct Grounds {
+    key: (Rect, i32),
+    grounds: Option<[Ground; 4]>,
+    /// A corner fell back to the colour; looked at again (a few times, further apart) when the pieces are next laid.
+    fell_back: bool,
+    tries: u32,
+    next_try: std::time::Instant,
+    /// A look is under way.
+    busy: bool,
+}
+
+static GROUNDS: std::sync::LazyLock<Mutex<HashMap<String, Grounds>>> = std::sync::LazyLock::new(|| Mutex::new(HashMap::new()));
+
+/// What is under a monitor's pieces, if it has been looked at for this opening; and if it has not (or a corner fell
+/// back and it is time to look again), a look started off this thread (the desktop drawn whole, some tens of
+/// milliseconds), after which the pieces are placed again.
+fn grounds_for(app: &AppHandle, monitor: &str, pieces: &[corners::Piece; 4], pad: i32) -> Option<[Ground; 4]> {
+    let key = (pieces[0].opening, pieces[0].radius);
+    let now = std::time::Instant::now();
+    let mut all = GROUNDS.lock();
+    let entry = all
+        .entry(monitor.to_string())
+        .or_insert_with(|| Grounds { key, grounds: None, fell_back: false, tries: 0, next_try: now, busy: false });
+    if entry.key != key {
+        *entry = Grounds { key, grounds: None, fell_back: false, tries: 0, next_try: now, busy: false };
+    }
+    let look_again = entry.grounds.is_none() || (entry.fell_back && entry.tries < 6 && now >= entry.next_try);
+    if look_again && !entry.busy && pieces[0].radius > 0 {
+        entry.busy = true;
+        let (app, monitor, pieces) = (app.clone(), monitor.to_string(), *pieces);
+        crate::trace!("corners {monitor}: looking at what is under them");
+        let spawned = std::thread::Builder::new().name("frame-corner-look".into()).spawn(move || {
+            let (grounds, fell_back) = look_under(&pieces, pad);
+            crate::trace!("corners {monitor}: looked (fell back to a colour: {fell_back})");
+            let again = {
+                let mut all = GROUNDS.lock();
+                match all.get_mut(&monitor) {
+                    Some(entry) if entry.key == key => {
+                        entry.busy = false;
+                        entry.tries += 1;
+                        let wait = std::time::Duration::from_secs(3 * entry.tries as u64);
+                        entry.next_try = std::time::Instant::now() + wait;
+                        entry.grounds = Some(grounds);
+                        entry.fell_back = fell_back;
+                        (fell_back && entry.tries < 6).then_some(wait)
+                    }
+                    Some(entry) => {
+                        entry.busy = false;
+                        None
+                    }
+                    None => None,
                 }
-                let pairs: Vec<([u8; 3], [u8; 3])> = colours_at(&pts)
-                    .into_iter()
-                    .zip(&pts)
-                    .filter_map(|(seen, &(px, py))| Some((seen?, desk.rgb(px, py)?)))
-                    .collect();
-                let (seen, drawn): (Vec<_>, Vec<_>) = pairs.into_iter().unzip();
-                lines_up(&seen, &drawn)
-            });
-            if !lined_up {
-                return None;
+            };
+            corners_later(&app);
+            // A corner fell back to the colour, perhaps because a window was crossing the margin (the shell moves the
+            // snapped and maximised ones when the frame takes its strips): look again a little later, whether or not
+            // anything else lays the frame out by then.
+            if let Some(wait) = again {
+                std::thread::sleep(wait);
+                corners_later(&app);
             }
-            // the square from the corner, inward
-            let px = if sx > 0 { cx } else { cx - reach + 1 };
-            let py = if sy > 0 { cy } else { cy - reach + 1 };
-            desk.patch(px, py, reach, reach).map(|rgba| Patch { x: px + dx, y: py + dy, width: reach, height: reach, rgba })
-        })
-        .collect()
+        });
+        if spawned.is_err() {
+            entry.busy = false;
+        }
+    }
+    entry.grounds.clone()
 }
 
-/// What was last sent to each corner window, by its label, for a page that starts after it was sent.
-static PAINT: Mutex<Vec<(String, CornerPaint)>> = Mutex::new(Vec::new());
-
-/// The pieces last put into each corner window: the rectangle they are round, the radius and which corners.
-static PIECES: Mutex<Vec<(String, Pieces)>> = Mutex::new(Vec::new());
-
-/// The rectangle the pieces are round, the radius, and which corners.
-type Pieces = (Rect, i32, u8);
-
-/// What each corner window is covering now, so that its colours can be looked at again while it does.
-struct Covering {
-    label: String,
-    screen: Rect,
-    rel: Rect,
-    pad: i32,
-    radius: i32,
-    mask: u8,
-}
-
-static COVERING: Mutex<Vec<Covering>> = Mutex::new(Vec::new());
-
-/// Wait for the wallpaper to change, for as long as the app runs, and when it has, look at what is under the covered
-/// corners again. Windows writes the wallpaper's settings under `HKCU\Control Panel\Desktop` whenever it changes
-/// (a new picture from Personalisation, a slideshow moving on, Spotlight), so the registry is asked to say when that
-/// key changes, and nothing is done in between: no polling, and nothing the ambient scene drifting through the margin
-/// could be mistaken for.
+/// Wait for the wallpaper to change, for as long as the app runs, and when it has, look at what is under the corners
+/// again. Windows writes the wallpaper's settings under `HKCU\Control Panel\Desktop` whenever it changes (a new picture
+/// from Personalisation, a slideshow moving on, Spotlight), so the registry is asked to say when that key changes, and
+/// nothing is done in between: no polling, and nothing the ambient scene drifting through the margin could be
+/// mistaken for.
 fn watch_wallpaper(app: AppHandle) {
     use windows::core::w;
     use windows::Win32::System::Registry::{
@@ -460,58 +449,12 @@ fn watch_wallpaper(app: AppHandle) {
             }
             // the new wallpaper fades in over the old for about a second, and is written in several steps
             std::thread::sleep(std::time::Duration::from_millis(1500));
-            let now: Vec<(String, Rect, Rect, i32, i32, u8)> =
-                COVERING.lock().iter().map(|c| (c.label.clone(), c.screen, c.rel, c.pad, c.radius, c.mask)).collect();
-            for (label, screen, rel, pad, radius, mask) in now {
-                paint_corners(&app, &label, &screen, &rel, pad, radius, mask, true);
-            }
+            GROUNDS.lock().clear();
+            corners_later(&app);
         }
         let _ = RegCloseKey(key);
     });
 }
-/// The page asks for what it should draw when it starts (see `paint_corners`).
-#[tauri::command]
-pub fn frame_corner_colours(label: String) -> Option<CornerPaint> {
-    PAINT.lock().iter().find(|(l, _)| *l == label).map(|(_, p)| p.clone())
-}
-
-/// Give the corner window's page what to draw: where the opening is, which corners, and what is under each. What is
-/// under them (the wallpaper, and the margin's colour beside them) is looked at only when the pieces have moved or
-/// `fresh` asks for it (the wallpaper has changed): it is the desktop drawn whole, tens of milliseconds. `screen` is
-/// the opening on the screen, `rel` in the corner window.
-#[allow(clippy::too_many_arguments)]
-fn paint_corners(app: &AppHandle, label: &str, screen: &Rect, rel: &Rect, pad: i32, radius: i32, mask: u8, fresh: bool) {
-    use tauri::Emitter;
-    let previous = PAINT.lock().iter().find(|(l, _)| l == label).map(|(_, p)| p.clone());
-    let (colours, patches) = match previous {
-        Some(p) if !fresh && p.rect == *rel && p.radius == radius => (p.colours, p.patches),
-        _ => {
-            let Some(colours) = corner_colours(screen, pad, radius) else { return };
-            (colours, corner_patches(screen, rel, pad, radius))
-        }
-    };
-    let paint = CornerPaint { colours, rect: *rel, radius, mask, patches };
-    {
-        let mut held = PAINT.lock();
-        match held.iter_mut().find(|(l, _)| l == label) {
-            Some((_, old)) if *old == paint => return,
-            Some((_, old)) => *old = paint.clone(),
-            None => held.push((label.to_string(), paint.clone())),
-        }
-    }
-    let _ = app.emit_to(label, "frame://corners", paint);
-}
-/// Show or hide the corner window.
-fn set_corners_visible(corners: &WebviewWindow, visible: bool) {
-    let showing = corners.is_visible().unwrap_or(false);
-    if visible && !showing {
-        let _ = corners.show();
-        let _ = corners.set_always_on_top(true);
-    } else if !visible && showing {
-        let _ = corners.hide();
-    }
-}
-
 /// Lay out the frame on every monitor. Main thread only.
 pub fn layout_all(app: &AppHandle) {
     let settings = app.state::<SettingsStore>().get();
@@ -544,6 +487,28 @@ pub fn shutdown() {
     shaper::set_openings(Vec::new());
 }
 
+/// Place only the corner pieces again, from where each monitor's frame was last laid out: what is wanted when the
+/// corners held change (every maximise, restore and snap), when what is under them has been looked at, or when the
+/// glass changes colour. Nothing else of the frame (its strips, its ring) is touched. Main thread only.
+fn corners_all(app: &AppHandle) {
+    let settings = app.state::<SettingsStore>().get();
+    if !settings.frame.enabled {
+        return;
+    }
+    let placed: Vec<(String, Geometry, f64)> = PLACED.lock().iter().map(|(n, (g, s))| (n.clone(), *g, *s)).collect();
+    for (name, g, scale) in placed {
+        place_corners(app, &name, scale, &settings, &g);
+    }
+}
+
+/// Place the corner pieces again soon, on the main thread, without waiting.
+pub fn corners_later(app: &AppHandle) {
+    let handle = app.clone();
+    if let Err(e) = app.run_on_main_thread(move || corners_all(&handle)) {
+        log::warn!("could not queue the frame's corners: {e}");
+    }
+}
+
 /// Lay out the frame soon, on the main thread, without waiting.
 pub fn layout_later(app: &AppHandle) {
     let handle = app.clone();
@@ -552,57 +517,14 @@ pub fn layout_later(app: &AppHandle) {
     }
 }
 
-/// Set the frame up: have the menu bar and dock tell it when their claims
-/// change, and watch for fullscreen apps. Once, at startup.
+/// Set the frame up: have the menu bar and dock tell it when their claims change, and watch for the wallpaper changing.
+/// Once, at startup.
 pub fn init(app: &AppHandle) {
     let handle = app.clone();
     appbar::set_claims_hook(move || layout_later(&handle));
     watch_wallpaper(app.clone());
     let handle = app.clone();
-    shaper::set_changed_hook(move || layout_later(&handle));
-
-    let handle = app.clone();
-    let spawned = std::thread::Builder::new()
-        .name("frame-fullscreen".into())
-        .spawn(move || loop {
-            std::thread::sleep(std::time::Duration::from_millis(1500));
-            let enabled = handle.state::<SettingsStore>().get().frame.enabled;
-            if !enabled {
-                continue;
-            }
-            let now = fullscreen_app_running();
-            if FULLSCREEN.swap(now, Ordering::Relaxed) != now {
-                let h = handle.clone();
-                let _ = handle.run_on_main_thread(move || {
-                    // the corners come back by themselves on the next layout;
-                    // hiding is done here
-                    for w in frame_windows(&h) {
-                        if w.label().starts_with(CORNERS_PREFIX) {
-                            set_corners_visible(&w, !now);
-                        }
-                    }
-                });
-            }
-        });
-    if let Err(e) = spawned {
-        log::warn!("could not start the fullscreen watcher: {e}");
-    }
-}
-
-/// Whether the shell says a fullscreen app, a game or a presentation is up.
-fn fullscreen_app_running() -> bool {
-    use windows::Win32::UI::Shell::{
-        SHQueryUserNotificationState, QUNS_BUSY, QUNS_PRESENTATION_MODE,
-        QUNS_RUNNING_D3D_FULL_SCREEN,
-    };
-    match unsafe { SHQueryUserNotificationState() } {
-        Ok(state) => {
-            state == QUNS_BUSY
-                || state == QUNS_RUNNING_D3D_FULL_SCREEN
-                || state == QUNS_PRESENTATION_MODE
-        }
-        Err(_) => false,
-    }
+    shaper::set_changed_hook(move || corners_later(&handle));
 }
 
 static SYNCING: AtomicBool = AtomicBool::new(false);
@@ -637,6 +559,7 @@ pub async fn sync_frames(app: &AppHandle) {
 }
 
 async fn sync_once(app: &AppHandle) {
+    crate::trace!("frame: sync");
     let settings = app.state::<SettingsStore>().get();
     let monitors = match enumerate_monitors() {
         Ok(m) => m,
@@ -655,7 +578,7 @@ async fn sync_once(app: &AppHandle) {
     let wanted: Vec<String> = monitors.iter().map(|m| m.name.clone()).collect();
     for window in frame_windows(app) {
         let label = window.label().to_string();
-        let keep = wanted.iter().any(|n| label == ring_label(n) || label == corners_label(n));
+        let keep = wanted.iter().any(|n| label == ring_label(n));
         if !keep {
             let _ = window.destroy();
         }
@@ -670,14 +593,10 @@ async fn sync_once(app: &AppHandle) {
         let _ = on_main_thread(app, move || gone.iter().for_each(|n| drop_anchors(n))).await;
     }
     for name in &wanted {
-        for (label, page, on_top) in [
-            (ring_label(name), "frame", false),
-            (corners_label(name), "framecorners", true),
-        ] {
-            if app.get_webview_window(&label).is_none() {
-                if let Err(e) = build_window(app, &label, page, on_top).await {
-                    log::warn!("could not build {label}: {e}");
-                }
+        let label = ring_label(name);
+        if app.get_webview_window(&label).is_none() {
+            if let Err(e) = build_window(app, &label).await {
+                log::warn!("could not build {label}: {e}");
             }
         }
     }
@@ -688,6 +607,8 @@ async fn sync_once(app: &AppHandle) {
     let origins: Vec<(i32, i32)> = monitors.iter().map(|m| (m.bounds.x, m.bounds.y)).collect();
     let handle = app.clone();
     let placed = on_main_thread(app, move || {
+        // the pieces of monitors that went away
+        corners::forget_except(&wanted);
         appbar::set_frame_monitors(origins);
         if let Err(e) = crate::commands::menubar::position_menubar(&handle) {
             log::warn!("could not place the menu bar for the frame: {e}");
@@ -717,7 +638,9 @@ async fn take_down(app: &AppHandle, monitors: &[MonitorInfoEx]) {
     let names: Vec<String> = monitors.iter().map(|m| m.name.clone()).collect();
     let stale: Vec<String> = ANCHORS.lock().iter().map(|(n, _)| n.clone()).collect();
     let handle = app.clone();
+    GROUNDS.lock().clear();
     let done = on_main_thread(app, move || {
+        corners::forget_except(&[]);
         for name in stale.iter().chain(names.iter()) {
             drop_anchors(name);
         }
@@ -737,17 +660,15 @@ async fn take_down(app: &AppHandle, monitors: &[MonitorInfoEx]) {
     }
 }
 
-/// Build one of the frame's windows, hidden: transparent, undecorated, out of
-/// the taskbar and Alt-Tab. `on_top` is for the corners; the ring stays behind.
-async fn build_window(app: &AppHandle, label: &str, page: &str, on_top: bool) -> AeroResult<()> {
-    let url = format!("index.html?window={page}");
+/// Build a monitor's ring, hidden: transparent, undecorated, out of the taskbar and Alt-Tab, kept behind.
+async fn build_window(app: &AppHandle, label: &str) -> AeroResult<()> {
+    let url = "index.html?window=frame".to_string();
     let builder = tauri::WebviewWindowBuilder::new(app, label, tauri::WebviewUrl::App(url.into()))
         .title("")
         .inner_size(800.0, 600.0)
         .transparent(true)
         .decorations(false)
-        .always_on_top(on_top)
-        .always_on_bottom(!on_top)
+        .always_on_bottom(true)
         .skip_taskbar(true)
         .resizable(false)
         .maximizable(false)
@@ -833,52 +754,9 @@ mod tests {
         }
     }
 
-    #[test]
-    fn the_corner_pieces_are_what_a_square_corner_has_over_a_round_one_and_nothing_else() {
-        // a 1000x600 window, 20px margin, 30px corners: the opening is x 20..980, y 20..580, and its rounded corner
-        // is cut away from its square one in the first 30px or so along each edge
-        let g = geometry(&Rect { x: 0, y: 0, width: 1000, height: 600 }, [0; 4], 20, 30);
-        let opening = Rect { x: g.pad, y: g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad };
-        let pieces = unsafe { corner_region(&opening, g.radius, 0b1111) };
-        // the very corner of the opening's square is in the piece, at every corner
-        assert!(inside(pieces, 21, 21) && inside(pieces, 978, 21));
-        assert!(inside(pieces, 21, 578) && inside(pieces, 978, 578));
-        // on the curve itself: the pieces reach in as far as the pixels it passes through
-        assert!(inside(pieces, 29, 29) && inside(pieces, 971, 571));
-        // not well inside the curve, where the app is
-        assert!(!inside(pieces, 33, 33) && !inside(pieces, 45, 45) && !inside(pieces, 955, 555));
-        // not the margin, and not the opening's middle or its straight edges
-        assert!(!inside(pieces, 500, 5) && !inside(pieces, 5, 300) && !inside(pieces, 500, 300));
-        assert!(!inside(pieces, 500, 22) && !inside(pieces, 22, 300));
-        assert!(!inside(pieces, 500, 578) && !inside(pieces, 978, 300));
-        unsafe {
-            let _ = DeleteObject(pieces.into());
-        }
-    }    #[test]
-    fn the_pieces_follow_a_window_that_stands_off_the_opening() {
-        // File Explorer, maximised eight pixels higher than the opening: its corners are where it is
-        let app = Rect { x: 20, y: 12, width: 960, height: 568 };
-        let pieces = unsafe { corner_region(&app, 30, 0b1111) };
-        assert!(inside(pieces, 21, 13) && inside(pieces, 978, 13), "its own top corners");
-        assert!(!inside(pieces, 21, 21 + 40) && !inside(pieces, 500, 14), "and not its edge");
-        // the opening's own corner, below it, is the app's
-        assert!(!inside(pieces, 40, 40));
-        unsafe {
-            let _ = DeleteObject(pieces.into());
-        }
-    }
+    
 
-
-    #[test]
-    fn square_corners_have_no_pieces() {
-        let g = geometry(&Rect { x: 0, y: 0, width: 1000, height: 600 }, [0; 4], 20, 0);
-        let pieces = unsafe { corner_region(&Rect { x: 20, y: 20, width: 960, height: 560 }, g.radius, 0b1111) };
-        assert!(!inside(pieces, 21, 21) && !inside(pieces, 500, 21) && !inside(pieces, 500, 300));
-        unsafe {
-            let _ = DeleteObject(pieces.into());
-        }
-    }
-    #[test]
+        #[test]
     fn a_rounded_region_has_the_same_extent_as_a_plain_one() {
         // GDI leaves a rounded region's far column and row out; round_rect
         // allows for it, and for a corner with no size
@@ -907,12 +785,8 @@ mod tests {
     #[test]
     fn labels_are_valid_and_tell_the_ring_from_the_corners() {
         assert_eq!(ring_label("\\\\.\\DISPLAY2"), "frame-DISPLAY2");
-        assert_eq!(corners_label("\\\\.\\DISPLAY2"), "framecorners-DISPLAY2");
         assert!(is_frame_label("frame-DISPLAY1"));
-        assert!(is_frame_label("framecorners-DISPLAY1"));
         assert!(!is_frame_label("dock"));
         assert!(!is_frame_label("menubar"));
-        // the ring's prefix must not match the corners' label by accident
-        assert!(!ring_label("X").starts_with(CORNERS_PREFIX));
     }
 }

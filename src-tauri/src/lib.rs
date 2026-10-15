@@ -260,7 +260,7 @@ pub fn run() {
             commands::windows_cmd::minimize_window,
             commands::windows_cmd::close_window,
             commands::windows_cmd::end_task,
-            commands::frame::frame_corner_colours,
+            commands::frame::report_frame_glass,
             commands::windows_cmd::show_window_previews,
             commands::windows_cmd::hide_window_previews,
             commands::windows_cmd::peek_window,

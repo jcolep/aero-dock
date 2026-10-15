@@ -363,18 +363,6 @@ export interface AnimationSettings {
   island: string;
 }
 
-/** What the frame's corner window draws: where the window it covers is (in the corner window's own pixels), how round
- *  its corners are, and the colour of the margin beside each (top left, top right, bottom right, bottom left). */
-export interface CornerPaint {
-  colours: string[];
-  rect: { x: number; y: number; width: number; height: number };
-  radius: number;
-  /** Which corners to draw: 1 top left, 2 top right, 4 bottom right, 8 bottom left. */
-  mask: number;
-  /** The wallpaper under each piece (RGBA rows), where it lines up with what is seen; null where it does not. */
-  patches: ({ x: number; y: number; width: number; height: number; rgba: number[] } | null)[];
-}
-
 /** A frame of glass round the free space of every monitor, between the menu bar
  *  and the dock, that holds maximised apps in from the screen edges. */
 export interface FrameSettings {

@@ -10,9 +10,8 @@
 //! This worker only looks. Whenever a window moves, changes state or comes to the front (heard through WinEvent
 //! hooks), or every so often in case one was missed, it looks at each corner of each opening: the window on top
 //! there, if its own corner is in that corner of the opening (it is maximised, or snapped there), is to have it
-//! covered. A corner is covered a moment after that has become so (Windows takes about that long to animate a window
-//! into place, drawing it from a scaled picture with square corners, and a piece shown at once would be on its own
-//! in the empty space), and uncovered the moment it is not.
+//! covered. A corner is covered a moment after that has become so (`COVER_DELAY`: before Windows' animation brings
+//! the window there, so it never shows its square corner), and uncovered the moment it is not.
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Sender};
@@ -28,7 +27,7 @@ use windows::Win32::UI::Accessibility::{SetWinEventHook, HWINEVENTHOOK};
 use windows::Win32::UI::WindowsAndMessaging::{
     DispatchMessageW, EnumWindows, GetMessageW, GetWindowLongPtrW, GetWindowRect, GetWindowThreadProcessId,
     IsIconic, IsWindowVisible, IsZoomed, TranslateMessage, EVENT_OBJECT_LOCATIONCHANGE, EVENT_SYSTEM_FOREGROUND,
-    GWL_EXSTYLE, MSG, OBJID_WINDOW, WINEVENT_OUTOFCONTEXT, WINEVENT_SKIPOWNPROCESS, WS_EX_TOOLWINDOW,
+    GWL_EXSTYLE, MSG, OBJID_WINDOW, WINEVENT_OUTOFCONTEXT, WINEVENT_SKIPOWNPROCESS, WS_EX_TOOLWINDOW, WS_EX_TRANSPARENT,
 };
 
 use super::monitors::Rect;
@@ -68,6 +67,18 @@ pub fn fits(visible: &Rect, opening: &Rect) -> bool {
         && (bottom(visible) - bottom(opening)).abs() <= NEAR
 }
 
+/// Whether a window covers its whole monitor: a fullscreen video, game, slideshow or browser. It is over the frame,
+/// not in it, so it holds no corner, though on a monitor with little claimed at its edges it would be near enough the
+/// opening to pass for a maximised window. Decided for each window, so a video fullscreen on one monitor leaves the
+/// other monitor's corners as they are (the shell's own "a fullscreen app is running" is one answer for every monitor,
+/// and a screen-sized overlay also makes it say so).
+pub fn fullscreen(visible: &Rect, screen: &Rect) -> bool {
+    visible.x <= screen.x + 1
+        && visible.y <= screen.y + 1
+        && visible.x + visible.width >= screen.x + screen.width - 1
+        && visible.y + visible.height >= screen.y + screen.height - 1
+}
+
 /// The point of each corner of a rectangle, a couple of pixels in, in the order of `CORNERS`.
 fn corner_points(r: &Rect) -> [(i32, i32); 4] {
     let (l, t, rr, b) = (r.x + 2, r.y + 2, r.x + r.width - 3, r.y + r.height - 3);
@@ -90,9 +101,12 @@ fn contains(r: &Rect, p: (i32, i32)) -> bool {
     p.0 >= r.x && p.0 < r.x + r.width && p.1 >= r.y && p.1 < r.y + r.height
 }
 
-/// How long a corner has had a window's corner in it before it is covered. Windows takes about this long to animate a
-/// window into place.
-const COVER_DELAY: Duration = Duration::from_millis(330);
+/// How long a corner has had a window's corner in it before it is covered: long enough to let a window that only
+/// passes through (dragged across a corner) go by, and short enough that the piece is in place before Windows' own
+/// animation brings the window there (measured on the owner's Dell: the window's square corner first shows about
+/// 300 ms after it is maximised, and with 330 ms here it was seen for 80 to 100 ms each time). A piece that arrives
+/// before the window does is not seen: over the empty corner it draws exactly what the ring already draws there.
+const COVER_DELAY: Duration = Duration::from_millis(100);
 
 // ---- state ----
 
@@ -203,7 +217,11 @@ fn windows_on_screen(points: &[(i32, i32)]) -> Vec<Seen> {
             }
             let outer = rect_of(outer);
             let wanted = walk.points.iter().zip(&walk.covered).any(|(p, done)| !done && contains(&outer, *p));
-            if !wanted || GetWindowLongPtrW(hwnd, GWL_EXSTYLE) as u32 & WS_EX_TOOLWINDOW.0 != 0 {
+            // a tool window (a palette, a tray flyout) is not an app's window, and a window the pointer goes through
+            // is an overlay (a GPU's or a recorder's, a meeting's border round the screen, often the whole screen and
+            // drawing nothing): neither is the window on top at a corner
+            let ex = GetWindowLongPtrW(hwnd, GWL_EXSTYLE) as u32;
+            if !wanted || ex & (WS_EX_TOOLWINDOW.0 | WS_EX_TRANSPARENT.0) != 0 {
                 return true.into();
             }
             let mut cloaked = 0u32;
@@ -248,7 +266,13 @@ fn corners_held(opening: &Opening, windows: &[Seen]) -> u8 {
     for (i, point) in corner_points(&opening.rect).into_iter().enumerate() {
         // the window on top at that corner (the desktop, if nothing else, which does not hold it)
         let Some(top) = windows.iter().find(|w| contains(&w.visible, point)) else { continue };
-        let held = if top.maximised { fits(&top.visible, &opening.rect) } else { corner_snapped(&top.visible, &opening.rect, i) };
+        let held = if fullscreen(&top.visible, &opening.screen) {
+            false
+        } else if top.maximised {
+            fits(&top.visible, &opening.rect)
+        } else {
+            corner_snapped(&top.visible, &opening.rect, i)
+        };
         if held {
             mask |= CORNERS[i];
         }
@@ -472,6 +496,20 @@ mod tests {
         let floating = Seen { visible: Rect { x: OPENING.x - 30, y: OPENING.y - 20, width: 400, height: 300 }, maximised: false };
         let maximised = Seen { visible: OPENING, maximised: true };
         assert_eq!(corners_held(&opening(), &[floating, maximised]), 0b1110);
+    }
+
+    #[test]
+    fn a_fullscreen_window_holds_no_corner_even_where_it_is_near_the_opening() {
+        // a monitor with only the margin claimed: the opening is 10px in from every edge, so a fullscreen window's edges
+        // are within reach of the opening's
+        let screen = Rect { x: 1920, y: 0, width: 2560, height: 1440 };
+        let opening = Opening { monitor: "m".into(), screen, rect: Rect { x: 1930, y: 10, width: 2540, height: 1420 }, radius: 10 };
+        let video = Seen { visible: screen, maximised: true };
+        assert!(fits(&video.visible, &opening.rect), "near enough to pass for maximised");
+        assert_eq!(corners_held(&opening, &[video]), 0, "but it is over the frame, not in it");
+        // and a maximised one there still holds them all
+        let app = Seen { visible: opening.rect, maximised: true };
+        assert_eq!(corners_held(&opening, &[app]), 0b1111);
     }
 
     #[test]
