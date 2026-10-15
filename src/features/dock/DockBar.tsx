@@ -833,6 +833,9 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       // cascade's icons are timed from these (see dock.css)
       data-anim={animations.dockReveal}
       data-reveal={hidden ? "out" : "in"}
+      // how strongly the theme's colour tints the glass (clear.css, global.css): the dock's own, or the menu bar's put in
+      // the dock's terms (the bar's body is half the colour at its Tint, the dock's a third), so the two match
+      style={{ ["--dock-tint" as string]: settings.dock.tintLikeMenuBar ? (settings.menuBar.tint * 0.5) / 0.34 : (settings.dock.tint ?? 1) } as React.CSSProperties}
       onMouseEnter={() => setPointerInside(true)}
       onMouseLeave={() => {
         setPointerInside(false);

@@ -43,8 +43,9 @@ use windows_numerics::{Vector2, Vector3};
 const USE_HOST_BACKDROP: DWMWINDOWATTRIBUTE = DWMWINDOWATTRIBUTE(17);
 /// Any one number will do for the subclass that watches a page's window; it only has to be the same each time.
 const WATCH_ID: usize = 0xAE20_6A55;
-/// How long a piece of glass takes to come in, in 100 ns ticks: 140 ms. (It goes at once.)
-const FADE_IN: i64 = 140 * 10_000;
+/// How long a piece of glass takes to come in, in 100 ns ticks: 260 ms, eased out (quick at first, settling), so it
+/// blooms in as a menu lands rather than switching on. (It goes at once.)
+const FADE_IN: i64 = 260 * 10_000;
 /// How far past its edges each piece of glass reaches for what is behind it, in px.
 ///
 /// The compositor blurs what is behind the glass window within the box that holds everything drawn in it, and no
@@ -241,7 +242,8 @@ fn new_pane(compositor: &Compositor, root: &ContainerVisual) -> windows::core::R
 fn fade_in(compositor: &Compositor, visual: &SpriteVisual, to: f32) -> windows::core::Result<()> {
     let fade = compositor.CreateScalarKeyFrameAnimation()?;
     fade.InsertKeyFrame(0.0, 0.0)?;
-    fade.InsertKeyFrame(1.0, to.clamp(0.0, 1.0))?;
+    let ease = compositor.CreateCubicBezierEasingFunction(Vector2 { X: 0.22, Y: 1.0 }, Vector2 { X: 0.36, Y: 1.0 })?;
+    fade.InsertKeyFrameWithEasingFunction(1.0, to.clamp(0.0, 1.0), &ease)?;
     fade.SetDuration(TimeSpan { Duration: FADE_IN })?;
     visual.StartAnimation(&HSTRING::from("Opacity"), &fade)
 }

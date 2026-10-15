@@ -742,14 +742,15 @@ fn process_path(pid: u32) -> Option<String> {
 // ---------------------------------------------------------------------
 
 /// Bring a window to the foreground, restoring it if minimized.
-/// Uses the Alt-key trick so it works from a NOACTIVATE dock window.
+///
+/// Windows lets a process put a window in front only if it had the last input (among other rules), and the dock never
+/// takes the focus. When the first ask is refused, a mouse move of nothing at all is sent, which makes this process the
+/// one with the last input, and it is asked again. It used to be a synthetic tap of Alt, which did the same but is a
+/// keystroke the app sees: Office, File Explorer and others answered it by showing their keyboard shortcuts' badges
+/// over their buttons.
 pub fn activate_window(hwnd: isize) {
-    use windows::Win32::UI::Input::KeyboardAndMouse::{
-        keybd_event, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, VK_MENU,
-    };
-    use windows::Win32::UI::WindowsAndMessaging::{
-        IsIconic, SetForegroundWindow, ShowWindow, SW_RESTORE,
-    };
+    use windows::Win32::UI::Input::KeyboardAndMouse::{SendInput, INPUT, INPUT_0, INPUT_MOUSE, MOUSEEVENTF_MOVE, MOUSEINPUT};
+    use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, IsIconic, SetForegroundWindow, ShowWindow, SW_RESTORE};
     unsafe {
         let h = HWND(hwnd as *mut _);
         if !IsWindow(Some(h)).as_bool() {
@@ -758,11 +759,15 @@ pub fn activate_window(hwnd: isize) {
         if IsIconic(h).as_bool() {
             let _ = ShowWindow(h, SW_RESTORE);
         }
-        // Windows only lets the foreground process reassign foreground;
-        // a synthetic Alt press makes the shell treat us as eligible.
-        keybd_event(VK_MENU.0 as u8, 0, KEYBD_EVENT_FLAGS(0), 0);
+        if SetForegroundWindow(h).as_bool() && GetForegroundWindow() == h {
+            return;
+        }
+        let nothing = INPUT {
+            r#type: INPUT_MOUSE,
+            Anonymous: INPUT_0 { mi: MOUSEINPUT { dx: 0, dy: 0, mouseData: 0, dwFlags: MOUSEEVENTF_MOVE, time: 0, dwExtraInfo: 0 } },
+        };
+        SendInput(&[nothing], std::mem::size_of::<INPUT>() as i32);
         let _ = SetForegroundWindow(h);
-        keybd_event(VK_MENU.0 as u8, 0, KEYEVENTF_KEYUP, 0);
     }
 }
 

@@ -662,6 +662,23 @@ export function SettingsApp() {
               onChange={(v) => set((d) => void (d.dock.cornerRadius = v))}
             />
           )}
+          <AeroToggle
+            label="Tinted like the menu bar"
+            checked={dock.tintLikeMenuBar}
+            hint="The dock's glass takes the theme's colour as strongly as the menu bar's does (its Tint), so the dock, the bar and the frame read as one glass"
+            onChange={(v) => set((d) => void (d.dock.tintLikeMenuBar = v))}
+          />
+          {!dock.tintLikeMenuBar && (
+            <AeroSlider
+              label="Tint"
+              value={dock.tint}
+              min={0}
+              max={1.5}
+              step={0.05}
+              format={(v) => `${Math.round(v * 100)}%`}
+              onChange={(v) => set((d) => void (d.dock.tint = v))}
+            />
+          )}
           <SettingsSub>Behaviour</SettingsSub>
           <AeroSegmented<DockSettings["minimizeEffect"]>
             label="Minimise effect"

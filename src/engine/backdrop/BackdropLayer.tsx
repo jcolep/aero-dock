@@ -41,10 +41,24 @@ interface Props {
 /** How many frames a settling surface must stand still before its glass comes back. */
 const SETTLE_FRAMES = 3;
 
-/** Whether a finite animation is running on the element (an infinite one, a pulse say, is not travel). */
-function animating(el: HTMLElement): boolean {
-  return el.getAnimations().some((a) => a.playState === "running" && a.effect?.getComputedTiming().endTime !== Infinity);
+/** How long the finite animations running on the element have still to go, in ms (0: none; an infinite one, a pulse
+ *  say, is not travel). */
+function travelLeft(el: HTMLElement): number {
+  let left = 0;
+  for (const a of el.getAnimations()) {
+    if (a.playState !== "running") continue;
+    const t = a.effect?.getComputedTiming();
+    const end = Number(t?.endTime ?? 0);
+    if (!Number.isFinite(end)) continue;
+    left = Math.max(left, end - Number(t?.localTime ?? 0));
+  }
+  return left;
 }
+
+/** How near the end of its entrance a settling surface is when its glass comes in, in ms: by then the menu is all but
+ *  in its place and shape (the last of a wobble), the glass follows it there, and it is fading in as the menu lands
+ *  instead of after (it waited for the very end, and three still frames more, and that read as a delay, then a pop). */
+const LANDING_MS = 180;
 
 /** How much of the blur shows for a frost setting. */
 export function frostOpacity(blur: number): number {
@@ -133,7 +147,9 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer",
       still = key === seen ? still + 1 : 0;
       seen = key;
       quiet++;
-      const atRest = still >= SETTLE_FRAMES && !animating(host);
+      const left = travelLeft(host);
+      const leaving = host.dataset.leaving === "true";
+      const atRest = !leaving && ((still >= SETTLE_FRAMES && left === 0) || (left > 0 && left <= LANDING_MS));
       post(!settle || atRest ? look : null);
       // a settling surface that has not come back yet is watched until it does
       if (quiet < 20 || still < 20 || (settle && look.shown && last === "off")) raf = requestAnimationFrame(follow);

@@ -97,6 +97,8 @@ export function BarScene({ settings }: { settings: Settings }) {
   useEffect(() => {
     const onResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", onResize);
+    // a resize before this listener was there would otherwise be missed
+    onResize();
     return () => window.removeEventListener("resize", onResize);
   }, []);
   const width = Math.max(1, windowWidth - gap * 2);

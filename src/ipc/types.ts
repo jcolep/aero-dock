@@ -52,6 +52,10 @@ export interface DockSettings {
   minimizeEffect: "genie" | "scale" | "off";
   /** What a middle click on an icon does: end the app, or ask its windows to close. */
   middleClick: "endTask" | "close";
+  /** How strongly the theme's colour tints the dock's glass, 0 to 1.5 (1 = as the material has it). */
+  tint: number;
+  /** Tint the dock as the menu bar is tinted, so the dock, the bar and the frame read as one glass. */
+  tintLikeMenuBar: boolean;
 }
 
 /** How a surface is rendered. Both are Frutiger Aero; they differ in how

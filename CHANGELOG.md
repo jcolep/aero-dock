@@ -7,6 +7,13 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Fixed and added (October 15)
+
+- **Apps opened or brought forward from the dock no longer show their keyboard shortcut badges.** The dock pressed a hidden Alt key to be allowed to bring a window forward, and Office, File Explorer and others answer Alt by showing their shortcuts. It now sends a mouse move of nothing instead.
+- **The frame's glass border shows on all four sides again.** The frame's page could take its size before the window was made the size of the screen, and drew the border's right and bottom edges where they were clipped away.
+- **The frosted glass under the menu bar's dropdowns comes in as the menu lands,** and fades in softly (260 ms, eased), instead of popping in a moment after the menu had finished opening.
+- **A Tint for the dock,** and a switch to tint it like the menu bar, so the dock, the bar and the frame read as one glass.
+
 ### Frame corners, rebuilt
 
 - **The rounded corners over maximised and snapped apps are drawn natively.** Four tiny windows per monitor, drawn pixel by pixel, replace the web page that drew them. They are in place the moment they are wanted, look the same, and the two page processes they needed are gone (about 67 MB).

@@ -90,9 +90,11 @@ const panes = (h) => h.eval("window.__calls.filter((c) => c.cmd === 'set_glass_p
     const labels = (await panes(h)).filter((p) => p.id !== at.id);
     const byId = {};
     for (const p of labels) (byId[p.id] ??= []).push(p);
-    const ends = Object.values(byId).map((list) => ({ gone: !list.at(-1).shown, shapes: new Set(list.filter((p) => p.shown).map((p) => `${p.x},${p.y},${p.width},${p.height},${p.opacity}`)).size }));
+    // its glass came in as the label landed (the last moments of its spring), near its resting size, and never part way
+    // out (it goes the moment the label starts to leave)
+    const ends = Object.values(byId).map((list) => { const seen = list.filter((p) => p.shown); const rest = seen.at(-1); return { gone: !list.at(-1).shown, near: seen.every((p) => rest && Math.abs(p.width - rest.width) <= rest.width * 0.08 && Math.abs(p.height - rest.height) <= rest.height * 0.08) }; });
     check(ends.length > 0 && ends.every((e) => e.gone), `every label's glass is taken away with it (${JSON.stringify(ends)})`);
-    check(ends.every((e) => e.shapes <= 1), "and it was only ever where the label came to rest, never part way in or out");
+    check(ends.every((e) => e.near), `and it was only ever about where the label came to rest, never part way in or out (${JSON.stringify(ends)})`);
   } finally {
     h.close();
   }
@@ -188,7 +190,10 @@ for (const [window, ready, extra] of [["dock", ".dock-icon", ""], ["start", ".st
     const menu = (await panes(h)).filter((p) => !bar.has(p.id));
     const rest = await h.eval("(() => { const r = document.querySelector('.mb-menu').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; })()");
     const seen = menu.filter((p) => p.shown);
-    check(seen.length > 0 && seen.every((p) => Math.abs(p.width - rest.w) < 1 && Math.abs(p.height - rest.h) < 1 && Math.abs(p.y - rest.y) < 1), `the dropdown's glass came only once it was at rest, where it rests (${seen.length} reports, ${JSON.stringify(seen[0])})`);
+    // it comes in as the menu lands (the last of its entrance), following it the rest of the way, and ends where it rests
+    const last = seen.at(-1);
+    check(seen.length > 0 && Math.abs(last.width - rest.w) < 1 && Math.abs(last.height - rest.h) < 1 && Math.abs(last.y - rest.y) < 1, `the dropdown's glass ends exactly where the menu rests (${JSON.stringify(last)})`);
+    check(seen.every((p) => Math.abs(p.width - rest.w) <= rest.w * 0.06 && Math.abs(p.height - rest.h) <= rest.h * 0.06), `and it only came in once the menu was all but landed: within 6% of its size (${seen.length} reports, the first ${JSON.stringify(seen[0])})`);
     await h.move(700, 600);
     await h.sleep(2500);
     const after = (await panes(h)).filter((p) => !bar.has(p.id));

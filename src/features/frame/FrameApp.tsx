@@ -22,8 +22,12 @@ import "./frame.css";
 export function useWindowSize() {
   const [size, setSize] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
   useEffect(() => {
-    const onResize = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    const onResize = () =>
+      setSize((was) => (was.w === window.innerWidth && was.h === window.innerHeight ? was : { w: window.innerWidth, h: window.innerHeight }));
     window.addEventListener("resize", onResize);
+    // and once more now: the window is made small and then sized to the screen, and a resize between the first render
+    // and this listener would be missed, leaving the border drawn for the old size (its right and bottom edges lost)
+    onResize();
     return () => window.removeEventListener("resize", onResize);
   }, []);
   return size;

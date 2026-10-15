@@ -106,6 +106,10 @@ pub struct DockSettings {
     /// End Task does, so unsaved work is lost), `close` asks its windows to close the way their own close button
     /// would (one with unsaved work still asks first).
     pub middle_click: String,
+    /// How strongly the theme's colour tints the dock's glass, 0 to 1.5 (1 = as the material has it).
+    pub tint: f32,
+    /// Tint the dock as the menu bar is tinted (its Tint), so the dock, the bar and the frame read as one glass.
+    pub tint_like_menu_bar: bool,
 }
 
 impl Default for DockSettings {
@@ -140,6 +144,8 @@ impl Default for DockSettings {
             attention_bounce: true,
             middle_click: "endTask".into(),
             minimize_effect: "genie".into(),
+            tint: 1.0,
+            tint_like_menu_bar: false,
         }
     }
 }
@@ -791,6 +797,7 @@ impl Settings {
         d.magnification_scale = d.magnification_scale.clamp(1.0, 2.0);
         d.magnification_lift = if d.magnification_lift.is_finite() { d.magnification_lift.clamp(0.0, 0.5) } else { 0.12 };
         d.magnification_reach = if d.magnification_reach.is_finite() { d.magnification_reach.clamp(1.5, 4.5) } else { 2.6 };
+        d.tint = if d.tint.is_finite() { d.tint.clamp(0.0, 1.5) } else { 1.0 };
         d.floating_margin = d.floating_margin.min(64);
         d.padding = d.padding.clamp(2, 24);
         d.indicator_gap = d.indicator_gap.min(16);
@@ -1185,7 +1192,9 @@ mod tests {
         let mut s = Settings::default();
         s.dock.magnification_lift = f32::NAN;
         s.dock.magnification_reach = 90.0;
+        s.dock.tint = 9.0;
         s.sanitize();
+        assert_eq!(s.dock.tint, 1.5);
         assert!((s.dock.magnification_lift - 0.12).abs() < f32::EPSILON);
         assert_eq!(s.dock.magnification_reach, 4.5);
         s.dock.magnification_lift = -3.0;

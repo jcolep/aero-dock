@@ -94,7 +94,7 @@
 [data-surface="clear"][data-window="dock"] .glass {
   /* the picked colour, flat: the same strength all the way across, so what
      is picked is what the dock is */
-  --bd-tint: rgba(var(--clear-tint), calc(0.34 * var(--clear-strength)));
+  --bd-tint: rgba(var(--clear-tint), calc(0.34 * var(--clear-strength) * var(--dock-tint, 1)));
   background: var(--bd-tint);
 }
 

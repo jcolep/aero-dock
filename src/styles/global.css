@@ -78,12 +78,15 @@ img {
   border-radius: var(--glass-radius);
   /* kept in a variable so that, with a picture of the desktop under the glass, the tint can be drawn over
      that picture (see BackdropLayer) */
+  /* the dock's Tint (--dock-tint, set on its viewport, 1 elsewhere) thins the colour; it cannot be made stronger than
+     the material has it */
+  --tint-share: min(100%, calc(var(--dock-tint, 1) * 100%));
   --bd-tint: linear-gradient(
     180deg,
-    var(--glass-tint-top) 0%,
-    var(--glass-tint-mid) 46%,
+    color-mix(in srgb, var(--glass-tint-top) var(--tint-share), transparent) 0%,
+    color-mix(in srgb, var(--glass-tint-mid) var(--tint-share), transparent) 46%,
     rgba(255, 255, 255, 0.04) 52%,
-    var(--glass-tint-bottom) 100%
+    color-mix(in srgb, var(--glass-tint-bottom) var(--tint-share), transparent) 100%
   );
   background: var(--bd-tint);
   backdrop-filter: blur(calc(var(--glass-blur) * var(--glass-intensity)))
