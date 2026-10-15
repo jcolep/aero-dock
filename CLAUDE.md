@@ -583,3 +583,10 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   back, quick toggles: 230 checks), `timing 10` (is a square corner ever seen after a maximise: 0 of 40), `apps <png>`
   (Notepad, Explorer, Calculator, Settings, Paint, Terminal, Edge: maximised, snapped, small), `shot <png>` (a picture
   of the four corners, for comparing looks). Startup with a window already maximised: pieces in ~3 s (was 7 s).
+
+## Dock marks and tint, window activation (October 2026)
+- **Focus mark** (`dock.indicatorStyle = focus`, `FocusMarks.tsx`): drawn inside the icon it belongs under, with a shared `layoutId` (`dock-focus-mark`, `dock-ghost-mark`), so motion carries it between icons and it rides with magnification (checked: 0 px off its icon over a full sweep). Centred with a margin, not `translateX`: motion owns `transform`. `fade` drops the `layoutId` (no travel). A springy exit can leave the old mark in the DOM at opacity 0 until the spring settles. `scripts/offscreen/marks.mjs`.
+- **Dock tint**: `--dock-tint` on `.dock-viewport` (0-1.5; or the menu bar's Tint scaled 0.5/0.34 with `tintLikeMenuBar`); clear.css scales the veil, global.css `.glass` mixes each gradient stop (`color-mix`, capped at 100%, a no-op at 1).
+- **Never synthesise Alt** to win the foreground: apps show their KeyTips. `running::activate_window` tries `SetForegroundWindow`, then sends a zero mouse move and tries again.
+- **Read the window size again once a resize listener is attached** (FrameApp, MenuBarApp, BarScene): windows are made at 800x600 and resized, and with lazy-loaded pages that resize could land before the listener (the frame's border lost its right and bottom edges).
+- Settling glass comes in when the entrance has under `LANDING_MS` (180) to go, never while `data-leaving`; it fades in over 260 ms, eased.

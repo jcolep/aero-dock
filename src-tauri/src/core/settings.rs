@@ -110,7 +110,19 @@ pub struct DockSettings {
     pub tint: f32,
     /// Tint the dock as the menu bar is tinted (its Tint), so the dock, the bar and the frame read as one glass.
     pub tint_like_menu_bar: bool,
+    /// What marks running apps: `dots` (a dot under every running app, the focused one brighter) or `focus` (one
+    /// mark, under the app in front, with a ghost of it under the app the pointer is on).
+    pub indicator_style: String,
+    /// The focus mark's shape: `pill` or `dot` (the glowing dot).
+    pub indicator_shape: String,
+    /// How the focus mark moves to the app that comes to the front: `glide`, `bounce`, `snap`, `float` or `fade`.
+    pub focus_motion: String,
+    /// How its ghost follows the pointer from app to app: the same choices.
+    pub ghost_motion: String,
 }
+
+/// How the dock's focus mark and its ghost may move (see `DockSettings::focus_motion`).
+pub const MARK_MOTIONS: &[&str] = &["glide", "bounce", "snap", "float", "fade"];
 
 impl Default for DockSettings {
     fn default() -> Self {
@@ -146,6 +158,10 @@ impl Default for DockSettings {
             minimize_effect: "genie".into(),
             tint: 1.0,
             tint_like_menu_bar: false,
+            indicator_style: "dots".into(),
+            indicator_shape: "pill".into(),
+            focus_motion: "glide".into(),
+            ghost_motion: "glide".into(),
         }
     }
 }
@@ -816,6 +832,10 @@ impl Settings {
         f.border_width = f.border_width.clamp(1, 10);
         keep_known(&mut self.dock.minimize_effect, &["genie", "scale", "off"], "genie");
         keep_known(&mut self.dock.middle_click, &["endTask", "close"], "endTask");
+        keep_known(&mut self.dock.indicator_style, &["dots", "focus"], "dots");
+        keep_known(&mut self.dock.indicator_shape, &["pill", "dot"], "pill");
+        keep_known(&mut self.dock.focus_motion, MARK_MOTIONS, "glide");
+        keep_known(&mut self.dock.ghost_motion, MARK_MOTIONS, "glide");
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
         let a11y = &mut self.accessibility;
         keep_known(&mut a11y.reduce_motion, AccessibilitySettings::POLICIES, "system");
@@ -1334,9 +1354,13 @@ mod tests {
         assert!(s.dock.attention_bounce);
         assert_eq!(s.dock.minimize_effect, "genie");
         let mut s = Settings::default();
+        s.dock.indicator_style = "sparkles".into();
+        s.dock.focus_motion = "teleport".into();
+        s.dock.ghost_motion = "bounce".into();
         s.dock.minimize_effect = "explode".into();
         s.sanitize();
         assert_eq!(s.dock.minimize_effect, "genie");
+        assert_eq!((s.dock.indicator_style.as_str(), s.dock.focus_motion.as_str(), s.dock.ghost_motion.as_str()), ("dots", "glide", "bounce"));
         s.dock.minimize_effect = "scale".into();
         s.sanitize();
         assert_eq!(s.dock.minimize_effect, "scale");

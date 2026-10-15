@@ -112,6 +112,11 @@
   box-shadow: 0 0 10px 2px rgba(var(--clear-glow), 0.95);
 }
 
+[data-surface="clear"] .dock-mark:not(.dock-mark-ghost) {
+  background: radial-gradient(ellipse at 40% 30%, #ffffff, rgb(var(--clear-glow)) 60%, rgb(var(--clear-tint)));
+  box-shadow: 0 0 10px 2px rgba(var(--clear-glow), 0.95);
+}
+
 [data-surface="clear"] .dock-divider {
   width: 1.5px;
   background: linear-gradient(

@@ -6,6 +6,7 @@
 import { Roll } from "../../engine/type/Roll";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
+import { FocusMarks } from "./FocusMarks";
 import {
   AnimatePresence,
   animate,
@@ -114,6 +115,11 @@ export function DockIcon({
   // re-renders only when the choice changes
   const launchPreset = useSettings((s) => s.settings?.animations?.launch ?? "bounce");
   const magnifyFeel = useSettings((s) => s.settings?.animations?.magnify ?? "soft");
+  // how running apps are marked (Settings > Dock > Running apps)
+  const markStyle = useSettings((s) => s.settings?.dock.indicatorStyle ?? "dots");
+  const markShape = useSettings((s) => s.settings?.dock.indicatorShape ?? "pill");
+  const focusMotion = useSettings((s) => s.settings?.dock.focusMotion ?? "glide");
+  const ghostMotion = useSettings((s) => s.settings?.dock.ghostMotion ?? "glide");
   const dwellTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // While the volume is being adjusted the window previews stay out of the
   // way. They are a hover affordance, and a deliberate scroll outranks one.
@@ -406,8 +412,16 @@ export function DockIcon({
         </span>
       )}
       {attention && attentionBounce && <span className="dock-attention" aria-hidden />}
-      {item.windows.length > 0 && (
-        <span className="dock-indicator" data-focused={item.focused} />
+      {markStyle === "focus" ? (
+        <FocusMarks
+          focused={item.focused && item.windows.length > 0}
+          hovered={hovered && !dragging}
+          shape={markShape}
+          focusMotion={focusMotion}
+          ghostMotion={ghostMotion}
+        />
+      ) : (
+        item.windows.length > 0 && <span className="dock-indicator" data-focused={item.focused} />
       )}
     </motion.button>
   );

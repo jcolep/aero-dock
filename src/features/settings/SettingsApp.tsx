@@ -18,6 +18,7 @@ import type {
   DockEdge,
   DockSettings,
   IconStyle,
+  MarkMotion,
   MonitorInfoEx,
   Settings,
   StorageInfo,
@@ -54,6 +55,15 @@ import "./settings.css";
 
 
 const pctFmt = (v: number) => `${Math.round(v * 100)}%`;
+
+/** How the dock's focus mark and its ghost can move from app to app. */
+const MARK_MOTION_OPTIONS: { value: MarkMotion; label: string }[] = [
+  { value: "glide", label: "Glide" },
+  { value: "bounce", label: "Bounce" },
+  { value: "snap", label: "Snap" },
+  { value: "float", label: "Float" },
+  { value: "fade", label: "Fade" },
+];
 
 /** One inline status line under the settings-file controls. The window
  * has room to say what happened, so nothing here needs a modal. */
@@ -636,6 +646,45 @@ export function SettingsApp() {
                 step={0.1}
                 format={(v) => `${v.toFixed(1)} icons`}
                 onChange={(v) => set((d) => void (d.dock.magnificationReach = v))}
+              />
+            </>
+          )}
+          <SettingsSub>Running apps</SettingsSub>
+          <AeroSegmented<"dots" | "focus">
+            label="Marks"
+            value={dock.indicatorStyle}
+            options={[
+              { value: "dots", label: "A dot under each" },
+              { value: "focus", label: "One, under the app in front" },
+            ]}
+            onChange={(v) => set((d) => void (d.dock.indicatorStyle = v))}
+          />
+          {dock.indicatorStyle === "focus" && (
+            <>
+              <p className="settings-note">
+                One mark under the app in front. Point at another app and a ghost of it slides over; click, and the
+                mark itself moves there.
+              </p>
+              <AeroSegmented<"pill" | "dot">
+                label="Shape"
+                value={dock.indicatorShape}
+                options={[
+                  { value: "pill", label: "Pill" },
+                  { value: "dot", label: "Glowing dot" },
+                ]}
+                onChange={(v) => set((d) => void (d.dock.indicatorShape = v))}
+              />
+              <AeroSegmented<MarkMotion>
+                label="Mark moves"
+                value={dock.focusMotion}
+                options={MARK_MOTION_OPTIONS}
+                onChange={(v) => set((d) => void (d.dock.focusMotion = v))}
+              />
+              <AeroSegmented<MarkMotion>
+                label="Ghost moves"
+                value={dock.ghostMotion}
+                options={MARK_MOTION_OPTIONS}
+                onChange={(v) => set((d) => void (d.dock.ghostMotion = v))}
               />
             </>
           )}

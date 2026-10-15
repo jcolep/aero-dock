@@ -56,7 +56,18 @@ export interface DockSettings {
   tint: number;
   /** Tint the dock as the menu bar is tinted, so the dock, the bar and the frame read as one glass. */
   tintLikeMenuBar: boolean;
+  /** What marks running apps: a dot under each, or one mark under the app in front with a ghost under the hovered one. */
+  indicatorStyle: "dots" | "focus";
+  /** The focus mark's shape. */
+  indicatorShape: "pill" | "dot";
+  /** How the focus mark moves to the app that comes to the front. */
+  focusMotion: MarkMotion;
+  /** How its ghost follows the pointer. */
+  ghostMotion: MarkMotion;
 }
+
+/** How the dock's focus mark and its ghost move. */
+export type MarkMotion = "glide" | "bounce" | "snap" | "float" | "fade";
 
 /** How a surface is rendered. Both are Frutiger Aero; they differ in how
  *  thick the material reads. "aero" is the glossy beveled panel, "liquid"

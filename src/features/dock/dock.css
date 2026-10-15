@@ -208,6 +208,37 @@
     box-shadow var(--m-quick) var(--e-out);
 }
 
+/* The focus mark (Settings > Dock > Running apps: one mark under the app in front, FocusMarks.tsx): a pill or the
+   glowing dot, in the dots' colours, and its ghost, an outline, under the app the pointer is on. Centred with a margin,
+   not a transform: the animation library owns the transform, to carry the mark from icon to icon. */
+.dock-mark {
+  --mark-w: max(14px, calc(var(--icon-size) * 0.34));
+  --mark-h: 5px;
+  position: absolute;
+  bottom: calc(-1 * (var(--indicator-gap) + var(--mark-h)));
+  left: 50%;
+  width: var(--mark-w);
+  height: var(--mark-h);
+  margin-left: calc(var(--mark-w) / -2);
+  border-radius: calc(var(--mark-h) / 2);
+  background: radial-gradient(ellipse at 40% 30%, #ffffff, var(--aero-life) 60%, #3f8f1d);
+  box-shadow: 0 0 9px 2px rgba(122, 208, 58, 0.85);
+  pointer-events: none;
+}
+
+.dock-mark[data-shape="dot"] {
+  --mark-w: 7px;
+  --mark-h: 7px;
+  border-radius: 50%;
+}
+
+.dock-mark-ghost {
+  background: transparent;
+  box-shadow:
+    inset 0 0 0 1.25px rgba(255, 255, 255, 0.62),
+    0 0 6px rgba(255, 255, 255, 0.18);
+}
+
 @keyframes dock-dot-in {
   from {
     opacity: 0;
