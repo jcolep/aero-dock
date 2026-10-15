@@ -4,6 +4,8 @@
 //   pnpm build
 //   node --experimental-websocket scripts/offscreen/marks.mjs <out folder>
 
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { startHarness } from "./harness.mjs";
 
 const out = process.argv[2] ?? "offscreen-out";
@@ -20,6 +22,12 @@ const windows = [
 // the middle of the icon whose name matches, and of each mark
 const iconAt = (h, name) => h.eval(`(() => { const b = [...document.querySelectorAll('button.dock-icon')].find((e) => new RegExp(${JSON.stringify(name)}, 'i').test(e.getAttribute('aria-label'))); const r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
 const marks = (h) => h.eval(`[...document.querySelectorAll('.dock-mark')].map((m) => { const r = m.getBoundingClientRect(); return { ghost: m.classList.contains('dock-mark-ghost'), x: Math.round(r.left + r.width / 2), w: Math.round(r.width), o: +getComputedStyle(m).opacity }; })`);
+
+// a close look at the bar, for the eye (in the out folder)
+async function snap(h, name) {
+  const b = await h.eval("(() => { const r = document.querySelector('.dock-bar').getBoundingClientRect(); return { x: r.left - 20, y: r.top - 30, w: r.width + 40, h: r.height + 50 }; })()");
+  writeFileSync(join(out, `${name}.png`), Buffer.from(await h.shot(b.x, b.y, b.w, b.h, 2), "base64"));
+}
 
 async function dock(set) {
   const h = await startHarness({ out, window: "dock", viewport: [1400, 500], running: windows, settings: (s) => { s.dock.autoHide = false; s.dock.magnification = false; set(s); } });
@@ -89,6 +97,59 @@ for (const motion of ["glide", "bounce", "snap", "float", "fade"]) {
     check(m.length === 1 && m[0].w === 7, `the glowing dot instead of the pill (${JSON.stringify(m)})`);
   } finally {
     h.close();
+  }
+}
+{
+  // the icon jumps when it is clicked (its launch bounce): the marks stay level in their track along the bottom
+  const h = await dock((s) => { s.dock.indicatorStyle = "focus"; });
+  try {
+    const chat = await iconAt(h, "chat");
+    await h.move(chat.x, chat.y);
+    await h.sleep(600);
+    await h.record("levels", `(() => { const b = [...document.querySelectorAll('button.dock-icon')].find((e) => /chat/i.test(e.getAttribute('aria-label'))); const g = document.querySelector('.dock-mark-ghost'); const m = document.querySelector('.dock-mark:not(.dock-mark-ghost)'); return { icon: Math.round(b.getBoundingClientRect().top * 10) / 10, ghost: g ? Math.round(g.getBoundingClientRect().top * 10) / 10 : null, mark: m ? Math.round(m.getBoundingClientRect().top * 10) / 10 : null }; })()`);
+    await h.click(chat.x, chat.y);
+    await h.sleep(1100);
+    const frames = (await h.recorded("levels")).map((f) => f.v);
+    const icon = frames.map((f) => f.icon);
+    const ghost = frames.map((f) => f.ghost).filter((v) => v !== null);
+    const mark = frames.map((f) => f.mark).filter((v) => v !== null);
+    const spread = (v) => (v.length ? Math.max(...v) - Math.min(...v) : 0);
+    check(spread(icon) > 4, `the icon jumped when clicked (${spread(icon).toFixed(1)}px)`);
+    check(ghost.length > 0 && spread(ghost) <= 1 && spread(mark) <= 1, `and the ghost and the mark stayed level in their track (moved ${spread(ghost).toFixed(1)} and ${spread(mark).toFixed(1)}px)`);
+  } finally {
+    h.close();
+  }
+}
+{
+  // the other running apps: faint dots in the track, or the apps that are not running dimmed
+  const pins = [{ id: "p0", kind: "app", path: "C:\\Tools\\Maps.exe", name: "Maps", icon: null, children: [] }];
+  const h = await dock((s) => { s.dock.indicatorStyle = "focus"; s.pinned = pins; });
+  try {
+    check((await h.eval("document.querySelectorAll('.dock-mark-trace').length")) === 3, "faint marks under the three running apps");
+    const w = await h.eval("[...document.querySelectorAll('.dock-mark-trace, .dock-mark:not(.dock-mark-ghost)')].map((m) => Math.round(m.getBoundingClientRect().width))");
+    check(w.every((x) => x === w[0]) && w[0] >= 14, `of the mark's shape (${JSON.stringify(w)})`);
+    check((await h.eval("document.querySelectorAll('.dock-icon[data-idle]').length")) === 0, "and nothing dimmed");
+    await snap(h, "marks-faint");
+  } finally {
+    h.close();
+  }
+  const g = await dock((s) => { s.dock.indicatorStyle = "focus"; s.dock.runningCue = "halo"; s.pinned = pins; });
+  try {
+    check((await g.eval("document.querySelectorAll('.dock-mark-halo').length")) === 3 && (await g.eval("document.querySelectorAll('.dock-mark-trace').length")) === 0, "a halo under each of the three running apps instead");
+    await snap(g, "marks-halo");
+    await g.eval("(() => { document.documentElement.dataset.surface = 'clear'; return 1; })()");
+    await g.sleep(300);
+    await snap(g, "marks-halo-clear");
+    check((await g.errors()).length === 0, "halo: no errors in the page");
+  } finally {
+    g.close();
+  }
+  const d = await dock((s) => { s.dock.indicatorStyle = "focus"; s.dock.runningCue = "dim"; s.pinned = pins; });
+  try {
+    const idle = await d.eval("[...document.querySelectorAll('.dock-icon[data-idle]')].map((b) => b.getAttribute('aria-label'))");
+    check(idle.length === 1 && /maps/i.test(idle[0]) && (await d.eval("document.querySelectorAll('.dock-mark-trace').length")) === 0, `dimmed instead: only the app that is not running (${JSON.stringify(idle)})`);
+  } finally {
+    d.close();
   }
 }
 process.exit(failed ? 1 : 0);

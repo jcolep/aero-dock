@@ -55,6 +55,7 @@ const CONTROLS_SPACE = 76; // Search and Settings buttons, when they sit in the 
 const SATELLITE_ROOM = 60;
 const MODE_TILE_SPACE = 38; // the Modes tile, when Modes is switched on
 const REVEAL_STRIP = 8; // window height while auto-hidden (mouse sensor)
+const DOCK_ZONE_BUFFER = 14; // px beyond what is drawn of the dock that still counts as on it, for auto-hide
 // How long the room a flyout took is kept after it closes: its exit animation
 // (up to PANEL_EXIT_MS, whichever preset is chosen) plays inside that room.
 const FLYOUT_EXIT_MS = PANEL_EXIT_MS;
@@ -278,6 +279,43 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   useEffect(() => {
     setDockHidden(slidAway);
   }, [slidAway, setDockHidden]);
+
+  // Where the pointer counts as on the dock. The window is much taller than the bar (it keeps room above for the
+  // icons' magnification, menus and flyouts), and counting all of it kept a dock that was waiting to hide coming back
+  // whenever the pointer crossed that empty room. So it is the strip from the screen edge to what is drawn of the dock
+  // (the bar, or an icon swollen up out of it, wherever it is in sliding away), and a little more, and never less than
+  // the strip along the edge that brings it back once it has gone.
+  const pointerInsideRef = useRef(false);
+  pointerInsideRef.current = pointerInside;
+  const inDockZone = (e: { clientX: number; clientY: number }): boolean => {
+    const bar = barRef.current;
+    if (!bar || !autoHide || draggingRef.current) return true;
+    if (edge === "bottom" && e.clientY >= window.innerHeight - REVEAL_STRIP) return true;
+    if (edge === "top" && e.clientY <= REVEAL_STRIP) return true;
+    if (edge === "left" && e.clientX <= REVEAL_STRIP) return true;
+    if (edge === "right" && e.clientX >= window.innerWidth - REVEAL_STRIP) return true;
+    // (shrunk, the window is the strip, so this only matters for a move that lands before the window has shrunk)
+    if (windowShrunk) return false;
+    let r = bar.getBoundingClientRect();
+    let { top, bottom, left, right } = r;
+    for (const icon of bar.querySelectorAll<HTMLElement>(".dock-icon-mag")) {
+      r = icon.getBoundingClientRect();
+      top = Math.min(top, r.top);
+      bottom = Math.max(bottom, r.bottom);
+      left = Math.min(left, r.left);
+      right = Math.max(right, r.right);
+    }
+    switch (edge) {
+      case "bottom":
+        return e.clientY >= top - DOCK_ZONE_BUFFER;
+      case "top":
+        return e.clientY <= bottom + DOCK_ZONE_BUFFER;
+      case "left":
+        return e.clientX <= right + DOCK_ZONE_BUFFER;
+      case "right":
+        return e.clientX >= left - DOCK_ZONE_BUFFER;
+    }
+  };
 
   // The bar's real thickness across the dock axis, for the strip Rust
   // reserves on screen. It can exceed icon + padding: the clock and the
@@ -836,14 +874,18 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       // how strongly the theme's colour tints the glass (clear.css, global.css): the dock's own, or the menu bar's put in
       // the dock's terms (the bar's body is half the colour at its Tint, the dock's a third), so the two match
       style={{ ["--dock-tint" as string]: settings.dock.tintLikeMenuBar ? (settings.menuBar.tint * 0.5) / 0.34 : (settings.dock.tint ?? 1) } as React.CSSProperties}
-      onMouseEnter={() => setPointerInside(true)}
+      onMouseEnter={(e) => setPointerInside(inDockZone(e))}
       onMouseLeave={() => {
         setPointerInside(false);
         // a button budded from the room beside the bar (see handleOutside) is not put away by
         // the bar's own leave, which the pointer never made
         if (revealMode) scheduleRevealHide();
       }}
-      onMouseMove={handleOutside}
+      onMouseMove={(e) => {
+        const inside = inDockZone(e);
+        if (inside !== pointerInsideRef.current) setPointerInside(inside);
+        handleOutside(e);
+      }}
     >
       <GlyphFilters />
       <div className="dock-shell">

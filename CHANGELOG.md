@@ -13,6 +13,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - **The frame's glass border shows on all four sides again.** The frame's page could take its size before the window was made the size of the screen, and drew the border's right and bottom edges where they were clipped away.
 - **The frosted glass under the menu bar's dropdowns comes in as the menu lands,** and fades in softly (260 ms, eased), instead of popping in a moment after the menu had finished opening.
 - **A new way to mark running apps** (Settings > Dock > Running apps): one mark, a pill or the glowing dot, under the app in front. Point at another app and a ghostly outline of it slides over; click, and the mark itself travels there. Glide, Bounce, Snap, Float or Fade, chosen separately for the mark and the ghost. The dots stay the default.
+- **The mark and its ghost keep to their own track** along the bottom of the dock: when an icon jumps on a click, the mark under it stays level instead of jumping with it.
+- **With the focus mark, the other running apps can still show they are running** (Settings > Dock > Running apps > Running apps show): faint glowing marks of the same shape, which the mark glides over; a soft halo of light behind each running icon; the apps that are not running dimmed; or nothing.
+- **An auto-hiding dock only stays or comes back when the pointer is on the dock itself** (the strip from the screen edge to just above the bar), not anywhere in the much taller room kept above it for magnification and menus.
 - **A Tint for the dock,** and a switch to tint it like the menu bar, so the dock, the bar and the frame read as one glass.
 
 ### Frame corners, rebuilt

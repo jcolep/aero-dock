@@ -59,7 +59,7 @@ export const GROUPS: GroupDef[] = [
         title: "Dock",
         blurb: "Position, size, magnification, auto-hide",
         keywords:
-          "dock position edge bottom top left right monitor screen every monitor icon size spacing magnification lift reach hill swell rise grow mac padding corner radius tint tinted colour color like the menu bar floating edge gap reserve screen space running applications running dot marks focus mark pill ghost glowing dot glide bounce snap float fade middle click end task close windows minimise effect genie scale bounce attention auto hide",
+          "dock position edge bottom top left right monitor screen every monitor icon size spacing magnification lift reach hill swell rise grow mac padding corner radius tint tinted colour color like the menu bar floating edge gap reserve screen space running applications running dot marks focus mark pill ghost glowing dot glide bounce snap float fade faint dots marks halo glow dimmed running apps show middle click end task close windows minimise effect genie scale bounce attention auto hide",
       },
       {
         id: "dock-items",

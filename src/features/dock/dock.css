@@ -239,6 +239,76 @@
     0 0 6px rgba(255, 255, 255, 0.18);
 }
 
+/* The marks' track: the icon's own box, with the icon's jumps undone (DockIcon), so the marks stay level along the
+   bottom of the dock whatever the icon does. */
+.dock-mark-track {
+  /* the marks' glow, for what is drawn faint beside them (the clear surface has its own) */
+  --mark-glow: 122, 208, 58;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* The other running apps, with the focus mark: a faint mark of the same shape in the same place, glowing low, which
+   the mark glides over and lights up. A frosted sliver of the mark's colour, so it reads as the same family. */
+.dock-mark-trace {
+  --mark-w: max(14px, calc(var(--icon-size) * 0.34));
+  --mark-h: 5px;
+  position: absolute;
+  bottom: calc(-1 * (var(--indicator-gap) + var(--mark-h)));
+  left: 50%;
+  width: var(--mark-w);
+  height: var(--mark-h);
+  margin-left: calc(var(--mark-w) / -2);
+  border-radius: calc(var(--mark-h) / 2);
+  background: radial-gradient(
+    ellipse at 40% 30%,
+    rgba(255, 255, 255, 0.9),
+    rgba(var(--mark-glow), 0.75) 60%,
+    rgba(var(--mark-glow), 0.5)
+  );
+  box-shadow: 0 0 6px 1px rgba(var(--mark-glow), 0.55);
+  opacity: 0.5;
+  animation: dock-trace-in 260ms ease-out both;
+}
+.dock-mark-trace[data-shape="dot"] {
+  --mark-w: 6px;
+  --mark-h: 6px;
+  border-radius: 50%;
+  /* level with the 7px dot's middle */
+  bottom: calc(-1 * (var(--indicator-gap) + 6.5px));
+}
+@keyframes dock-trace-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ...or a halo: a soft pool of the mark's light that the icon stands in, drawn behind it (DockIcon), brightest at its
+   foot where the mark would sit and fading out round it. */
+.dock-mark-halo {
+  position: absolute;
+  left: 50%;
+  width: calc(var(--icon-size) * 1.3);
+  height: calc(var(--icon-size) * 0.62);
+  margin-left: calc(var(--icon-size) * -0.65);
+  bottom: calc(var(--icon-size) * -0.31 - var(--indicator-gap) / 2);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(var(--mark-glow), 0.6),
+    rgba(var(--mark-glow), 0.26) 50%,
+    transparent
+  );
+  animation: dock-trace-in 320ms ease-out both;
+}
+
+/* ...or the apps that are not running drawn faded */
+.dock-icon[data-idle] .dock-icon-float {
+  opacity: 0.55;
+  transition: opacity var(--m-standard) var(--e-out);
+}
+
 @keyframes dock-dot-in {
   from {
     opacity: 0;

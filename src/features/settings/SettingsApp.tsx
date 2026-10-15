@@ -674,6 +674,17 @@ export function SettingsApp() {
                 ]}
                 onChange={(v) => set((d) => void (d.dock.indicatorShape = v))}
               />
+              <AeroSegmented<"dots" | "halo" | "dim" | "none">
+                label="Running apps show"
+                value={dock.runningCue}
+                options={[
+                  { value: "dots", label: "Faint marks" },
+                  { value: "halo", label: "Halo" },
+                  { value: "dim", label: "Others dimmed" },
+                  { value: "none", label: "Nothing" },
+                ]}
+                onChange={(v) => set((d) => void (d.dock.runningCue = v))}
+              />
               <AeroSegmented<MarkMotion>
                 label="Mark moves"
                 value={dock.focusMotion}

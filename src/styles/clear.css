@@ -117,6 +117,10 @@
   box-shadow: 0 0 10px 2px rgba(var(--clear-glow), 0.95);
 }
 
+[data-surface="clear"] .dock-mark-track {
+  --mark-glow: var(--clear-glow);
+}
+
 [data-surface="clear"] .dock-divider {
   width: 1.5px;
   background: linear-gradient(

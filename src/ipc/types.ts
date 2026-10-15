@@ -64,6 +64,8 @@ export interface DockSettings {
   focusMotion: MarkMotion;
   /** How its ghost follows the pointer. */
   ghostMotion: MarkMotion;
+  /** With the focus mark, how the other running apps show it: faint glowing marks, a halo, the idle apps dimmed, or nothing. */
+  runningCue: "dots" | "halo" | "dim" | "none";
 }
 
 /** How the dock's focus mark and its ghost move. */

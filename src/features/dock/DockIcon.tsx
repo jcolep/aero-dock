@@ -120,6 +120,7 @@ export function DockIcon({
   const markShape = useSettings((s) => s.settings?.dock.indicatorShape ?? "pill");
   const focusMotion = useSettings((s) => s.settings?.dock.focusMotion ?? "glide");
   const ghostMotion = useSettings((s) => s.settings?.dock.ghostMotion ?? "glide");
+  const runningCue = useSettings((s) => s.settings?.dock.runningCue ?? "dots");
   const dwellTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // While the volume is being adjusted the window previews stay out of the
   // way. They are a hover affordance, and a deliberate scroll outranks one.
@@ -210,6 +211,12 @@ export function DockIcon({
   // squash and stretch, for the launch animations that use them
   const squashX = useMotionValue(1);
   const squashY = useMotionValue(1);
+  // what undoes them, for the marks' track (the button moves by its offset, then scales about its near side: undone
+  // by scaling back about the same side, then moving back by the offset as it was before scaling)
+  const unsquashX = useTransform(() => 1 / (squashX.get() || 1));
+  const unsquashY = useTransform(() => 1 / (squashY.get() || 1));
+  const trackX = useTransform(() => -x.get() / (squashX.get() || 1));
+  const trackY = useTransform(() => -y.get() / (squashY.get() || 1));
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -233,6 +240,7 @@ export function DockIcon({
     <motion.button
       ref={ref}
       className="dock-icon"
+      data-idle={markStyle === "focus" && runningCue === "dim" && item.windows.length === 0 ? "" : undefined}
       style={
         vertical
           ? {
@@ -372,6 +380,12 @@ export function DockIcon({
         )
       )}
       </AnimatePresence>
+      {markStyle === "focus" && runningCue === "halo" && item.windows.length > 0 && (
+        // the halo in the same level track as the marks, but drawn before the icon, so it glows from behind it
+        <motion.span className="dock-mark-track" style={{ x: trackX, y: trackY, scaleX: unsquashX, scaleY: unsquashY, transformOrigin: nearSide(edge) }}>
+          <span className="dock-mark-halo" aria-hidden />
+        </motion.span>
+      )}
       <motion.span
         className="dock-icon-mag"
         style={
@@ -413,13 +427,18 @@ export function DockIcon({
       )}
       {attention && attentionBounce && <span className="dock-attention" aria-hidden />}
       {markStyle === "focus" ? (
-        <FocusMarks
-          focused={item.focused && item.windows.length > 0}
-          hovered={hovered && !dragging}
-          shape={markShape}
-          focusMotion={focusMotion}
-          ghostMotion={ghostMotion}
-        />
+        // the marks' own track: the exact undoing of the button's lift and squash, so they stay level along the dock
+        // while the icon jumps (a launch, an attention hop), and follow it only along the dock
+        <motion.span className="dock-mark-track" style={{ x: trackX, y: trackY, scaleX: unsquashX, scaleY: unsquashY, transformOrigin: nearSide(edge) }}>
+          {runningCue === "dots" && item.windows.length > 0 && <span className="dock-mark-trace" data-shape={markShape} aria-hidden />}
+          <FocusMarks
+            focused={item.focused && item.windows.length > 0}
+            hovered={hovered && !dragging}
+            shape={markShape}
+            focusMotion={focusMotion}
+            ghostMotion={ghostMotion}
+          />
+        </motion.span>
       ) : (
         item.windows.length > 0 && <span className="dock-indicator" data-focused={item.focused} />
       )}

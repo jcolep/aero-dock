@@ -119,6 +119,10 @@ pub struct DockSettings {
     pub focus_motion: String,
     /// How its ghost follows the pointer from app to app: the same choices.
     pub ghost_motion: String,
+    /// With the focus mark, how the other running apps show they are running: `dots` (faint glowing marks of the
+    /// mark's shape in its track), `halo` (a soft pool of light the icon sits in), `dim` (the apps that are not
+    /// running are drawn faded) or `none`.
+    pub running_cue: String,
 }
 
 /// How the dock's focus mark and its ghost may move (see `DockSettings::focus_motion`).
@@ -162,6 +166,7 @@ impl Default for DockSettings {
             indicator_shape: "pill".into(),
             focus_motion: "glide".into(),
             ghost_motion: "glide".into(),
+            running_cue: "dots".into(),
         }
     }
 }
@@ -836,6 +841,7 @@ impl Settings {
         keep_known(&mut self.dock.indicator_shape, &["pill", "dot"], "pill");
         keep_known(&mut self.dock.focus_motion, MARK_MOTIONS, "glide");
         keep_known(&mut self.dock.ghost_motion, MARK_MOTIONS, "glide");
+        keep_known(&mut self.dock.running_cue, &["dots", "halo", "dim", "none"], "dots");
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
         let a11y = &mut self.accessibility;
         keep_known(&mut a11y.reduce_motion, AccessibilitySettings::POLICIES, "system");

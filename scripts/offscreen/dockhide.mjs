@@ -65,11 +65,31 @@ try {
 
   // and back (the page was told the pointer had left, so it is told it has come in again)
   await q("(() => { document.querySelector('.dock-viewport').dispatchEvent(new MouseEvent('mouseover', { bubbles: true, relatedTarget: null })); return 1; })()");
+  // (the window here stays its full size; on screen it is shrunk to the strip along the bottom, which brings it back)
   await h.move(bar.left + 100, bar.mid);
+  await h.sleep(300);
+  check((await pose()).reveal === "out", "where the bar rested, now empty, does not bring it back");
+  await h.move(bar.left + 100, 497);
   await h.sleep(1300);
   const back = await pose();
   console.log("back:", JSON.stringify(back));
   check(back.reveal === "in" && back.bar === back.layer, "the layer comes back with the bar");
+
+  // Only the strip from the edge to the top of the dock, and a little more, counts as on it: the empty room above it
+  // in the window (for magnification and menus) does not keep it, and crossing it does not bring it back
+  await h.move(bar.left + 100, bar.mid);
+  await h.sleep(300);
+  await h.move(bar.left + 100, bar.top - 60);
+  await h.sleep(400);
+  await h.move(bar.left + 100, bar.top - 8);
+  await h.sleep(1300);
+  check((await pose()).reveal === "in", "just above the bar (within the buffer) still counts as on the dock");
+  await h.move(bar.left + 100, bar.top - 60);
+  await h.sleep(1300);
+  check((await pose()).reveal === "out", "well above it, in the window's empty room, the dock goes");
+  await h.move(bar.left + 100, bar.top - 90);
+  await h.sleep(250);
+  check((await pose()).reveal === "out", "and moving about up there does not bring it back");
   console.log("commands the mock did not know:", JSON.stringify(await h.unknownCalls()));
 } finally {
   h.close();
