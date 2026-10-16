@@ -28,6 +28,7 @@ import { ipc } from "../../ipc/commands";
 import type { AppEntry, Download, FoundFile, PinnedItem, Profile, RecentFile, StartPin } from "../../ipc/types";
 import { useDockIcons } from "../../state/dockStore";
 import { useSettings } from "../../state/settingsStore";
+import { veilFor, type Backdrop, type Veil } from "./readability";
 import { notify } from "../feedback/toastStore";
 import { calculate, formatResult } from "./calc";
 import { sizeText, timeAgo } from "./format";
@@ -51,6 +52,8 @@ interface Item {
 
 interface Opening {
   previous: number;
+  /** How light the screen behind the panel is, looked at as it opened. */
+  backdrop?: Backdrop | null;
 }
 
 type Phase = "closed" | "open" | "closing";
@@ -289,6 +292,8 @@ export function StartApp() {
   });
 
   const [phase, setPhase] = useState<Phase>("closed");
+  // darker tint where what is behind the panel is light (readability.ts), set as it opens and kept until it opens again
+  const [veil, setVeil] = useState<Veil | null>(null);
   const [view, setView] = useState<"home" | "all" | "more">("home");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
@@ -424,7 +429,9 @@ export function StartApp() {
 
   // ---- opening ----
   useEffect(() => {
-    const un = listen<Opening>("start://open", () => {
+    const un = listen<Opening>("start://open", (e) => {
+      // the tint that keeps the text readable over what is behind it, for this opening (and only this one)
+      setVeil(useSettings.getState().settings?.start.adaptiveTint === false ? null : veilFor(e.payload.backdrop));
       setQuery("");
       setSelected(0);
       setView("home");
@@ -745,6 +752,8 @@ export function StartApp() {
         className="st-panel"
         role="dialog"
         aria-label="Start"
+        data-veiled={veil ? "" : undefined}
+        style={veil ? ({ ["--st-shadow" as string]: veil.shadow.toFixed(3) } as React.CSSProperties) : undefined}
         {...lens.handlers}
         onMouseDown={(e) => {
           // a press that is not on a popup closes it
@@ -760,6 +769,7 @@ export function StartApp() {
           blur={startGlass.blur}
           grain={startGlass.grain}
         />
+        {veil && <span className="st-veil" aria-hidden style={{ backgroundImage: `url(${veil.image})` }} />}
         {lens.Highlight}
         <div className="st-search">
           <Glyph name="search" />

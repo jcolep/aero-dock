@@ -882,6 +882,12 @@ export function SettingsApp() {
                 hint="Under the pinned apps: what was lately downloaded, and the files opened lately"
                 onChange={(v) => set((d) => void (d.start.showRecommended = v))}
               />
+              <AeroToggle
+                label="Keep text readable over light backgrounds"
+                checked={settings.start.adaptiveTint !== false}
+                hint="Where what is behind the menu is light, its glass is darkened there, and the text given a soft shadow. Measured once as it opens, so nothing shifts while it is open"
+                onChange={(v) => set((d) => void (d.start.adaptiveTint = v))}
+              />
               <div className="ctl-row">
                 <span className="ctl-label">Pinned apps</span>
                 <div className="ctl-actions">

@@ -490,6 +490,8 @@ export interface StartSettings {
   seeded: boolean;
   /** The Recommended section (recent files). */
   showRecommended: boolean;
+  /** Darken the glass where what is behind the panel is light, so its text stays readable. */
+  adaptiveTint: boolean;
 }
 
 /** How frosted one surface's glass is. */

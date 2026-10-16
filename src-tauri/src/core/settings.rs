@@ -706,11 +706,14 @@ pub struct StartSettings {
     pub seeded: bool,
     /// The Recommended section (recent files).
     pub show_recommended: bool,
+    /// Darken the glass where what is behind the panel is light, so its text stays readable (looked at once, as it
+    /// opens: `commands::start::backdrop_behind`).
+    pub adaptive_tint: bool,
 }
 
 impl Default for StartSettings {
     fn default() -> Self {
-        Self { pinned: Vec::new(), seeded: false, show_recommended: true }
+        Self { pinned: Vec::new(), seeded: false, show_recommended: true, adaptive_tint: true }
     }
 }
 

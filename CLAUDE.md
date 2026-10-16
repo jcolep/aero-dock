@@ -605,6 +605,12 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
 - **Never put the CSS `scale` property on a box placed by translate**: `scale` applies outside `transform`, so it
   scales the translate too (the menu bar lens flew ~85 px left on every press, `lenspress.mjs`). Presses go through
   `usePress` (subpixelBox.ts): a spring folded into the box's own scale, released by a window-level pointerup.
+- **Start readability (adaptive tint)**: `start.rs::place_and_show` BitBlts the panel's area (window still hidden, so
+  it is what is behind) before `show()`, `Picture::light_grid(6, 6)` (CIE L*, each cell = ½ mean + ½ lightest tenth)
+  rides the `start://open` payload as `backdrop`; `readability.ts::veilFor` turns it into a 6×6 PNG of dark alpha
+  (smoothstep 0.42→0.92, at most 0.55) stretched over the panel as `.st-veil` (above the bd-layer, under content;
+  bilinear scaling blends cells) plus `--st-shadow` text-shadow. Deliberately once per opening and never while open
+  (no flicker); reopen-while-closing keeps the last one. `start.adaptiveTint` turns it off. `readability.mjs`.
 - **The mark is a drop of glass** (`engine/brand`): `Droplet` (React, colors are CSS color-mix of `--aero-accent`, so it
   follows the theme live; gradient ids are per instance from `useId`) and `dropletSvg(hex, px)` (plain JS + .d.ts so
   Node scripts can import it; the same drawing with literal colors). Change one, change the other (they share

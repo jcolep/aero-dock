@@ -113,6 +113,53 @@ impl Picture {
         Some(out)
     }
 
+    /// How light the picture is in each cell of a `cols` × `rows` grid laid over all of it, row by row, 0 (black) to 1
+    /// (white), as lightness is seen (CIE L*, not the raw values). Each cell's figure leans toward its lightest part:
+    /// the mean and the lightest tenth, half and half, since a bright window edge under one corner of a cell is what
+    /// makes light text over it hard to read, however dark the rest. Read from a sparse grid of points (a few hundred a
+    /// cell), which a frosted surface blurs into much the same as all of them.
+    pub fn light_grid(&self, cols: usize, rows: usize) -> Vec<f32> {
+        let lightness = |c: [u8; 3]| -> f32 {
+            let lin = |v: u8| {
+                let v = v as f32 / 255.0;
+                if v <= 0.04045 { v / 12.92 } else { ((v + 0.055) / 1.055).powf(2.4) }
+            };
+            let y = 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
+            let l = if y > 216.0 / 24389.0 { 116.0 * y.cbrt() - 16.0 } else { y * 24389.0 / 27.0 };
+            (l / 100.0).clamp(0.0, 1.0)
+        };
+        let mut out = Vec::with_capacity(cols * rows);
+        for row in 0..rows {
+            for col in 0..cols {
+                let (x0, x1) = (self.width * col as i32 / cols as i32, self.width * (col as i32 + 1) / cols as i32);
+                let (y0, y1) = (self.height * row as i32 / rows as i32, self.height * (row as i32 + 1) / rows as i32);
+                let step = (((x1 - x0) * (y1 - y0)) as f32 / 400.0).sqrt().max(1.0) as i32;
+                let mut seen = Vec::new();
+                let mut y = y0 + step / 2;
+                while y < y1 {
+                    let mut x = x0 + step / 2;
+                    while x < x1 {
+                        if let Some(c) = self.rgb(self.left + x, self.top + y) {
+                            seen.push(lightness(c));
+                        }
+                        x += step;
+                    }
+                    y += step;
+                }
+                if seen.is_empty() {
+                    out.push(0.0);
+                    continue;
+                }
+                let mean = seen.iter().sum::<f32>() / seen.len() as f32;
+                seen.sort_by(|a, b| a.total_cmp(b));
+                let top = &seen[seen.len() * 9 / 10..];
+                let lightest = top.iter().sum::<f32>() / top.len().max(1) as f32;
+                out.push(0.5 * mean + 0.5 * lightest);
+            }
+        }
+        out
+    }
+
     /// The mean color at these screen points, leaving out any the picture does not have; `None` if it has none.
     pub fn mean(&self, points: &[(i32, i32)]) -> Option<[u8; 3]> {
         let (mut r, mut g, mut b, mut n) = (0u32, 0u32, 0u32, 0u32);
@@ -177,6 +224,39 @@ pub fn lines_up(seen: &[[u8; 3]], drawn: &[[u8; 3]]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A picture `w` × `h` colored by `color(x, y)`.
+    fn painted(w: i32, h: i32, color: impl Fn(i32, i32) -> [u8; 3]) -> Picture {
+        let mut bgra = Vec::with_capacity((w * h * 4) as usize);
+        for y in 0..h {
+            for x in 0..w {
+                let [r, g, b] = color(x, y);
+                bgra.extend_from_slice(&[b, g, r, 255]);
+            }
+        }
+        Picture { left: 100, top: 50, width: w, height: h, bgra }
+    }
+
+    #[test]
+    fn the_light_grid_says_where_it_is_light() {
+        // white on the right half, black on the left
+        let p = painted(400, 300, |x, _| if x >= 200 { [255, 255, 255] } else { [0, 0, 0] });
+        let g = p.light_grid(2, 2);
+        assert_eq!(g.len(), 4);
+        assert!(g[0] < 0.01 && g[2] < 0.01, "dark cells: {g:?}");
+        assert!(g[1] > 0.99 && g[3] > 0.99, "light cells: {g:?}");
+        // mid grey reads as about half (L* of sRGB 119 is 50)
+        let grey = painted(100, 100, |_, _| [119, 119, 119]).light_grid(1, 1)[0];
+        assert!((grey - 0.5).abs() < 0.02, "grey: {grey}");
+    }
+
+    #[test]
+    fn a_cell_leans_toward_its_lightest_part() {
+        // a dark cell with a bright stripe down a fifth of it: well above its mean, which is what light text minds
+        let p = painted(200, 200, |x, _| if x < 40 { [255, 255, 255] } else { [20, 20, 20] });
+        let g = p.light_grid(1, 1)[0];
+        assert!(g > 0.55 && g < 0.8, "a bright edge counts for more than its share: {g}");
+    }
 
     #[test]
     fn the_same_picture_lines_up_even_through_a_tint_and_another_does_not() {

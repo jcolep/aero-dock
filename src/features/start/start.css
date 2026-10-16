@@ -761,10 +761,31 @@
   }
 }
 
-/* everything in the panel but the gliding highlight and the popups lies above the highlight */
-.st-panel > :not(.glide-highlight):not(.st-pop):not(.st-menu):not(.bd-layer) {
+/* everything in the panel but the gliding highlight, the popups and the glass's own layers lies above the highlight */
+.st-panel > :not(.glide-highlight):not(.st-pop):not(.st-menu):not(.bd-layer):not(.st-veil) {
   position: relative;
   z-index: 1;
+}
+
+/* Readability over what is behind (readability.ts): a darker tint over the glass where what is behind the panel is
+   light, from a picture a few cells across stretched smoothly over the whole panel, so the regions fade into one
+   another. Over the glass and its frost, under everything on it. Set once as the menu opens; nothing about it moves. */
+.st-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  image-rendering: auto;
+}
+
+/* and, where any of it is light enough, a soft shadow under the text (inherited by everything in the panel) */
+.st-panel[data-veiled] {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, calc(0.55 * var(--st-shadow, 0))),
+    0 0 10px rgba(0, 0, 0, calc(0.3 * var(--st-shadow, 0)));
 }
 
 /* ---- a list that has not arrived ---- */

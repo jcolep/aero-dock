@@ -52,6 +52,32 @@ const REOPEN_EVENT: &str = "start://reopen";
 struct Opening {
     /// The window that had the keyboard before, as a raw handle, so Escape can give it back.
     previous: i64,
+    /// How light the screen behind the panel is, region by region, just before it was shown (`None` if it could not
+    /// be looked at): the page darkens its glass where it is light, so its text stays readable.
+    backdrop: Option<Backdrop>,
+}
+
+/// How light what is behind the panel is: a grid laid over the panel, row by row, 0 (black) to 1 (white).
+#[derive(Debug, Clone, Serialize)]
+struct Backdrop {
+    cols: usize,
+    rows: usize,
+    light: Vec<f32>,
+}
+
+/// The grid laid over the panel: its cells about 110 by 125 logical pixels, small enough that a bright window behind
+/// one part of the panel is darkened there and not everywhere.
+const BACKDROP_COLS: usize = 6;
+const BACKDROP_ROWS: usize = 6;
+
+/// Look at the screen where the panel is about to be (the window still hidden, so it is what is behind it), once,
+/// as it opens. Not again while it is open: what is behind a menu that is open rarely changes, and a tint that
+/// shifted under the text as something moved behind it would be worse than one that does not follow it.
+fn backdrop_behind(x: i32, y: i32, width: i32, height: i32, scale: f64) -> Option<Backdrop> {
+    let margin = (MARGIN * scale).round() as i32;
+    let area = crate::platform::windows::monitors::Rect { x: x + margin, y: y + margin, width: width - 2 * margin, height: height - 2 * margin };
+    let picture = crate::platform::windows::screenpick::Picture::screen(&area)?;
+    Some(Backdrop { cols: BACKDROP_COLS, rows: BACKDROP_ROWS, light: picture.light_grid(BACKDROP_COLS, BACKDROP_ROWS) })
 }
 
 /// Whoever had the keyboard before the menu took it.
@@ -218,11 +244,13 @@ fn place_and_show(app: &AppHandle, monitor: &MonitorInfoEx) -> AeroResult<()> {
     let w = monitor.work_area;
     let bars: Vec<RECT> = crate::commands::glass::dock_bar_rects();
     let (x, y, width, height) = place((w.x, w.y, w.width, w.height), monitor.scale, &bars);
+    // what is behind it, looked at while it is still hidden (a few milliseconds)
+    let backdrop = backdrop_behind(x, y, width, height, monitor.scale);
     dock_window::set_bounds(hwnd, x, y, width, height)?;
     window.show()?;
     window.set_always_on_top(true)?;
     window.set_focus()?;
-    let _ = app.emit_to(LABEL, OPEN_EVENT, Opening { previous: previous.0 as isize as i64 });
+    let _ = app.emit_to(LABEL, OPEN_EVENT, Opening { previous: previous.0 as isize as i64, backdrop });
     watch(app.clone(), hwnd, monitor.scale);
     Ok(())
 }

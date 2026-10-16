@@ -9,6 +9,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Liquidock (October 16)
 
+- **The Start menu stays readable over light backgrounds.** As it opens, Liquidock looks at what is behind it, region
+  by region, and darkens the glass only where that is light (a white page behind one half darkens that half), with a
+  soft shadow under the text when anything is light enough to need it. Measured once as it opens, so nothing shifts
+  or flickers while it is open. Settings › Start menu › Keep text readable over light backgrounds.
+
 - **A new mark: a drop of glass**, tinted with your theme color in the menu bar, the settings window, the welcome card
   and the tray. The app's own icon is the drop in silver.
 - **Window previews say a window's title once.** One window: its title at the top and a close bar of glass as wide as
