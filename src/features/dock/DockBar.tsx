@@ -31,6 +31,7 @@ import { DockSatellite } from "./DockSatellite";
 import { LABEL_SPACE, LABEL_SPACE_SIDE } from "./geometry";
 import { MODE_FLYOUT_HEIGHT, ModeSwitcher, useModeSwitcher } from "./ModeSwitcher";
 import { DockIcon } from "./DockIcon";
+import { measureRest, newMagnifyField } from "./magnifyField";
 import { FolderFlyout } from "./FolderFlyout";
 import { StackFlyout } from "./StackFlyout";
 import { WindowsFlyout } from "./WindowsFlyout";
@@ -173,6 +174,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   // it. Horizontal docks only: a vertical dock keeps them in the bar.
   const revealMode = settings.dock.revealControls && !vertical;
   const mouseAxis = useMotionValue(Infinity);
+  const [magnifyField] = useState(newMagnifyField);
   const menu = useMenu();
   const draggingRef = useRef(false);
   const [dragging, setDragging] = useState(false);
@@ -625,7 +627,10 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
 
   const handleMove = useCallback(
     (e: React.MouseEvent) => {
-      if (!draggingRef.current) mouseAxis.set(vertical ? e.clientY : e.clientX);
+      if (!draggingRef.current) {
+        measureRest(magnifyField, iconSize, vertical);
+        mouseAxis.set(vertical ? e.clientY : e.clientX);
+      }
       if (!revealMode || draggingRef.current) return;
       const bar = e.currentTarget.getBoundingClientRect();
       // the right-hand zone is the clock/status section, wherever it lands
@@ -637,7 +642,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       setRevealLeft(left);
       setRevealRight(right);
     },
-    [mouseAxis, vertical, revealMode, cancelRevealHide],
+    [mouseAxis, magnifyField, iconSize, vertical, revealMode, cancelRevealHide],
   );
 
   // Coming at the dock's end from outside it, along the screen, never crosses the bar before the
@@ -723,6 +728,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
 
   const iconProps = {
     mouseAxis,
+    field: magnifyField,
     iconSize,
     magnify: magnification,
     magScale: magnificationScale,

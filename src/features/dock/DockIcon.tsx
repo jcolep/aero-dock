@@ -7,6 +7,7 @@ import { Roll } from "../../engine/type/Roll";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { FocusMarks } from "./FocusMarks";
+import type { MagnifyField } from "./magnifyField";
 import {
   AnimatePresence,
   animate,
@@ -36,6 +37,8 @@ interface DockIconProps {
   item: DockItemView;
   /** Cursor position along the dock axis; Infinity = cursor away. */
   mouseAxis: MotionValue<number>;
+  /** Where the icons rest, which magnification measures the pointer against (magnifyField.ts). */
+  field: MagnifyField;
   iconSize: number;
   magnify: boolean;
   magScale: number;
@@ -92,6 +95,7 @@ function labelFrom(edge: DockEdge): { x: number; y: number } {
 export function DockIcon({
   item,
   mouseAxis,
+  field,
   iconSize,
   magnify,
   magScale,
@@ -135,12 +139,18 @@ export function DockIcon({
   void audioTick;
   const adjusting = useAppAudio.getState().isVisible(item.audioExe) && audio !== undefined;
 
-  // distance from cursor to this icon's center along the dock axis
+  // Distance from the pointer to this icon's centre along the dock, measured to where the icon rests, not to where the
+  // swell has pushed it (the bar keeps centred, so as icons swell every icon slides): from where it is drawn, each
+  // swell would move the icons, which would move the swell, and they shook, most of all near the ends where that slide
+  // is the largest. DockBar works out the resting centres as the pointer moves (`restCentres`).
   const distance = useTransform(mouseAxis, (cursor) => {
     const el = ref.current;
     if (!el || !Number.isFinite(cursor)) return Infinity;
-    const rect = el.getBoundingClientRect();
-    const center = vertical ? rect.top + rect.height / 2 : rect.left + rect.width / 2;
+    let center = field.rest.get(el);
+    if (center === undefined) {
+      const rect = el.getBoundingClientRect();
+      center = vertical ? rect.top + rect.height / 2 : rect.left + rect.width / 2;
+    }
     return cursor - center;
   });
 
@@ -156,6 +166,15 @@ export function DockIcon({
   });
   const targetWidth = useTransform(bell, (b) => iconSize * (1 + (peak - 1) * b));
   const width = useSpring(targetWidth, magnifySpring(magnifyFeel));
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    field.widths.set(el, width);
+    return () => {
+      field.widths.delete(el);
+      field.rest.delete(el);
+    };
+  }, [field, width]);
   // The space it takes is `width`, and the icon is drawn that much larger, from the side of the dock nearest the
   // screen edge: it grows away from the edge, as a Mac dock's does, and rises a little more than it grows.
   const growth = Math.max(1e-6, iconSize * (peak - 1));
