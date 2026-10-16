@@ -18,6 +18,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { lens } from "../../engine/motion/tokens";
 import { playCue } from "../../engine/sound/ui";
 import { displacementFilter } from "../../engine/glass/displacement";
+import { useSubpixelBox } from "../../engine/motion/subpixelBox";
 
 /**
  * What the lens does to what is under it: bend it. One filter for every size it
@@ -119,6 +120,8 @@ export function useLens(activeKey: string | null, look: LensLook) {
   // how far it has stretched beyond the button it is heading for: it gets a
   // little thinner as it does
   const squash = useTransform([width], ([w]: number[]) => 1 / Math.max(1, w / Math.max(1, target.current)) ** 0.3);
+  // placed by transform, to the fraction of a pixel (by layout it stepped a pixel at a time as it slid)
+  const box = useSubpixelBox(shownLeft, top, width, height, undefined, squash);
 
   const setLensed = (el: HTMLElement | null) => {
     current.current?.removeAttribute("data-lensed");
@@ -229,7 +232,7 @@ export function useLens(activeKey: string | null, look: LensLook) {
       ref={pressedEl}
       className="mb-lens"
       aria-hidden
-      style={{ left: shownLeft, width, top, height, opacity, scaleY: squash, backdropFilter: backdrop }}
+      style={{ ...box, opacity, backdropFilter: backdrop }}
     />
   );
 

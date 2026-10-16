@@ -20,6 +20,7 @@ import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { lens } from "../motion/tokens";
 import { refraction } from "./refraction";
+import { useSubpixelBox } from "../motion/subpixelBox";
 import { playCue } from "../sound/ui";
 import "./glide.css";
 
@@ -99,6 +100,7 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
   // stretched one way it grows thinner the other, as a drop does
   const squashY = useTransform([width], ([w]: number[]) => 1 / Math.max(1, w / Math.max(1, target.current.w)) ** 0.3);
   const squashX = useTransform([height], ([h]: number[]) => 1 / Math.max(1, h / Math.max(1, target.current.h)) ** 0.3);
+  const box = useSubpixelBox(shownLeft, shownTop, width, height, squashX, squashY);
 
   const setLensed = (el: HTMLElement | null) => {
     current.current?.removeAttribute("data-lensed");
@@ -215,7 +217,8 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
       ref={lensEl}
       className="glide-highlight"
       aria-hidden
-      style={{ left: shownLeft, top: shownTop, width, height, opacity, borderRadius: radius, scaleX: squashX, scaleY: squashY, backdropFilter: backdrop }}
+      // placed by transform, to the fraction of a pixel (by layout it stepped a pixel at a time as it glided)
+      style={{ ...box, opacity, borderRadius: radius, backdropFilter: backdrop }}
     />
   );
 

@@ -1456,12 +1456,15 @@ html[data-pointer-light="on"] .menubar:hover::before {
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
+/* the bar's length, slid in by the value (--p, 0 to 1), to the fraction of a pixel (a width stepped a pixel at a time) */
 .stats-bar span {
   display: block;
+  width: 100%;
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(180deg, #fff, rgba(255, 255, 255, 0.85));
-  transition: width var(--m-heavy) var(--mb-settle, var(--e-out));
+  transform: translateX(calc((var(--p, 0) - 1) * 100%));
+  transition: transform var(--m-heavy) var(--mb-settle, var(--e-out));
 }
 
 .stats-note {

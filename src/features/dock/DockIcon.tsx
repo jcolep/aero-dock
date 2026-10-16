@@ -192,7 +192,7 @@ export function DockIcon({
   // how far the top of the icon stands above where it rests, for the name that hangs over it
   const rise = useTransform(width, (w) => {
     const grown = Math.max(0, w - iconSize);
-    return `${(grown + liftPx * Math.min(1.25, grown / growth)).toFixed(1)}px`;
+    return `${(grown + liftPx * Math.min(1.25, grown / growth)).toFixed(3)}px`;
   });
 
   // A new icon grows into its place instead of appearing whole, so the ones
@@ -389,7 +389,7 @@ export function DockIcon({
           <span className="dock-volume-track" aria-hidden>
             <span
               className="dock-volume-fill"
-              style={{ width: `${audio.muted ? 0 : audio.volume}%` }}
+              style={{ ["--p" as string]: (audio.muted ? 0 : audio.volume) / 100 } as React.CSSProperties}
             />
           </span>
         </motion.span>

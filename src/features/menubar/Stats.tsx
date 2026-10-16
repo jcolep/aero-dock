@@ -91,7 +91,7 @@ export function StatsPanel() {
           <strong className="stats-big">{latest ? <Roll text={`${latest.memoryPercent}%`} /> : "…"}</strong>
         </div>
         <div className="stats-bar" role="meter" aria-label="Memory in use" aria-valuenow={latest?.memoryPercent ?? 0} aria-valuemin={0} aria-valuemax={100}>
-          <span style={{ width: `${latest?.memoryPercent ?? 0}%` }} />
+          <span style={{ ["--p" as string]: (latest?.memoryPercent ?? 0) / 100 } as React.CSSProperties} />
         </div>
         <small className="stats-note">
           {latest ? `${formatMemory(latest.memoryUsedMb)} of ${formatMemory(latest.memoryTotalMb)}` : ""}

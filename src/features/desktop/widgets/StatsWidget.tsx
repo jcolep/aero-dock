@@ -31,7 +31,7 @@ function Meter({ label, percent, detail }: { label: string; percent: number; det
         <span className="w-stat-value"><Roll text={`${percent}%`} /></span>
       </div>
       <div className="w-stat-track">
-        <div className="w-stat-fill" style={{ width: `${Math.min(100, Math.max(0, percent))}%` }} />
+        <div className="w-stat-fill" style={{ ["--p" as string]: Math.min(100, Math.max(0, percent)) / 100 } as React.CSSProperties} />
       </div>
       <div className="w-stat-detail">{detail}</div>
     </div>

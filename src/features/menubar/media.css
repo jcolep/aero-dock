@@ -378,19 +378,30 @@
   inset: 0;
   border-radius: inherit;
   background: #fff;
-  transform-origin: left center;
-  transform: scaleX(var(--p, 0));
+  /* the whole rail's length, slid in from the left by what has played: its rounded end stays round (a scale squashed
+     it), and the rail's own rounding clips the rest */
+  transform: translateX(calc((var(--p, 0) - 1) * 100%));
   transition: transform var(--m-standard) linear;
 }
 
-.np-track[data-held] .np-fill {
+.np-track[data-held] .np-fill,
+.np-track[data-held] .np-knob-run {
   transition: none;
+}
+
+/* as wide as the rail, slid along by what has played; the knob sits at its left */
+.np-knob-run {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateX(calc(var(--p, 0) * 100%));
+  transition: transform var(--m-standard) linear;
 }
 
 .np-knob {
   position: absolute;
   top: 50%;
-  left: calc(var(--p, 0) * 100%);
+  left: 0;
   width: 14px;
   height: 14px;
   margin: -7px 0 0 -7px;
@@ -400,7 +411,6 @@
   opacity: 0;
   transform: scale(0.5);
   transition:
-    left var(--m-standard) linear,
     opacity var(--m-quick) var(--e-out),
     transform var(--m-standard) var(--mb-settle, var(--e-out));
 }
@@ -413,8 +423,6 @@
 }
 
 .np-track[data-held] .np-knob {
-  left: calc(var(--p, 0) * 100%);
-  transition-property: opacity, transform;
   box-shadow:
     0 1px 5px rgba(0, 0, 0, 0.45),
     0 0 0 6px color-mix(in srgb, var(--np-accent) 30%, transparent);
@@ -541,7 +549,8 @@
     animation: none;
   }
   .np-fill,
-  .np-knob {
+  .np-knob,
+  .np-knob-run {
     transition: none;
   }
 }

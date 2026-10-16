@@ -280,7 +280,13 @@ function Scrubber({
         <div className="np-rail">
           <div className="np-fill" />
         </div>
-        {np.canSeek && <div className="np-knob" />}
+        {np.canSeek && (
+          // the knob rides a runner as wide as the rail, slid along by transform (a box moved by `left` steps a pixel at
+          // a time, and a song's progress is a crawl that shows every step)
+          <div className="np-knob-run">
+            <div className="np-knob" />
+          </div>
+        )}
       </div>
       <span className="np-time np-time-end">-{clock(Math.max(0, np.durationMs - position))}</span>
     </div>

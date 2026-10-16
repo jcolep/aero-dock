@@ -258,12 +258,15 @@
   overflow: hidden;
 }
 
+/* the track's length, slid in by the value (--p, 0 to 1), to the fraction of a pixel (a width stepped a pixel at a time) */
 .w-stat-fill {
+  width: 100%;
   height: 100%;
   border-radius: 6px;
   background: linear-gradient(90deg, #d9f4ff, var(--aero-accent, #2f9de3) 55%, var(--aero-life, #7ad03a));
   box-shadow: 0 0 8px rgba(160, 225, 255, 0.6);
-  transition: width var(--m-settle) var(--e-out);
+  transform: translateX(calc((var(--p, 0) - 1) * 100%));
+  transition: transform var(--m-settle) var(--e-out);
 }
 
 .w-stat-detail {

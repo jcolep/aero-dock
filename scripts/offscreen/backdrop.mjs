@@ -91,11 +91,22 @@ const panes = (h) => h.eval("window.__calls.filter((c) => c.cmd === 'set_glass_p
     const labels = (await panes(h)).filter((p) => p.id !== at.id);
     const byId = {};
     for (const p of labels) (byId[p.id] ??= []).push(p);
-    // its glass came in as the label landed (the last moments of its spring), near its resting size, and never part way
-    // out (it goes the moment the label starts to leave)
-    const ends = Object.values(byId).map((list) => { const seen = list.filter((p) => p.shown); const rest = seen.at(-1); return { gone: !list.at(-1).shown, near: seen.every((p) => rest && Math.abs(p.width - rest.width) <= rest.width * 0.08 && Math.abs(p.height - rest.height) <= rest.height * 0.08) }; });
+    // its glass came in as the label landed (the last moments of its spring), at about its resting size; once in, it
+    // stays with the label to the end, fading and shrinking as the label does on its way out (never growing past it),
+    // instead of being snatched away as it starts to go
+    const ends = Object.values(byId).map((list) => {
+      const seen = list.filter((p) => p.shown);
+      const full = seen.filter((p) => p.opacity >= seen[0].opacity - 0.01);
+      const rest = full.at(-1);
+      return {
+        gone: !list.at(-1).shown,
+        near: full.every((p) => rest && Math.abs(p.width - rest.width) <= rest.width * 0.08 && Math.abs(p.height - rest.height) <= rest.height * 0.08),
+        out: seen.slice(full.length).every((p, i, a) => p.width <= rest.width + 0.5 && p.opacity <= (i ? a[i - 1].opacity : rest.opacity) + 0.01),
+      };
+    });
     check(ends.length > 0 && ends.every((e) => e.gone), `every label's glass is taken away with it (${JSON.stringify(ends)})`);
-    check(ends.every((e) => e.near), `and it was only ever about where the label came to rest, never part way in or out (${JSON.stringify(ends)})`);
+    check(ends.every((e) => e.near && e.out), `at full strength it is where the label came to rest, and on the way out it only fades and shrinks with it (${JSON.stringify(ends)})`);
+    if (process.env.BDDEBUG) for (const list of Object.values(byId)) console.log("      ", list.map((p) => (p.shown ? `${p.width.toFixed(1)}x${p.height.toFixed(1)}@${p.y.toFixed(1)}/${p.opacity.toFixed(2)}` : "off")).join(" "));
   } finally {
     h.close();
   }
@@ -199,6 +210,39 @@ for (const [window, ready, extra] of [["dock", ".dock-icon", ""], ["start", ".st
     await h.sleep(2500);
     const after = (await panes(h)).filter((p) => !bar.has(p.id));
     check(after.at(-1) && !after.at(-1).shown && after.filter((p) => p.shown).length === seen.length, "the pointer gone, the menu closes and its glass goes with it, from its first frame of leaving");
+  } finally {
+    h.close();
+  }
+}
+{
+  // every dropdown and the Control Center: the glass comes in once and stays, never in, away and back (which was seen
+  // as the glass flashing as a menu landed: in as it all but stood still, away at the last hair of its spring, back)
+  const h = await startHarness({ out, window: "menubar", viewport: [1400, 800], settings: (s) => { s.menuBar.enabled = true; s.appearance.frost.menuBar.glass = true; } });
+  try {
+    await h.open(".menubar");
+    await h.sleep(600);
+    const bar = new Set((await panes(h)).map((p) => p.id));
+    const menus = await h.eval("[...document.querySelectorAll('[data-menu]')].map((e) => e.dataset.menu)");
+    for (const name of [...menus, "Control Center"]) {
+      const sel = name === "Control Center" ? '.mb-item[title="Control Center"]' : `[data-menu="${name}"]`;
+      const before = (await panes(h)).length;
+      const at = await h.rect(sel);
+      await h.click(at.x, at.y);
+      await h.sleep(1300);
+      const states = (await panes(h)).slice(before).filter((p) => !bar.has(p.id)).map((p) => p.shown);
+      // collapse runs: [false, true] is right (away while it flies in, then in); anything after the first true is a flash
+      const runs = states.filter((s, i) => i === 0 || s !== states[i - 1]);
+      const flashes = runs.slice(runs.indexOf(true) + 1).length;
+      check(runs.includes(true) && flashes === 0, `${name}: its glass comes in once and stays (${runs.join(" > ")})`);
+      // closed again (Escape), for the next
+      await h.eval("document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))");
+      await h.click(at.x, at.y);
+      await h.sleep(700);
+      if (await h.eval("!!document.querySelector('.mb-menu, .mb-panel')")) {
+        await h.click(at.x, at.y);
+        await h.sleep(700);
+      }
+    }
   } finally {
     h.close();
   }

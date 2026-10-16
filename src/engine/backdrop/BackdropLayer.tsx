@@ -92,6 +92,7 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer",
     let still = 0;
     let last = "";
     let seen = "";
+    let landed = false;
 
     /** Where the glass is now (the whole surface, its border too), how round, and how much of it shows (its own
      *  fading, and its parents'). */
@@ -150,7 +151,12 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer",
       const left = travelLeft(host);
       const leaving = host.dataset.leaving === "true";
       const atRest = !leaving && ((still >= SETTLE_FRAMES && left === 0) || (left > 0 && left <= LANDING_MS));
-      post(!settle || atRest ? look : null);
+      // Landed once, a settling surface's glass stays and follows it, until it leaves: it came in as the surface all but
+      // stood still, and the last hair of a spring (or a wobble's tail) moving it again took the glass away and brought
+      // it back a few frames later, which was seen as the glass flashing on every menu
+      if (settle && (leaving || !look.shown)) landed = false;
+      else if (atRest && look.shown) landed = true;
+      post(!settle || atRest || landed ? look : null);
       // a settling surface that has not come back yet is watched until it does
       if (quiet < 20 || still < 20 || (settle && look.shown && last === "off")) raf = requestAnimationFrame(follow);
       else if (!look.shown) again = window.setTimeout(wake, 400);
@@ -169,7 +175,10 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer",
     // and a stylesheet animation starting; and a surface that starts to leave gives its glass up at once, before
     // the frame its exit begins in
     const observer = new MutationObserver(() => {
-      if (settle && host.dataset.leaving === "true") post(null);
+      if (settle && host.dataset.leaving === "true") {
+        landed = false;
+        post(null);
+      }
       wake();
     });
     let node: HTMLElement | null = host;
