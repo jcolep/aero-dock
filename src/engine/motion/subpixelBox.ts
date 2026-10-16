@@ -46,12 +46,15 @@ export function useSubpixelBox(
   squashY?: MotionValue<number>,
 ) {
   // the layout box: whole pixels, at least one (a box of none would scale by nothing into nothing, which is right)
-  const boxW = useTransform(() => Math.max(1, Math.ceil(width.get() - 0.001)));
-  const boxH = useTransform(() => Math.max(1, Math.ceil(height.get() - 0.001)));
-  // scaled about its middle, so moved by its own left plus half of what the scale takes off
-  const x = useTransform(() => left.get() - (boxW.get() - width.get()) / 2);
-  const y = useTransform(() => top.get() - (boxH.get() - height.get()) / 2);
-  const scaleX = useTransform(() => (Math.max(0, width.get()) / boxW.get()) * (squashX?.get() ?? 1));
-  const scaleY = useTransform(() => (Math.max(0, height.get()) / boxH.get()) * (squashY?.get() ?? 1));
+  const whole = (v: number) => Math.max(1, Math.ceil(v - 0.001));
+  const boxW = useTransform(() => whole(width.get()));
+  const boxH = useTransform(() => whole(height.get()));
+  // Scaled about its middle, so moved by its own left plus half of what the scale takes off. Each works the whole
+  // size out from the width itself, never from `boxW`: a value made from another made value could be read before
+  // that one had caught up, and the box was drawn half its width off (the menu bar's lens, on its first frames).
+  const x = useTransform(() => left.get() - (whole(width.get()) - width.get()) / 2);
+  const y = useTransform(() => top.get() - (whole(height.get()) - height.get()) / 2);
+  const scaleX = useTransform(() => (Math.max(0, width.get()) / whole(width.get())) * (squashX?.get() ?? 1));
+  const scaleY = useTransform(() => (Math.max(0, height.get()) / whole(height.get())) * (squashY?.get() ?? 1));
   return { left: 0, top: 0, width: boxW, height: boxH, x, y, scaleX, scaleY };
 }

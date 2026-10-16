@@ -96,6 +96,10 @@ export function useLens(activeKey: string | null, look: LensLook) {
   const height = useMotionValue(0);
   const opacity = useMotionValue(0);
   const current = useRef<HTMLElement | null>(null);
+  // the last button it ticked for, and whether a menu is open (it then stays on that menu's button)
+  const ticked = useRef<HTMLElement | null>(null);
+  const activeRef = useRef(activeKey);
+  activeRef.current = activeKey;
   const placed = useRef(false);
   const hovering = useRef(false);
   const pressedEl = useRef<HTMLSpanElement>(null);
@@ -132,13 +136,35 @@ export function useLens(activeKey: string | null, look: LensLook) {
     el?.setAttribute("data-lensed", "true");
   };
 
+  /** Start the edges' springs from where the edges are drawn. The edge it is leaving is held within MAX_STRETCH of
+   *  the one it is heading for only as it is drawn; its spring could be far behind (after a long hop), and the next
+   *  move set off from there, so the lens stood stretched and off its button until that slow spring caught up. */
+  const rebase = () => {
+    const l = shownLeft.get();
+    const r = shownRight.get();
+    if (Math.abs(left.get() - l) > 0.5) left.jump(l);
+    if (Math.abs(right.get() - r) > 0.5) right.jump(r);
+  };
+
+  /** Spring the edges to a box: the edge on the side it is heading for leads, the other follows. Setting off for a
+   *  button it starts from where it is drawn (`rebase`); following the pointer, every move would take the edges'
+   *  speed away that way, so it keeps it. */
+  const travel = (to: { left: number; right: number }, fromDrawn = true) => {
+    if (fromDrawn) rebase();
+    const forward = to.left + to.right > left.get() + right.get();
+    heading.current = forward ? 1 : -1;
+    controls.current.push(animate(left, to.left, forward ? TRAIL : LEAD), animate(right, to.right, forward ? LEAD : TRAIL));
+  };
+
   const goTo = useCallback(
     (item: HTMLElement) => {
       const bar = barRef.current;
       if (!bar) return;
       const box = boxOf(item, bar, lookRef.current.grow);
       const same = current.current === item;
-      if (!same) playCue("tick");
+      // a tick for each new button, not for coming back to the one just left across the gap beside it
+      if (ticked.current !== item) playCue("tick");
+      ticked.current = item;
       setLensed(item);
       observer.current ??= new ResizeObserver(() => {
         const el = current.current;
@@ -167,20 +193,34 @@ export function useLens(activeKey: string | null, look: LensLook) {
         left.set(box.left);
         right.set(box.right);
       } else if (same) {
+        rebase();
         controls.current.push(animate(left, box.left, SETTLE), animate(right, box.right, SETTLE));
       } else {
-        // the edge on the side it is heading for leads
-        const forward = box.left + box.right > left.get() + right.get();
-        heading.current = forward ? 1 : -1;
-        controls.current.push(
-          animate(left, box.left, forward ? TRAIL : LEAD),
-          animate(right, box.right, forward ? LEAD : TRAIL),
-        );
+        travel(box);
       }
       controls.current.push(animate(opacity, 1, { duration: 0.14 }));
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [left, right, top, height, opacity],
   );
+
+  /** The pointer between buttons (the open middle of the bar, the gaps between buttons): the lens goes along under
+   *  it, the size of the button it was last on, instead of waiting where it was. A long way across the bar is then a
+   *  glide with the hand, and the button it comes to is a short hop away. It does not while a menu is open (it stays
+   *  on that menu's button), nor once it has faded (it next appears on a button, in place). */
+  const floatTo = (clientX: number) => {
+    const bar = barRef.current;
+    if (!bar || !placed.current || lookRef.current.still || activeRef.current || opacity.get() < 0.05) return;
+    const b = bar.getBoundingClientRect();
+    const x = clientX - b.left;
+    const w = target.current;
+    setLensed(null);
+    observer.current?.disconnect();
+    observed.current = null;
+    controls.current.forEach((c) => c.stop());
+    controls.current = [];
+    travel({ left: x - w / 2, right: x + w / 2 }, false);
+  };
 
   const fade = useCallback(() => {
     controls.current.push(animate(opacity, 0, { duration: 0.22, delay: 0.05 }));
@@ -214,6 +254,17 @@ export function useLens(activeKey: string | null, look: LensLook) {
       hovering.current = true;
       // with a menu open the lens stays on its button until another is chosen
       goTo(item);
+    },
+    // between buttons, the lens goes along under the pointer; over the media pill when it is out, it steps aside
+    onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
+      const el = e.target as HTMLElement;
+      if (el.closest(ITEM)) return;
+      if (el.closest(".mb-island-zone[data-out] .mb-island")) {
+        if (placed.current) fade();
+        return;
+      }
+      hovering.current = true;
+      floatTo(e.clientX);
     },
     onPointerLeave: () => {
       hovering.current = false;

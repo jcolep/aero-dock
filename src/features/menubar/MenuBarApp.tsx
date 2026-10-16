@@ -536,7 +536,10 @@ export function MenuBarApp() {
           lensHandlers.onPointerLeave();
           pointerOut();
         }}
-        onPointerMove={pointerLight}
+        onPointerMove={(e) => {
+          lensHandlers.onPointerMove(e);
+          pointerLight(e);
+        }}
       >
         <BackdropLayer
           track="follow"
