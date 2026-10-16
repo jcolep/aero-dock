@@ -221,9 +221,21 @@
   height: var(--mark-h);
   margin-left: calc(var(--mark-w) / -2);
   border-radius: calc(var(--mark-h) / 2);
-  background: radial-gradient(ellipse at 40% 30%, #ffffff, var(--aero-life) 60%, #3f8f1d);
-  box-shadow: 0 0 9px 2px rgba(122, 208, 58, 0.85);
+  --mark-fill: radial-gradient(ellipse at 40% 30%, #ffffff, var(--aero-life) 60%, #3f8f1d);
+  --mark-shadow: 0 0 9px 2px rgba(122, 208, 58, 0.85);
   pointer-events: none;
+}
+/* What is seen of it is drawn on this, so it can stretch with the mark's speed (Stretch with speed: FocusMarks sets
+   --stretch-x and --stretch-y while it travels) without touching the transform the library carries the mark with. */
+.dock-mark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* round ends that stay round when stretched: the corners are drawn in before the scale draws them out */
+  border-radius: calc(var(--mark-h) / 2 * var(--stretch-y, 1) / var(--stretch-x, 1)) / calc(var(--mark-h) / 2);
+  background: var(--mark-fill);
+  box-shadow: var(--mark-shadow);
+  transform: scale(var(--stretch-x, 1), var(--stretch-y, 1));
 }
 
 .dock-mark[data-shape="dot"] {
@@ -233,10 +245,8 @@
 }
 
 .dock-mark-ghost {
-  background: transparent;
-  box-shadow:
-    inset 0 0 0 1.25px rgba(255, 255, 255, 0.62),
-    0 0 6px rgba(255, 255, 255, 0.18);
+  --mark-fill: transparent;
+  --mark-shadow: inset 0 0 0 1.25px rgba(255, 255, 255, 0.62), 0 0 6px rgba(255, 255, 255, 0.18);
 }
 
 /* The marks' track: the icon's own box, with the icon's jumps undone (DockIcon), so the marks stay level along the

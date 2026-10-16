@@ -697,6 +697,15 @@ export function SettingsApp() {
                 options={MARK_MOTION_OPTIONS}
                 onChange={(v) => set((d) => void (d.dock.ghostMotion = v))}
               />
+              <AeroSlider
+                label="Stretch with speed"
+                value={dock.markStretch}
+                min={0}
+                max={1}
+                step={0.05}
+                format={(v) => (v === 0 ? "Off" : `${Math.round(v * 100)}%`)}
+                onChange={(v) => set((d) => void (d.dock.markStretch = v))}
+              />
             </>
           )}
           {dock.showRunningApps && (

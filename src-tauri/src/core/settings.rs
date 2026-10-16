@@ -119,6 +119,8 @@ pub struct DockSettings {
     pub focus_motion: String,
     /// How its ghost follows the pointer from app to app: the same choices.
     pub ghost_motion: String,
+    /// How much the focus mark and its ghost stretch out with their speed as they travel, 0 (not at all) to 1.
+    pub mark_stretch: f32,
     /// With the focus mark, how the other running apps show they are running: `dots` (faint glowing marks of the
     /// mark's shape in its track), `halo` (a soft pool of light the icon sits in), `dim` (the apps that are not
     /// running are drawn faded) or `none`.
@@ -166,6 +168,7 @@ impl Default for DockSettings {
             indicator_shape: "pill".into(),
             focus_motion: "glide".into(),
             ghost_motion: "glide".into(),
+            mark_stretch: 0.5,
             running_cue: "dots".into(),
         }
     }
@@ -819,6 +822,7 @@ impl Settings {
         d.magnification_lift = if d.magnification_lift.is_finite() { d.magnification_lift.clamp(0.0, 0.5) } else { 0.12 };
         d.magnification_reach = if d.magnification_reach.is_finite() { d.magnification_reach.clamp(1.5, 4.5) } else { 2.6 };
         d.tint = if d.tint.is_finite() { d.tint.clamp(0.0, 1.5) } else { 1.0 };
+        d.mark_stretch = if d.mark_stretch.is_finite() { d.mark_stretch.clamp(0.0, 1.0) } else { 0.5 };
         d.floating_margin = d.floating_margin.min(64);
         d.padding = d.padding.clamp(2, 24);
         d.indicator_gap = d.indicator_gap.min(16);

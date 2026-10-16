@@ -120,6 +120,7 @@ export function DockIcon({
   const markShape = useSettings((s) => s.settings?.dock.indicatorShape ?? "pill");
   const focusMotion = useSettings((s) => s.settings?.dock.focusMotion ?? "glide");
   const ghostMotion = useSettings((s) => s.settings?.dock.ghostMotion ?? "glide");
+  const markStretch = useSettings((s) => s.settings?.dock.markStretch ?? 0.5);
   const runningCue = useSettings((s) => s.settings?.dock.runningCue ?? "dots");
   const dwellTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // While the volume is being adjusted the window previews stay out of the
@@ -437,6 +438,7 @@ export function DockIcon({
             shape={markShape}
             focusMotion={focusMotion}
             ghostMotion={ghostMotion}
+            stretch={markStretch}
           />
         </motion.span>
       ) : (

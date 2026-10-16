@@ -99,6 +99,38 @@ for (const motion of ["glide", "bounce", "snap", "float", "fade"]) {
     h.close();
   }
 }
+for (const stretch of [0, 0.5, 1]) {
+  // Stretch with speed: drawn longer the faster it goes, longest midway, back to itself when it arrives
+  const h = await dock((s) => { s.dock.indicatorStyle = "focus"; s.dock.markStretch = stretch; });
+  try {
+    const from = await iconAt(h, "untitled|notepad");
+    const to = await iconAt(h, "paint");
+    // the one most seen (the one leaving fades out as it is carried over), as drawn: its box, by its stretch
+    await h.record("stretch", `(() => { const m = [...document.querySelectorAll('.dock-mark:not(.dock-mark-ghost)')].sort((a, b) => getComputedStyle(b).opacity - getComputedStyle(a).opacity)[0]; if (!m) return null; const r = m.getBoundingClientRect(); const cs = getComputedStyle(m); const sx = +(cs.getPropertyValue('--stretch-x') || 1); const sy = +(cs.getPropertyValue('--stretch-y') || 1); return { x: r.left + r.width / 2, w: r.width * sx, h: r.height * sy, sx, sy }; })()`);
+    await h.emit("apps://running-changed", { windows, focused: 3 });
+    if (stretch === 1) {
+      await h.sleep(70);
+      await snap(h, "marks-stretch");
+    }
+    await h.sleep(1000);
+    const f =(await h.recorded("stretch")).map((x) => x.v).filter(Boolean);
+    const rest = f[0].w;
+    const most = f.reduce((a, b) => (b.sx > a.sx ? b : a));
+    const end = f[f.length - 1];
+    const along = (most.x - from.x) / (to.x - from.x);
+    console.log(`     stretch ${stretch}: rest ${rest.toFixed(1)}px, most ${most.sx.toFixed(2)}x by ${most.sy.toFixed(2)} (${most.w.toFixed(1)}x${most.h.toFixed(1)}px) at ${(along * 100).toFixed(0)}% of the way, end ${end.w.toFixed(1)}px`);
+    if (stretch === 0) check(most.sx === 1 && most.sy === 1, "stretch off: it is never stretched");
+    else {
+      check(most.sx >= 1 + stretch * 0.5 && most.sx <= 1 + stretch * 1.8 + 0.01, `stretch ${stretch}: it draws out on the way (${most.sx.toFixed(2)}x)`);
+      check(most.sy < 1, `stretch ${stretch}: and thins a little as it does (${most.sy.toFixed(2)})`);
+      check(along > 0.15 && along < 0.85, `stretch ${stretch}: longest along the way, not at either end`);
+    }
+    check(Math.abs(end.w - rest) <= 0.5 && Math.abs(end.x - to.x) <= 1, `stretch ${stretch}: arrives its own size, under the app`);
+    check((await h.errors()).length === 0, `stretch ${stretch}: no errors in the page`);
+  } finally {
+    h.close();
+  }
+}
 {
   // the icon jumps when it is clicked (its launch bounce): the marks stay level in their track along the bottom
   const h = await dock((s) => { s.dock.indicatorStyle = "focus"; });
