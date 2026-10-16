@@ -166,13 +166,20 @@ export function DockIcon({
   });
   const targetWidth = useTransform(bell, (b) => iconSize * (1 + (peak - 1) * b));
   const width = useSpring(targetWidth, magnifySpring(magnifyFeel));
+  // The room it takes with its swell is not given by layout: its slot stays the icon's size and the bar moves it, and
+  // everything after it, along by the swell, sub-pixel (magnifyField.ts)
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     field.widths.set(el, width);
+    field.schedule();
+    const off = width.on("change", field.schedule);
     return () => {
+      off();
       field.widths.delete(el);
       field.rest.delete(el);
+      field.offset.delete(el);
+      field.schedule();
     };
   }, [field, width]);
   // The space it takes is `width`, and the icon is drawn that much larger, from the side of the dock nearest the
@@ -192,13 +199,18 @@ export function DockIcon({
   // beside it ease apart to make room rather than jumping. Done before the
   // first paint, so there is no frame of it at full size first. Nothing is
   // measured from the DOM to size the window, so this changes no geometry.
+  // (its slot, by layout: the one time an icon's room changes by layout, as it arrives)
+  const slot = useMotionValue(iconSize);
   useLayoutEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    width.jump(0);
-    width.set(targetWidth.get());
+    slot.jump(0);
+    void animate(slot, iconSize, { type: "spring", ...magnifySpring(magnifyFeel) });
     // once, on arrival
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEffect(() => {
+    if (!slot.isAnimating()) slot.jump(iconSize);
+  }, [iconSize, slot]);
 
   // When a drag starts, every icon springs back to its base size. Letting
   // that animate resizes tiles under the cursor mid-drag, which is a big
@@ -264,7 +276,7 @@ export function DockIcon({
       style={
         vertical
           ? {
-              height: width,
+              height: slot,
               width: "var(--icon-size)",
               x,
               y,
@@ -273,7 +285,7 @@ export function DockIcon({
               transformOrigin: nearSide(edge),
               ["--mag-rise" as string]: rise,
             }
-          : { width, x, y, scaleX: squashX, scaleY: squashY, transformOrigin: nearSide(edge), ["--mag-rise" as string]: rise }
+          : { width: slot, x, y, scaleX: squashX, scaleY: squashY, transformOrigin: nearSide(edge), ["--mag-rise" as string]: rise }
       }
       onClick={handleClick}
       onContextMenu={(e) => {

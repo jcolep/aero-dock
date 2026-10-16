@@ -109,7 +109,9 @@
   display: flex;
   align-items: center;
   gap: var(--icon-gap);
-  padding: var(--dock-pad-y) var(--dock-pad-x);
+  /* --mag-grow: half the room the swollen icons take beyond their slots, at each end (magnifyField.ts moves what is
+     inside along by translate, so this is the only thing magnification changes by layout) */
+  padding: var(--dock-pad-y) calc(var(--dock-pad-x) + var(--mag-grow, 0px));
   opacity: var(--dock-opacity);
 }
 
@@ -122,7 +124,7 @@
 .dock-bar[data-vertical="true"] {
   flex-direction: column;
   align-items: center;
-  padding: var(--dock-pad-x) var(--dock-pad-y);
+  padding: calc(var(--dock-pad-x) + var(--mag-grow, 0px)) var(--dock-pad-y);
 }
 
 /* reorderable pinned section mirrors the bar's layout */
@@ -545,13 +547,29 @@
 .dock-icon::before {
   content: "";
   position: absolute;
-  inset: -30%;
+  /* as wide as the room the icon takes with its swell (--grow, magnifyField.ts), as it was when that was its width */
+  inset: -30% calc(-30% - var(--grow, 0px) / 2);
   border-radius: 50%;
   background: radial-gradient(circle, var(--bloom-color) 0%, var(--bloom-soft) 40%, transparent 70%);
   opacity: 0;
   transition: opacity calc(0.35s / var(--anim-speed)) ease;
   pointer-events: none;
   z-index: -1;
+}
+
+/* The icon answers the pointer over all the room it takes with its swell, not only its slot: the slot stays the
+   icon's size while the bar moves it along (magnifyField.ts), so without this there would be gaps between swollen
+   icons where the pointer is over none of them. */
+.dock-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0 calc(var(--grow, 0px) / -2);
+}
+.dock-bar[data-vertical="true"] .dock-icon::after {
+  inset: calc(var(--grow, 0px) / -2) 0;
+}
+.dock-bar[data-vertical="true"] .dock-icon::before {
+  inset: calc(-30% - var(--grow, 0px) / 2) -30%;
 }
 
 .dock-icon:hover::before {

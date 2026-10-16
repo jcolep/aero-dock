@@ -8,7 +8,7 @@
 import { listen } from "@tauri-apps/api/event";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { AnimatePresence, motion, Reorder, useMotionValue } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { animationsOf, PANEL_EXIT_MS, revealMotion } from "../../engine/animation/presets";
 import { idleFloat, springs } from "../../engine/animation/springs";
 import { effectsBus } from "../../engine/effects/effectsBus";
@@ -175,6 +175,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   const revealMode = settings.dock.revealControls && !vertical;
   const mouseAxis = useMotionValue(Infinity);
   const [magnifyField] = useState(newMagnifyField);
+  magnifyField.restSize = iconSize;
+  magnifyField.vertical = vertical;
   const menu = useMenu();
   const draggingRef = useRef(false);
   const [dragging, setDragging] = useState(false);
@@ -326,6 +328,11 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   // ResizeObserver" rule below because it only moves the reserved strip,
   // never the window, so it cannot feed back into its own measurement.
   const barRef = useRef<HTMLDivElement>(null);
+  // the bar that magnification places things in; placed again after every render, for anything new in it
+  useLayoutEffect(() => {
+    magnifyField.bar = barRef.current;
+    magnifyField.schedule();
+  });
   const viewportRef = useRef<HTMLDivElement>(null);
   const pointerLight = usePointerLight();
   const [barThickness, setBarThickness] = useState(0);
@@ -628,7 +635,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   const handleMove = useCallback(
     (e: React.MouseEvent) => {
       if (!draggingRef.current) {
-        measureRest(magnifyField, iconSize, vertical);
+        measureRest(magnifyField);
         mouseAxis.set(vertical ? e.clientY : e.clientX);
       }
       if (!revealMode || draggingRef.current) return;
@@ -642,7 +649,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       setRevealLeft(left);
       setRevealRight(right);
     },
-    [mouseAxis, magnifyField, iconSize, vertical, revealMode, cancelRevealHide],
+    [mouseAxis, magnifyField, vertical, revealMode, cancelRevealHide],
   );
 
   // Coming at the dock's end from outside it, along the screen, never crosses the bar before the

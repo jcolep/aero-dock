@@ -33,7 +33,10 @@ for (const feel of ["soft", "liquid", "snappy"]) {
     await h.sleep(800);
     const q = (js) => h.eval(`(() => ${js})()`);
     const bar = await q("(() => { const b = document.querySelector('.dock-bar').getBoundingClientRect(); return { left: b.left, right: b.right, y: (b.top + b.bottom) / 2 }; })()");
-    const sizes = `[...document.querySelectorAll('.dock-bar .dock-icon')].map((b) => +b.getBoundingClientRect().width.toFixed(2))`;
+    const sizes = `[...document.querySelectorAll('.dock-bar .dock-icon-mag')].map((b) => +b.getBoundingClientRect().width.toFixed(2))`;
+    // where layout puts each thing in the bar (whole pixels, which is how it is painted), apart from any translate
+    const laidOut = `[...document.querySelectorAll('.dock-bar .dock-icon, .dock-bar .dock-divider, .dock-bar .widget-cluster')].map((e) => { const r = e.getBoundingClientRect(); return r.left + r.width / 2 - (parseFloat(e.style.translate) || 0); })`;
+    const layoutAtRest = await h.eval(laidOut);
     // the turns in each icon's size, over a run of frames (a change of under a hundredth of a pixel is not a turn)
     const turns = (frames) => {
       const n = frames[0].length;
@@ -62,10 +65,16 @@ for (const feel of ["soft", "liquid", "snappy"]) {
       await h.sleep(200);
       await h.record("s", sizes);
       // in from beyond the left end, across the first half of the dock
+      let moved = 0;
       for (let x = bar.left - 60; x < bar.left + (bar.right - bar.left) * 0.45; x += step) {
         await h.move(x, bar.y);
         await h.sleep(8);
+        if (speed === "slowly" && x % 40 < 1) {
+          const now = await h.eval(laidOut);
+          moved = Math.max(moved, ...now.map((v, i) => Math.abs(v - layoutAtRest[i])));
+        }
       }
+      if (speed === "slowly") check(moved < 0.05, `${feel}: while it swells nothing in the bar moves by layout, only by translate (${moved.toFixed(3)}px)`);
       await h.sleep(600);
       const frames = (await h.recorded("s")).map((f) => f.v).filter((v) => v && v.length);
       const t = turns(frames);
