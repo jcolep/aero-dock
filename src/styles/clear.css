@@ -277,24 +277,6 @@
   background: rgba(var(--clear-tint), calc(0.26 * var(--clear-strength)));
 }
 
-/* Same reason as under `liquid`: the blur needs something to soften, and
-   anything moving behind it makes every card re-raster each frame. */
-[data-surface="clear"] .settings-bubble {
-  animation: none;
-  opacity: 0.45;
-  bottom: auto;
-  top: calc(4% + var(--i) * 17%);
-  width: calc(90px + var(--i) * 34px);
-  height: calc(90px + var(--i) * 34px);
-  border-color: rgba(255, 255, 255, 0.5);
-  background: radial-gradient(
-    circle at 32% 28%,
-    rgba(255, 255, 255, 0.9),
-    rgba(255, 255, 255, 0.16) 44%,
-    rgba(255, 255, 255, 0.03) 72%
-  );
-}
-
 [data-surface="clear"] .settings-card h2,
 [data-surface="clear"] .ctl-label,
 [data-surface="clear"] .mode-card-title strong {

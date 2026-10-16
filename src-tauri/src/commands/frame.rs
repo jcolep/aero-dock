@@ -480,7 +480,7 @@ pub fn layout_all(app: &AppHandle) {
     shaper::set_openings(openings);
 }
 
-/// Take the frame off every window it has shaped. Called when Aero Dock quits
+/// Take the frame off every window it has shaped. Called when Liquidock quits
 /// as well as when the frame goes: a window left with its region would stay
 /// clipped to the size it had.
 pub fn shutdown() {

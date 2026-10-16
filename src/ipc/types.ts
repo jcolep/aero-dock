@@ -73,10 +73,9 @@ export interface DockSettings {
 /** How the dock's focus mark and its ghost move. */
 export type MarkMotion = "glide" | "bounce" | "snap" | "float" | "fade";
 
-/** How a surface is rendered. Both are Frutiger Aero; they differ in how
- *  thick the material reads. "aero" is the glossy beveled panel, "liquid"
- *  keeps the palette but renders as a thin lens. */
-export type SurfaceStyle = "aero" | "liquid" | "clear";
+/** How a surface is rendered: "liquid", the theme's colour as a thin lens, or "clear", neutral glass with the picked
+ *  colour as a flat veil. (A file from when there was a glossy "aero" panel loads it as liquid.) */
+export type SurfaceStyle = "liquid" | "clear";
 
 /** plain: as drawn. glass: the icon with a glass body. clear: frosted white glass. tinted: glass in the theme's colour. */
 export type IconStyle = "plain" | "glass" | "clear" | "tinted";
@@ -98,12 +97,12 @@ export interface AppearanceSettings {
   wallpaperSync: boolean;
   /** Material for the dock, its flyouts and its controls. */
   dockSurface: SurfaceStyle;
-  /** Material for the settings window, independent of the dock. */
-  settingsSurface: SurfaceStyle;
   /** Windows blurs what is behind the dock, menu bar and frame. */
   realBlur: boolean;
   /** A soft highlight that follows the pointer across the glass. */
   pointerLight: boolean;
+  /** What a menu's items and a panel's sections do under the pointer. */
+  hoverEffect: "magnify" | "lift" | "glow" | "none";
   /** A fine grain over the glass. */
   glassGrain: boolean;
   /** What is done to every app's icon (baked into a copy of it). */
@@ -114,8 +113,6 @@ export interface AppearanceSettings {
   frameOverlay: boolean;
   /** Draw the windows with the graphics card (read when the program starts). */
   hardwareAcceleration: boolean;
-  /** The settings window: dark liquid glass, or the classic sky. */
-  settingsLook: "night" | "sky";
 }
 
 /** One window's frame timings (see commands/perf.rs). */

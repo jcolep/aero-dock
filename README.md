@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="src-tauri/icons/128x128.png" width="96" alt="Aero Dock icon" />
+<img src="src-tauri/icons/128x128.png" width="96" alt="Liquidock icon" />
 
-# Aero Dock
+# Liquidock
 
 **A modern free and open-source RocketDock and Nexus Dock alternative for
 Windows 10 and 11.**
@@ -20,7 +20,7 @@ whole thing.
 [![License: MIT](https://img.shields.io/badge/license-MIT-7ad03a)](LICENSE)
 [![Platform: Windows](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0d3a5c)](#requirements)
 
-<img src="docs/screenshots/dock.png" alt="Aero Dock glass taskbar with magnified app icons and running indicators on Windows 11" width="880" />
+<img src="docs/screenshots/dock.png" alt="Liquidock glass taskbar with magnified app icons and running indicators on Windows 11" width="880" />
 
 </div>
 
@@ -28,7 +28,7 @@ whole thing.
 
 ## What it does
 
-Aero Dock is an app launcher and window switcher for Windows, in the same
+Liquidock is an app launcher and window switcher for Windows, in the same
 vein as RocketDock and Winstep Nexus Dock. It sits on any screen edge and
 covers what the taskbar covers, in glass.
 
@@ -98,10 +98,9 @@ Its last release was 2008.
 **Appearance**
 
 - Six themes: Aero, Ocean, Forest, Aurora, Sunset, Night
-- Two glass materials: Classic, the glossy Aero panel, and Liquid, thin
-  glass that refracts what is behind it. Set per window, so the dock and
-  settings can differ. The dock is a transparent window, so it gets the
-  rim and the transparency but cannot bend the desktop behind it
+- Two glass materials for the dock: Liquid, the theme's colour as a thin
+  lens with light at its rim, and Clear, neutral glass with a bright edge.
+  The settings window is night glass
 - Optional wallpaper colour sync
 - Ambient scenes behind the dock: dust, rain, snow, bubbles, aurora
 - Sliders for glass, bloom, reflections, particles, opacity, speed
@@ -111,11 +110,11 @@ Its last release was 2008.
 
 <div align="center">
 
-<img src="docs/screenshots/previews.png" alt="Live window previews in Aero Dock, showing real DWM thumbnails of open File Explorer windows" width="820" />
+<img src="docs/screenshots/previews.png" alt="Live window previews in Liquidock, showing real DWM thumbnails of open File Explorer windows" width="820" />
 
 <em>Live window previews. Real DWM thumbnails, so you see what each window is doing.</em>
 
-<img src="docs/screenshots/settings.png" alt="Aero Dock settings window with theme picker and glass sliders" width="820" />
+<img src="docs/screenshots/settings.png" alt="Liquidock settings window with theme picker and glass sliders" width="820" />
 
 <em>Settings, in the same glass as the dock.</em>
 
@@ -127,7 +126,7 @@ Grab the installer from the
 [latest release](https://github.com/TheAgencyMGE/aero-dock/releases/latest) and
 run it. It installs per user, so no admin rights.
 
-Aero Dock lives in your system tray. Left click the tray icon to show or hide
+Liquidock lives in your system tray. Left click the tray icon to show or hide
 the dock, right click for settings and quit.
 
 > The installer is not code signed, because certificates cost money this
@@ -138,7 +137,7 @@ the dock, right click for settings and quit.
 ### Portable
 
 There is a portable zip on the same release page. Unpack it anywhere and run
-`Aero Dock.exe`. No installer, no admin, nothing written outside the folder.
+`Liquidock.exe`. No installer, no admin, nothing written outside the folder.
 
 Settings, pinned apps and the icon cache go in a `data` folder next to the
 exe, so the whole thing fits on a USB stick. What makes it portable is the
@@ -148,7 +147,7 @@ executable goes back to using `%APPDATA%` like an installed copy.
 Settings, then About, tells you which mode you are in and where the files
 are.
 
-One caveat: **Start Aero Dock when I sign in** writes a registry entry
+One caveat: **Start Liquidock when I sign in** writes a registry entry
 pointing at wherever the exe sits at that moment. Turn it off before moving
 the folder.
 
@@ -185,7 +184,7 @@ First launch offers to import a starter set of your apps, or to start empty.
 
 ## Privacy
 
-Aero Dock makes no network requests. No telemetry, no analytics, no crash
+Liquidock makes no network requests. No telemetry, no analytics, no crash
 reporting, no update check, no account.
 
 The one exception is the weather widget, and it takes two deliberate steps
@@ -234,7 +233,7 @@ something that no longer exists.
 no DWM thumbnail.
 
 **Store app windows group oddly.** Packaged apps all run under
-`ApplicationFrameHost.exe`, so Aero Dock identifies them by AppUserModelID.
+`ApplicationFrameHost.exe`, so Liquidock identifies them by AppUserModelID.
 That covers most cases and misses a few.
 
 **Wrong monitor.** Settings, then Dock, then Monitor. The picker shows up with
@@ -250,7 +249,7 @@ with your Windows build.
   macOS or Linux backend exists.
 - UWP window grouping does not resolve for every app.
 - Windows has no public API for sending one app to a chosen audio output.
-  Aero Dock records the choice and opens the Windows page that performs
+  Liquidock records the choice and opens the Windows page that performs
   the routing, so the last step is a click there.
 - Restoring a workspace gives a relaunched app about a second and a half
   to show a window. Anything slower keeps its own default geometry.
@@ -261,7 +260,7 @@ with your Windows build.
 
 ## Support
 
-Aero Dock is free and independently developed. If you enjoy using it, you can
+Liquidock is free and independently developed. If you enjoy using it, you can
 support continued development on [Ko-fi](https://ko-fi.com/theagencymge).
 
 It stays free either way, with no paid tier and nothing held back.

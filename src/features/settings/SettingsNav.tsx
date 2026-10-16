@@ -1,92 +1,110 @@
 /**
- * The sidebar of the settings window: a search box that narrows the sections to
- * those that answer it, the sections listed under their groups (a click goes to
- * one, opening it), and buttons to open or fold them all. The section the page
- * is at is lit.
+ * The sidebar of the settings window: the app's name, a search box that narrows the list to the sections that answer
+ * it, and the sections under their groups, each with its icon. A click shows that section; the one shown is lit.
+ *
+ * Kept always in view, or (Settings > General > This window, and always in a narrow window) slid away off the left
+ * edge, to come out when the pointer reaches that edge or the button at the top of the page is pressed. Out by the
+ * pointer, it goes again when the pointer leaves it; out by a click, when a section is chosen or the page is clicked.
  */
 
-import { useEffect } from "react";
-import { ALL_SECTIONS, GROUPS, matches } from "./sections";
-import { useSettingsUi } from "./useSettingsUi";
+import { useEffect, useRef } from "react";
+import { GROUPS, matches } from "./sections";
+import { SectionIcon } from "./SectionIcon";
+import { goToSection, useSettingsUi } from "./useSettingsUi";
 
-/** Scroll to a section, opening it first. */
-export function goToSection(id: string) {
-  const ui = useSettingsUi.getState();
-  // searching narrows the list; leaving the search is what shows the rest
-  if (ui.query) ui.setQuery("");
-  ui.setOpen(id, true);
-  // after it has been laid out open
-  window.setTimeout(() => document.getElementById(`section-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
-}
+/** How long the pointer can be off a sidebar that came out at the edge before it goes again, in ms. */
+const LEAVE_MS = 320;
 
-export function SettingsNav() {
+export function SettingsNav({ sliding }: { sliding: boolean }) {
   const query = useSettingsUi((s) => s.query);
   const active = useSettingsUi((s) => s.active);
+  const out = useSettingsUi((s) => s.sidebarOut);
   const setQuery = useSettingsUi((s) => s.setQuery);
-  const setMany = useSettingsUi((s) => s.setMany);
+  const setOut = useSettingsUi((s) => s.setSidebarOut);
+  const leaving = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(leaving.current), []);
 
-  // which section the page is at: the first one whose top has come up under the header
+  // Escape puts a sliding sidebar away
   useEffect(() => {
-    const scroller = document.querySelector<HTMLElement>(".settings-scroll");
-    if (!scroller) return;
-    const update = () => {
-      const top = scroller.getBoundingClientRect().top + 24;
-      let current = "";
-      for (const el of scroller.querySelectorAll<HTMLElement>("[data-section]")) {
-        if (el.getBoundingClientRect().top <= top) current = el.dataset.section ?? current;
-      }
-      useSettingsUi.getState().setActive(current || ALL_SECTIONS[0].id);
-    };
-    update();
-    scroller.addEventListener("scroll", update, { passive: true });
-    return () => scroller.removeEventListener("scroll", update);
-  }, [query]);
+    if (!sliding || !out) return;
+    const key = (e: KeyboardEvent) => e.key === "Escape" && !query && setOut(null);
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [sliding, out, query, setOut]);
 
-  const shown = ALL_SECTIONS.filter((s) => matches(s, query));
+  /** The pointer is off a sidebar that came out at the edge: it goes after a moment, unless it comes back. */
+  const away = () => {
+    if (!sliding || useSettingsUi.getState().sidebarOut !== "edge") return;
+    window.clearTimeout(leaving.current);
+    leaving.current = window.setTimeout(() => {
+      // not while the search box has the keyboard: the pointer is not the only way to be using it
+      if (!document.activeElement?.closest(".sb")) setOut(null);
+    }, LEAVE_MS);
+  };
+
+  const anyShown = GROUPS.some((g) => g.sections.some((s) => matches(s, query)));
   return (
-    <nav className="settings-nav" aria-label="Settings sections">
-      <div className="settings-search">
-        <svg viewBox="0 0 20 20" aria-hidden>
-          <circle cx="8.5" cy="8.5" r="5.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
-          <path d="m12.4 12.4 4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-        </svg>
-        <input
-          type="search"
-          value={query}
-          placeholder="Search settings"
-          aria-label="Search settings"
-          spellCheck={false}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Escape" && setQuery("")}
-        />
-      </div>
+    <>
+      {/* the strip along the window's left edge that brings a sliding sidebar out */}
+      {sliding && !out && <div className="sb-edge" aria-hidden onPointerEnter={() => setOut("edge")} />}
+      <aside
+        className="sb glass"
+        data-sliding={sliding}
+        data-out={!sliding || !!out}
+        aria-label="Settings sections"
+        onPointerEnter={() => window.clearTimeout(leaving.current)}
+        onPointerLeave={away}
+      >
+        <div className="sb-brand">
+          <span className="settings-orb" aria-hidden />
+          <span className="sb-name">Liquidock</span>
+        </div>
 
-      <div className="settings-nav-list">
-        {GROUPS.map((group) => {
-          const items = group.sections.filter((s) => matches(s, query));
-          if (items.length === 0) return null;
-          return (
-            <div key={group.id} className="settings-nav-group">
-              <div className="settings-nav-heading">{group.title}</div>
-              {items.map((s) => (
-                <button key={s.id} type="button" className="settings-nav-item" data-active={active === s.id && !query} onClick={() => goToSection(s.id)}>
-                  {s.title}
-                </button>
-              ))}
-            </div>
-          );
-        })}
-        {shown.length === 0 && <div className="settings-nav-none">Nothing matches “{query}”.</div>}
-      </div>
+        <div className="settings-search">
+          <svg viewBox="0 0 20 20" aria-hidden>
+            <circle cx="8.5" cy="8.5" r="5.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+            <path d="m12.4 12.4 4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            value={query}
+            placeholder="Search"
+            aria-label="Search settings"
+            spellCheck={false}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Escape" && setQuery("")}
+          />
+        </div>
 
-      <div className="settings-nav-actions">
-        <button type="button" onClick={() => setMany(ALL_SECTIONS.map((s) => s.id), true)}>
-          Expand all
-        </button>
-        <button type="button" onClick={() => setMany(ALL_SECTIONS.map((s) => s.id), false)}>
-          Collapse all
-        </button>
-      </div>
-    </nav>
+        <nav className="sb-list">
+          {GROUPS.map((group) => {
+            const items = group.sections.filter((s) => matches(s, query));
+            if (items.length === 0) return null;
+            return (
+              <div key={group.id} className="sb-group">
+                <div className="sb-heading">{group.title}</div>
+                {items.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className="sb-item"
+                    data-active={active === s.id && !query}
+                    aria-current={active === s.id && !query ? "page" : undefined}
+                    onClick={() => goToSection(s.id)}
+                  >
+                    <SectionIcon id={s.id} />
+                    <span>{s.title}</span>
+                  </button>
+                ))}
+              </div>
+            );
+          })}
+          {!anyShown && <div className="sb-none">Nothing matches “{query}”.</div>}
+        </nav>
+      </aside>
+      {/* the page beside a sidebar that is out: clicked, it puts it away; moved over, a sidebar that came out at the
+          edge goes (also when the pointer touched the edge and turned back without going into the sidebar) */}
+      {sliding && out && <div className="sb-scrim" aria-hidden data-dim={out === "click"} onPointerDown={() => setOut(null)} onPointerMove={away} />}
+    </>
   );
 }

@@ -137,7 +137,7 @@ impl Default for WidgetInstance {
             width: 260,
             height: 260,
             opacity: 0.92,
-            surface: SurfaceStyle::Aero,
+            surface: SurfaceStyle::Liquid,
             accent: None,
             ambient: true,
             locked: false,

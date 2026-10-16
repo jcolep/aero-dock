@@ -20,7 +20,7 @@ import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { lens } from "../motion/tokens";
 import { refraction } from "./refraction";
-import { useSubpixelBox } from "../motion/subpixelBox";
+import { usePress, useSubpixelBox } from "../motion/subpixelBox";
 import { playCue } from "../sound/ui";
 import "./glide.css";
 
@@ -100,7 +100,11 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
   // stretched one way it grows thinner the other, as a drop does
   const squashY = useTransform([width], ([w]: number[]) => 1 / Math.max(1, w / Math.max(1, target.current.w)) ** 0.3);
   const squashX = useTransform([height], ([h]: number[]) => 1 / Math.max(1, h / Math.max(1, target.current.h)) ** 0.3);
-  const box = useSubpixelBox(shownLeft, shownTop, width, height, squashX, squashY);
+  // pressing draws it in a little, about its own middle
+  const press = usePress();
+  const pressedX = useTransform(() => squashX.get() * press.amount.get());
+  const pressedY = useTransform(() => squashY.get() * press.amount.get());
+  const box = useSubpixelBox(shownLeft, shownTop, width, height, pressedX, pressedY);
 
   const setLensed = (el: HTMLElement | null) => {
     current.current?.removeAttribute("data-lensed");
@@ -204,12 +208,12 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
       if (item && rootRef.current?.contains(item)) goTo(item);
     },
     onPointerLeave: () => {
-      lensEl.current?.removeAttribute("data-pressed");
+      press.release();
       fade();
     },
     // pressing draws the glass in a little
-    onPointerDown: () => lensEl.current?.setAttribute("data-pressed", "true"),
-    onPointerUp: () => lensEl.current?.removeAttribute("data-pressed"),
+    onPointerDown: () => press.press(),
+    onPointerUp: () => press.release(),
   };
 
   const Highlight = (

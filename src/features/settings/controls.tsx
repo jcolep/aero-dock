@@ -1,10 +1,33 @@
 /**
- * Aero-styled form controls for the settings window: slider, toggle,
- * and segmented picker. Purely presentational; parents own the values.
+ * The settings window's controls: slider, switch and segmented choice, each a row with its label (and, if it has one,
+ * a line under the label saying what it does). Purely presentational; parents own the values.
+ *
+ * Each row says what kind it is (`ctl-row-slider`, `-toggle`, `-seg`), which is how settings.css lays it out at any
+ * width: label and control side by side where there is room, the control under its label where there is not.
  */
 
 import { Roll } from "../../engine/type/Roll";
 import { useId, useState } from "react";
+
+/** A row's label, and under it what the setting does (two lines at most; the whole of it on hover). */
+function Label({ label, hint, htmlFor }: { label: string; hint?: string; htmlFor?: string }) {
+  return (
+    <div className="ctl-text-block">
+      {htmlFor ? (
+        <label className="ctl-label" htmlFor={htmlFor}>
+          {label}
+        </label>
+      ) : (
+        <span className="ctl-label">{label}</span>
+      )}
+      {hint && (
+        <span className="ctl-hint" title={hint}>
+          {hint}
+        </span>
+      )}
+    </div>
+  );
+}
 
 interface SliderProps {
   label: string;
@@ -14,6 +37,7 @@ interface SliderProps {
   step?: number;
   format?: (v: number) => string;
   onChange: (v: number) => void;
+  hint?: string;
   /** Apply the value only when the slider is let go, not on every step of
    *  the drag. The thumb and the readout still follow the drag. For settings
    *  whose every change makes Rust rebuild windows or re-claim screen space,
@@ -21,16 +45,7 @@ interface SliderProps {
   commitOnRelease?: boolean;
 }
 
-export function AeroSlider({
-  label,
-  value,
-  min,
-  max,
-  step = 0.01,
-  format,
-  onChange,
-  commitOnRelease = false,
-}: SliderProps) {
+export function AeroSlider({ label, value, min, max, step = 0.01, format, onChange, hint, commitOnRelease = false }: SliderProps) {
   const id = useId();
   // the value being dragged to, until it is let go (commitOnRelease only)
   const [draft, setDraft] = useState<number | null>(null);
@@ -44,10 +59,8 @@ export function AeroSlider({
   };
 
   return (
-    <div className="ctl-row">
-      <label className="ctl-label" htmlFor={id}>
-        {label}
-      </label>
+    <div className="ctl-row ctl-row-slider">
+      <Label label={label} hint={hint} htmlFor={id} />
       <input
         id={id}
         className="ctl-slider"
@@ -70,8 +83,8 @@ export function AeroSlider({
         onBlur={commitOnRelease ? commit : undefined}
       />
       <span className="ctl-value">
-          <Roll text={format ? format(shown) : shown.toFixed(2)} />
-        </span>
+        <Roll text={format ? format(shown) : shown.toFixed(2)} />
+      </span>
     </div>
   );
 }
@@ -85,17 +98,9 @@ interface ToggleProps {
 
 export function AeroToggle({ label, checked, onChange, hint }: ToggleProps) {
   return (
-    <div className="ctl-row">
-      <span className="ctl-label" title={hint}>
-        {label}
-      </span>
-      <button
-        className="ctl-toggle"
-        role="switch"
-        aria-checked={checked}
-        data-on={checked}
-        onClick={() => onChange(!checked)}
-      >
+    <div className="ctl-row ctl-row-toggle">
+      <Label label={label} hint={hint} />
+      <button className="ctl-toggle" role="switch" aria-checked={checked} aria-label={label} data-on={checked} onClick={() => onChange(!checked)}>
         <span className="ctl-toggle-thumb" />
       </button>
     </div>
@@ -107,21 +112,16 @@ interface SegmentedProps<T extends string> {
   value: T;
   options: { value: T; label: string }[];
   onChange: (v: T) => void;
+  hint?: string;
 }
 
-export function AeroSegmented<T extends string>({ label, value, options, onChange }: SegmentedProps<T>) {
+export function AeroSegmented<T extends string>({ label, value, options, onChange, hint }: SegmentedProps<T>) {
   return (
-    <div className="ctl-row">
-      <span className="ctl-label">{label}</span>
+    <div className="ctl-row ctl-row-seg">
+      <Label label={label} hint={hint} />
       <div className="ctl-segmented" role="radiogroup" aria-label={label}>
         {options.map((opt) => (
-          <button
-            key={opt.value}
-            role="radio"
-            aria-checked={opt.value === value}
-            data-active={opt.value === value}
-            onClick={() => onChange(opt.value)}
-          >
+          <button key={opt.value} role="radio" aria-checked={opt.value === value} data-active={opt.value === value} onClick={() => onChange(opt.value)}>
             {opt.label}
           </button>
         ))}

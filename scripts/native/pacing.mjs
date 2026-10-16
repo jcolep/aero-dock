@@ -1,4 +1,4 @@
-// Native frame pacing: a running Aero Dock started with WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9444
+// Native frame pacing: a running Liquidock started with WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9444
 // (never 9333, the harness's port), every page checked for having rendered, then the dock swept, menus and the Control
 // Center opened and Start toggled through the debugger (the real cursor is not moved), timing every frame on the real GPU.
 //   node --experimental-websocket scripts/native/pacing.mjs 9444

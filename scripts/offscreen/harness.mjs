@@ -1,9 +1,9 @@
-// Off-screen test harness for Aero Dock's pages.
+// Off-screen test harness for Liquidock's pages.
 //
 // It serves the built `dist` to a separate headless Edge (its own profile, no
 // window on screen), stands in for the Tauri backend with a mock, and drives
 // the page with the browser's own synthetic input over the Chrome DevTools
-// Protocol. No Aero Dock process runs, nothing appears on the desktop, and no
+// Protocol. No Liquidock process runs, nothing appears on the desktop, and no
 // real mouse or keyboard is used, so it is safe to run while someone is working.
 //
 // What it cannot show is native behaviour (window regions, focus, activation,
@@ -114,7 +114,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
     if (!page) await sleep(200);
   }
   if (!page) throw new Error("the browser did not start");
-  // Only ever drive the headless browser started above. If the port was taken (a real Aero Dock started with
+  // Only ever drive the headless browser started above. If the port was taken (a real Liquidock started with
   // remote debugging, say), whatever answers there is someone else's, and navigating its page would take over one of
   // their windows: that happened once. So check, and stop.
   const version = await (await fetch(`http://127.0.0.1:${debugPort}/json/version`)).json();
@@ -308,6 +308,15 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
       evalJs(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, left: r.left, top: r.top, width: r.width, height: r.height }; })()`),
     move: (x, y) => send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y, button: "none", buttons: 0 }),
     /** A click of the pointer's "left" (default), "middle" or "right" button. */
+    /** Press the left button at a place, and let it go at another (a press held, then released elsewhere). */
+    async down(x, y) {
+      await api.move(x, y);
+      await send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", buttons: 1, clickCount: 1 });
+    },
+    async up(x, y) {
+      await send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y, button: "left", buttons: 1 });
+      await send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", buttons: 0, clickCount: 1 });
+    },
     async click(x, y, button = "left") {
       const held = { left: 1, right: 2, middle: 4 }[button];
       await api.move(x, y);

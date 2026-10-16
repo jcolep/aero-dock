@@ -83,7 +83,7 @@ pub async fn resolve_icons(
 /// our process, with optional arguments and working directory.
 #[tauri::command]
 pub async fn launch(app: tauri::AppHandle, target: String, args: Option<String>) -> AeroResult<()> {
-    // Aero Dock pinned to itself means its settings window. Starting the
+    // Liquidock pinned to itself means its settings window. Starting the
     // exe again would only hit the single-instance guard, which just shows
     // the dock.
     if is_own_exe(&target) {

@@ -230,7 +230,7 @@ fn position_one(app: &AppHandle, label: &str) -> AeroResult<()> {
     // show, a change of focus or of always-on-top). The dock's window is much taller
     // than the dock and clipped to the part in use; the title would be drawn at the
     // top of it, out of sight, until something made the clip tall (a preview flyout
-    // opening) and a strip reading "Aero Dock" appeared in the middle of the screen.
+    // opening) and a strip reading "Liquidock" appeared in the middle of the screen.
     // The window is made to refuse the style, as the menu bar's is.
     #[cfg(windows)]
     crate::platform::windows::dock_window::keep_caption_off(hwnd);
@@ -434,7 +434,7 @@ async fn build_extra_dock(app: &AppHandle, label: &str) -> AeroResult<()> {
         label,
         tauri::WebviewUrl::App("index.html".into()),
     )
-    .title("Aero Dock")
+    .title("Liquidock")
     .inner_size(1200.0, 220.0)
     .transparent(true)
     .decorations(false)
@@ -481,7 +481,7 @@ pub fn list_monitors() -> AeroResult<Vec<MonitorInfoEx>> {
     enumerate_monitors()
 }
 
-/// Auto-hide the Windows taskbar (Aero Dock becomes the bar) or restore
+/// Auto-hide the Windows taskbar (Liquidock becomes the bar) or restore
 /// it. Repositions the dock afterwards because the work area changes.
 #[tauri::command]
 pub async fn set_taskbar_hidden(app: AppHandle, hidden: bool) -> AeroResult<()> {
@@ -516,7 +516,7 @@ async fn tokio_sleep(ms: u64) {
     .ok();
 }
 
-/// Shut Aero Dock down for real, from anywhere in the UI.
+/// Shut Liquidock down for real, from anywhere in the UI.
 ///
 /// The taskbar is restored here as well as in the exit handler. Quitting
 /// is the one action where leaving the shell taskbar hidden would strand

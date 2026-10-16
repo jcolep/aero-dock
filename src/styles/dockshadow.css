@@ -13,13 +13,6 @@
 /* here too.                                                            */
 /* ==================================================================== */
 
-[data-surface="aero"] .dock-body.glass {
-  box-shadow:
-    var(--dock-drop-shadow),
-    var(--rim),
-    inset 0 -1px 12px rgba(140, 210, 255, 0.18);
-}
-
 [data-surface="liquid"][data-window="dock"] .dock-body.glass {
   box-shadow:
     var(--dock-drop-shadow),

@@ -7,6 +7,22 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Liquidock (October 16)
+
+- **Aero Dock is now Liquidock.** Everything you see says so; your settings and data are where they were.
+- **A new settings window**, laid out like a Mac's System Settings: a sidebar of sections with coloured icons and a search,
+  and one section at a time, its settings in rounded groups with a short line under each saying what it does. It fits
+  any size: controls drop under their labels when there is no room, and a narrow window slides the sidebar away, to
+  come out when the pointer reaches the left edge (or always, if you choose: General › This window › Sidebar).
+  Messages appear at the foot of the page, whichever section you are on.
+- **The dock's switches that had gone missing from settings are back**: auto-hide, floating, reserve screen space,
+  magnification, show running apps, icon spacing, dock padding and the attention bounce.
+- **Hover effect** (Animations): menu items, the dock's right-click menu and the Control Center's sections magnify a
+  little under the pointer, as the Wi-Fi and Bluetooth tiles do; or lift, glow, or do nothing.
+- **The menu bar's lens no longer flies off when you press on an item**, and lets go when you do, wherever that is.
+- **Removed:** the settings window's Classic sky look and the Classic dock material. A dock set to Classic becomes
+  Liquid, which kept its colours.
+
 ### Fixed and added (October 15)
 
 - **Apps opened or brought forward from the dock no longer show their keyboard shortcut badges.** The dock pressed a hidden Alt key to be allowed to bring a window forward, and Office, File Explorer and others answer Alt by showing their shortcuts. It now sends a mouse move of nothing instead.

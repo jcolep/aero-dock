@@ -1,6 +1,6 @@
 //! What Windows itself says about motion and transparency: its "Animation
 //! effects" and "Transparency effects" switches (Settings > Accessibility >
-//! Visual effects). Aero Dock follows them unless told otherwise, so a person
+//! Visual effects). Liquidock follows them unless told otherwise, so a person
 //! who has turned either off for a reason does not find this app ignoring it.
 
 use serde::Serialize;

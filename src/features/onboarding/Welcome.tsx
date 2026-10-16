@@ -45,7 +45,7 @@ export function Welcome({ edge }: { edge: DockEdge }) {
     >
       <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
       <span className="welcome-orb" aria-hidden />
-      <h1>Welcome to Aero Dock</h1>
+      <h1>Welcome to Liquidock</h1>
       <p>Glass, water, and light for your desktop. Let's set up your dock.</p>
       <div className="welcome-actions">
         <button className="welcome-primary" disabled={busy} onClick={() => run(importStarterApps)}>

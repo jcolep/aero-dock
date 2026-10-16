@@ -1,6 +1,6 @@
-# Contributing to Aero Dock
+# Contributing to Liquidock
 
-Thanks for taking a look. Aero Dock is a small, opinionated project: a
+Thanks for taking a look. Liquidock is a small, opinionated project: a
 Windows dock that takes the Frutiger Aero look seriously. Contributions
 that fit that goal are welcome.
 
@@ -84,7 +84,7 @@ These aren't style preferences; they're what keeps the app feeling right.
 
 ## Reporting bugs
 
-Open an issue with your Windows build (`winver`), your Aero Dock version
+Open an issue with your Windows build (`winver`), your Liquidock version
 (Settings → About), and what you expected versus what happened. A screenshot
 helps a lot for anything visual.
 

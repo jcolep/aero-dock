@@ -448,8 +448,8 @@ export function MenuBarApp() {
   };
 
   const appleItems: MenuItem[] = [
-    { label: "About Aero Dock", run: () => ipc.openSettings() },
-    { label: "Aero Dock Settings…", run: () => ipc.openSettings() },
+    { label: "About Liquidock", run: () => ipc.openSettings() },
+    { label: "Liquidock Settings…", run: () => ipc.openSettings() },
     { label: "Windows Settings…", run: () => ipc.launch("ms-settings:") },
     { label: "Mission Control", separatorAbove: true, run: () => ipc.toggleMission() },
     { label: "Force Quit…", separatorAbove: true, run: () => ipc.systemAction("taskmgr") },
@@ -556,7 +556,7 @@ export function MenuBarApp() {
           />
         )}
         <div className="mb-side">
-          <button className="mb-item mb-logo" title="Aero Dock" {...trigger("apple")}>
+          <button className="mb-item mb-logo" title="Liquidock" {...trigger("apple")}>
             <Logo />
           </button>
           <button className="mb-item mb-app" {...trigger("app")}>

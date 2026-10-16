@@ -46,7 +46,7 @@ function WidgetRow({
           <strong>{def?.label ?? widget.kind}</strong>
           <span className="mode-card-meta">
             {Math.round(widget.width)} × {Math.round(widget.height)} ·{" "}
-            {widget.surface === "liquid" ? "Liquid" : "Classic"}
+            {widget.surface === "clear" ? "Clear" : "Liquid"}
             {widget.locked && " · locked"}
           </span>
         </div>
@@ -61,7 +61,6 @@ function WidgetRow({
             label="Material"
             value={widget.surface}
             options={[
-              { value: "aero", label: "Classic" },
               { value: "liquid", label: "Liquid" },
               { value: "clear", label: "Clear" },
             ]}
@@ -271,7 +270,7 @@ export function WidgetsCard({ settings, onStatus }: Props) {
           <AeroToggle
             label="Let the weather widget use the network"
             checked={w.allowWeatherNetwork}
-            hint="Nothing else in Aero Dock makes any network request"
+            hint="Nothing else in Liquidock makes any network request"
             onChange={(v) =>
               ipc
                 .allowWeatherNetwork(v)

@@ -239,7 +239,7 @@ mod tests {
             CreateWindowExW(
                 WINDOW_EX_STYLE(0),
                 w!("STATIC"),
-                w!("Aero Dock"),
+                w!("Liquidock"),
                 WS_POPUP | WS_CAPTION | WS_SYSMENU,
                 -30000,
                 -30000,

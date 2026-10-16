@@ -12,7 +12,7 @@ const RULES: Array<[RegExp, string]> = [
   [/used by another process|os error 32\b|being used|in use|locked/i, "another program is using it"],
   [/timed? ?out|timeout|took too long/i, "it took too long"],
   [/network|dns|connect|offline|unreachable/i, "there is no connection"],
-  [/expected|unexpected|invalid|parse|malformed|syntax|json|eof while/i, "that is not something Aero Dock understands"],
+  [/expected|unexpected|invalid|parse|malformed|syntax|json|eof while/i, "that is not something Liquidock understands"],
   [/disk|no space|os error 112\b|quota/i, "there is no room on the disk"],
   [/cancel|abort/i, "it was cancelled"],
 ];

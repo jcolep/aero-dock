@@ -1,62 +1,39 @@
 /**
- * One section of the settings window: a card of glass with a title that folds
- * it away. Folded, it shows its blurb (what is inside) in one line. While
- * something is typed in the search box a section that answers it is shown open
- * and the others are hidden, without touching which ones were folded by hand.
+ * One section of the settings window: its settings, shown when it is the section chosen in the sidebar. While
+ * something is typed in the search box every section that answers it is shown instead, one under the other, each
+ * under its own title.
+ *
+ * Inside, the rows (a label, and its switch, slider or choice) are drawn as rounded groups with hairlines between
+ * them; a `SettingsSub` heading starts a new group, and a note after a group is its footer (settings.css).
  */
 
 import type { ReactNode } from "react";
-import { ALL_SECTIONS, GROUPS, matches, sectionById } from "./sections";
-import { isOpen, useSettingsUi } from "./useSettingsUi";
+import { ALL_SECTIONS, matches, sectionById } from "./sections";
+import { SectionIcon } from "./SectionIcon";
+import { useSettingsUi } from "./useSettingsUi";
 
 export function SettingsSection({ id, className, children }: { id: string; className?: string; children: ReactNode }) {
   const def = sectionById(id);
   const query = useSettingsUi((s) => s.query);
-  const stored = useSettingsUi((s) => s.open);
-  const setOpen = useSettingsUi((s) => s.setOpen);
+  const active = useSettingsUi((s) => s.active);
   if (!def) return <>{children}</>;
-  if (query && !matches(def, query)) return null;
-
-  const open = query ? true : isOpen(stored, id);
+  if (query ? !matches(def, query) : active !== id) return null;
   return (
-    <section id={`section-${id}`} data-section={id} data-open={open} className={`settings-card glass settings-section${className ? ` ${className}` : ""}`}>
-      <h2>
-        <button
-          type="button"
-          className="settings-section-head"
-          aria-expanded={open}
-          aria-controls={`section-body-${id}`}
-          onClick={() => setOpen(id, !open)}
-        >
-          <span className="settings-section-title">{def.title}</span>
-          {!open && <span className="settings-section-blurb">{def.blurb}</span>}
-          <svg className="settings-section-chevron" viewBox="0 0 16 16" aria-hidden>
-            <path d="m4.5 6 3.5 3.5L11.5 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      </h2>
-      <div id={`section-body-${id}`} className="settings-section-body" data-open={open} role="region" aria-label={def.title}>
-        <div className="settings-section-inner">{children}</div>
-      </div>
+    <section id={`section-${id}`} data-section={id} className={`settings-section${className ? ` ${className}` : ""}`} aria-label={def.title}>
+      {query && (
+        <h2 className="settings-section-title">
+          <SectionIcon id={id} size={20} />
+          {def.title}
+        </h2>
+      )}
+      <div className="settings-section-inner">{children}</div>
     </section>
   );
 }
 
-/** A heading inside a section, to split a long one into parts. */
+/** A heading inside a section, which starts a new group of rows. */
 export function SettingsSub({ children }: { children: ReactNode }) {
   return <h3 className="settings-sub">{children}</h3>;
-}
-
-/** The heading over a group of sections; not shown when the search has hidden all of them. */
-export function SettingsGroup({ id }: { id: string }) {
-  const query = useSettingsUi((s) => s.query);
-  const group = GROUPS.find((g) => g.id === id);
-  if (!group || !group.sections.some((s) => matches(s, query))) return null;
-  return (
-    <h2 className="settings-group" id={`group-${id}`}>
-      {group.title}
-    </h2>
-  );
 }
 
 /** What the page says when the search matches nothing. */

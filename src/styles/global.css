@@ -406,6 +406,44 @@ html[data-reduce-transparency="on"] .mb-lens {
 html[data-reduce-motion="on"] :where(button, [role="button"], [role="menuitem"], [role="switch"], [role="tab"]):not(:disabled):active {
   transform: none;
 }
+
+/* ---- what a menu's items and a panel's sections do under the pointer ---- */
+
+/* Settings > Animations > Hover effect, as `data-hover-fx` on the root (applyTheme): magnify (a little swell and a
+   pixel's rise, as the Control Center's tiles have), lift (a rise, with a shadow under it), glow (lit with the theme
+   colour where it is) or none. All by transform and shadow, never layout: nothing around it moves. Pressing still
+   pushes it in. (Under `html` so it outranks each item's own transition, which comes later.) */
+html :is(.mb-menu-item, .aero-menu-item, .cc-card) {
+  transition:
+    background-color var(--m-quick) var(--e-out),
+    box-shadow var(--m-standard) var(--e-out),
+    transform var(--m-settle) var(--mb-settle, var(--e-out));
+}
+html[data-hover-fx="magnify"] :is(.mb-menu-item, .aero-menu-item):hover {
+  transform: scale(1.03);
+}
+html[data-hover-fx="magnify"] .cc-card:hover {
+  transform: translateY(-1px) scale(1.015);
+}
+html[data-hover-fx="lift"] :is(.mb-menu-item, .aero-menu-item, .cc-card):hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 6px 14px rgba(0, 0, 0, 0.28);
+}
+html[data-hover-fx="glow"] :is(.mb-menu-item, .aero-menu-item, .cc-card):hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 0 0 1px color-mix(in srgb, var(--aero-accent, #4aa8ff) 45%, transparent),
+    0 0 16px color-mix(in srgb, var(--aero-accent, #4aa8ff) 45%, transparent);
+}
+html:is([data-hover-fx="magnify"], [data-hover-fx="lift"]) :is(.mb-menu-item, .aero-menu-item, .cc-card):hover:active {
+  transform: scale(0.97);
+  transition-duration: 80ms, 80ms, 120ms;
+}
+html[data-reduce-motion="on"] :is(.mb-menu-item, .aero-menu-item, .cc-card):hover {
+  transform: none;
+}
 /* ---- the first frame ---- */
 
 /* clear until the page has its typeface (main.tsx says when), then in; so that no window ever shows a frame of the wrong face

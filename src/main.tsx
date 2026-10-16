@@ -119,17 +119,8 @@ function Policy() {
 
 trackScale();
 
-// the settings window is in the look it had last time from its first frame, and not the sky for a moment before its settings arrive
-if (isSettings) {
-  let look = "night";
-  try {
-    look = localStorage.getItem("aero-settings-look") === "sky" ? "sky" : "night";
-  } catch {
-    /* the night look */
-  }
-  document.documentElement.dataset.look = look;
-  if (look === "night") document.documentElement.dataset.surface = "clear";
-}
+// the settings window is night glass from its first frame, before its settings arrive
+if (isSettings) document.documentElement.dataset.surface = "clear";
 
 // No rough first frame: the page is clear until the typeface is in (it would otherwise show a moment of another face and
 // then jump), and fades in. A window that is hidden when it loads (Start, the overview) is ready before it is shown, since

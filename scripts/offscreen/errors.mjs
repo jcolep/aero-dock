@@ -18,7 +18,7 @@ const check = (got, want, what) => {
 check(humane("The system cannot find the file specified. (os error 2)"), "it could not be found", "a missing file");
 check(humane(new Error("Access is denied. (os error 5)")), "Windows would not allow it", "a refusal");
 check(humane("The process cannot access the file because it is being used by another process. (os error 32)"), "another program is using it", "a file in use");
-check(humane("expected value at line 1 column 1"), "that is not something Aero Dock understands", "a file that is not JSON");
+check(humane("expected value at line 1 column 1"), "that is not something Liquidock understands", "a file that is not JSON");
 check(humane('{"kind":"Other","message":"x"}'), "something went wrong", "a blob of JSON says nothing a person can use");
 check(humane("0x80070005 at windows::core::Error::from_hresult"), "something went wrong", "a code and a stack");
 check(humane("The Start menu is already open."), "the Start menu is already open", "a sentence is kept");

@@ -83,7 +83,7 @@ pub fn set(kind: Kind, on: bool) -> AeroResult<()> {
         .and_then(|op| op.join())
         .map_err(|e| AeroError::other(format!("could not ask for radio access: {e}")))?;
     if access != RadioAccessStatus::Allowed {
-        return Err(AeroError::other("Windows did not allow Aero Dock to switch radios"));
+        return Err(AeroError::other("Windows did not allow Liquidock to switch radios"));
     }
     let radios = Radio::GetRadiosAsync()
         .and_then(|op| op.join())

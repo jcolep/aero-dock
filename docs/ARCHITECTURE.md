@@ -1,8 +1,8 @@
-# Aero Dock architecture
+# Liquidock architecture
 
 > Bring beauty back to the desktop.
 
-Aero Dock is a Windows dock built on Tauri v2. A Rust core owns all native
+Liquidock is a Windows dock built on Tauri v2. A Rust core owns all native
 Windows integration; a React + Canvas 2D frontend owns the visual experience.
 The two communicate over a strictly typed IPC surface.
 

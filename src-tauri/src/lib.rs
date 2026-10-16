@@ -314,7 +314,7 @@ pub fn run() {
             commands::widgets::media_spectrum,
         ])
         .build(context)
-        .expect("error while building Aero Dock")
+        .expect("error while building Liquidock")
         .run(|_app, event| {
             match &event {
                 tauri::RunEvent::ExitRequested { code, .. } => {
@@ -357,8 +357,8 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
 
     let toggle = MenuItem::with_id(app, "toggle", "Show/hide dock", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "Settings…", true, None::<&str>)?;
-    let support = MenuItem::with_id(app, "support", "Support Aero Dock ☕", true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", "Quit Aero Dock", true, None::<&str>)?;
+    let support = MenuItem::with_id(app, "support", "Support Liquidock ☕", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Quit Liquidock", true, None::<&str>)?;
     let separator = PredefinedMenuItem::separator(app)?;
     let menu = Menu::with_items(app, &[&toggle, &settings, &support, &separator, &quit])?;
 
@@ -381,7 +381,7 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
                 .expect("bundle has a default icon")
                 .clone(),
         )
-        .tooltip("Aero Dock (right-click for menu)")
+        .tooltip("Liquidock (right-click for menu)")
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id.as_ref() {

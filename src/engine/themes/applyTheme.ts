@@ -91,19 +91,9 @@ export function applyAppearance(
 
   // The material is an attribute rather than a token because it swaps a
   // whole block of tokens at once, plus the shape of the gloss layer.
-  // the settings window's night look is the clear glass over a dark ground
-  const night = target === "settings" && a.settingsLook === "night";
-  document.documentElement.dataset.surface = night ? "clear" : target === "settings" ? a.settingsSurface : a.dockSurface;
-  if (target === "settings") {
-    document.documentElement.dataset.look = a.settingsLook;
-    // remembered, so that the next time the window opens it is in its look from the first frame (main.tsx)
-    try {
-      localStorage.setItem("aero-settings-look", a.settingsLook);
-    } catch {
-      /* no storage: the default look is the night one */
-    }
-  }
-  else delete document.documentElement.dataset.look;
+  // the settings window is always the clear glass over a dark ground (settings.css); everything else wears the dock's
+  // material (an old "aero" still met here is drawn as liquid, which kept its colours)
+  document.documentElement.dataset.surface = target === "settings" ? "clear" : a.dockSurface === "clear" ? "clear" : "liquid";
   // The two windows composite differently, so a material has to know
   // which one it is in. See surfaces.css for why that matters.
   document.documentElement.dataset.window = target;
@@ -115,6 +105,8 @@ export function applyAppearance(
   // depth: a fine grain over the glass, and light that follows the pointer
   document.documentElement.dataset.grain = a.glassGrain ? "on" : "off";
   document.documentElement.dataset.pointerLight = a.pointerLight ? "on" : "off";
+  // what menu items and panel sections do under the pointer (global.css)
+  document.documentElement.dataset.hoverFx = a.hoverEffect ?? "magnify";
   // and the two things a person can ask for less of
   const root0 = document.documentElement.dataset;
   const motion = reduced.motion ? "on" : "off";

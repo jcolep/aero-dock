@@ -590,7 +590,7 @@ fn is_orphan_app_frame(exe_path: &str, aumid: Option<&str>) -> bool {
 
 /// The title of the settings window, the one window of ours that belongs in
 /// the running apps. Kept in step with `open_settings`, which sets it.
-pub const SETTINGS_TITLE: &str = "Aero Dock Settings";
+pub const SETTINGS_TITLE: &str = "Liquidock Settings";
 
 /// Whether a window may be listed given whose it is: anything of another
 /// process, and of ours only the settings window. Pure so it can be tested.
@@ -896,10 +896,10 @@ mod tests {
     #[test]
     fn only_the_settings_window_of_our_own_is_listed() {
         assert!(is_listable_own_window(true, SETTINGS_TITLE));
-        assert!(!is_listable_own_window(true, "Aero Dock"));
-        assert!(!is_listable_own_window(true, "Aero Dock menu bar"));
+        assert!(!is_listable_own_window(true, "Liquidock"));
+        assert!(!is_listable_own_window(true, "Liquidock menu bar"));
         // other programs are untouched, even one with a similar title
-        assert!(is_listable_own_window(false, "Aero Dock"));
+        assert!(is_listable_own_window(false, "Liquidock"));
     }
 
     #[test]

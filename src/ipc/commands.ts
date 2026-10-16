@@ -265,7 +265,7 @@ export const ipc = {
     invoke<void>("report_frame_stats", { stats }),
   frameStats: () => invoke<FrameRow[]>("frame_stats"),
   frameReport: () => invoke<string>("frame_report"),
-  /** Close Aero Dock and start it again. */
+  /** Close Liquidock and start it again. */
   restartApp: () => invoke<void>("restart_app"),
   listRecentDownloads: (limit?: number) => invoke<Download[]>("list_recent_downloads", { limit: limit ?? null }),
 };

@@ -266,31 +266,6 @@
   background: rgba(255, 255, 255, 0.24);
 }
 
-/* A blur can only soften what is behind it, and a smooth gradient blurs
-   into another smooth gradient. The bubbles are what give the glass
-   something to soften, so under this material they get bigger and a
-   little brighter. They are already the most Frutiger Aero thing in the
-   window, which is why they earn the room. */
-[data-surface="liquid"] .settings-bubble {
-  /* Still, and deliberately. Anything moving behind a backdrop filter
-     forces every card above it to re-raster on every frame, which is a whole
-     CPU core in the software renderer. Held in place the cards stay idle
-     until you scroll. */
-  animation: none;
-  opacity: 0.5;
-  bottom: auto;
-  top: calc(4% + var(--i) * 17%);
-  width: calc(90px + var(--i) * 34px);
-  height: calc(90px + var(--i) * 34px);
-  border-color: rgba(255, 255, 255, 0.55);
-  background: radial-gradient(
-    circle at 32% 28%,
-    rgba(255, 255, 255, 0.92),
-    rgba(255, 255, 255, 0.18) 44%,
-    rgba(255, 255, 255, 0.03) 72%
-  );
-}
-
 /* The ambient light sweep travels across the glass forever. Behind a
    refracting backdrop that is not a free flourish: every frame of it
    re-rasters the filter on every card it crosses. A lens already plays

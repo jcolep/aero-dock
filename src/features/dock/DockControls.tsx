@@ -70,7 +70,7 @@ const GEAR = gearPath();
 
 export function SettingsButton({ onClick }: { onClick: () => void }) {
   return (
-    <ControlButton label="Aero Dock settings" onClick={onClick}>
+    <ControlButton label="Liquidock settings" onClick={onClick}>
       {/* the hole is cut out of the gear, so what is behind shows through it */}
       <path
         d={`${GEAR} M 8.5 12 a3.5 3.5 0 1 0 7 0 a3.5 3.5 0 1 0 -7 0 Z`}

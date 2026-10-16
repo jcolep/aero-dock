@@ -11,7 +11,31 @@
  * middle (a stretch), folded into the same scale.
  */
 
-import { useTransform, type MotionValue } from "motion/react";
+import { useEffect } from "react";
+import { useSpring, useTransform, type MotionValue } from "motion/react";
+
+/**
+ * A press that draws a moved box in a little, about its own middle: a spring to fold into its scale (as `squashX` and
+ * `squashY`), and `press`/`release`. Not the CSS `scale` property: that is applied outside the transform, so on a box
+ * placed by translate it scaled the translate too, and the glass flew off toward the left of what it was in. It lets
+ * go when the press is let go anywhere, not only over what was pressed (a menu opening under the pointer took the
+ * release, and the glass stayed drawn in until the next click).
+ */
+export function usePress(to = 0.94) {
+  const amount = useSpring(1, { stiffness: 700, damping: 28 });
+  useEffect(() => {
+    const release = () => amount.set(1);
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    window.addEventListener("blur", release);
+    return () => {
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+      window.removeEventListener("blur", release);
+    };
+  }, [amount]);
+  return { amount, press: () => amount.set(to), release: () => amount.set(1) };
+}
 
 export function useSubpixelBox(
   left: MotionValue<number>,

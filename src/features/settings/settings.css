@@ -1,359 +1,1027 @@
-/* Settings window: a Frutiger Aero control panel — sky, sun bloom,
-   grass horizon, glass cards. */
+/* ====================================================================== */
+/* The settings window: night glass, laid out as a Mac's system settings  */
+/* are. A sidebar of glass on the left (the sections, with their icons),  */
+/* and the section chosen on the right, its settings in rounded groups    */
+/* with hairlines between the rows. The glass is the clear material, the  */
+/* same as the dock's and Start's (applyTheme sets it for this window).   */
+/*                                                                        */
+/* It fits any size: a row puts its control under its label when there is */
+/* no room beside it, and a narrow window (or the choice in General)      */
+/* slides the sidebar off the left edge, to come out at that edge.        */
+/* ====================================================================== */
+
+html[data-window="settings"],
+.settings-root {
+  --ink: #ecf1ff;
+  --ink-2: rgba(226, 236, 255, 0.74);
+  --ink-3: rgba(226, 236, 255, 0.5);
+  --line: rgba(255, 255, 255, 0.09);
+  --group: rgba(255, 255, 255, 0.055);
+  --group-edge: rgba(255, 255, 255, 0.1);
+  --fill: rgba(255, 255, 255, 0.07);
+  --fill-hover: rgba(255, 255, 255, 0.12);
+  --fill-active: rgba(255, 255, 255, 0.2);
+  --lit: color-mix(in srgb, var(--aero-accent, #4aa8ff) 70%, white);
+  --clear-strength: 0.7;
+  --row-pad-x: 14px;
+}
 
 .settings-root {
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   overflow: hidden;
+  color: var(--ink);
+  font-size: 13px;
   background:
-    radial-gradient(ellipse 90% 60% at 18% -10%, rgba(255, 255, 235, 0.85), transparent 60%),
-    radial-gradient(ellipse 120% 90% at 50% 118%, rgba(122, 208, 58, 0.55), transparent 55%),
-    linear-gradient(180deg, #8fd3f2 0%, #5cb0e6 45%, #3f8fd0 78%, #67b96a 100%);
+    radial-gradient(ellipse 70% 55% at 10% -12%, color-mix(in srgb, var(--aero-accent, #4aa8ff) 30%, transparent), transparent 62%),
+    radial-gradient(ellipse 80% 60% at 96% 112%, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 48%, transparent), transparent 62%),
+    linear-gradient(180deg, #0d1424 0%, #0a1020 60%, #080d1a 100%);
 }
 
-/* ---- rising bubbles: the water is alive ---- */
-
-.settings-bubbles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.settings-bubble {
-  position: absolute;
-  bottom: -90px;
-  left: calc(8% + var(--i) * 19%);
-  width: calc(34px + var(--i) * 14px);
-  height: calc(34px + var(--i) * 14px);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.12) 42%, rgba(255, 255, 255, 0.02) 70%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  animation: bubble-rise calc(22s + var(--i) * 7s) linear infinite;
-  animation-delay: calc(var(--i) * -6s);
-  opacity: 0;
-}
-
-@keyframes bubble-rise {
-  0% {
-    transform: translateY(0) translateX(0);
-    opacity: 0;
-  }
-  8% {
-    opacity: 0.75;
-  }
-  50% {
-    transform: translateY(-55vh) translateX(18px);
-  }
-  92% {
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(-112vh) translateX(-10px);
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .settings-bubble {
-    animation: none;
-  }
-}
-
-/* resting while the window is not in front (see SettingsApp) */
-[data-active="false"] .settings-bubble {
-  animation-play-state: paused;
-}
-
-/* ---- header with the Aero orb ---- */
-
-.settings-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 22px 30px 12px;
-  color: #0d3a5c;
-  position: relative;
-}
+/* ---- the orb: the app's mark, a drop of the theme's colour ---- */
 
 .settings-orb {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
   flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   background:
-    radial-gradient(circle at 62% 22%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 22%),
-    radial-gradient(ellipse 60% 38% at 50% 82%, rgba(140, 225, 110, 0.65), rgba(140, 225, 110, 0) 70%),
-    radial-gradient(circle at 42% 30%, #cdeeff 0%, #5ab2e8 45%, #1264aa 100%);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+    radial-gradient(circle at 34% 26%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 50% 120%, color-mix(in srgb, var(--aero-accent, #4aa8ff) 40%, white), transparent 60%),
+    radial-gradient(circle at 45% 40%, color-mix(in srgb, var(--aero-accent, #4aa8ff) 70%, white), var(--aero-accent, #4aa8ff) 55%, var(--aero-accent-deep, #1d4f7a));
   box-shadow:
-    0 6px 18px rgba(10, 45, 80, 0.35),
-    inset 0 2px 6px rgba(255, 255, 255, 0.7);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    0 2px 8px color-mix(in srgb, var(--aero-accent, #4aa8ff) 45%, transparent);
 }
 
-.settings-header h1 {
-  font-size: 27px;
+/* ---- the sidebar ---- */
+
+.sb.glass {
+  position: relative;
+  z-index: 20;
+  flex: none;
+  width: 236px;
+  margin: 10px 0 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 8px 8px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* slid away off the left edge, coming out over the page */
+.sb.glass[data-sliding="true"] {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 10px;
+  margin: 0;
+  transform: translateX(calc(-100% - 24px));
+  transition: transform calc(380ms / var(--anim-speed, 1)) cubic-bezier(0.2, 0.9, 0.25, 1.04);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.sb.glass[data-sliding="true"][data-out="true"] {
+  transform: none;
+}
+
+.sb-edge {
+  position: absolute;
+  z-index: 19;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+}
+
+.sb-scrim {
+  position: absolute;
+  z-index: 15;
+  inset: 0;
+}
+.sb-scrim[data-dim="true"] {
+  background: rgba(2, 5, 12, 0.32);
+  animation: settings-fade-in calc(240ms / var(--anim-speed, 1)) ease-out both;
+}
+
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 8px 2px;
+}
+
+.sb-name {
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  background: linear-gradient(180deg, #124a78, #2f9de3);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.65));
 }
 
-.settings-header p {
-  font-size: 13px;
-  color: rgba(13, 58, 92, 0.78);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+.settings-search {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  margin: 0 4px;
+  padding: 0 10px;
+  border-radius: 9px;
+  background: var(--fill);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-2);
+  transition:
+    background-color var(--m-quick) var(--e-out),
+    box-shadow var(--m-standard) var(--e-out);
+}
+.settings-search:focus-within {
+  background: var(--fill-hover);
+  box-shadow: inset 0 0 0 1px var(--lit), 0 0 0 3px color-mix(in srgb, var(--aero-accent, #4aa8ff) 25%, transparent);
+}
+.settings-search svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+.settings-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+.settings-search input:focus,
+.settings-search input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.settings-search input::placeholder {
+  color: var(--ink-3);
+}
+
+.sb-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 2px 4px;
+  scrollbar-width: none;
+}
+
+.sb-heading {
+  padding: 12px 10px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+.sb-group:first-child .sb-heading {
+  padding-top: 4px;
+}
+
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+  cursor: default;
+  transition:
+    background-color var(--m-quick) var(--e-out),
+    color var(--m-quick) var(--e-out);
+}
+.sb-item span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sb-item:hover {
+  background: var(--fill);
+  color: var(--ink);
+}
+.sb-item[data-active="true"] {
+  background: color-mix(in srgb, var(--aero-accent, #4aa8ff) 34%, rgba(255, 255, 255, 0.08));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+/* the global pressed shrink would make the list wobble */
+.sb-item:active {
+  transform: none;
+}
+
+.sb-none {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* ---- a section's icon: a tile of glass in the section's colour ---- */
+
+.section-icon {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 28%;
+  background: linear-gradient(160deg, hsl(var(--h) 85% 64%), hsl(var(--h) 75% 44%));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.section-icon[data-grey="true"] {
+  background: linear-gradient(160deg, #a9b2c3, #5d6678);
+}
+.section-icon svg {
+  width: 72%;
+  height: 72%;
+  filter: drop-shadow(0 0.5px 0.5px rgba(0, 0, 0, 0.25));
+}
+
+/* ---- the page ---- */
+
+.pane {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  container: pane / inline-size;
+}
+
+.pane-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 32px 12px;
+}
+
+.pane-title {
+  min-width: 0;
+  animation: settings-rise calc(260ms / var(--anim-speed, 1)) var(--e-out) both;
+}
+.pane-title h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+.pane-title p {
+  margin-top: 2px;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pane-sidebar-button {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 9px;
+  background: var(--fill);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-2);
+  cursor: default;
+}
+.pane-sidebar-button:hover {
+  background: var(--fill-hover);
+  color: var(--ink);
+}
+.pane-sidebar-button svg {
+  width: 18px;
+  height: 18px;
 }
 
 .settings-scroll {
   flex: 1;
-  min-width: 0;
+  min-height: 0;
   overflow-y: auto;
-  padding: 8px 26px 24px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 6px 32px 48px;
+  scrollbar-gutter: stable;
 }
-
 .settings-scroll::-webkit-scrollbar {
   width: 10px;
 }
 .settings-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.18);
   border-radius: 5px;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+.settings-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
   background-clip: content-box;
 }
 
-.settings-card {
-  padding: 16px 20px 14px;
-  /* cards must never shrink to the viewport — the column scrolls;
-     .glass clips overflow, so a shrunken card would swallow controls */
-  flex: none;
+.pane-body {
+  max-width: 720px;
+  margin: 0 auto;
+  animation: settings-rise calc(280ms / var(--anim-speed, 1)) var(--e-out) both;
 }
 
-.settings-card h2 {
+@keyframes settings-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes settings-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* while searching, each section that answers under its own title */
+.settings-section + .settings-section {
+  margin-top: 30px;
+}
+.settings-section-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 4px 10px;
   font-size: 15px;
   font-weight: 700;
-  color: #0d3a5c;
-  margin-bottom: 12px;
-  padding-bottom: 7px;
-  position: relative;
-  z-index: 3;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.settings-card h2::after {
+.settings-section-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- groups of rows ---- */
+
+/* A run of rows is one rounded group: the first has the top corners, the last the bottom ones, and a hairline (inset
+   from the left, as the Mac's are) lies between each. A heading or a note between rows starts a new group. */
+.settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field) {
+  position: relative;
+  background: var(--group);
+  border-inline: 1px solid var(--group-edge);
+}
+.settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field):not(:is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field) + *) {
+  margin-top: 8px;
+  border-top: 1px solid var(--group-edge);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+.settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field):first-child {
+  margin-top: 0;
+}
+.settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field):not(:has(+ :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field))) {
+  border-bottom: 1px solid var(--group-edge);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+.settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field) + :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field)::before {
   content: "";
   position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 64px;
-  height: 2px;
-  border-radius: 1px;
-  background: linear-gradient(90deg, var(--aero-accent), var(--aero-life));
+  top: 0;
+  left: var(--row-pad-x);
+  right: 0;
+  height: 1px;
+  background: var(--line);
+  pointer-events: none;
 }
 
-.settings-footer {
-  text-align: center;
-  font-size: 11.5px;
-  color: rgba(13, 58, 92, 0.65);
-  padding: 6px 0 2px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+/* a heading over a group */
+.settings-sub {
+  padding: 26px var(--row-pad-x) 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.settings-section-inner > .settings-sub:first-child {
+  padding-top: 0;
 }
 
+/* a note: the footer of the group above it, or a word before the one below */
 .settings-note {
+  padding: 7px var(--row-pad-x) 0;
   font-size: 11.5px;
-  color: rgba(13, 58, 92, 0.8);
-  padding: 4px 2px 0;
-  position: relative;
-  z-index: 3;
-  /* Break a word only when it genuinely cannot fit, such as a long path.
-     break-all would split ordinary prose mid-word on any narrow line. */
+  line-height: 1.45;
+  color: var(--ink-3);
+  /* Break a word only when it genuinely cannot fit, such as a long path. */
   overflow-wrap: anywhere;
 }
+.settings-note-lead {
+  padding-top: 2px;
+}
+.settings-note[data-tone="error"] {
+  color: #ff9d8e;
+  font-weight: 600;
+}
+.settings-note[data-tone="ok"] {
+  color: #94e6a6;
+  font-weight: 600;
+}
 
-/* ---- theme swatches ---- */
-
-/* ---- control rows ---- */
+/* ---- a row ---- */
 
 .ctl-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  padding: 7px 0;
-  position: relative;
-  z-index: 3;
+  column-gap: 16px;
+  row-gap: 8px;
+  min-height: 44px;
+  padding: 9px var(--row-pad-x);
+}
+
+.ctl-text-block {
+  flex: 1 1 200px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ctl-row > .ctl-label {
+  flex: 1 1 160px;
+  min-width: 0;
 }
 
 .ctl-label {
-  flex: 0 0 220px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #0d3a5c;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  font-weight: 500;
+  color: var(--ink);
 }
 
+.ctl-hint {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--ink-3);
+}
+
+/* a switch stays beside its label, however narrow */
+.ctl-row-toggle {
+  flex-wrap: nowrap;
+}
+.ctl-row-toggle > .ctl-text-block {
+  flex-basis: 0;
+}
+
+/* one column for every slider's value, so the sliders line up whatever their readouts say */
 .ctl-value {
-  flex: 0 0 52px;
+  flex: 0 0 64px;
+  white-space: nowrap;
   text-align: right;
   font-size: 12px;
-  font-weight: 600;
-  color: rgba(13, 58, 92, 0.85);
+  color: var(--ink-2);
   font-variant-numeric: tabular-nums;
 }
 
-/* slider: glass track with glossy thumb */
-.ctl-slider {
-  flex: 1;
-  appearance: none;
-  height: 8px;
-  border-radius: 4px;
-  outline: none;
-  background:
-    linear-gradient(90deg, var(--aero-accent), var(--aero-life)) 0 0 / var(--fill, 50%) 100% no-repeat,
-    rgba(255, 255, 255, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  box-shadow: inset 0 1px 3px rgba(10, 45, 80, 0.25);
+.ctl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
 }
 
+.settings-about-value {
+  margin-left: auto;
+  color: var(--ink-2);
+}
+
+.settings-path {
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+/* ---- slider ---- */
+
+.ctl-slider {
+  flex: 1 1 170px;
+  min-width: 120px;
+  appearance: none;
+  height: 4px;
+  margin: 8px 0;
+  border-radius: 2px;
+  outline: none;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--aero-accent, #4aa8ff) 80%, white), var(--aero-accent, #4aa8ff)) 0 0 / var(--fill, 50%) 100% no-repeat,
+    rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35);
+  cursor: default;
+}
 .ctl-slider::-webkit-slider-thumb {
   appearance: none;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 35% 28%, #ffffff 0%, #eaf6ff 45%, #b8dcf2 100%);
-  border: 1px solid rgba(60, 120, 170, 0.7);
-  box-shadow: 0 2px 5px rgba(10, 45, 80, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  cursor: pointer;
+  background: radial-gradient(circle at 35% 28%, #fff 0%, #fff 45%, #e6eaf2 100%);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.45),
+    0 0 0 0.5px rgba(0, 0, 0, 0.15);
+  transition:
+    transform var(--m-quick) var(--e-overshoot),
+    box-shadow var(--m-quick) var(--e-out);
+}
+.ctl-slider:hover::-webkit-slider-thumb {
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.45),
+    0 0 0 4px color-mix(in srgb, var(--aero-accent, #4aa8ff) 25%, transparent);
+}
+.ctl-slider:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+.ctl-slider:focus-visible {
+  outline-offset: 6px;
 }
 
-/* toggle: little glass capsule */
+/* ---- switch ---- */
+
 .ctl-toggle {
-  width: 46px;
-  height: 24px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: inset 0 1px 3px rgba(10, 45, 80, 0.3);
+  flex: none;
   position: relative;
-  cursor: pointer;
-  transition: background var(--m-standard) var(--e-inout);
+  width: 42px;
+  height: 25px;
+  border: none;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  cursor: default;
+  transition:
+    background var(--m-standard) var(--e-inout),
+    box-shadow var(--m-standard) var(--e-out);
 }
-
 .ctl-toggle[data-on="true"] {
-  background: linear-gradient(180deg, var(--aero-life), var(--aero-accent));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--aero-accent, #4aa8ff) 72%, white), var(--aero-accent, #4aa8ff));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 12px color-mix(in srgb, var(--aero-accent, #4aa8ff) 40%, transparent);
 }
-
 .ctl-toggle-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 18px;
-  height: 18px;
+  width: 21px;
+  height: 21px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 28%, #ffffff, #dceefb 60%, #b8dcf2);
-  border: 1px solid rgba(60, 120, 170, 0.55);
-  box-shadow: 0 1px 3px rgba(10, 45, 80, 0.4);
+  background: radial-gradient(circle at 35% 28%, #fff 0%, #fff 50%, #e8ecf3 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
   transition: transform var(--m-standard) var(--e-overshoot);
 }
-
 .ctl-toggle[data-on="true"] .ctl-toggle-thumb {
-  transform: translateX(22px);
+  transform: translateX(17px);
+}
+/* the switch answers a press with its thumb, not by shrinking */
+.ctl-toggle:active {
+  transform: none;
+}
+.ctl-toggle:active .ctl-toggle-thumb {
+  width: 25px;
+}
+.ctl-toggle[data-on="true"]:active .ctl-toggle-thumb {
+  transform: translateX(13px);
 }
 
-/* segmented picker */
+/* ---- segmented choice ---- */
+
 .ctl-segmented {
-  display: flex;
+  flex: 0 1 auto;
+  display: inline-flex;
+  flex-wrap: wrap;
   gap: 2px;
+  margin-left: auto;
   padding: 2px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: inset 0 1px 3px rgba(10, 45, 80, 0.22);
+  border-radius: 9px;
+  background: var(--fill);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
-
 .ctl-segmented button {
-  padding: 5px 14px;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  flex: 1 0 auto;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 7px;
   background: none;
-  font-family: inherit;
+  color: var(--ink-2);
+  font: inherit;
   font-size: 12.5px;
-  font-weight: 600;
-  color: rgba(13, 58, 92, 0.8);
-  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: default;
+  transition:
+    background-color var(--m-quick) var(--e-out),
+    color var(--m-quick) var(--e-out),
+    box-shadow var(--m-quick) var(--e-out);
 }
-
+.ctl-segmented button:hover:not([data-active="true"]) {
+  background: var(--fill-hover);
+  color: var(--ink);
+}
 .ctl-segmented button[data-active="true"] {
-  background: linear-gradient(180deg, #ffffff, #dbeefb);
-  border-color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 1px 4px rgba(10, 45, 80, 0.3), inset 0 1px 0 #fff;
-  color: #0d3a5c;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.14));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-weight: 600;
 }
 
-/* buttons */
-.ctl-actions {
-  display: flex;
-  gap: 8px;
-}
+/* ---- buttons ---- */
 
 .aero-button {
-  padding: 6px 16px;
-  border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(210, 236, 252, 0.75));
-  font-family: inherit;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.09));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  color: var(--ink);
+  font: inherit;
   font-size: 12.5px;
-  font-weight: 600;
-  color: #0d3a5c;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(10, 45, 80, 0.25), inset 0 1px 0 #fff;
+  font-weight: 500;
+  cursor: default;
+  transition:
+    transform var(--m-quick) var(--e-out),
+    background var(--m-quick) var(--e-out);
 }
-
 .aero-button:hover {
-  background: linear-gradient(180deg, #ffffff, rgba(190, 230, 252, 0.9));
-  box-shadow: 0 2px 10px rgba(120, 200, 255, 0.5), inset 0 1px 0 #fff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.13));
+}
+.aero-button:disabled {
+  opacity: 0.45;
+}
+.aero-button-danger {
+  background: linear-gradient(180deg, rgba(255, 120, 100, 0.32), rgba(255, 90, 70, 0.16));
+  box-shadow: inset 0 0 0 1px rgba(255, 150, 130, 0.35);
+  color: #ffc9c0;
+}
+.aero-button-danger:hover {
+  background: linear-gradient(180deg, rgba(255, 120, 100, 0.44), rgba(255, 90, 70, 0.24));
+}
+/* a button standing on its own, under a group */
+.settings-section-inner > .aero-button {
+  align-self: flex-start;
+  margin: 10px var(--row-pad-x) 0;
 }
 
-/* ---- loading / failure splash (before settings arrive from Rust) ---- */
+/* an inline action inside a note */
+.aero-button-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--lit);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: default;
+}
+
+/* ---- cards: things bigger than a row get a group of their own ---- */
+
+.settings-section-inner > :is(.spectrum, .anim-picker, .settings-support-card) {
+  margin-top: 8px;
+  padding: 14px var(--row-pad-x);
+  border: 1px solid var(--group-edge);
+  border-radius: 12px;
+  background: var(--group);
+}
+.settings-section-inner > :is(.spectrum, .anim-picker):first-child {
+  margin-top: 0;
+}
+.settings-section-inner > .anim-picker {
+  border-top: 1px solid var(--group-edge);
+}
+
+/* ---- text fields, colour wells, the icon picker ---- */
+
+.ctl-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12.5px;
+}
+.ctl-text:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--lit), 0 0 0 3px color-mix(in srgb, var(--aero-accent, #4aa8ff) 25%, transparent);
+}
+.ctl-text-short {
+  flex: 0 0 68px;
+  text-align: center;
+}
+.ctl-text-mid {
+  flex: 0 0 140px;
+}
+.ctl-row-stacked {
+  align-items: flex-start;
+}
+
+.ctl-colour {
+  width: 42px;
+  height: 28px;
+  padding: 2px;
+  border: none;
+  border-radius: 8px;
+  background: var(--fill);
+  box-shadow: inset 0 0 0 1px var(--line);
+  cursor: default;
+}
+.ctl-colour::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.ctl-colour::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.mode-icon-field {
+  padding: 10px var(--row-pad-x);
+}
+.mode-icon-field > .ctl-label {
+  display: block;
+  margin-bottom: 8px;
+}
+.icon-picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.icon-picker-option {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: var(--fill);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: default;
+  transition: background var(--m-quick) var(--e-inout);
+}
+.icon-picker-option[data-emoji="true"] {
+  font-size: 16px;
+  font-weight: 400;
+}
+.icon-picker-option:hover {
+  background: var(--fill-hover);
+}
+.icon-picker-option[data-active="true"] {
+  background: var(--fill-active);
+  box-shadow: inset 0 0 0 1.5px var(--lit);
+}
+.icon-picker-custom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.icon-picker-custom .settings-note {
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- app volume ---- */
+
+.audio-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: var(--row-pad-x);
+}
+.audio-row .ctl-row {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ---- modes and widgets: a card for each ---- */
+
+.mode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 4px;
+}
+.mode-card {
+  padding: 12px var(--row-pad-x);
+  border-radius: 12px;
+  background: var(--group);
+  border: 1px solid var(--group-edge);
+}
+.mode-card[data-active="true"] {
+  border-color: color-mix(in srgb, var(--aero-accent, #4aa8ff) 55%, transparent);
+  box-shadow: inset 3px 0 0 var(--lit);
+}
+.mode-card-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.mode-card-glyph {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--aero-accent, #4aa8ff) 70%, white), var(--aero-accent-deep, #1d4f7a));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.mode-card-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.mode-card-meta {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.mode-card-badge {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--aero-accent, #4aa8ff) 50%, rgba(255, 255, 255, 0.1));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.mode-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+.mode-card-edit {
+  margin-top: 10px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.mode-card-edit .ctl-row,
+.mode-card .ctl-row {
+  padding-inline: 0;
+}
+.mode-card .settings-note {
+  padding-inline: 0;
+}
+
+.widget-add {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+/* ---- support ---- */
+
+.settings-support-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 26px var(--row-pad-x) 22px !important;
+  text-align: center;
+}
+.settings-support-card .settings-orb {
+  width: 48px;
+  height: 48px;
+}
+.settings-support-card p {
+  max-width: 42ch;
+  color: var(--ink-2);
+}
+.settings-support-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: default;
+  color: #4a2a05;
+  background: linear-gradient(180deg, #fff3dd, #ffc978 58%, #eda23f);
+  box-shadow: 0 3px 12px rgba(237, 162, 63, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  transition:
+    transform var(--m-quick) var(--e-out),
+    box-shadow var(--m-standard) var(--e-out);
+}
+.settings-support-cta:hover {
+  box-shadow: 0 0 20px rgba(255, 200, 120, 0.6), inset 0 1px 0 #fff;
+}
+
+/* ---- what happened: a message at the foot of the page ---- */
+
+.settings-status {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: 18px;
+  max-width: min(560px, calc(100% - 32px));
+  padding: 9px 16px;
+  border-radius: 12px;
+  transform: translateX(-50%);
+  background: rgba(22, 30, 48, 0.88);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+  animation: settings-toast calc(300ms / var(--anim-speed, 1)) var(--e-out) both;
+}
+.settings-status[data-tone="ok"] {
+  color: #b5f0c2;
+}
+.settings-status[data-tone="error"] {
+  color: #ffb6aa;
+}
+@keyframes settings-toast {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+}
+
+/* ---- nothing found ---- */
+
+.settings-nomatch {
+  padding: 40px 8px;
+  text-align: center;
+  color: var(--ink-2);
+}
+.settings-nomatch button {
+  border: none;
+  background: none;
+  color: var(--lit);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: default;
+}
+
+/* ---- before settings arrive from Rust ---- */
 
 .settings-root-centered {
   align-items: center;
   justify-content: center;
 }
-
 .settings-splash {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
   text-align: center;
-  color: #0d3a5c;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   font-size: 13.5px;
   font-weight: 600;
 }
-
+.settings-splash .settings-orb {
+  width: 56px;
+  height: 56px;
+}
 .settings-splash-hint {
+  max-width: 320px;
   font-size: 12px;
   font-weight: 500;
-  color: rgba(13, 58, 92, 0.75);
-  max-width: 320px;
+  color: var(--ink-2);
 }
-
 .settings-orb-pulse {
-  animation: orb-breathe calc(2.4s / var(--anim-speed)) ease-in-out infinite;
+  animation: orb-breathe calc(2.4s / var(--anim-speed, 1)) ease-in-out infinite;
 }
-
 @keyframes orb-breathe {
   0%,
   100% {
@@ -366,996 +1034,54 @@
   }
 }
 
+/* ---- the keyboard's ring ---- */
+
+.settings-root :focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 2px;
+  border-radius: 9px;
+}
+
+/* ---- a narrow page: tighter margins, choices across the whole row ---- */
+
+@container pane (width < 560px) {
+  .pane-head {
+    padding: 16px 16px 10px;
+  }
+  .settings-scroll {
+    padding: 4px 14px 40px;
+  }
+  .ctl-row-seg .ctl-segmented {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+  .ctl-row-slider .ctl-text-block {
+    flex-basis: 100%;
+  }
+  .ctl-actions {
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+  .ctl-row > .ctl-label + .ctl-actions {
+    margin-left: auto;
+  }
+}
+@container pane (width < 380px) {
+  .pane-title p {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .pane-body,
+  .pane-title,
+  .settings-status,
+  .sb-scrim,
   .settings-orb-pulse {
     animation: none;
   }
-}
-
-/* ---- status line tones ---- */
-
-.settings-note[data-tone="error"] {
-  color: #8c2f22;
-  font-weight: 600;
-}
-
-.settings-note[data-tone="ok"] {
-  color: #1c5c2a;
-  font-weight: 600;
-}
-
-.settings-about-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(13, 58, 92, 0.85);
-}
-
-/* ---- interaction states: hover, active, and a real focus ring ---- */
-
-.aero-button:active,
-.ctl-segmented button:active {
-  transform: translateY(1px);
-}
-
-.aero-button {
-  transition:
-    transform calc(0.14s / var(--anim-speed)) ease,
-    box-shadow calc(0.22s / var(--anim-speed)) ease,
-    background calc(0.22s / var(--anim-speed)) ease;
-}
-
-.ctl-segmented button {
-  transition:
-    background calc(0.18s / var(--anim-speed)) ease,
-    color calc(0.18s / var(--anim-speed)) ease;
-}
-
-.ctl-segmented button:hover:not([data-active="true"]) {
-  background: rgba(255, 255, 255, 0.32);
-  color: #0d3a5c;
-}
-
-.ctl-slider::-webkit-slider-thumb:hover {
-  box-shadow: 0 2px 8px rgba(10, 45, 80, 0.45), 0 0 10px rgba(150, 220, 255, 0.7),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.ctl-toggle:hover {
-  box-shadow: inset 0 1px 3px rgba(10, 45, 80, 0.3), 0 0 10px rgba(150, 220, 255, 0.45);
-}
-
-/* Keyboard users get an unmistakable ring; mouse users never see it. */
-.settings-root :focus-visible {
-  outline: 2px solid #ffffff;
-  outline-offset: 2px;
-  border-radius: 10px;
-  box-shadow: 0 0 0 4px rgba(47, 157, 227, 0.55);
-}
-
-.ctl-slider:focus-visible {
-  outline-offset: 4px;
-}
-
-/* Quit is the one destructive control in here, so it reads warm rather
-   than blending in with Export and Import. */
-.aero-button-danger {
-  background: linear-gradient(180deg, rgba(255, 236, 230, 0.95), rgba(250, 190, 175, 0.85));
-  border-color: rgba(255, 255, 255, 0.8);
-  color: #7c2d18;
-}
-
-.aero-button-danger:hover {
-  background: linear-gradient(180deg, #ffffff, rgba(255, 178, 160, 0.95));
-  box-shadow: 0 2px 10px rgba(255, 140, 115, 0.55), inset 0 1px 0 #fff;
-}
-
-/* the storage folder in About: a real path, so let it wrap and keep it
-   monospaced enough to read at a glance */
-.settings-path {
-  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
-  font-size: 11.5px;
-  word-break: break-all;
-  opacity: 0.75;
-}
-
-/* ---- modes ---------------------------------------------------------- */
-
-.mode-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 10px 0 14px;
-}
-
-.mode-card {
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-/* the loaded mode keeps a lit rail, the same cue the dock flyout uses */
-.mode-card[data-active="true"] {
-  border-color: rgba(255, 255, 255, 0.34);
-  box-shadow: inset 3px 0 0 var(--aero-life, #7ad03a);
-}
-
-.mode-card-head {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-}
-
-.mode-card-glyph {
-  flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  font-size: 14px;
-  font-weight: 700;
-  background: linear-gradient(180deg, rgba(226, 247, 255, 0.5), rgba(40, 124, 186, 0.5));
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.mode-card-title {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.mode-card-meta {
-  font-size: 11px;
-  opacity: 0.65;
-}
-
-.mode-card-badge {
-  flex: 0 0 auto;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: linear-gradient(180deg, rgba(150, 226, 96, 0.9), rgba(80, 160, 40, 0.9));
-  border: 1px solid rgba(255, 255, 255, 0.55);
-}
-
-.mode-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 8px;
-}
-
-.mode-card-edit {
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-}
-
-/* a text field that matches the sliders and toggles beside it */
-.ctl-text {
-  flex: 1 1 auto;
-  min-width: 0;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font: inherit;
-  font-size: 12.5px;
-  color: var(--aero-text-on-glass);
-  background: rgba(8, 40, 72, 0.32);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: inset 0 1px 3px rgba(4, 24, 46, 0.45);
-}
-
-.ctl-text:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow:
-    inset 0 1px 3px rgba(4, 24, 46, 0.45),
-    0 0 0 2px rgba(120, 205, 255, 0.35);
-}
-
-.ctl-text-short {
-  flex: 0 0 68px;
-  text-align: center;
-}
-
-.ctl-text-mid {
-  flex: 0 0 140px;
-}
-
-.ctl-row-stacked {
-  align-items: flex-start;
-}
-
-/* ---- app volume ----------------------------------------------------- */
-
-.audio-row {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.audio-row .ctl-row {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-/* an inline action inside a note line */
-.aero-button-link {
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  font-weight: 600;
-  color: var(--aero-accent, #2f9de3);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* ---- mode icon picker ----------------------------------------------- */
-
-/* Laid out as a block under its own label: the grid is far wider than a
-   control, and a stacked field lets it wrap instead of squeezing. */
-.mode-icon-field {
-  padding: 7px 0;
-}
-
-.mode-icon-field > .ctl-label {
-  display: block;
-  flex: none;
-  margin-bottom: 7px;
-}
-
-.icon-picker-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.icon-picker-option {
-  width: 30px;
-  height: 30px;
-  flex: none;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 8px;
-  background: rgba(8, 40, 72, 0.28);
-  color: var(--aero-text-on-glass);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-  transition: background var(--m-quick) var(--e-inout), border-color var(--m-quick) var(--e-inout);
-}
-
-.icon-picker-option[data-emoji="true"] {
-  font-size: 16px;
-  font-weight: 400;
-}
-
-.icon-picker-option:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.55);
-}
-
-/* the chosen one keeps the same green cue the active mode uses */
-.icon-picker-option[data-active="true"] {
-  background: rgba(255, 255, 255, 0.24);
-  border-color: var(--aero-life, #7ad03a);
-  box-shadow: 0 0 0 1px var(--aero-life, #7ad03a);
-}
-
-.icon-picker-custom {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.icon-picker-custom .settings-note {
-  margin: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .icon-picker-option {
+  .sb.glass[data-sliding="true"],
+  .ctl-toggle-thumb {
     transition: none;
   }
-}
-
-/* ---- desktop widgets ------------------------------------------------ */
-
-.widget-add {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-/* A colour well that matches the other controls rather than the raw
-   browser swatch, which is a grey box with a border. */
-.ctl-colour {
-  width: 42px;
-  height: 28px;
-  padding: 2px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  background: rgba(255, 255, 255, 0.18);
-  cursor: pointer;
-}
-
-.ctl-colour::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.ctl-colour::-webkit-color-swatch {
-  border: none;
-  border-radius: 6px;
-}
-
-/* ====================================================================
-   Support
-
-   The one warm thing in a window built out of water and glass, which is
-   the whole reason it reads as a separate offer rather than another
-   setting. It borrows the same construction as every other control here,
-   a gradient body with an inset highlight, so it still belongs: only the
-   hue is different, and only on this one card.
-   ==================================================================== */
-
-/* Sits opposite the title, so it is in view the moment settings opens
-   without pushing any setting further down the scroll. */
-.settings-support-chip {
-  margin-left: auto;
-  align-self: center;
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 13px;
-  border-radius: 999px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  color: #6b4217;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 226, 176, 0.72));
-  box-shadow: 0 2px 6px rgba(120, 78, 20, 0.22), inset 0 1px 0 #fff;
-}
-
-.settings-support-chip:hover {
-  background: linear-gradient(180deg, #ffffff, rgba(255, 214, 142, 0.9));
-  box-shadow: 0 2px 10px rgba(255, 196, 110, 0.6), inset 0 1px 0 #fff;
-}
-
-.settings-support h2 span {
-  font-size: 0.95em;
-}
-
-.settings-support-copy {
-  max-width: 46ch;
-}
-
-.settings-support-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-/* Deliberately heavier than .aero-button: this is the one thing on the
-   card, so it carries the hierarchy on its own rather than needing the
-   card to shout. */
-.settings-support-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 20px;
-  border-radius: 11px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  color: #5d3809;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  background: linear-gradient(180deg, #fff6e6, #ffc978 58%, #eda23f);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
-  box-shadow: 0 3px 10px rgba(170, 110, 30, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.settings-support-cta:hover {
-  box-shadow: 0 0 16px rgba(255, 200, 120, 0.75), inset 0 1px 0 #fff;
-}
-
-.settings-support-cta:active {
-  transform: translateY(1px);
-}
-
-.settings-support-chip,
-.settings-support-cta {
-  transition:
-    transform calc(0.14s / var(--anim-speed)) ease,
-    box-shadow calc(0.22s / var(--anim-speed)) ease,
-    background calc(0.22s / var(--anim-speed)) ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .settings-support-chip,
-  .settings-support-cta {
-    transition: none;
-  }
-}
-
-/* The header wraps on a narrow window, and the chip should lead the second
-   line rather than sit stranded on the right of it. */
-@media (max-width: 520px) {
-  .settings-header {
-    flex-wrap: wrap;
-  }
-
-  .settings-support-chip {
-    margin-left: 0;
-  }
-}
-
-/* ---- the body: a sidebar and the sections ---- */
-
-.settings-body {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  position: relative;
-}
-
-.settings-nav {
-  flex: none;
-  width: 196px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 8px 4px 16px 24px;
-  color: #0d3a5c;
-}
-
-.settings-search {
-  position: relative;
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.42);
-  box-shadow:
-    inset 0 1px 2px rgba(10, 45, 80, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.6);
-  transition:
-    background-color var(--m-quick) var(--e-out),
-    box-shadow var(--m-standard) var(--e-out);
-}
-
-.settings-search:focus-within {
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow:
-    inset 0 1px 2px rgba(10, 45, 80, 0.2),
-    0 0 0 2px var(--aero-accent, #2f9de3);
-}
-
-.settings-search svg {
-  width: 15px;
-  height: 15px;
-  flex: none;
-  opacity: 0.7;
-}
-
-.settings-search input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 13px;
-}
-
-.settings-search input:focus,
-.settings-search input:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
-
-.settings-search input::placeholder {
-  color: rgba(13, 58, 92, 0.55);
-}
-
-.settings-nav-list {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-right: 4px;
-  scrollbar-width: none;
-}
-
-.settings-nav-heading {
-  padding: 0 10px 3px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: rgba(13, 58, 92, 0.6);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
-}
-
-.settings-nav-item {
-  display: block;
-  width: 100%;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  position: relative;
-  transition:
-    background-color var(--m-quick) var(--e-out),
-    box-shadow var(--m-quick) var(--e-out);
-}
-
-.settings-nav-item:hover {
-  background: rgba(255, 255, 255, 0.4);
-}
-
-.settings-nav-item[data-active="true"] {
-  background: rgba(255, 255, 255, 0.62);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 1px 4px rgba(10, 45, 80, 0.15);
-}
-
-.settings-nav-item[data-active="true"]::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 7px;
-  bottom: 7px;
-  width: 3px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--aero-accent), var(--aero-life));
-}
-
-.settings-nav-none {
-  padding: 8px 10px;
-  font-size: 12px;
-  color: rgba(13, 58, 92, 0.7);
-}
-
-.settings-nav-actions {
-  flex: none;
-  display: flex;
-  gap: 6px;
-}
-
-.settings-nav-actions button {
-  flex: 1;
-  padding: 5px 4px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.3);
-  color: inherit;
-  font: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.settings-nav-actions button:hover {
-  background: rgba(255, 255, 255, 0.55);
-}
-
-/* ---- a group's heading in the page ---- */
-
-.settings-group {
-  flex: none;
-  margin: 8px 4px -4px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #0d3a5c;
-  opacity: 0.72;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
-}
-
-.settings-group:first-child {
-  margin-top: 0;
-}
-
-/* ---- a section that folds ---- */
-
-.settings-section > h2 {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom-color: transparent;
-  transition: margin-bottom var(--m-standard) var(--e-out);
-}
-
-.settings-section[data-open="true"] > h2 {
-  margin-bottom: 12px;
-  padding-bottom: 7px;
-  border-bottom-color: rgba(255, 255, 255, 0.5);
-}
-
-.settings-section[data-open="false"] > h2::after {
-  display: none;
-}
-
-.settings-section-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 2px 0;
-  border: none;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  text-shadow: inherit;
-  cursor: pointer;
-}
-
-.settings-section-head:focus-visible {
-  border-radius: 8px;
-}
-
-.settings-section-title {
-  flex: none;
-}
-
-.settings-section-blurb {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(8, 40, 70, 0.8);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.settings-section-chevron {
-  flex: none;
-  width: 16px;
-  height: 16px;
-  margin-left: auto;
-  opacity: 0.7;
-  transition: transform var(--m-standard) var(--e-overshoot);
-}
-
-.settings-section[data-open="false"] .settings-section-chevron {
-  transform: rotate(-90deg);
-}
-
-.settings-section-head:hover .settings-section-chevron {
-  opacity: 1;
-}
-
-/* the body folds by its row going from nothing to its own height */
-.settings-section-body {
-  display: grid;
-  grid-template-rows: 1fr;
-  position: relative;
-  z-index: 3;
-  transition:
-    grid-template-rows var(--m-standard) var(--e-out),
-    opacity var(--m-standard) var(--e-out);
-}
-
-.settings-section-body[data-open="false"] {
-  grid-template-rows: 0fr;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    grid-template-rows var(--m-standard) var(--e-out),
-    opacity var(--m-quick) var(--e-in),
-    visibility 0s var(--m-standard);
-}
-
-.settings-section-inner {
-  min-height: 0;
-  overflow: hidden;
-  /* room for focus rings and slider knobs, which would be cut at the edge of a folding row */
-  padding: 4px 8px 2px;
-  margin: -4px -8px -2px;
-}
-
-/* ---- a heading inside a section ---- */
-
-.settings-sub {
-  margin: 18px 0 4px;
-  padding-bottom: 4px;
-  font-size: 11.5px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(13, 58, 92, 0.62);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
-  position: relative;
-  z-index: 3;
-}
-
-.settings-sub:first-child {
-  margin-top: 2px;
-}
-
-.settings-nomatch {
-  padding: 18px 8px;
-  text-align: center;
-  color: #0d3a5c;
-}
-
-.settings-nomatch button {
-  border: none;
-  background: none;
-  color: var(--aero-accent-deep, #1264aa);
-  font: inherit;
-  font-weight: 700;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* in a narrow window the sections are a strip along the top */
-@media (max-width: 760px) {
-  .settings-body {
-    flex-direction: column;
-  }
-  .settings-nav {
-    width: auto;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    padding: 0 22px 8px;
-  }
-  .settings-search {
-    flex: 0 0 170px;
-  }
-  .settings-nav-list {
-    flex-direction: row;
-    gap: 2px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 0;
-  }
-  .settings-nav-group {
-    display: flex;
-    flex-direction: row;
-    flex: none;
-  }
-  .settings-nav-heading,
-  .settings-nav-actions {
-    display: none;
-  }
-  .settings-nav-item {
-    width: auto;
-    white-space: nowrap;
-  }
-  .settings-scroll {
-    padding: 4px 22px 24px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .settings-section-body,
-  .settings-section-body[data-open="false"],
-  .settings-section-chevron {
-    transition: none;
-  }
-}
-
-/* ====================================================================== */
-/* Night glass: the look this window has by default, dark liquid glass like */
-/* everything else Aero Dock draws. The sky and its bubbles are the other  */
-/* choice (Settings > Colour & materials > This window).                   */
-/*                                                                         */
-/* The sky's text is dark blue on light glass, written into the rules above */
-/* as colours; here each is turned over to light on dark, and the ground,   */
-/* the glass and the controls follow. The cards are the `clear` material    */
-/* (applyTheme sets it for this look), so the light, the rim and the shadow */
-/* are the same ones as the dock's and Start's.                             */
-/* ====================================================================== */
-
-html[data-look="night"] {
-  --night-ink: #ecf1ff;
-  --night-ink-2: rgba(226, 236, 255, 0.74);
-  --night-ink-3: rgba(226, 236, 255, 0.52);
-  --night-line: rgba(255, 255, 255, 0.16);
-  --night-fill: rgba(255, 255, 255, 0.07);
-  --night-fill-hover: rgba(255, 255, 255, 0.13);
-  --night-fill-active: rgba(255, 255, 255, 0.2);
-  --clear-strength: 0.7;
-}
-
-html[data-look="night"] .settings-root {
-  background:
-    radial-gradient(ellipse 70% 55% at 10% -12%, color-mix(in srgb, var(--aero-accent, #4aa8ff) 34%, transparent), transparent 62%),
-    radial-gradient(ellipse 80% 60% at 96% 112%, color-mix(in srgb, var(--aero-accent-deep, #1d4f7a) 52%, transparent), transparent 62%),
-    linear-gradient(180deg, #0d1424 0%, #0a1020 60%, #080d1a 100%);
-  color: var(--night-ink);
-}
-
-html[data-look="night"] .settings-bubbles {
-  display: none;
-}
-
-html[data-look="night"] .settings-header,
-html[data-look="night"] .settings-card h2,
-html[data-look="night"] .ctl-label,
-html[data-look="night"] .settings-nav,
-html[data-look="night"] .settings-group,
-html[data-look="night"] .settings-nomatch,
-html[data-look="night"] .settings-splash,
-html[data-look="night"] .ctl-segmented button[data-active="true"],
-html[data-look="night"] .ctl-segmented button:hover:not([data-active="true"]),
-html[data-look="night"] .aero-button,
-html[data-look="night"] .settings-section-title {
-  color: var(--night-ink);
-  text-shadow: none;
-}
-
-html[data-look="night"] .settings-header h1 {
-  background: linear-gradient(180deg, #ffffff, color-mix(in srgb, var(--aero-accent, #4aa8ff) 40%, #dbe8ff));
-  -webkit-background-clip: text;
-  background-clip: text;
-  filter: none;
-}
-
-html[data-look="night"] .settings-header p,
-html[data-look="night"] .settings-note,
-html[data-look="night"] .ctl-value,
-html[data-look="night"] .settings-footer,
-html[data-look="night"] .settings-splash-hint,
-html[data-look="night"] .settings-about-value,
-html[data-look="night"] .settings-nav-none {
-  color: var(--night-ink-2);
-  text-shadow: none;
-}
-
-html[data-look="night"] .settings-nav-heading,
-html[data-look="night"] .settings-sub,
-html[data-look="night"] .settings-section-blurb,
-html[data-look="night"] .settings-search input::placeholder {
-  color: var(--night-ink-3);
-  text-shadow: none;
-}
-
-html[data-look="night"] .settings-note[data-tone="error"] {
-  color: #ff9d8e;
-}
-html[data-look="night"] .settings-note[data-tone="ok"] {
-  color: #94e6a6;
-}
-
-html[data-look="night"] .settings-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.24);
-  background-clip: content-box;
-}
-
-/* swatches, segmented choices, text fields and pickers: a veil, a hairline, a brighter veil under the pointer */
-html[data-look="night"] .icon-picker-option,
-html[data-look="night"] .ctl-colour,
-html[data-look="night"] .ctl-segmented,
-html[data-look="night"] .mode-card {
-  background: var(--night-fill);
-  border-color: var(--night-line);
-}
-html[data-look="night"] .icon-picker-option:hover {
-  background: var(--night-fill-hover);
-  border-color: rgba(255, 255, 255, 0.34);
-}
-html[data-look="night"] .icon-picker-option[data-active="true"],
-html[data-look="night"] .mode-card[data-active="true"] {
-  background: var(--night-fill-active);
-  border-color: color-mix(in srgb, var(--aero-accent, #4aa8ff) 70%, white);
-}
-
-html[data-look="night"] .ctl-segmented button {
-  color: var(--night-ink-2);
-}
-html[data-look="night"] .ctl-segmented button:hover:not([data-active="true"]) {
-  background: var(--night-fill-hover);
-}
-html[data-look="night"] .ctl-segmented button[data-active="true"] {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.14));
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-html[data-look="night"] .ctl-slider {
-  background:
-    linear-gradient(90deg, var(--aero-accent), var(--aero-life)) 0 0 / var(--fill, 50%) 100% no-repeat,
-    rgba(255, 255, 255, 0.14);
-  border-color: var(--night-line);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
-}
-
-html[data-look="night"] .ctl-toggle {
-  border-color: rgba(255, 255, 255, 0.24);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
-}
-html[data-look="night"] .ctl-toggle:not([data-on="true"]) {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-html[data-look="night"] .ctl-text {
-  background: rgba(0, 0, 0, 0.28);
-  border-color: var(--night-line);
-  color: var(--night-ink);
-}
-html[data-look="night"] .ctl-text:focus {
-  border-color: color-mix(in srgb, var(--aero-accent, #4aa8ff) 70%, white);
-}
-
-html[data-look="night"] .aero-button {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.09));
-  border-color: rgba(255, 255, 255, 0.26);
-}
-html[data-look="night"] .aero-button:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.14));
-}
-html[data-look="night"] .aero-button-danger {
-  background: linear-gradient(180deg, rgba(255, 120, 100, 0.3), rgba(255, 90, 70, 0.16));
-  border-color: rgba(255, 150, 130, 0.4);
-  color: #ffc2b8;
-}
-html[data-look="night"] .aero-button-danger:hover {
-  background: linear-gradient(180deg, rgba(255, 120, 100, 0.42), rgba(255, 90, 70, 0.24));
-}
-html[data-look="night"] .aero-button-link,
-html[data-look="night"] .settings-nomatch button {
-  color: color-mix(in srgb, var(--aero-accent, #4aa8ff) 60%, white);
-}
-
-/* the search box and the sidebar */
-html[data-look="night"] .settings-search {
-  background: var(--night-fill);
-  color: var(--night-ink);
-}
-html[data-look="night"] .settings-search:focus-within {
-  background: var(--night-fill-hover);
-}
-html[data-look="night"] .settings-search input {
-  color: var(--night-ink);
-}
-html[data-look="night"] .settings-nav-item {
-  color: var(--night-ink-2);
-}
-html[data-look="night"] .settings-nav-item:hover {
-  background: var(--night-fill-hover);
-  color: var(--night-ink);
-}
-html[data-look="night"] .settings-nav-item[data-active="true"] {
-  background: var(--night-fill-active);
-  color: var(--night-ink);
-}
-html[data-look="night"] .settings-nav-actions button {
-  background: var(--night-fill);
-  color: var(--night-ink-2);
-}
-html[data-look="night"] .settings-nav-actions button:hover {
-  background: var(--night-fill-hover);
-  color: var(--night-ink);
 }

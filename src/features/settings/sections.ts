@@ -1,20 +1,21 @@
 /**
  * Every section of the settings window, and how they are grouped.
  *
- * The window shows them under their group's heading, the sidebar lists them the
- * same way, and the search box matches what is typed against a section's title,
- * its blurb and its keywords (the names of what is inside), so a setting can be
- * found without knowing which section it lives in. A section is drawn by
+ * The sidebar lists them under their group's heading, each with its icon, and the window shows the one chosen. The
+ * search box matches what is typed against a section's title, its blurb and its keywords (the names of what is
+ * inside), so a setting can be found without knowing which section it lives in. A section is drawn by
  * `SettingsSection`, which looks itself up here by `id`.
  */
 
 export interface SectionDef {
   id: string;
   title: string;
-  /** What is in it, in a line: shown when it is collapsed. */
+  /** What is in it, in a line: under its title at the top of the page. */
   blurb: string;
   /** The names of the settings inside, for the search box. */
   keywords: string;
+  /** The hue of its icon's tile (0 to 360; `null` for a grey one). */
+  hue: number | null;
 }
 
 export interface GroupDef {
@@ -31,22 +32,26 @@ export const GROUPS: GroupDef[] = [
       {
         id: "colour",
         title: "Colour & materials",
-        blurb: "Theme colour, glass material, app icon style",
+        blurb: "The theme colour, the dock's material and the app icons",
         keywords:
-          "color colour theme accent picker wallpaper material classic liquid clear dock material settings material app icons plain glass tinted icon style",
+          "color colour theme accent picker hex wallpaper tint from wallpaper material liquid clear dock material app icons plain glass tinted icon style",
+        hue: 285,
       },
       {
         id: "glass",
         title: "Glass & light",
-        blurb: "Blur, grain, bloom, reflections, scene, speed",
+        blurb: "Frosted glass, light, depth and the ambient scene",
         keywords:
-          "frosted glass blur real blur frosting dock start menu bar menubar picture report square corners pointer light grain opacity transparency intensity bloom reflections dock shadow ambient scene dust rain snow ocean aurora particles tint from wallpaper animation speed",
+          "frosted glass blur real blur frosting frost grain dock start menu bar menubar pointer light opacity transparency intensity bloom reflections dock shadow ambient scene dust rain snow ocean aurora particles",
+        hue: 195,
       },
       {
         id: "animations",
         title: "Animations",
-        blurb: "How menus, flyouts, the dock and Start open and close",
-        keywords: "hardware acceleration gpu graphics card software rendering restart frame timings smoothness fps stutter refresh rate hz overlay performance animation animations menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close media pill island peek gloop jelly drop unfurl bloom spring",
+        blurb: "How things open, close and answer the pointer",
+        keywords:
+          "animation animations speed hover effect magnify lift glow menu items sections hardware acceleration gpu graphics card software rendering restart frame timings smoothness fps stutter refresh rate hz overlay performance menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close media pill island peek gloop jelly drop unfurl bloom spring",
+        hue: 320,
       },
     ],
   },
@@ -57,27 +62,31 @@ export const GROUPS: GroupDef[] = [
       {
         id: "dock",
         title: "Dock",
-        blurb: "Position, size, magnification, auto-hide",
+        blurb: "Where it sits, its icons, how it marks running apps",
         keywords:
-          "dock position edge bottom top left right monitor screen every monitor icon size spacing magnification lift reach hill swell rise grow mac padding corner radius tint tinted colour color theme colour plain glass floating edge gap reserve screen space running applications running dot marks focus mark pill ghost glowing dot glide bounce snap float fade stretch with speed velocity faint dots marks halo glow dimmed running apps show middle click end task close windows minimise effect genie scale bounce attention auto hide",
+          "dock position edge bottom top left right monitor screen every monitor auto hide automatically hide delay floating edge gap reserve screen space icon size spacing padding magnification amount lift reach running applications running apps marks dot focus mark pill ghost glowing dot glide bounce snap float fade faint marks halo dimmed stretch with speed velocity corner radius tint tinted theme colour plain glass middle click end task close windows minimise effect genie scale attention bounce",
+        hue: 215,
       },
       {
         id: "dock-items",
         title: "Dock items",
-        blurb: "Search, settings, clock and status buttons",
+        blurb: "Search, Settings, the clock and the status icons",
         keywords: "search button reveal settings button clock date battery network volume recycle bin status icon size",
+        hue: 200,
       },
       {
         id: "modes",
         title: "Modes",
-        blurb: "Pinned apps and layouts you can switch between",
+        blurb: "Sets of pinned apps and layouts to switch between",
         keywords: "modes mode work focus pinned apps window layout snapshot auto switch glyph",
+        hue: 260,
       },
       {
         id: "audio",
         title: "App volume",
-        blurb: "Remembered volume for each app",
+        blurb: "The volume of each app that is playing",
         keywords: "app volume audio per app mixer mute sound level",
+        hue: 25,
       },
     ],
   },
@@ -88,27 +97,31 @@ export const GROUPS: GroupDef[] = [
       {
         id: "menubar",
         title: "Menu bar",
-        blurb: "The bar along the top, the lens, the Control Center",
+        blurb: "The bar along the top, its lens and the Control Center",
         keywords:
           "menu bar height gap corner radius seconds clock time media pill island now playing hover controls play pause next previous tint item spacing text size edge light lens size magnification warp control center wi-fi bluetooth circle colour now playing cover sound wave spectrum camera microphone dots privacy cpu memory network readout stats date clock status icons close menus pointer away ambient scene",
+        hue: 205,
       },
       {
         id: "start",
         title: "Start menu",
-        blurb: "Pinned apps, recent files and downloads, shortcuts",
+        blurb: "Pinned apps, recent files and downloads",
         keywords: "start menu pinned apps recent files downloads recommended reset ctrl alt space ctrl esc keyboard",
+        hue: 150,
       },
       {
         id: "frame",
         title: "Window frame",
-        blurb: "A margin of glass round maximised windows",
+        blurb: "A margin of glass round maximised apps",
         keywords: "window frame glass border bevel edge rim margin maximized maximised padding corner radius tint rounded corners ambient",
+        hue: 175,
       },
       {
         id: "widgets",
         title: "Desktop widgets",
         blurb: "Widgets that sit on the desktop",
         keywords: "desktop widgets clock weather music system load notes layer edit position network",
+        hue: 45,
       },
     ],
   },
@@ -118,25 +131,28 @@ export const GROUPS: GroupDef[] = [
     sections: [
       {
         id: "accessibility",
-        title: "Accessibility & feel",
-        blurb: "Reduce motion, transparency, shortcuts, sounds",
+        title: "Accessibility",
+        blurb: "Motion, transparency, the keyboard and sounds",
         keywords:
           "accessibility reduce motion reduced transparency keyboard shortcuts ctrl alt screen reader narrator interface sounds soft sounds volume",
+        hue: 225,
       },
       {
         id: "behavior",
-        title: "Startup & data",
-        blurb: "Start with Windows, the taskbar, settings file, quit",
-        keywords: "startup sign in login launch windows taskbar hide settings file export import backup quit exit tray",
+        title: "General",
+        blurb: "Starting up, the taskbar, this window and your settings file",
+        keywords:
+          "general startup start with windows sign in login launch taskbar hide this window sidebar edge hover settings file export import backup quit exit tray",
+        hue: null,
       },
     ],
   },
   {
     id: "about",
-    title: "About",
+    title: "Liquidock",
     sections: [
-      { id: "support", title: "Support Aero Dock", blurb: "Ko-fi", keywords: "support donate ko-fi coffee" },
-      { id: "about", title: "About", blurb: "Version, where your data is, the project", keywords: "about version storage portable data folder github project" },
+      { id: "support", title: "Support Liquidock", blurb: "Help keep it going", keywords: "support donate ko-fi coffee", hue: 350 },
+      { id: "about", title: "About", blurb: "The version, where your data is, the project", keywords: "about version storage portable data folder github project", hue: 210 },
     ],
   },
 ];

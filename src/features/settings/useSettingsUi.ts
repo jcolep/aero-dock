@@ -1,68 +1,70 @@
 /**
- * What the settings window remembers about itself: which sections are folded
- * (kept between visits), what is typed in the search box, and which section the
- * page is at (for the sidebar to light up).
+ * What the settings window remembers about itself: the section it is showing (kept between visits), what is typed in
+ * the search box, how its sidebar is kept (always there, or sliding in from the window's left edge; kept between
+ * visits), and whether a sliding sidebar is out just now, and how it came out.
  */
 
 import { create } from "zustand";
+import { ALL_SECTIONS, sectionById } from "./sections";
 
-const KEY = "aero.settings.sections";
+const PANE_KEY = "liquidock.settings.pane";
+const SIDEBAR_KEY = "liquidock.settings.sidebar";
 
-/** Which sections have been opened or folded by hand. Anything not in it is as the section's own default. */
-function load(): Record<string, boolean> {
+export type SidebarMode = "always" | "edge";
+
+function read(key: string): string | null {
   try {
-    const raw = localStorage.getItem(KEY);
-    const parsed = raw ? (JSON.parse(raw) as unknown) : null;
-    return parsed && typeof parsed === "object" ? (parsed as Record<string, boolean>) : {};
+    return localStorage.getItem(key);
   } catch {
-    return {};
+    return null;
   }
 }
 
-function save(open: Record<string, boolean>) {
+function write(key: string, value: string) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(open));
+    localStorage.setItem(key, value);
   } catch {
     // remembering is a convenience
   }
 }
 
 interface UiState {
-  open: Record<string, boolean>;
-  query: string;
+  /** The section shown. */
   active: string;
-  setOpen: (id: string, open: boolean) => void;
-  /** Open (or fold) every section in `ids`. */
-  setMany: (ids: string[], open: boolean) => void;
-  setQuery: (query: string) => void;
+  query: string;
+  sidebar: SidebarMode;
+  /** A sliding sidebar is out: put out by the pointer at the edge (it goes when the pointer leaves) or by a click (it
+   *  stays until something is chosen or the page is clicked). */
+  sidebarOut: null | "edge" | "click";
   setActive: (id: string) => void;
+  setQuery: (query: string) => void;
+  setSidebar: (mode: SidebarMode) => void;
+  setSidebarOut: (out: null | "edge" | "click") => void;
 }
 
 export const useSettingsUi = create<UiState>((set, get) => ({
-  open: load(),
+  active: sectionById(read(PANE_KEY) ?? "")?.id ?? ALL_SECTIONS[0].id,
   query: "",
-  active: "",
-  setOpen: (id, open) => {
-    const next = { ...get().open, [id]: open };
-    save(next);
-    set({ open: next });
-  },
-  setMany: (ids, open) => {
-    const next = { ...get().open };
-    for (const id of ids) next[id] = open;
-    save(next);
-    set({ open: next });
+  sidebar: read(SIDEBAR_KEY) === "edge" ? "edge" : "always",
+  sidebarOut: null,
+  setActive: (active) => {
+    if (get().active === active) return;
+    write(PANE_KEY, active);
+    set({ active });
   },
   setQuery: (query) => set({ query }),
-  setActive: (active) => (get().active === active ? undefined : set({ active })),
+  setSidebar: (sidebar) => {
+    write(SIDEBAR_KEY, sidebar);
+    set({ sidebar, sidebarOut: null });
+  },
+  setSidebarOut: (sidebarOut) => (get().sidebarOut === sidebarOut ? undefined : set({ sidebarOut })),
 }));
 
-/** Folded unless a section says it starts open. */
-export const DEFAULT_OPEN: Record<string, boolean> = {
-  // the first thing in the window, and what most visits are for
-  colour: true,
-};
-
-export function isOpen(open: Record<string, boolean>, id: string): boolean {
-  return open[id] ?? DEFAULT_OPEN[id] ?? false;
+/** Show a section: leaves the search, puts a sliding sidebar away, and starts the page at its top. */
+export function goToSection(id: string) {
+  const ui = useSettingsUi.getState();
+  if (ui.query) ui.setQuery("");
+  ui.setActive(id);
+  ui.setSidebarOut(null);
+  document.querySelector(".settings-scroll")?.scrollTo({ top: 0 });
 }

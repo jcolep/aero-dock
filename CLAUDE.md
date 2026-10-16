@@ -1,4 +1,9 @@
-# Aero Dock: working notes
+# Liquidock: working notes
+
+Liquidock is the owner's fork of Aero Dock, renamed in October 2026. Everything a person sees says Liquidock; the
+identifier (`com.aerodock.desktop`, which names the data folder and the single-instance key), the Cargo package
+(`aero-dock`), window class names (`AeroDockCorner`, `AeroDockShellHook`) and the repo stay as they were, so
+existing settings and data are found.
 
 A customised fork of [TheAgencyMGE/aero-dock](https://github.com/TheAgencyMGE/aero-dock)
 (MIT, Windows 11 only): Tauri v2, Rust and React 19. A macOS-style dock, plus a menu
@@ -89,7 +94,7 @@ and the WebView2 runtime. `pnpm install` first.
   and `cargo test`, then `pnpm build`
 - Release build: `pnpm tauri build --no-bundle` (LTO, about 3 minutes). The owner
   runs the **portable** build: copy `src-tauri/target/release/aero-dock.exe` to
-  `dist-portable/Aero Dock.vNN.exe` with the next version number. Their data sits
+  `dist-portable/Liquidock.vNN.exe` with the next version number (it was `Aero Dock.vNN.exe` up to v107). Their data sits
   in `dist-portable/data`, marked by `portable.txt`.
 - A new exe cannot start while an older copy runs (the single-instance plugin is
   keyed on the identifier), so the owner must quit from the tray first. Old
@@ -336,20 +341,29 @@ Say plainly in a report when something native was not seen.
   ducking, and writes WAV files to `<out>/sounds` for listening. A new cue must have every note in `inKey`.
 - **First frames, errors, empty states, night settings** (same pass). A page is clear until its typeface is
   in (`data-ready`, `main.tsx`), a hidden window is ready before it is shown, Start reads its lists when the page starts
-  and shows placeholders of the right size until they arrive (`Skeletons`), and the settings window opens in its
-  remembered look (`aero-settings-look`) from the first frame. An error reaches a person through `humane()`
-  (`engine/errors`, tested by `errors.mjs`), never as Windows or Rust said it. The settings window is night glass by
-  default (`html[data-look="night"]` overrides at the end of `settings.css`, on the `clear` material); `sky` is the old
-  look.
+  and shows placeholders of the right size until they arrive (`Skeletons`), and the settings window is night glass
+  (`data-surface="clear"`, set in `main.tsx`) from the first frame. An error reaches a person through `humane()`
+  (`engine/errors`, tested by `errors.mjs`), never as Windows or Rust said it. The settings window's "Classic sky" look
+  and its own material setting are gone (old files drop `settingsLook`/`settingsSurface` on load), as is the glossy
+  `aero` dock material (`SurfaceStyle` is `liquid | clear`; serde alias maps an old `"aero"` to Liquid).
 - **Sounds need no click**: `--autoplay-policy=no-user-gesture-required` is in the shared browser args, or a
   page that has not been clicked (the Start menu, opened from the dock) plays its cues silently.
-- **The settings window** is a sidebar and a column of collapsible sections in groups (`sections.ts` is the
-  registry: id, title, blurb, search keywords, group). A new section is a `<SettingsSection id="...">`
-  **and an entry in `sections.ts`** (otherwise it renders unwrapped and is not in the sidebar). A new
-  setting inside an existing section should add its name to that section's `keywords`, which is what
-  the search box matches. Folded state is remembered in localStorage (`useSettingsUi`); Colour starts
-  open, the rest folded. Long sections are split with `<SettingsSub>`. The restructure was done by a
-  script; controls are plain JSX, so moving one is moving its lines.
+- **The settings window** is laid out like macOS System Settings: a glass sidebar (`SettingsNav`: brand, search,
+  sections with `SectionIcon` tiles) and ONE section shown at a time (`useSettingsUi.active`, remembered in
+  localStorage `liquidock.settings.pane`); a search shows every matching section stacked under its title.
+  `sections.ts` is the registry (id, title, blurb, keywords, icon hue, group). A new section is a
+  `<SettingsSection id="...">` **and an entry in `sections.ts`** (and a glyph in `SectionIcon`). A new setting
+  should add its name to that section's `keywords`. Rows are grouped by CSS alone: a run of direct-child
+  `.ctl-row`/`.bubble-color`/`.audio-row`/`.mode-icon-field` in `.settings-section-inner` is one rounded group
+  with inset hairlines; a `<SettingsSub>` or a `.settings-note` breaks the run (a note after a group reads as its
+  footer). Controls take a `hint` (two clamped lines under the label, whole text on hover) and say their kind
+  (`ctl-row-slider/-toggle/-seg`) so rows wrap their control under the label when there is no room
+  (`@container pane`). Below 760 px, or with General › This window › Sidebar = "Slides in at the edge"
+  (`liquidock.settings.sidebar`), the sidebar is an overlay: out on the 10 px left-edge strip (goes on leaving it
+  or moving over the page), or by the header button (goes on choosing or clicking the page). Status messages are a
+  toast at the foot of the page. `settings.mjs` checks every section at 1280/900/620/340 px for sideways spill.
+  The reorganisation in 132d62e had silently dropped the dock's auto-hide/floating/magnification/running-apps/
+  spacing/padding/attention switches; they are back.
 - **A CSS animation with only a `to` keyframe starts from the element's own value.** The Start menu's
   closing keyframes did, and the panel's own opacity at that moment was 0, so it vanished and the
   animation played on nothing (found only after a first "fix" that hid the window correctly but
@@ -588,6 +602,12 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
 - **Focus mark** (`dock.indicatorStyle = focus`, `FocusMarks.tsx`): drawn inside the icon it belongs under, with a shared `layoutId` (`dock-focus-mark`, `dock-ghost-mark`), so motion carries it between icons and it rides with magnification (checked: 0 px off its icon over a full sweep). Centred with a margin, not `translateX`: motion owns `transform`. `fade` drops the `layoutId` (no travel). A springy exit can leave the old mark in the DOM at opacity 0 until the spring settles. `scripts/offscreen/marks.mjs`.
 - **Magnification layout** (`magnifyField.ts`): nothing in the bar moves by layout while it swells. The button's layout size is its `slot` (= `--icon-size`; only animated by layout on arrival); the `width` spring is the room it *should* take. Each DockIcon registers `width` in the field and subscribes it to `field.schedule`, which runs `place` once per frame in motion's render step: every in-flow bar child (and each icon button inside `.dock-section` > Reorder.Item) gets CSS `translate` = Σ swell of icons before it − total/2 (+ own/2 for an icon), and the bar's glass grows by total/2 each end: the glass is `.dock-body` (abs, z-index −1, first child of `.dock-bar`, holds the BackdropLayer and sweep; `.dock-bar` itself is no longer `.glass` and never changes size for the swell), laid out `--grow-extra` (whole px) past each end and `scaleX(--grow-scale)` (≤ 1 px in the whole width) to land exactly; `grow()` then dispatches `bd-sync` on it, which BackdropLayer answers by posting the pane at once (its own rAF could run before motion's in a frame and post a stale rect: `docksync.mjs` checks every frame within 0.1 px). Dock-glass CSS targets `.dock-body.glass` (dock.css, clear.css, dockshadow.css); pointer light writes to the body. Hit area (`.dock-icon::after`) and hover bloom widen by `--grow`. Layout is painted on whole pixels: when the swell was the button's width, icons stepped a pixel at a time against their smoothly scaling drawing and the last icon shimmered (`scripts/offscreen/magpixels.mjs` screenshots it at half-pixel pointer steps: old 0.92 px error spread with whole-pixel jumps, now 0.07). The pointer is measured against rest centres (`measureRest` = drawn centre − written translate, in `handleMove` before `mouseAxis.set`), never the live rect: that was a feedback loop that shook the icons near the ends (`magsmooth.mjs`). Don't put `translate` on bar children or icon buttons for anything else. If the bar ever stops being centred in the viewport, the `total/2` terms must change.
 - **Sub-pixel rule (everywhere):** never animate `left/top/width/height/bottom/margin/padding` frame by frame; layout is painted on whole pixels and steps. Moving boxes use `useSubpixelBox` (`engine/motion/subpixelBox.ts`: whole-px layout box at 0,0 + translate + a scale off by < 1 px; folds in squash) — the menu bar lens and `useGlideHighlight` do. Fills/progress bars are full-width and `translateX(calc((var(--p) - 1) * 100%))` inside their rounded `overflow: hidden` track (`--p` 0–1 inline), never `width` or `scaleX` (squashes the round end); a knob rides a full-width runner (`.np-knob-run`). Offsets that follow a per-frame value ride `translate` (dock labels: `--mag-rise`). Size swells use the `scale` property. Left alone on purpose: Mission cards (fast, big, would scale their contents), the slider fill (its end is under the knob).
+- **Never put the CSS `scale` property on a box placed by translate**: `scale` applies outside `transform`, so it
+  scales the translate too (the menu bar lens flew ~85 px left on every press, `lenspress.mjs`). Presses go through
+  `usePress` (subpixelBox.ts): a spring folded into the box's own scale, released by a window-level pointerup.
+- **Hover effect** (`appearance.hoverEffect`: magnify | lift | glow | none → `html[data-hover-fx]`, global.css)
+  applies to `.mb-menu-item`, `.aero-menu-item`, `.cc-card`. The rules sit under `html` so they outrank each item's
+  own later `transition`.
 - **Settling glass is sticky** (BackdropLayer `landed`): a `settle` surface's glass, once in, follows it until `data-leaving` (or it can't be seen), including through opacity/scale exits; before, the last hair of a spring broke "still" and the glass went away and came back (every menu: `false > true > false > true`, checked in `backdrop.mjs`). Surfaces whose exit is a shape the glass can't take must set `data-leaving`.
 - **Stretch with speed** (`dock.markStretch`, `useStretch` in FocusMarks): during a layout animation (`onLayoutAnimationStart`/`Complete`) a rAF reads the mark's on-screen centre, derives smoothed speed, and sets `--stretch-x`/`--stretch-y` on it; the look is drawn on `.dock-mark::before` (colours via `--mark-fill`/`--mark-shadow`, which clear.css overrides), scaled by those vars. Never put the stretch on the mark's own transform (motion `scaleX`): shared-`layoutId` handoffs blend transform values between the old and new mark and it blew up to 10×+. The first reading is taken on the first frame, not at start (the box is still at the destination then, which reads as a leap). The `::before` radius is pre-divided by the stretch so ends stay round.
 - **Mark track** (`.dock-mark-track`, DockIcon): the marks sit in a span whose transform is the exact inverse of the button's launch/attention lift (`-y / squashY`) and squash (`1 / squash`), so they stay level while the icon jumps. Declared after `squashX`/`squashY` (TDZ). The halo (`dock.runningCue = halo`) gets its own track drawn *before* `.dock-icon-mag` so it glows from behind the icon; `dots` (faint marks) and the marks share the one after. `--mark-glow` (rgb triplet) on the track; the clear surface swaps in `--clear-glow`. `dim` puts `data-idle` on non-running buttons.

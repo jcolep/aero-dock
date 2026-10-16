@@ -1,5 +1,5 @@
 /*
- * Aero Dock design tokens.
+ * Liquidock design tokens.
  * The theme engine rewrites these custom properties at runtime; every
  * component styles itself exclusively from tokens, never raw colors.
  *

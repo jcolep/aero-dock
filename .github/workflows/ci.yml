@@ -14,7 +14,7 @@ concurrency:
 jobs:
   check:
     name: Typecheck, lint, test, build
-    # Aero Dock's core is Win32/COM, so it only builds on Windows.
+    # Liquidock's core is Win32/COM, so it only builds on Windows.
     runs-on: windows-latest
 
     steps:

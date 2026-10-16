@@ -176,18 +176,15 @@ impl Default for DockSettings {
 
 /// How a surface is rendered.
 ///
-/// Both are Frutiger Aero; they differ in how thick the material reads.
-/// `Aero` is the glossy, beveled 2000s panel. `Liquid` keeps the same
-/// palette but renders as a thin lens: most of the tint comes out of the
-/// body and the work moves to the rim, where light enters and bends.
-/// `Clear` drops the Aero palette altogether for a neutral, colourless
-/// glass in the style of Apple's Liquid Glass: rounded shapes, a specular
-/// rim, no gloss cap and no coloured tint.
+/// `Liquid` renders the theme's colour as a thin lens: little tint in the body, the work at the rim, where light
+/// enters and bends. `Clear` is neutral glass in the style of Apple's Liquid Glass: rounded shapes, a specular rim,
+/// the picked colour as a flat veil. (There was a third, the glossy beveled `aero` panel; a file that still names it
+/// gets Liquid, which kept its colours.)
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SurfaceStyle {
     #[default]
-    Aero,
+    #[serde(alias = "aero")]
     Liquid,
     Clear,
 }
@@ -222,17 +219,17 @@ pub struct AppearanceSettings {
     pub animation_speed: f32,
     /// Tint the theme from the wallpaper's dominant color.
     pub wallpaper_sync: bool,
-    /// Material used by the dock, its flyouts and its controls.
+    /// Material used by the dock, its flyouts and its controls (the settings window is always clear night glass).
     pub dock_surface: SurfaceStyle,
-    /// Material used by the settings window. Independent of the dock, so
-    /// either window can be glossy while the other is a lens.
-    pub settings_surface: SurfaceStyle,
     /// Have Windows blur what is behind the dock, menu bar and frame, so the
     /// glass is frosted rather than only tinted. Off until chosen: it depends on
     /// how Windows draws the blur on a given machine.
     pub real_blur: bool,
     /// A soft highlight that follows the pointer across the glass.
     pub pointer_light: bool,
+    /// What a menu's items and a panel's sections do under the pointer: `magnify` (swell a little and rise, as the
+    /// Control Center's tiles do), `lift` (rise, with a shadow), `glow` (light up in the theme colour) or `none`.
+    pub hover_effect: String,
     /// A fine grain over the glass, which keeps its gradients from banding.
     pub glass_grain: bool,
     /// What is done to every app's icon: plain | glass | clear | tinted. The
@@ -248,9 +245,6 @@ pub struct AppearanceSettings {
     /// graphics process small (about 60 MB less) and costs frames on a fast screen. Read when the program
     /// starts (the browser's arguments cannot change under a window that is open), so a change waits for a restart.
     pub hardware_acceleration: bool,
-    /// How the settings window looks: `night` (dark liquid glass, like everything else) or `sky` (the Frutiger Aero
-    /// sky and bubbles it always had).
-    pub settings_look: String,
 }
 
 /// How frosted one surface's glass is.
@@ -309,18 +303,15 @@ impl Default for AppearanceSettings {
             scene: "dust".into(),
             animation_speed: 1.0,
             wallpaper_sync: false,
-            // Both windows keep the look the app has always had, so
-            // upgrading changes nothing on screen. Liquid is opt-in.
-            dock_surface: SurfaceStyle::Aero,
-            settings_surface: SurfaceStyle::Aero,
+            dock_surface: SurfaceStyle::Liquid,
             real_blur: false,
             pointer_light: true,
+            hover_effect: "magnify".into(),
             glass_grain: true,
             icon_style: "glass".into(),
             frost: FrostSettings::default(),
             frame_overlay: false,
             hardware_acceleration: true,
-            settings_look: "night".into(),
         }
     }
 }
@@ -758,7 +749,7 @@ pub struct Settings {
     pub appearance: AppearanceSettings,
     pub pinned: Vec<PinnedItem>,
     pub launch_at_startup: bool,
-    /// Put the Windows taskbar into auto-hide so Aero Dock is the bar.
+    /// Put the Windows taskbar into auto-hide so Liquidock is the bar.
     pub hide_taskbar: bool,
     pub onboarding_complete: bool,
     pub modes: ModesSettings,
@@ -797,9 +788,6 @@ impl Settings {
     fn sanitize(&mut self) {
         let a = &mut self.appearance;
         a.transparency = a.transparency.clamp(0.3, 1.0);
-        if !["night", "sky"].contains(&a.settings_look.as_str()) {
-            a.settings_look = "night".into();
-        }
         for look in [&mut a.frost.dock, &mut a.frost.start, &mut a.frost.menu_bar] {
             look.blur = if look.blur.is_finite() { look.blur.clamp(*FrostLook::BLUR.start(), *FrostLook::BLUR.end()) } else { 30.0 };
             look.grain = if look.grain.is_finite() { look.grain.clamp(0.0, 1.0) } else { 0.35 };
@@ -847,6 +835,7 @@ impl Settings {
         keep_known(&mut self.dock.ghost_motion, MARK_MOTIONS, "glide");
         keep_known(&mut self.dock.running_cue, &["dots", "halo", "dim", "none"], "dots");
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
+        keep_known(&mut self.appearance.hover_effect, &["magnify", "lift", "glow", "none"], "magnify");
         let a11y = &mut self.accessibility;
         keep_known(&mut a11y.reduce_motion, AccessibilitySettings::POLICIES, "system");
         keep_known(&mut a11y.reduce_transparency, AccessibilitySettings::POLICIES, "system");
@@ -1301,16 +1290,12 @@ mod tests {
     }
 
     #[test]
-    fn the_settings_window_is_night_glass_unless_it_is_asked_to_be_the_sky() {
-        assert_eq!(Settings::default().appearance.settings_look, "night");
-        let old: Settings = serde_json::from_str(r#"{"appearance":{"realBlur":true}}"#).expect("loads");
-        assert_eq!(old.appearance.settings_look, "night");
-        let mut sky: Settings = serde_json::from_str(r#"{"appearance":{"settingsLook":"sky"}}"#).expect("loads");
-        sky.sanitize();
-        assert_eq!(sky.appearance.settings_look, "sky");
-        let mut odd: Settings = serde_json::from_str(r#"{"appearance":{"settingsLook":"plaid"}}"#).expect("loads");
-        odd.sanitize();
-        assert_eq!(odd.appearance.settings_look, "night");
+    fn a_file_from_when_the_settings_window_had_looks_still_loads() {
+        // the window's own look and material are gone (it is always night glass); a file naming them loads as ever
+        let s: Settings = serde_json::from_str(r#"{"appearance":{"settingsLook":"sky","settingsSurface":"aero","realBlur":true}}"#).expect("loads");
+        assert!(s.appearance.real_blur);
+        let json = serde_json::to_string(&s).unwrap();
+        assert!(!json.contains("settingsLook") && !json.contains("settingsSurface"), "got {json}");
     }
 
     #[test]
@@ -1607,37 +1592,32 @@ mod tests {
     }
 
     #[test]
-    fn both_windows_keep_the_classic_material_by_default() {
-        let a = AppearanceSettings::default();
-        assert_eq!(a.dock_surface, SurfaceStyle::Aero);
-        assert_eq!(a.settings_surface, SurfaceStyle::Aero);
-    }
-
-    #[test]
-    fn the_two_surfaces_are_independent() {
-        let mut s = Settings::default();
-        s.appearance.dock_surface = SurfaceStyle::Liquid;
-        s.appearance.settings_surface = SurfaceStyle::Aero;
-        s.sanitize();
-        assert_eq!(s.appearance.dock_surface, SurfaceStyle::Liquid);
-        assert_eq!(s.appearance.settings_surface, SurfaceStyle::Aero);
+    fn the_dock_is_liquid_by_default() {
+        assert_eq!(AppearanceSettings::default().dock_surface, SurfaceStyle::Liquid);
     }
 
     #[test]
     fn surfaces_serialize_as_plain_lowercase_names() {
         let json = serde_json::to_string(&AppearanceSettings::default()).unwrap();
-        assert!(json.contains(r#""dockSurface":"aero""#), "got {json}");
-        assert!(json.contains(r#""settingsSurface":"aero""#), "got {json}");
+        assert!(json.contains(r#""dockSurface":"liquid""#), "got {json}");
     }
 
     #[test]
-    fn an_older_config_gains_both_surfaces() {
+    fn the_classic_material_that_was_comes_back_as_liquid() {
+        // the glossy `aero` panel is gone; a file that chose it gets Liquid, which kept its colours
+        let s: Settings = serde_json::from_str(r#"{ "appearance": { "dockSurface": "aero" } }"#).expect("loads");
+        assert_eq!(s.appearance.dock_surface, SurfaceStyle::Liquid);
+        let w: Settings = serde_json::from_str(r#"{ "appearance": { "dockSurface": "clear" } }"#).expect("loads");
+        assert_eq!(w.appearance.dock_surface, SurfaceStyle::Clear);
+    }
+
+    #[test]
+    fn an_older_config_gains_a_surface() {
         // a 1.2 file, written before surfaces existed
         let json = r#"{ "schemaVersion": 2, "appearance": { "theme": "ocean" } }"#;
         let s: Settings = serde_json::from_str(json).expect("must still load");
         assert_eq!(s.appearance.theme, "ocean");
-        assert_eq!(s.appearance.dock_surface, SurfaceStyle::Aero);
-        assert_eq!(s.appearance.settings_surface, SurfaceStyle::Aero);
+        assert_eq!(s.appearance.dock_surface, SurfaceStyle::Liquid);
     }
 
     #[test]

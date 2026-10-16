@@ -1,7 +1,7 @@
 # Package the built exe as a portable zip.
 #
 # Run `pnpm tauri build` first, then this. The zip holds the executable, a
-# portable.txt marker that tells Aero Dock to keep its files beside itself,
+# portable.txt marker that tells Liquidock to keep its files beside itself,
 # and a short readme. Output lands in src-tauri/target/release/bundle/portable.
 
 $ErrorActionPreference = "Stop"
@@ -18,30 +18,30 @@ $conf    = Get-Content (Join-Path $root "src-tauri\tauri.conf.json") -Raw | Conv
 $version = $conf.version
 
 $outDir  = Join-Path $release "bundle\portable"
-$stage   = Join-Path $outDir "Aero Dock $version"
+$stage   = Join-Path $outDir "Liquidock $version"
 $zip     = Join-Path $outDir "Aero.Dock_${version}_x64-portable.zip"
 
 if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
 if (Test-Path $zip)   { Remove-Item $zip -Force }
 New-Item -ItemType Directory -Force -Path $stage | Out-Null
 
-Copy-Item $exe (Join-Path $stage "Aero Dock.exe")
+Copy-Item $exe (Join-Path $stage "Liquidock.exe")
 
 # The marker is what switches portable mode on. Delete it and this copy
 # behaves like an installed one, writing to %APPDATA% instead.
 @'
-Aero Dock keeps its settings and icon cache in the "data" folder next to
+Liquidock keeps its settings and icon cache in the "data" folder next to
 this file for as long as this file exists.
 
-Delete it and Aero Dock will use %APPDATA%\com.aerodock.desktop instead,
+Delete it and Liquidock will use %APPDATA%\com.aerodock.desktop instead,
 the same as an installed copy.
 '@ | Out-File (Join-Path $stage "portable.txt") -Encoding utf8
 
 @"
-Aero Dock $version, portable
+Liquidock $version, portable
 ============================
 
-Run "Aero Dock.exe". Nothing to install.
+Run "Liquidock.exe". Nothing to install.
 
 Everything it writes goes in the "data" folder beside the exe: your
 settings, your pinned apps, and the extracted icon cache. Copy the whole
@@ -57,10 +57,10 @@ https://developer.microsoft.com/microsoft-edge/webview2/ and try again.
 
 Notes
 -----
-Aero Dock lives in the system tray. Left click the tray icon to show or
+Liquidock lives in the system tray. Left click the tray icon to show or
 hide the dock, right click for settings and quit.
 
-"Start Aero Dock when I sign in" is the one setting that writes outside
+"Start Liquidock when I sign in" is the one setting that writes outside
 this folder. It adds a registry entry pointing at wherever the exe is at
 the time, so turn it off before you move the folder.
 
