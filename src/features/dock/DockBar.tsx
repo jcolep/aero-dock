@@ -32,6 +32,7 @@ import { LABEL_SPACE, LABEL_SPACE_SIDE } from "./geometry";
 import { MODE_FLYOUT_HEIGHT, ModeSwitcher, useModeSwitcher } from "./ModeSwitcher";
 import { DockIcon } from "./DockIcon";
 import { measureRest, newMagnifyField } from "./magnifyField";
+import { tokensFromAccent } from "../../engine/themes/accent";
 import { FolderFlyout } from "./FolderFlyout";
 import { StackFlyout } from "./StackFlyout";
 import { WindowsFlyout } from "./WindowsFlyout";
@@ -56,7 +57,12 @@ const CONTROLS_SPACE = 76; // Search and Settings buttons, when they sit in the 
 const SATELLITE_ROOM = 60;
 const MODE_TILE_SPACE = 38; // the Modes tile, when Modes is switched on
 const REVEAL_STRIP = 8; // window height while auto-hidden (mouse sensor)
-const DOCK_ZONE_BUFFER = 14; // px beyond what is drawn of the dock that still counts as on it, for auto-hide
+const DOCK_ZONE_BUFFER = 14;
+/** The dock's glass with the theme colour taken out (Settings > Dock > Tinted with the theme colour, off): the colour
+ *  tokens of a white pick, which every material reads as plain glass. Only the bar's glass: the marks keep theirs. */
+const NEUTRAL_GLASS = Object.fromEntries(
+  Object.entries(tokensFromAccent("#ffffff")).filter(([k]) => /^--(glass-tint|glass-border|clear-)/.test(k)),
+) as React.CSSProperties; // px beyond what is drawn of the dock that still counts as on it, for auto-hide
 // How long the room a flyout took is kept after it closes: its exit animation
 // (up to PANEL_EXIT_MS, whichever preset is chosen) plays inside that room.
 const FLYOUT_EXIT_MS = PANEL_EXIT_MS;
@@ -328,9 +334,11 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   // ResizeObserver" rule below because it only moves the reserved strip,
   // never the window, so it cannot feed back into its own measurement.
   const barRef = useRef<HTMLDivElement>(null);
-  // the bar that magnification places things in; placed again after every render, for anything new in it
+  const bodyRef = useRef<HTMLDivElement>(null);
+  // the bar that magnification places things in, and its glass; placed again after every render, for anything new
   useLayoutEffect(() => {
     magnifyField.bar = barRef.current;
+    magnifyField.body = bodyRef.current;
     magnifyField.schedule();
   });
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -358,10 +366,12 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       // where it is drawn, not where layout puts it: while a bar grows or shrinks to fit
       // an app that came or went it is moved by a transform, and the glass behind it has
       // to follow that, not the size layout jumps to at once
-      const box = el.getBoundingClientRect();
+      // (its glass, which is as wide as the bar is drawn, swollen icons and all)
+      const glass = bodyRef.current ?? el;
+      const box = glass.getBoundingClientRect();
       const w = el.offsetWidth ? box.width : 0;
       const h = el.offsetHeight ? box.height : 0;
-      const radius = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, w / 2, h / 2);
+      const radius = Math.min(parseFloat(getComputedStyle(glass).borderTopLeftRadius) || 0, w / 2, h / 2);
       const shown = !slidAway && w > 0 && h > 0;
       const half = (v: number) => Math.round(v * 2) / 2;
       const key = shown ? [box.left, box.top, w, h, radius].map(half).join() : "off";
@@ -886,7 +896,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       data-reveal={hidden ? "out" : "in"}
       // how strongly the theme's colour tints the glass (clear.css, global.css): the dock's own, or the menu bar's put in
       // the dock's terms (the bar's body is half the colour at its Tint, the dock's a third), so the two match
-      style={{ ["--dock-tint" as string]: settings.dock.tintLikeMenuBar ? (settings.menuBar.tint * 0.5) / 0.34 : (settings.dock.tint ?? 1) } as React.CSSProperties}
+      style={{ ["--dock-tint" as string]: settings.dock.tint ?? 1 } as React.CSSProperties}
       onMouseEnter={(e) => setPointerInside(inDockZone(e))}
       onMouseLeave={() => {
         setPointerInside(false);
@@ -904,7 +914,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       <div className="dock-shell">
       <motion.div
         ref={barRef}
-        className="dock-bar glass glass-open"
+        className="dock-bar"
         data-vertical={vertical}
         style={{ transformOrigin: reveal.origin }}
         // it arrives when the dock first appears, and comes and goes with
@@ -912,13 +922,21 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         initial={reveal.initial}
         animate={hidden ? reveal.hidden : reveal.shown}
         onMouseMove={handleMove}
-        onPointerMove={pointerLight}
+        onPointerMove={(e) => bodyRef.current && pointerLight({ clientX: e.clientX, clientY: e.clientY, currentTarget: bodyRef.current })}
         onMouseLeave={handleLeave}
       >
-        <BackdropLayer active={dockGlass.active && !slidAway} blur={dockGlass.blur} grain={dockGlass.grain} track="follow" />
-        {/* the bar can't clip itself (tooltips float above it), so the
-            ambient sweep gets its own clipping layer */}
-        <span className="glass-sweep" aria-hidden />
+        {/* The glass of the bar, a layer of its own behind what is in it: as the icons swell it grows to hold them to
+            the fraction of a pixel (magnifyField.ts), while the bar itself, and so everything in it, keeps its layout */}
+        <div
+          ref={bodyRef}
+          className="dock-body glass glass-open"
+          style={settings.dock.tintWithTheme === false ? NEUTRAL_GLASS : undefined}
+        >
+          <BackdropLayer active={dockGlass.active && !slidAway} blur={dockGlass.blur} grain={dockGlass.grain} track="follow" />
+          {/* the bar can't clip itself (tooltips float above it), so the
+              ambient sweep gets its own clipping layer */}
+          <span className="glass-sweep" aria-hidden />
+        </div>
         <ModeSwitcher settings={settings} edge={edge} />
         {!revealMode && settings.dock.showSearchButton && (
           <SearchButton onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />

@@ -85,7 +85,7 @@
 
 /* Rounded to just under a capsule: concentric with the icon tiles rather
    than a pill that would crowd the end icons. */
-[data-surface="clear"] .dock-bar.glass {
+[data-surface="clear"] .dock-body.glass {
   border-radius: var(--dock-radius, calc(var(--icon-size) * 0.46 + var(--dock-pad-y)));
 }
 

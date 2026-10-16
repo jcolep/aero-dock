@@ -54,8 +54,8 @@ export interface DockSettings {
   middleClick: "endTask" | "close";
   /** How strongly the theme's colour tints the dock's glass, 0 to 1.5 (1 = as the material has it). */
   tint: number;
-  /** Tint the dock as the menu bar is tinted, so the dock, the bar and the frame read as one glass. */
-  tintLikeMenuBar: boolean;
+  /** Tint the dock's glass with the theme colour (Colour & materials); off, it is plain glass. */
+  tintWithTheme: boolean;
   /** What marks running apps: a dot under each, or one mark under the app in front with a ghost under the hovered one. */
   indicatorStyle: "dots" | "focus";
   /** The focus mark's shape. */

@@ -79,7 +79,8 @@ const panes = (h) => h.eval("window.__calls.filter((c) => c.cmd === 'set_glass_p
     await h.move(bar.x + 60, bar.y + bar.h / 2);
     await h.sleep(900);
     const grown = (await barPanes()).at(-1);
-    const bar2 = await h.eval("(() => { const r = document.querySelector('.dock-bar').getBoundingClientRect(); return { x: r.left, w: r.width }; })()");
+    // (the bar's glass, which grows to hold the swollen icons; the bar itself keeps its size: magnifyField.ts)
+    const bar2 = await h.eval("(() => { const r = document.querySelector('.dock-body').getBoundingClientRect(); return { x: r.left, w: r.width }; })()");
     check((await barPanes()).length > n0 + 2 && Math.abs(grown.width - bar2.w) < 1, `the glass followed the bar as it grew (${n0} then ${(await barPanes()).length} reports; ${grown.width} for a bar ${bar2.w} wide)`);
     const label = new Set((await panes(h)).filter((p) => p.shown && p.id !== at.id).map((p) => p.id)).size;
     check(label >= 1, `the label over the icon has glass of its own (${label})`);

@@ -178,6 +178,14 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer",
     }
     const sizes = new ResizeObserver(wake);
     sizes.observe(host);
+    // A surface that is moved by script frame by frame can say so the moment it has moved it (`bd-sync`, the dock's
+    // bar as it swells: magnifyField.ts), and the glass is told at once, in that step. Left to look on its own frame,
+    // which can come before the script's in the same frame, it saw where the surface had been and trailed it by one.
+    const sync = () => {
+      if (!settle) post(measure());
+      wake();
+    };
+    host.addEventListener("bd-sync", sync);
     host.addEventListener("animationstart", wakeOwn);
     host.addEventListener("transitionrun", wakeOwn);
     window.addEventListener("resize", wake);
@@ -189,6 +197,7 @@ export function BackdropLayer({ active, blur = 30, grain = 0.35, tint = "layer",
       clearTimeout(again);
       observer.disconnect();
       sizes.disconnect();
+      host.removeEventListener("bd-sync", sync);
       host.removeEventListener("animationstart", wakeOwn);
       host.removeEventListener("transitionrun", wakeOwn);
       window.removeEventListener("resize", wake);

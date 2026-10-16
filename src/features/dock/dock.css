@@ -106,25 +106,38 @@
    set the bar's height; bottom-aligned, a small icon sinks below the
    middle of the glass. */
 .dock-bar {
+  position: relative;
+  /* its glass (.dock-body) is drawn behind what is in it */
+  isolation: isolate;
   display: flex;
   align-items: center;
   gap: var(--icon-gap);
-  /* --mag-grow: half the room the swollen icons take beyond their slots, at each end (magnifyField.ts moves what is
-     inside along by translate, so this is the only thing magnification changes by layout) */
-  padding: var(--dock-pad-y) calc(var(--dock-pad-x) + var(--mag-grow, 0px));
+  padding: var(--dock-pad-y) var(--dock-pad-x);
   opacity: var(--dock-opacity);
 }
 
-/* "Corner radius" in settings. Unset, the bar keeps the radius its material
-   gives it. */
-.dock-bar.glass {
+/* The bar's glass, a layer behind what is in the bar. As the icons swell it grows to hold them, to the fraction of a
+   pixel (magnifyField.ts): its box reaches a whole number of pixels past each end (--grow-extra), and it is drawn a
+   hair narrower about its middle (--grow-scale, never more than a pixel in the whole width) to come out exactly as
+   wide as it should be. The bar itself never changes size for the swell, so nothing in it is laid out again. */
+.dock-body.glass {
+  position: absolute;
+  z-index: -1;
+  inset: 0 calc(-1 * var(--grow-extra, 0px));
+  transform: scaleX(var(--grow-scale, 1));
+  /* "Corner radius" in settings. Unset, the bar keeps the radius its material gives it. */
   border-radius: var(--dock-radius, var(--glass-radius));
+  pointer-events: none;
 }
 
 .dock-bar[data-vertical="true"] {
   flex-direction: column;
   align-items: center;
-  padding: calc(var(--dock-pad-x) + var(--mag-grow, 0px)) var(--dock-pad-y);
+  padding: var(--dock-pad-x) var(--dock-pad-y);
+}
+.dock-bar[data-vertical="true"] > .dock-body.glass {
+  inset: calc(-1 * var(--grow-extra, 0px)) 0;
+  transform: scaleY(var(--grow-scale, 1));
 }
 
 /* reorderable pinned section mirrors the bar's layout */

@@ -108,8 +108,8 @@ pub struct DockSettings {
     pub middle_click: String,
     /// How strongly the theme's colour tints the dock's glass, 0 to 1.5 (1 = as the material has it).
     pub tint: f32,
-    /// Tint the dock as the menu bar is tinted (its Tint), so the dock, the bar and the frame read as one glass.
-    pub tint_like_menu_bar: bool,
+    /// Tint the dock's glass with the theme colour (Colour & materials); off, it is plain glass.
+    pub tint_with_theme: bool,
     /// What marks running apps: `dots` (a dot under every running app, the focused one brighter) or `focus` (one
     /// mark, under the app in front, with a ghost of it under the app the pointer is on).
     pub indicator_style: String,
@@ -163,7 +163,7 @@ impl Default for DockSettings {
             middle_click: "endTask".into(),
             minimize_effect: "genie".into(),
             tint: 1.0,
-            tint_like_menu_bar: false,
+            tint_with_theme: true,
             indicator_style: "dots".into(),
             indicator_shape: "pill".into(),
             focus_motion: "glide".into(),

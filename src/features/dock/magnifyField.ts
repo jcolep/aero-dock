@@ -3,8 +3,8 @@
  *
  * Nothing in the bar moves by layout while the pointer swells it. Each icon keeps its slot (`--icon-size`), and every
  * frame a swell spring moves, `place` works out how far each thing in the bar is pushed along by the swelling of the
- * icons before it, and moves it there with the CSS `translate` property; the bar's padding grows by half the whole
- * swell at each end to hold them. Layout lands on whole pixels when it is painted, so when the icons took their room
+ * icons before it, and moves it there with the CSS `translate` property; the bar's glass (`.dock-body`, a layer of its
+ * own) grows by half the whole swell at each end to hold them, also to the fraction (`grow`). Layout lands on whole pixels when it is painted, so when the icons took their room
  * by layout every icon stepped a pixel at a time while its drawing (a transform) grew smoothly, and the two
  * disagreed by up to half a pixel, back and forth: the icons shimmered, the last one most (it moves the furthest).
  * A translate is drawn where it says, to the fraction.
@@ -23,8 +23,9 @@ export interface MagnifyField {
   rest: Map<HTMLElement, number>;
   /** What each thing in the bar was last moved along by (`translate`), in px. */
   offset: Map<HTMLElement, number>;
-  /** The bar, and what an icon's room is with no swell, and which way the dock runs (DockBar keeps these). */
+  /** The bar, its glass, what an icon's room is with no swell, and which way the dock runs (DockBar keeps these). */
   bar: HTMLElement | null;
+  body: HTMLElement | null;
   restSize: number;
   vertical: boolean;
   /** Ask for everything to be placed again, on the next frame (once however often it is asked). */
@@ -38,6 +39,7 @@ export function newMagnifyField(): MagnifyField {
     rest: new Map(),
     offset: new Map(),
     bar: null,
+    body: null,
     restSize: 0,
     vertical: false,
     schedule: () => {
@@ -105,7 +107,34 @@ export function place(field: MagnifyField): void {
       before += g;
     }
   }
-  bar.style.setProperty("--mag-grow", `${(total / 2).toFixed(3)}px`);
+  grow(field, bar, total);
+}
+
+const lastGrow = new WeakMap<HTMLElement, string>();
+/**
+ * Draw the bar's glass grown by the swell, to the fraction of a pixel. Its box is the bar's with a whole number of
+ * pixels more at each end (layout, which lands on whole pixels), drawn very slightly narrower about its middle (by at
+ * most a pixel in the whole width: no one can see a glass narrowed by a fifth of a percent) to come out exactly as
+ * wide as it should be. Then the frosted glass under it is told where it is, now, in the step that moved it: left to
+ * look for itself on its own next frame, it saw where the bar had been, and trailed it by a frame (seen as flicker at
+ * the bar's ends while it grew and shrank).
+ */
+function grow(field: MagnifyField, bar: HTMLElement, total: number) {
+  const body = field.body;
+  if (!body) return;
+  const cs = getComputedStyle(bar);
+  const along = field.vertical
+    ? parseFloat(cs.height) + (cs.boxSizing === "border-box" ? 0 : parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom))
+    : parseFloat(cs.width) + (cs.boxSizing === "border-box" ? 0 : parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight));
+  if (!(along > 0)) return;
+  const extra = Math.ceil(Math.max(0, total) / 2);
+  const scale = (along + total) / (along + 2 * extra);
+  const key = `${extra},${scale.toFixed(5)},${field.vertical}`;
+  if (lastGrow.get(body) === key) return;
+  lastGrow.set(body, key);
+  body.style.setProperty("--grow-extra", `${extra}px`);
+  body.style.setProperty("--grow-scale", scale.toFixed(5));
+  body.dispatchEvent(new Event("bd-sync"));
 }
 
 /** Work out the resting centres: where each icon is drawn, less what it has been moved along by. */

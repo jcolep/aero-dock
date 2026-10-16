@@ -732,12 +732,12 @@ export function SettingsApp() {
             />
           )}
           <AeroToggle
-            label="Tinted like the menu bar"
-            checked={dock.tintLikeMenuBar}
-            hint="The dock's glass takes the theme's colour as strongly as the menu bar's does (its Tint), so the dock, the bar and the frame read as one glass"
-            onChange={(v) => set((d) => void (d.dock.tintLikeMenuBar = v))}
+            label="Tinted with the theme colour"
+            checked={dock.tintWithTheme}
+            hint="The dock's glass takes the colour chosen under Colour & materials. Off, it is plain glass"
+            onChange={(v) => set((d) => void (d.dock.tintWithTheme = v))}
           />
-          {!dock.tintLikeMenuBar && (
+          {dock.tintWithTheme && (
             <AeroSlider
               label="Tint"
               value={dock.tint}
