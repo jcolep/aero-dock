@@ -13,7 +13,7 @@ import type { PinnedItem, StackView, WindowInfo } from "../ipc/types";
 import { exeDisplayName, targetKey, windowsByExe } from "./runningStore";
 import { useSettings } from "./settingsStore";
 
-/** The look icons are asked for in, and the colour of the tinted one. */
+/** The look icons are asked for in, and the color of the tinted one. */
 export function iconLook(): { style: string; tint: string } {
   const a = useSettings.getState().settings?.appearance;
   return { style: a?.iconStyle ?? "plain", tint: normalizeHex(a?.accent ?? "") ?? accentForTheme(a?.theme ?? "aero") };

@@ -78,7 +78,7 @@ img {
   border-radius: var(--glass-radius);
   /* kept in a variable so that, with a picture of the desktop under the glass, the tint can be drawn over
      that picture (see BackdropLayer) */
-  /* the dock's Tint (--dock-tint, set on its viewport, 1 elsewhere) thins the colour; it cannot be made stronger than
+  /* the dock's Tint (--dock-tint, set on its viewport, 1 elsewhere) thins the color; it cannot be made stronger than
      the material has it */
   --tint-share: min(100%, calc(var(--dock-tint, 1) * 100%));
   --bd-tint: linear-gradient(
@@ -135,7 +135,7 @@ html[data-grain="off"] .bd-layer::before {
   background-image: none;
 }
 
-/* frosted, the glass's tint is drawn over the blur by the layer, over a faint scrim of the theme's deep colour that
+/* frosted, the glass's tint is drawn over the blur by the layer, over a faint scrim of the theme's deep color that
    keeps white on the glass legible over a bright desktop */
 [data-bd="on"] > .bd-layer::after {
   content: "";
@@ -343,7 +343,7 @@ html[data-reduce-motion="on"] .menubar::before {
   display: none;
 }
 
-/* Glass becomes a solid body in the theme's colour, without the blur behind it
+/* Glass becomes a solid body in the theme's color, without the blur behind it
    or the gloss on it. Windows is asked for no blur panes too (see glass.rs). */
 html[data-reduce-transparency="on"] {
   --solid-glass: color-mix(in srgb, rgb(var(--clear-tint)) 62%, #0a101c);
@@ -392,7 +392,7 @@ html[data-reduce-transparency="on"] .mb-lens {
 }
 
 /* Focus, from the keyboard only: a ring of light in the glass's own manner, a bright hairline and a soft halo of
-   the theme's colour, following the control's corners. */
+   the theme's color, following the control's corners. */
 :where(button, [role="button"], [role="menuitem"], [role="switch"], [role="tab"], input, select, textarea, a, summary, [tabindex]):focus-visible {
   outline: calc(var(--hair) * 2) solid rgba(255, 255, 255, 0.92);
   outline-offset: 2px;
@@ -411,7 +411,7 @@ html[data-reduce-motion="on"] :where(button, [role="button"], [role="menuitem"],
 
 /* Settings > Animations > Hover effect, as `data-hover-fx` on the root (applyTheme): magnify (a little swell and a
    pixel's rise, as the Control Center's tiles have), lift (a rise, with a shadow under it), glow (lit with the theme
-   colour where it is) or none. All by transform and shadow, never layout: nothing around it moves. Pressing still
+   color where it is) or none. All by transform and shadow, never layout: nothing around it moves. Pressing still
    pushes it in. (Under `html` so it outranks each item's own transition, which comes later.) */
 html :is(.mb-menu-item, .aero-menu-item, .cc-card) {
   transition:

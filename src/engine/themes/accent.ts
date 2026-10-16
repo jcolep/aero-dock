@@ -1,13 +1,13 @@
 /**
- * One colour in, a whole look out.
+ * One color in, a whole look out.
  *
  * The dock used to be tinted by choosing one of six hand-made themes, each a
- * set of a dozen or so design tokens. A colour picker gives a single colour
+ * set of a dozen or so design tokens. A color picker gives a single color
  * instead, so the rest are derived from it here: the same tokens, computed
- * from the pick. Components still read only tokens and never a colour, so
+ * from the pick. Components still read only tokens and never a color, so
  * everything restyles at once, exactly as it did for themes.
  *
- * The glass body is the picked colour itself, flat: the same colour at the
+ * The glass body is the picked color itself, flat: the same color at the
  * same strength all the way across, in every material. Light, shine and
  * depth come from the materials' own highlights and rims, not from varying
  * the body, so what you pick is what the dock is. Black gives black glass,
@@ -15,7 +15,7 @@
  * back to anything else.
  *
  * The one judgement call is dark versus light, which decides how strong the
- * body is and what colour the controls drawn on it are. Where the line falls
+ * body is and what color the controls drawn on it are. Where the line falls
  * is `DARK_BELOW`.
  */
 
@@ -26,7 +26,7 @@ export const DEFAULT_ACCENT = "#2f9de3";
 const DARK_BELOW = 0.38;
 
 /** Where each of the old named themes starts, for settings saved before the
- *  colour picker existed. */
+ *  color picker existed. */
 const LEGACY_THEMES: Record<string, string> = {
   aero: "#2f9de3",
   ocean: "#1ba7c9",
@@ -43,7 +43,7 @@ export function accentForTheme(id: string): string {
 type Rgb = [number, number, number];
 
 /** `#rrggbb` (or `#rgb`, with or without the `#`) as lowercase `#rrggbb`, or
- *  null if it is not a colour. */
+ *  null if it is not a color. */
 export function normalizeHex(input: string): string | null {
   const text = input.trim().replace(/^#/, "");
   if (/^[0-9a-f]{3}$/i.test(text)) {
@@ -136,7 +136,7 @@ export function hsvToHex(h: number, s: number, v: number): string {
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
-/** A CSS colour from hue (degrees), saturation and lightness (0..1) and an
+/** A CSS color from hue (degrees), saturation and lightness (0..1) and an
  *  optional alpha. */
 const hsl = (h: number, s: number, l: number, a = 1): string =>
   `hsl(${h.toFixed(0)} ${(clamp(s, 0, 1) * 100).toFixed(0)}% ${(clamp(l, 0, 1) * 100).toFixed(0)}%${
@@ -146,11 +146,11 @@ const hsl = (h: number, s: number, l: number, a = 1): string =>
 const triple = ([r, g, b]: Rgb) => `${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}`;
 
 /** Like [`hsl`] but written as `rgba(...)`. The effects layer reads the
- *  bloom colour back out of the stylesheet by parsing exactly that form. */
+ *  bloom color back out of the stylesheet by parsing exactly that form. */
 const rgba = (h: number, s: number, l: number, a: number): string =>
   `rgba(${triple(hslToRgb(h, clamp(s, 0, 1), clamp(l, 0, 1)))}, ${a})`;
 
-/** A colour moved part of the way toward white, `t` from 0 (unchanged) to 1. */
+/** A color moved part of the way toward white, `t` from 0 (unchanged) to 1. */
 const toward = ([r, g, b]: Rgb, t: number): Rgb => [
   r + (255 - r) * t,
   g + (255 - g) * t,
@@ -158,7 +158,7 @@ const toward = ([r, g, b]: Rgb, t: number): Rgb => [
 ];
 
 /**
- * Every colour token the look depends on, derived from one accent colour.
+ * Every color token the look depends on, derived from one accent color.
  * All of them are returned every time (none is "left alone"), so switching
  * between a dark pick and a light one cannot leave a stale token behind.
  */
@@ -168,7 +168,7 @@ export function tokensFromAccent(accentHex: string): Record<string, string> {
   const [h, s, l] = rgbToHsl(pick);
   const dark = l < DARK_BELOW;
 
-  // A saturation for a colour that is a lightened or darkened relation of
+  // A saturation for a color that is a lightened or darkened relation of
   // the pick. Scaled by the pick's own saturation, so a grey pick gives
   // greys and not the faint red or blue that a fixed saturation at hue 0
   // would add.

@@ -6,6 +6,7 @@
 import { motion } from "motion/react";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
+import { Droplet } from "../../engine/brand/droplet";
 import { useState } from "react";
 import { ipc } from "../../ipc/commands";
 import { KOFI_URL } from "../../links";
@@ -44,7 +45,7 @@ export function Welcome({ edge }: { edge: DockEdge }) {
       transition={{ ...springs.bloom, delay: 0.25 }}
     >
       <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
-      <span className="welcome-orb" aria-hidden />
+      <Droplet size={52} shadow className="welcome-orb" />
       <h1>Welcome to Liquidock</h1>
       <p>Glass, water, and light for your desktop. Let's set up your dock.</p>
       <div className="welcome-actions">

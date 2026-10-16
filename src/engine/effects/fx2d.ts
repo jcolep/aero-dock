@@ -47,7 +47,7 @@ const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n
 const glowCache = new Map<number, HTMLCanvasElement>();
 
 /**
- * A soft round glow in one colour, 64 px square, drawn once and shared. The
+ * A soft round glow in one color, 64 px square, drawn once and shared. The
  * falloff is a stack of translucent discs, which is how it was built before,
  * so lights look the same as they did.
  */
@@ -73,7 +73,7 @@ export function glow(color: number): HTMLCanvasElement {
   return canvas;
 }
 
-/** `rgba(...)` for a `0xrrggbb` colour. */
+/** `rgba(...)` for a `0xrrggbb` color. */
 function rgba(color: number, alpha: number): string {
   return `rgba(${(color >> 16) & 255},${(color >> 8) & 255},${color & 255},${alpha})`;
 }
@@ -233,7 +233,7 @@ export interface SceneBox {
    *  and needs a little more to be seen at all. */
   gain: number;
   /** How big the specks are, relative to the dock's. Soft specks a few pixels
-   *  across are lost against a body of nearly their own colour. */
+   *  across are lost against a body of nearly their own color. */
   grain: number;
 }
 
@@ -612,7 +612,7 @@ export function bandBox(x: number, y: number, w: number, h: number): SceneBox {
   return { x, y, w, h, amount: 1, reach: 1, gain: 1, grain: 1 };
 }
 
-/** A colour moved part of the way toward white, `t` from 0 to 1. */
+/** A color moved part of the way toward white, `t` from 0 to 1. */
 export function lighten(color: number, t: number): number {
   const mix = (c: number) => Math.round(c + (255 - c) * t);
   return (mix((color >> 16) & 255) << 16) | (mix((color >> 8) & 255) << 8) | mix(color & 255);

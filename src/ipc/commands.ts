@@ -49,6 +49,8 @@ export const ipc = {
   openSettings: () => invoke<void>("open_settings"),
   storageInfo: () => invoke<StorageInfo>("storage_info"),
   quitApp: () => invoke<void>("quit_app"),
+  /** The tray icon, as a PNG (Liquidock's drop in the theme's color). */
+  setTrayIcon: (png: number[]) => invoke<void>("set_tray_icon", { png }),
   /** Ask WebView2 to drop caches (true) or behave normally (false). */
   setMemorySaver: (low: boolean) => invoke<void>("set_memory_saver", { low }),
 
@@ -88,8 +90,8 @@ export const ipc = {
   closeWindow: (hwnd: number) => invoke<void>("close_window", { hwnd }),
   /** End the programs that own these windows at once; the names of those ended. */
   /** What the margin looks like beside the four corners of the opening: top left, top right, bottom right, bottom left. */
-  /** The frame's page says what colour its glass is, for the corner pieces Rust draws. */
-  reportFrameGlass: (colour: string) => invoke<void>("report_frame_glass", { colour }),
+  /** The frame's page says what color its glass is, for the corner pieces Rust draws. */
+  reportFrameGlass: (color: string) => invoke<void>("report_frame_glass", { color }),
   endTask: (hwnds: number[]) => invoke<string[]>("end_task", { hwnds }),
 
   // system widgets

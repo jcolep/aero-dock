@@ -3,7 +3,7 @@
 //! A piece has to look like the margin beside it: the margin's glass over whatever the wallpaper is at that spot.
 //! Two pictures give that. The desktop's own, as the shell draws it (the wallpaper with no window over it), is what
 //! the piece shows; and the screen as it is drawn, round the opening, says whether that picture lines up with what is
-//! seen in the margin (the shell can lay a wallpaper out differently on another monitor), and what colour the margin
+//! seen in the margin (the shell can lay a wallpaper out differently on another monitor), and what color the margin
 //! is, for a corner where it does not.
 //!
 //! Each is one copy into memory, then read pixel by pixel there. (Reading the screen a pixel at a time, `GetPixel`,
@@ -92,7 +92,7 @@ impl Picture {
         })
     }
 
-    /// The colour at a screen point, if the picture has it.
+    /// The color at a screen point, if the picture has it.
     pub fn rgb(&self, x: i32, y: i32) -> Option<[u8; 3]> {
         let (px, py) = (x - self.left, y - self.top);
         if px < 0 || py < 0 || px >= self.width || py >= self.height {
@@ -113,7 +113,7 @@ impl Picture {
         Some(out)
     }
 
-    /// The mean colour at these screen points, leaving out any the picture does not have; `None` if it has none.
+    /// The mean color at these screen points, leaving out any the picture does not have; `None` if it has none.
     pub fn mean(&self, points: &[(i32, i32)]) -> Option<[u8; 3]> {
         let (mut r, mut g, mut b, mut n) = (0u32, 0u32, 0u32, 0u32);
         for c in points.iter().filter_map(|&(x, y)| self.rgb(x, y)) {
@@ -139,13 +139,13 @@ fn moments(a: &[f64], b: &[f64]) -> (f64, f64, f64, f64, f64) {
     (ma, mb, va / n, vb / n, cov / n)
 }
 
-/// Whether two runs of colours are the same picture (one may be seen through a tint: a uniform change of brightness
-/// and colour), judged by how their lightness rises and falls together. Two flat runs are the same; a flat run and a
+/// Whether two runs of colors are the same picture (one may be seen through a tint: a uniform change of brightness
+/// and color), judged by how their lightness rises and falls together. Two flat runs are the same; a flat run and a
 /// varied one are not.
 ///
 /// A few points may disagree and it still is: the run seen on the screen goes through the margin, where the ambient
 /// scene's motes drift, and against a dark wallpaper one bright mote was enough to undo the whole of it (measured: the
-/// secondary monitor's corners fell back to a flat colour at every look). So the points that fit the tint worst, a
+/// secondary monitor's corners fell back to a flat color at every look). So the points that fit the tint worst, a
 /// fifth of them, are set aside before judging; a picture that is not the same fits badly everywhere.
 pub fn lines_up(seen: &[[u8; 3]], drawn: &[[u8; 3]]) -> bool {
     let luma = |c: &[u8; 3]| 0.299 * c[0] as f64 + 0.587 * c[1] as f64 + 0.114 * c[2] as f64;

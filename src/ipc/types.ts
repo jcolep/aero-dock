@@ -52,9 +52,9 @@ export interface DockSettings {
   minimizeEffect: "genie" | "scale" | "off";
   /** What a middle click on an icon does: end the app, or ask its windows to close. */
   middleClick: "endTask" | "close";
-  /** How strongly the theme's colour tints the dock's glass, 0 to 1.5 (1 = as the material has it). */
+  /** How strongly the theme's color tints the dock's glass, 0 to 1.5 (1 = as the material has it). */
   tint: number;
-  /** Tint the dock's glass with the theme colour (Colour & materials); off, it is plain glass. */
+  /** Tint the dock's glass with the theme color (Color & materials); off, it is plain glass. */
   tintWithTheme: boolean;
   /** What marks running apps: a dot under each, or one mark under the app in front with a ghost under the hovered one. */
   indicatorStyle: "dots" | "focus";
@@ -73,17 +73,17 @@ export interface DockSettings {
 /** How the dock's focus mark and its ghost move. */
 export type MarkMotion = "glide" | "bounce" | "snap" | "float" | "fade";
 
-/** How a surface is rendered: "liquid", the theme's colour as a thin lens, or "clear", neutral glass with the picked
- *  colour as a flat veil. (A file from when there was a glossy "aero" panel loads it as liquid.) */
+/** How a surface is rendered: "liquid", the theme's color as a thin lens, or "clear", neutral glass with the picked
+ *  color as a flat veil. (A file from when there was a glossy "aero" panel loads it as liquid.) */
 export type SurfaceStyle = "liquid" | "clear";
 
-/** plain: as drawn. glass: the icon with a glass body. clear: frosted white glass. tinted: glass in the theme's colour. */
+/** plain: as drawn. glass: the icon with a glass body. clear: frosted white glass. tinted: glass in the theme's color. */
 export type IconStyle = "plain" | "glass" | "clear" | "tinted";
 
 export interface AppearanceSettings {
-  /** Legacy: the named theme, kept only to find a starting colour. */
+  /** Legacy: the named theme, kept only to find a starting color. */
   theme: string;
-  /** The colour the whole look is derived from, `#rrggbb`; "" until picked. */
+  /** The color the whole look is derived from, `#rrggbb`; "" until picked. */
   accent: string;
   transparency: number;
   glassIntensity: number;
@@ -326,7 +326,7 @@ export interface MenuBarSettings {
   gap: number;
   /** Corner radius in px. */
   cornerRadius: number;
-  /** How strongly the bar is tinted with the theme colour (1 = default). */
+  /** How strongly the bar is tinted with the theme color (1 = default). */
   tint: number;
   /** Space between the items in the bar, in px. */
   itemSpacing: number;
@@ -335,7 +335,7 @@ export interface MenuBarSettings {
   /** The hairline of light round the bar's edge. */
   edgeHighlight: boolean;
   /** The circle behind the Wi-Fi icon in the Control Center, `#rrggbb`;
-   *  "" follows the theme colour. */
+   *  "" follows the theme color. */
   wifiColor: string;
   /** The same for the Bluetooth icon. */
   bluetoothColor: string;
@@ -351,7 +351,7 @@ export interface MenuBarSettings {
   showPrivacy: boolean;
   /** A load graph that opens a popover of what is using the machine. */
   showStats: boolean;
-  /** The Now Playing card takes its colours from the cover. */
+  /** The Now Playing card takes its colors from the cover. */
   mediaTint: boolean;
   /** The card draws what is playing as moving bars (listens to the output). */
   mediaSpectrum: boolean;
@@ -387,7 +387,7 @@ export interface FrameSettings {
   padding: number;
   /** Corner radius of the opening the apps sit in, in px. */
   cornerRadius: number;
-  /** How strongly the margin is tinted with the theme colour (1 = default). */
+  /** How strongly the margin is tinted with the theme color (1 = default). */
   tint: number;
   /** Play the ambient scene in the margin. */
   ambient: boolean;

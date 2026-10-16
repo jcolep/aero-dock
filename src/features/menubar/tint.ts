@@ -1,19 +1,19 @@
 /**
- * The colours of a cover: what the Now Playing card is tinted with.
+ * The colors of a cover: what the Now Playing card is tinted with.
  *
  * A cover is shrunk to a few hundred pixels and each one voted into one of
- * twelve hues, with a stronger vote for colour that is vivid and not too dark,
+ * twelve hues, with a stronger vote for color that is vivid and not too dark,
  * so a mostly-black sleeve with one red shape comes out red and not grey. The
  * card gets the two strongest hues (deepened, so white text reads on them) and
  * a lighter version of the first for the things that should stand out on it.
  */
 
 export interface Tint {
-  /** The deep colour the card fades from. */
+  /** The deep color the card fades from. */
   a: string;
-  /** The deep colour it fades to. */
+  /** The deep color it fades to. */
   b: string;
-  /** A lighter colour of the same hue, for fills and glows. */
+  /** A lighter color of the same hue, for fills and glows. */
   accent: string;
 }
 
@@ -63,7 +63,7 @@ export function pickTint(pixels: Uint8ClampedArray): Tint | null {
     b += pb;
     n++;
     const [h, s, v] = toHsv(pr, pg, pb);
-    // a vote for vivid colour, and almost none for greys, near-black or near-white
+    // a vote for vivid color, and almost none for greys, near-black or near-white
     let weight = s * s * (0.35 + v);
     if (v < 0.16 || s < 0.14) weight *= 0.05;
     const bucket = buckets[Math.floor(h / 30) % 12];
@@ -88,7 +88,7 @@ export function pickTint(pixels: Uint8ClampedArray): Tint | null {
 
   const first = ranked[0];
   const [h1, s1, v1] = toHsv(first.r / first.weight, first.g / first.weight, first.b / first.weight);
-  // the second colour: the next hue with real weight that is not a neighbour of the first
+  // the second color: the next hue with real weight that is not a neighbour of the first
   const apart = (x: number, y: number) => Math.min((x - y + 12) % 12, (y - x + 12) % 12) >= 2;
   const other = ranked.find((bk) => bk !== first && apart(bk.hue, first.hue) && bk.weight > first.weight * 0.3);
   let h2 = (h1 + 28) % 360;

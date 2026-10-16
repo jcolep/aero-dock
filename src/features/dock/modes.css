@@ -50,7 +50,7 @@
   text-shadow: 0 1px 3px rgba(8, 40, 74, 0.7);
 }
 
-/* An emoji carries its own colour and shape, so it wants room and no
+/* An emoji carries its own color and shape, so it wants room and no
    letterform shadow behind it. The two tiles are different sizes, so
    they get their own measurements rather than one shared guess. */
 .mode-tile-glyph[data-emoji="true"],

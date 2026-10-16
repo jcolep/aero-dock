@@ -69,7 +69,7 @@ const LABEL_EXIT = { opacity: 0, transition: { duration: 0.09 } };
 const VOLUME_PREVIEW_MUTE_MS = 1500;
 
 /** The speaker with as many waves as the volume lights, or a cross when muted:
- *  the same drawing as the status glyph, in the surrounding text's colour. */
+ *  the same drawing as the status glyph, in the surrounding text's color. */
 function Speaker({ level, muted }: { level: number; muted: boolean }) {
   return (
     <svg viewBox="0 0 24 24" className="dock-volume-icon" aria-hidden>

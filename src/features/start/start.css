@@ -20,7 +20,7 @@
   border-radius: 24px;
   overflow: hidden;
   /* a body that is dark enough for white text on any wallpaper, with the theme's
-     deep colour in it, lit from the upper left, and a rim of light at the edge */
+     deep color in it, lit from the upper left, and a rim of light at the edge */
   /* the body, in a variable: with a picture of the desktop under the panel (BackdropLayer) it is drawn over it */
   --bd-tint:
     radial-gradient(120% 70% at 12% -8%, rgba(255, 255, 255, 0.22), transparent 55%),

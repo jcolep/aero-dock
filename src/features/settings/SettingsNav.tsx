@@ -10,6 +10,7 @@
 import { useEffect, useRef } from "react";
 import { GROUPS, matches } from "./sections";
 import { SectionIcon } from "./SectionIcon";
+import { Droplet } from "../../engine/brand/droplet";
 import { goToSection, useSettingsUi } from "./useSettingsUi";
 
 /** How long the pointer can be off a sidebar that came out at the edge before it goes again, in ms. */
@@ -56,7 +57,7 @@ export function SettingsNav({ sliding }: { sliding: boolean }) {
         onPointerLeave={away}
       >
         <div className="sb-brand">
-          <span className="settings-orb" aria-hidden />
+          <Droplet size={26} className="settings-orb" />
           <span className="sb-name">Liquidock</span>
         </div>
 

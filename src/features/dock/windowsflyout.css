@@ -55,16 +55,10 @@
   box-shadow: 0 0 12px rgba(140, 210, 255, 0.5);
 }
 
-.windows-preview-caption {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-
+/* with several windows, each one's title over its picture */
 .windows-preview-title {
-  flex: 1;
   min-width: 0;
+  padding: 0 3px;
   font-size: 11px;
   font-weight: 500;
   color: #f2faff;
@@ -72,23 +66,48 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding-left: 2px;
 }
 
+/* Close: a bar of glass as wide as the picture over it, quiet until the pointer is on it, when it warms to the red
+   that says it will close something; it gives a little under a press, as every control does. */
 .windows-flyout-close {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: none;
-  color: rgba(240, 250, 255, 0.7);
-  font-size: 10px;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 26px;
+  margin-top: 2px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  color: rgba(240, 248, 255, 0.82);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: default;
+  transition:
+    background var(--m-quick) var(--e-out),
+    box-shadow var(--m-standard) var(--e-out),
+    color var(--m-quick) var(--e-out),
+    transform var(--m-quick) var(--e-out);
 }
-
+.windows-flyout-close svg {
+  width: 10px;
+  height: 10px;
+  flex: none;
+}
 .windows-flyout-close:hover {
-  background: linear-gradient(180deg, rgba(255, 170, 160, 0.5), rgba(200, 70, 60, 0.4));
-  border-color: rgba(255, 200, 190, 0.55);
+  background: linear-gradient(180deg, rgba(255, 128, 110, 0.55), rgba(214, 58, 44, 0.5));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 210, 0.45),
+    inset 0 0 0 1px rgba(255, 170, 155, 0.45),
+    0 0 14px rgba(255, 90, 70, 0.35);
   color: #fff;
+}
+.windows-flyout-close:active {
+  transform: scale(0.96);
 }

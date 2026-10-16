@@ -30,11 +30,11 @@ export const GROUPS: GroupDef[] = [
     title: "Look & feel",
     sections: [
       {
-        id: "colour",
-        title: "Colour & materials",
-        blurb: "The theme colour, the dock's material and the app icons",
+        id: "color",
+        title: "Color & materials",
+        blurb: "The theme color, the dock's material and the app icons",
         keywords:
-          "color colour theme accent picker hex wallpaper tint from wallpaper material liquid clear dock material app icons plain glass tinted icon style",
+          "color color theme accent picker hex wallpaper tint from wallpaper material liquid clear dock material app icons plain glass tinted icon style",
         hue: 285,
       },
       {
@@ -64,7 +64,7 @@ export const GROUPS: GroupDef[] = [
         title: "Dock",
         blurb: "Where it sits, its icons, how it marks running apps",
         keywords:
-          "dock position edge bottom top left right monitor screen every monitor auto hide automatically hide delay floating edge gap reserve screen space icon size spacing padding magnification amount lift reach running applications running apps marks dot focus mark pill ghost glowing dot glide bounce snap float fade faint marks halo dimmed stretch with speed velocity corner radius tint tinted theme colour plain glass middle click end task close windows minimise effect genie scale attention bounce",
+          "dock position edge bottom top left right monitor screen every monitor auto hide automatically hide delay floating edge gap reserve screen space icon size spacing padding magnification amount lift reach running applications running apps marks dot focus mark pill ghost glowing dot glide bounce snap float fade faint marks halo dimmed stretch with speed velocity corner radius tint tinted theme color plain glass middle click end task close windows minimise effect genie scale attention bounce",
         hue: 215,
       },
       {
@@ -99,7 +99,7 @@ export const GROUPS: GroupDef[] = [
         title: "Menu bar",
         blurb: "The bar along the top, its lens and the Control Center",
         keywords:
-          "menu bar height gap corner radius seconds clock time media pill island now playing hover controls play pause next previous tint item spacing text size edge light lens size magnification warp control center wi-fi bluetooth circle colour now playing cover sound wave spectrum camera microphone dots privacy cpu memory network readout stats date clock status icons close menus pointer away ambient scene",
+          "menu bar height gap corner radius seconds clock time media pill island now playing hover controls play pause next previous tint item spacing text size edge light lens size magnification warp control center wi-fi bluetooth circle color now playing cover sound wave spectrum camera microphone dots privacy cpu memory network readout stats date clock status icons close menus pointer away ambient scene",
         hue: 205,
       },
       {

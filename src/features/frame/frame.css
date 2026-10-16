@@ -1,8 +1,8 @@
 /* The frame's two windows (see FrameApp and FrameCornersApp). Both are clear
    pages the whole size of the free space, and Rust clips each to its own part
    of it, so everything is drawn across the whole window and only what is
-   clipped to shows. Colours come from the dock's own tokens, so the frame
-   follows the colour picked in settings, as the menu bar does. */
+   clipped to shows. Colors come from the dock's own tokens, so the frame
+   follows the color picked in settings, as the menu bar does. */
 
 .frame-root {
   position: fixed;
@@ -21,7 +21,7 @@
   display: block;
 }
 
-/* the margin: the theme's colour, see-through to the wallpaper */
+/* the margin: the theme's color, see-through to the wallpaper */
 .frame-glass {
   fill: rgba(var(--clear-tint), var(--frame-alpha));
 }

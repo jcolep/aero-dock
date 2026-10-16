@@ -33,6 +33,7 @@ import {
 import "../menubar/menubar.css";
 import "../start/start.css";
 import "./animations.css";
+import { Droplet } from "../../engine/brand/droplet";
 
 interface PickerProps {
   label: string;
@@ -122,7 +123,7 @@ export function MenuPreview({ preset, run, speed }: { preset: string; run: numbe
       <div className="menubar" data-rim="true">
         <div className="mb-side">
           <span className="mb-item anim-bar-item">
-            <span className="anim-orb" />
+            <Droplet size={11} className="anim-orb" />
           </span>
           <span className="mb-item anim-bar-item anim-bar-text" />
         </div>
@@ -168,7 +169,7 @@ export function IslandPreview({ preset, run, speed }: { preset: string; run: num
       <div className="menubar" data-rim="true">
         <div className="mb-side">
           <span className="mb-item anim-bar-item">
-            <span className="anim-orb" />
+            <Droplet size={11} className="anim-orb" />
           </span>
           <span className="mb-item anim-bar-item anim-bar-text" />
         </div>
@@ -181,7 +182,7 @@ export function IslandPreview({ preset, run, speed }: { preset: string; run: num
                 initial={false}
                 animate={out ? { opacity: 1, transition: { delay: pill.bodyDelay, duration: 0.24 } } : { opacity: 0, transition: { duration: 0.1 } }}
               >
-                <span className="anim-orb isl-mini-art" />
+                <span className="anim-art isl-mini-art" />
                 <span className="anim-line isl-mini-line" />
                 <span className="isl-mini-dots">
                   <i />

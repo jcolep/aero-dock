@@ -8,14 +8,14 @@
 //!
 //! Three looks, all following the icon's own outline, none putting a tile behind it:
 //!
-//! - **Glass** keeps the colours and gives the icon a body of glass: a rim of
+//! - **Glass** keeps the colors and gives the icon a body of glass: a rim of
 //!   light along the edges that face the light (the upper left) and a soft
 //!   shadow along those that face away, a sheen across the top, and a faint
 //!   glow all round the edge.
 //! - **Clear** keeps only the icon's lightness: light parts become frosted white
 //!   glass, dark parts nearly vanish, so the drawing is left as a shape cut in
 //!   glass.
-//! - **Tinted** is the same with the drawing's lightness mapped onto one colour,
+//! - **Tinted** is the same with the drawing's lightness mapped onto one color,
 //!   the theme's, from deep to pale.
 //!
 //! No pixel is ever made more opaque than it was, so the silhouette is the icon's
@@ -183,7 +183,7 @@ pub fn bake(img: &RgbaImage, style: Style, tint: [u8; 3]) -> RgbaImage {
 
             let rgb = [src[0] as f32 / 255.0, src[1] as f32 / 255.0, src[2] as f32 / 255.0];
             let lum = 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2];
-            // the body of the icon: its colour and how much of it there is
+            // the body of the icon: its color and how much of it there is
             let (body, body_a): ([f32; 3], f32) = match style {
                 Style::Glass => {
                     // a little livelier and lighter, and very slightly see-through
@@ -263,15 +263,15 @@ pub fn variant_path(plain: &Path, style: Style, tint: [u8; 3]) -> AeroResult<Pat
 mod tests {
     use super::*;
 
-    /// A disc of one colour on a transparent square, 96 px.
-    fn disc(colour: [u8; 3]) -> RgbaImage {
+    /// A disc of one color on a transparent square, 96 px.
+    fn disc(color: [u8; 3]) -> RgbaImage {
         let mut img = RgbaImage::new(96, 96);
         for y in 0..96i32 {
             for x in 0..96i32 {
                 let d = (((x - 48) * (x - 48) + (y - 48) * (y - 48)) as f32).sqrt();
                 // a soft one-pixel edge
                 let a = (40.0 - d).clamp(0.0, 1.0);
-                img.put_pixel(x as u32, y as u32, Rgba([colour[0], colour[1], colour[2], (a * 255.0) as u8]));
+                img.put_pixel(x as u32, y as u32, Rgba([color[0], color[1], color[2], (a * 255.0) as u8]));
             }
         }
         img
@@ -308,7 +308,7 @@ mod tests {
     }
 
     #[test]
-    fn glass_keeps_the_colour_and_has_a_sheen_across_the_top() {
+    fn glass_keeps_the_color_and_has_a_sheen_across_the_top() {
         let out = bake(&disc([200, 40, 40]), Style::Glass, BLUE);
         let middle = out.get_pixel(48, 48).0;
         assert!(middle[0] > middle[1] + 60 && middle[0] > middle[2] + 60, "still red: {middle:?}");
@@ -317,7 +317,7 @@ mod tests {
     }
 
     #[test]
-    fn clear_leaves_no_colour_and_lets_dark_parts_go() {
+    fn clear_leaves_no_color_and_lets_dark_parts_go() {
         let mut src = disc([200, 40, 40]);
         // a dark mark inside the disc
         for y in 60..72u32 {
@@ -328,13 +328,13 @@ mod tests {
         let out = bake(&src, Style::Clear, BLUE);
         let p = out.get_pixel(30, 48).0;
         let spread = p[0].max(p[1]).max(p[2]) - p[0].min(p[1]).min(p[2]);
-        assert!(spread < 50, "nearly colourless: {p:?}");
+        assert!(spread < 50, "nearly colorless: {p:?}");
         // the dark mark is much more see-through than the light disc round it
         assert!(out.get_pixel(48, 66).0[3] + 40 < out.get_pixel(30, 48).0[3], "dark goes clear");
     }
 
     #[test]
-    fn tinted_takes_the_colour_given() {
+    fn tinted_takes_the_color_given() {
         let out = bake(&disc([150, 150, 150]), Style::Tinted, BLUE);
         let p = out.get_pixel(48, 60).0;
         assert!(p[2] > p[0] + 25, "blue-tinted: {p:?}");
@@ -365,7 +365,7 @@ mod tests {
     }
 
     #[test]
-    fn the_looks_and_the_colour_are_read_from_the_settings() {
+    fn the_looks_and_the_color_are_read_from_the_settings() {
         assert_eq!(Style::parse("glass"), Some(Style::Glass));
         assert_eq!(Style::parse("clear"), Some(Style::Clear));
         assert_eq!(Style::parse("tinted"), Some(Style::Tinted));

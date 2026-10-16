@@ -80,7 +80,7 @@ function WidgetRow({
             <div className="ctl-actions">
               <input
                 type="color"
-                className="ctl-colour"
+                className="ctl-color"
                 aria-label="Widget tint"
                 value={widget.accent ?? DEFAULT_ACCENT}
                 onChange={(e) => void style({ accent: e.target.value })}

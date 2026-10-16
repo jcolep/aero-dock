@@ -1,12 +1,12 @@
-﻿/**
+/**
  * The dock's own symbols (Search, Settings, and the clock's neighbours: network, volume, battery, the Recycle Bin)
  * follow the icon look chosen for apps, as an app's icon does: plain leaves them as drawn (white), and glass, clear
  * and tinted treat the drawing the way `glassicon.rs` treats an icon's pixels, here as SVG filters on the symbol.
  *
- * - glass keeps the symbol's colours and gives it a body of glass: a rim of light on the edges that face the light
+ * - glass keeps the symbol's colors and gives it a body of glass: a rim of light on the edges that face the light
  *   (the upper left), a soft shade on those that face away, and a shadow under it;
  * - clear keeps only a frosted, see-through shape of it;
- * - tinted is the same in the theme's colour.
+ * - tinted is the same in the theme's color.
  *
  * The filters are in pixels (the symbol's size on the page), so the rim is as thin on a 16px symbol as on a 30px one.
  * `--glyph-tint` and `--glyph-tint-deep` come from the theme (see applyAppearance); the stylesheet applies the filter
@@ -50,7 +50,7 @@ export function GlyphFilters() {
       <defs>
         <filter id="aero-glyph-glass" {...REGION}>
           <Edges rim={{ color: "#ffffff", opacity: 0.92 }} shade={{ color: "#04203e", opacity: 0.4 }} />
-          {/* its own colours, a touch lighter and livelier, and a little see-through */}
+          {/* its own colors, a touch lighter and livelier, and a little see-through */}
           <feColorMatrix
             in="SourceGraphic"
             type="matrix"
@@ -87,7 +87,7 @@ export function GlyphFilters() {
 
         <filter id="aero-glyph-tinted" {...REGION}>
           <Edges rim={{ color: "#ffffff", opacity: 0.8 }} shade={{ color: "#04203e", opacity: 0.3 }} />
-          {/* the symbol, in the theme's colour: its shape and how much of it there is, in one colour */}
+          {/* the symbol, in the theme's color: its shape and how much of it there is, in one color */}
           <feFlood style={{ floodColor: "var(--glyph-tint, #9fd0f5)" }} floodOpacity="0.96" />
           <feComposite in2="SourceAlpha" operator="in" result="body" />
           <Shadow opacity={0.42} />

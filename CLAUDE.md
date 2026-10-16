@@ -107,8 +107,8 @@ and the WebView2 runtime. `pnpm install` first.
   allowed list (`keep_known`), tests, a mirror in `src/ipc/types.ts`, and a card
   in `SettingsApp.tsx`. A file saved before a setting existed must still load
   (every group is `#[serde(default)]`).
-- **Colour** comes from the tokens (`--aero-*`, `--clear-tint`, ...), never raw
-  values in components, so every theme and the picked colour keep working.
+- **Color** comes from the tokens (`--aero-*`, `--clear-tint`, ...), never raw
+  values in components, so every theme and the picked color keep working.
 - **Comments say why**, in full sentences, as the surrounding code does.
 - **Performance rules.** `tauri.conf.json` launches WebView2 with `--disable-gpu` (asserted by a test), and that flag
   is taken out at start when `appearance.hardwareAcceleration` is on, which is the default (`apply_gpu_choice`, read
@@ -383,9 +383,9 @@ Say plainly in a report when something native was not seen.
   and is put on its own layer while showing (`will-change`).
 - **Glass icons** (`core/glassicon.rs`): `appearance.iconStyle` plain | glass | clear | tinted. When an icon
   is resolved (`resolve_icons(targets, style, tint)`) a copy in that look is baked from the cached plain
-  PNG and kept beside it (`<key>.glass-b1.png`, `tinted-rrggbb` for the colour), so showing it costs
+  PNG and kept beside it (`<key>.glass-b1.png`, `tinted-rrggbb` for the color), so showing it costs
   nothing. It follows the icon's own alpha (rim light from the upper left, sheen, no tile) and never
-  makes a pixel more opaque. A change of look or theme colour calls `useDockIcons.reset()` (see `main.tsx`);
+  makes a pixel more opaque. A change of look or theme color calls `useDockIcons.reset()` (see `main.tsx`);
   anything that shows icons from an effect must list `epoch` in its deps. Bump `VERSION` when the pixels
   change. `bake_a_sheet_of_real_icons` (ignored) bakes this machine's icons onto a sheet to look at.
 - **Start animations** are a setting (`animations.start`: rise, bloom, genie, slide, fade, none) that
@@ -567,11 +567,11 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
 - **Drawing** (`platform/windows/corners.rs`): four layered windows per monitor (class `AeroDockCorner`: layered,
   click-through, topmost, tool window, no activate), each `radius + 4` px square in its corner of the opening, painted
   with `UpdateLayeredWindow` from a bitmap `render()` draws pixel by pixel: the ground (the wallpaper under the piece,
-  or a flat colour), the margin's glass over it, the glass border (band, bright outer hairline, dark inner one), cut by
+  or a flat color), the margin's glass over it, the glass border (band, bright outer hairline, dark inner one), cut by
   the signed distance to the opening's rounded rectangle (exact anti-aliasing). Drawn again only when its inputs
   change; raised to the top only when it comes in. Replaced the `framecorners` web window (two renderer processes,
   ~67 MB, and a page that had to wake and render on every show).
-- **Look**: the glass colour is the frame page's own computed `.frame-glass` fill, reported by `FrameApp` with
+- **Look**: the glass color is the frame page's own computed `.frame-glass` fill, reported by `FrameApp` with
   `report_frame_glass`; the border's light uses the same stops as `BevelGradient` (`corners::BEVEL`: keep in step).
   Checked against the web version on the Dell: mean difference 1.3 grey levels; the curve's inner edge is a little
   softer (the page's clip let the dark line reach half a pixel over the app).
@@ -580,7 +580,7 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   The desktop's own picture (`Picture::desktop`, Progman's `PrintWindow`) is checked against one copy of the screen
   round the opening (`Picture::screen`, a `BitBlt`: 27 ms for 1920x1080; `GetPixel` per point took ~4 s) with
   `lines_up`, which sets aside the fifth of points that fit worst (the ambient scene's motes broke every look on the
-  Samsung). A corner that does not line up uses the margin's colour and is looked at again 3, 6, 9 s later, by itself.
+  Samsung). A corner that does not line up uses the margin's color and is looked at again 3, 6, 9 s later, by itself.
 - **Which corners** (`shaper.rs`): the window on top at each corner point (z-order, DWM visible bounds) holds it if it
   is maximised and fits the opening (`NEAR` 24 px), or its own corner is within 4 px. Click-through windows
   (`WS_EX_TRANSPARENT`: overlays) and tool windows are not "on top"; a window covering its whole monitor
@@ -605,11 +605,25 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
 - **Never put the CSS `scale` property on a box placed by translate**: `scale` applies outside `transform`, so it
   scales the translate too (the menu bar lens flew ~85 px left on every press, `lenspress.mjs`). Presses go through
   `usePress` (subpixelBox.ts): a spring folded into the box's own scale, released by a window-level pointerup.
+- **The mark is a drop of glass** (`engine/brand`): `Droplet` (React, colors are CSS color-mix of `--aero-accent`, so it
+  follows the theme live; gradient ids are per instance from `useId`) and `dropletSvg(hex, px)` (plain JS + .d.ts so
+  Node scripts can import it; the same drawing with literal colors). Change one, change the other (they share
+  `DROP_PATH`/`STREAK_PATH`/`TIP_PATH`). Used by the menu bar logo, the settings sidebar/splash/support card, Welcome,
+  the animation previews. Inline SVGs sharing gradient ids in one page all take the first one's colors (bit the preview
+  sheet) — render standalone copies as `<img>`. The tray icon is tinted at run time: the primary dock renders
+  `dropletSvg` at 64 px to a PNG and calls `set_tray_icon` (`useTrayDroplet`, debounced 400 ms). The exe/installer
+  icons are the drop in silver `#9fb4cc`: `node --experimental-websocket scripts/brand/make-icons.mjs` renders
+  `src-tauri/icons/source.png` (1024, transparent; the page must have no scrollbars or they are captured) and runs
+  `pnpm tauri icon` (don't pipe its output through `Select-Object -First`: that kills it part way).
+- **Window previews** (WindowsFlyout): one window shows its title once (header) and a full-width close bar under the
+  picture; several show the app name and each window's title over its picture. No `title` attributes anywhere in it:
+  the DWM thumbnail is drawn over the page, so a tooltip comes up behind it and sticks (`previews.mjs`).
+- **Spelling**: "color" throughout code and UI (renamed from "colour" in October 2026; section id `color`).
 - **Hover effect** (`appearance.hoverEffect`: magnify | lift | glow | none → `html[data-hover-fx]`, global.css)
   applies to `.mb-menu-item`, `.aero-menu-item`, `.cc-card`. The rules sit under `html` so they outrank each item's
   own later `transition`.
 - **Settling glass is sticky** (BackdropLayer `landed`): a `settle` surface's glass, once in, follows it until `data-leaving` (or it can't be seen), including through opacity/scale exits; before, the last hair of a spring broke "still" and the glass went away and came back (every menu: `false > true > false > true`, checked in `backdrop.mjs`). Surfaces whose exit is a shape the glass can't take must set `data-leaving`.
-- **Stretch with speed** (`dock.markStretch`, `useStretch` in FocusMarks): during a layout animation (`onLayoutAnimationStart`/`Complete`) a rAF reads the mark's on-screen centre, derives smoothed speed, and sets `--stretch-x`/`--stretch-y` on it; the look is drawn on `.dock-mark::before` (colours via `--mark-fill`/`--mark-shadow`, which clear.css overrides), scaled by those vars. Never put the stretch on the mark's own transform (motion `scaleX`): shared-`layoutId` handoffs blend transform values between the old and new mark and it blew up to 10×+. The first reading is taken on the first frame, not at start (the box is still at the destination then, which reads as a leap). The `::before` radius is pre-divided by the stretch so ends stay round.
+- **Stretch with speed** (`dock.markStretch`, `useStretch` in FocusMarks): during a layout animation (`onLayoutAnimationStart`/`Complete`) a rAF reads the mark's on-screen centre, derives smoothed speed, and sets `--stretch-x`/`--stretch-y` on it; the look is drawn on `.dock-mark::before` (colors via `--mark-fill`/`--mark-shadow`, which clear.css overrides), scaled by those vars. Never put the stretch on the mark's own transform (motion `scaleX`): shared-`layoutId` handoffs blend transform values between the old and new mark and it blew up to 10×+. The first reading is taken on the first frame, not at start (the box is still at the destination then, which reads as a leap). The `::before` radius is pre-divided by the stretch so ends stay round.
 - **Mark track** (`.dock-mark-track`, DockIcon): the marks sit in a span whose transform is the exact inverse of the button's launch/attention lift (`-y / squashY`) and squash (`1 / squash`), so they stay level while the icon jumps. Declared after `squashX`/`squashY` (TDZ). The halo (`dock.runningCue = halo`) gets its own track drawn *before* `.dock-icon-mag` so it glows from behind the icon; `dots` (faint marks) and the marks share the one after. `--mark-glow` (rgb triplet) on the track; the clear surface swaps in `--clear-glow`. `dim` puts `data-idle` on non-running buttons.
 - **Auto-hide zone** (`inDockZone`, DockBar): `pointerInside` counts only from the screen edge to the bar / swollen icons (`.dock-icon-mag` rects, live, so it shrinks as the bar slides away) plus `DOCK_ZONE_BUFFER` (14 px), never less than `REVEAL_STRIP`. The viewport is far taller than the bar (magnification, menus); counting all of it kept a hiding dock coming back. Dragging and auto-hide off count everywhere. Menus/previews keep it up via `menuOpen`. `scripts/offscreen/dockhide.mjs`.
 - **Dock tint**: `--dock-tint` on `.dock-viewport` (0-1.5; or the menu bar's Tint scaled 0.5/0.34 with `tintLikeMenuBar`); clear.css scales the veil, global.css `.glass` mixes each gradient stop (`color-mix`, capped at 100%, a no-op at 1).

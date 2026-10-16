@@ -54,7 +54,7 @@ pub async fn resolve_icons(
     tint: Option<String>,
 ) -> AeroResult<HashMap<String, String>> {
     let cache_dir = crate::core::paths::data_dir(&app)?.join("icons");
-    // the look the icons are asked for in (none for plain), and the colour of the tinted one
+    // the look the icons are asked for in (none for plain), and the color of the tinted one
     let look = style.as_deref().and_then(crate::core::glassicon::Style::parse);
     let tint = tint.as_deref().and_then(crate::core::glassicon::parse_hex).unwrap_or([0x2f, 0x9d, 0xe3]);
     tauri::async_runtime::spawn_blocking(move || {

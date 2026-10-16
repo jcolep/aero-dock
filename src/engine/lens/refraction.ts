@@ -1,7 +1,7 @@
 /**
  * What a gliding lens does to what is under it: bend it. One filter for every size
  * the lens takes, because the displacement map stretches with the lens (so the warp
- * stretches with the blob), then a touch of brightness and colour, as light through
+ * stretches with the blob), then a touch of brightness and color, as light through
  * glass has. The menu bar's lens uses the same recipe (see `menubar/Lens.tsx`).
  */
 

@@ -26,7 +26,7 @@ export interface GlassOptions {
   depth: number;
   /** Displacement distance in pixels at the edge. */
   strength: number;
-  /** Splits the channels slightly, the way thick glass fringes colour. */
+  /** Splits the channels slightly, the way thick glass fringes color. */
   chromaticAberration: number;
   /** The map is drawn at width by height but stretched to whatever size the
    *  element is, instead of being fixed to it. For a surface that changes size
@@ -75,7 +75,7 @@ const MAX_CACHED = 48;
 
 /**
  * A `url(...)` value for `backdrop-filter`. Three displacement passes at
- * slightly different strengths, recombined per channel, give the colour
+ * slightly different strengths, recombined per channel, give the color
  * fringing real glass has at its edges.
  */
 export function displacementFilter(options: GlassOptions): string {

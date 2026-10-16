@@ -118,9 +118,15 @@
   pointer-events: none;
 }
 
+/* the little menu bar's drop (Droplet) */
 .anim-orb {
-  width: 9px;
-  height: 9px;
+  display: block;
+  flex: none;
+}
+
+/* the media pill's little cover */
+.anim-art {
+  display: block;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #fff, var(--aero-accent));
 }

@@ -32,7 +32,7 @@ export function StripScene({ settings, width, height, className = "mb-fx", style
   const kind = settings.appearance.scene;
   const density = settings.appearance.particleDensity;
   const speed = settings.appearance.animationSpeed;
-  // The strip's body is the theme's colour, so specks in that colour would be
+  // The strip's body is the theme's color, so specks in that color would be
   // lost against it. They are drawn lighter, the way light looks on glass.
   const { accent, theme } = settings.appearance;
   const tint = useMemo(

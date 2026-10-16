@@ -225,7 +225,7 @@
 }
 
 /* The focus mark (Settings > Dock > Running apps: one mark under the app in front, FocusMarks.tsx): a pill or the
-   glowing dot, in the dots' colours, and its ghost, an outline, under the app the pointer is on. Centred with a margin,
+   glowing dot, in the dots' colors, and its ghost, an outline, under the app the pointer is on. Centred with a margin,
    not a transform: the animation library owns the transform, to carry the mark from icon to icon. */
 .dock-mark {
   --mark-w: max(14px, calc(var(--icon-size) * 0.34));
@@ -276,7 +276,7 @@
 }
 
 /* The other running apps, with the focus mark: a faint mark of the same shape in the same place, glowing low, which
-   the mark glides over and lights up. A frosted sliver of the mark's colour, so it reads as the same family. */
+   the mark glides over and lights up. A frosted sliver of the mark's color, so it reads as the same family. */
 .dock-mark-trace {
   --mark-w: max(14px, calc(var(--icon-size) * 0.34));
   --mark-h: 5px;
@@ -773,7 +773,7 @@
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.34);
   /* tinted glass with a light symbol, as the menu bar's icons are: the theme's
-     colour as the body, a soft light from above, a hairline of light on the
+     color as the body, a soft light from above, a hairline of light on the
      rim, and a shadow that is more air than edge */
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05) 55%, rgba(255, 255, 255, 0.12)),

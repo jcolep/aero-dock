@@ -41,9 +41,9 @@ function openSettingsPage(uri: string): void {
   ipc.launch(uri).catch(notify.on("Could not open that settings page"));
 }
 
-/** The variables that give a tile's circle the colour chosen for it in
+/** The variables that give a tile's circle the color chosen for it in
  *  settings, or nothing at all to leave it the theme's. The symbol stays the
- *  light one the rest of the bar uses, whatever the colour. */
+ *  light one the rest of the bar uses, whatever the color. */
 function bubbleStyle(color: string | undefined): React.CSSProperties | undefined {
   const hex = normalizeHex(color ?? "");
   if (!hex) return undefined;

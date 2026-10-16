@@ -98,10 +98,10 @@ Its last release was 2008.
 **Appearance**
 
 - Six themes: Aero, Ocean, Forest, Aurora, Sunset, Night
-- Two glass materials for the dock: Liquid, the theme's colour as a thin
+- Two glass materials for the dock: Liquid, the theme's color as a thin
   lens with light at its rim, and Clear, neutral glass with a bright edge.
   The settings window is night glass
-- Optional wallpaper colour sync
+- Optional wallpaper color sync
 - Ambient scenes behind the dock: dust, rain, snow, bubbles, aurora
 - Sliders for glass, bloom, reflections, particles, opacity, speed
 - Honours `prefers-reduced-motion`

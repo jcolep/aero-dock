@@ -30,6 +30,7 @@ import { AeroSegmented, AeroSlider, AeroToggle } from "./controls";
 import { SettingsNav } from "./SettingsNav";
 import { SettingsNoMatch, SettingsSection, SettingsSub } from "./SettingsSection";
 import { SectionIcon } from "./SectionIcon";
+import { Droplet } from "../../engine/brand/droplet";
 import { ALL_SECTIONS, matches, sectionById } from "./sections";
 import { useSettingsUi, type SidebarMode } from "./useSettingsUi";
 import "./settings.css";
@@ -118,13 +119,13 @@ export function SettingsApp() {
       <div className="settings-root settings-root-centered" ref={rootRef}>
         {hydrateFailed ? (
           <div className="settings-splash">
-            <span className="settings-orb" aria-hidden />
+            <Droplet size={60} shadow className="settings-orb" />
             <p>Liquidock could not read its settings.</p>
             <p className="settings-splash-hint">Close this window and restart Liquidock from the tray icon.</p>
           </div>
         ) : (
           <div className="settings-splash">
-            <span className="settings-orb settings-orb-pulse" aria-hidden />
+            <Droplet size={60} shadow className="settings-orb settings-orb-pulse" />
             <p>Loading your dock…</p>
           </div>
         )}
@@ -214,15 +215,15 @@ export function SettingsApp() {
           <div className="pane-body" key={query ? "search" : active}>
             {/* ---- Look & feel ---- */}
 
-            <SettingsSection id="colour">
+            <SettingsSection id="color">
               <ColorSpectrum
                 value={themeColor}
                 onChange={(hex) =>
                   set((d) => {
                     d.appearance.accent = hex;
-                    // With "tint from wallpaper" on, the wallpaper's colour is
+                    // With "tint from wallpaper" on, the wallpaper's color is
                     // used in place of this one, which would make the picker
-                    // look broken. Choosing a colour is choosing it over that.
+                    // look broken. Choosing a color is choosing it over that.
                     d.appearance.wallpaperSync = false;
                   })
                 }
@@ -230,15 +231,15 @@ export function SettingsApp() {
               <AeroToggle
                 label="Tint from wallpaper"
                 checked={appearance.wallpaperSync}
-                hint="Take the colour from your wallpaper instead. Picking a colour above turns this off"
+                hint="Take the color from your wallpaper instead. Picking a color above turns this off"
                 onChange={(v) => set((d) => void (d.appearance.wallpaperSync = v))}
               />
-              <p className="settings-note">Everything is tinted from one colour. A dark one makes dark glass with light text; a pale or bright one, light glass.</p>
+              <p className="settings-note">Everything is tinted from one color. A dark one makes dark glass with light text; a pale or bright one, light glass.</p>
 
               <SettingsSub>Materials</SettingsSub>
               <AeroSegmented<SurfaceStyle>
                 label="Dock material"
-                hint="Liquid carries the colour as a thin lens with light at its rim. Clear is neutral glass with a bright edge"
+                hint="Liquid carries the color as a thin lens with light at its rim. Clear is neutral glass with a bright edge"
                 value={appearance.dockSurface}
                 options={[
                   { value: "liquid", label: "Liquid" },
@@ -248,7 +249,7 @@ export function SettingsApp() {
               />
               <AeroSegmented<IconStyle>
                 label="App icons"
-                hint="In the dock and the Start menu. Glass adds a body of glass; Clear leaves a frosted shape; Tinted is that in your colour"
+                hint="In the dock and the Start menu. Glass adds a body of glass; Clear leaves a frosted shape; Tinted is that in your color"
                 value={appearance.iconStyle}
                 options={[
                   { value: "plain", label: "Plain" },
@@ -653,9 +654,9 @@ export function SettingsApp() {
                 <AeroSlider label="Corner radius" value={dock.cornerRadius} min={0} max={48} step={1} format={pxFmt} onChange={(v) => set((d) => void (d.dock.cornerRadius = v))} />
               )}
               <AeroToggle
-                label="Tinted with the theme colour"
+                label="Tinted with the theme color"
                 checked={dock.tintWithTheme}
-                hint="The dock's glass takes the colour from Colour & materials. Off, it is plain glass"
+                hint="The dock's glass takes the color from Color & materials. Off, it is plain glass"
                 onChange={(v) => set((d) => void (d.dock.tintWithTheme = v))}
               />
               {dock.tintWithTheme && (
@@ -851,7 +852,7 @@ export function SettingsApp() {
                   <BubbleColor label="Wi-Fi circle" value={settings.menuBar.wifiColor} themeColor={themeColor} onChange={(hex) => set((d) => void (d.menuBar.wifiColor = hex))} />
                   <BubbleColor label="Bluetooth circle" value={settings.menuBar.bluetoothColor} themeColor={themeColor} onChange={(hex) => set((d) => void (d.menuBar.bluetoothColor = hex))} />
                   <AeroToggle
-                    label="Now Playing takes its colours from the cover"
+                    label="Now Playing takes its colors from the cover"
                     checked={settings.menuBar.mediaTint}
                     hint="Tinted with the album art, or a video's thumbnail from a browser"
                     onChange={(v) => set((d) => void (d.menuBar.mediaTint = v))}
@@ -1112,7 +1113,7 @@ export function SettingsApp() {
 
             <SettingsSection id="support" className="settings-support">
               <div className="settings-support-card">
-                <span className="settings-orb" aria-hidden />
+                <Droplet size={56} shadow className="settings-orb" />
                 <p>Liquidock is free and independently made. If you enjoy it, you can help keep it going.</p>
                 <button className="settings-support-cta" onClick={() => void openLink(KOFI_URL)}>
                   Support on Ko-fi <span aria-hidden>&rarr;</span>

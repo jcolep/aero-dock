@@ -9,7 +9,7 @@
 //! Each piece is a layered window the size of its corner (a few dozen pixels square), always on top, that takes no
 //! clicks and no focus, painted with `UpdateLayeredWindow` from a bitmap drawn here pixel by pixel. Showing, moving
 //! and repainting one is immediate: nothing has to wake up and render first. A piece is drawn again only when what
-//! it shows changes (the opening, the radius, the glass's colour, the wallpaper).
+//! it shows changes (the opening, the radius, the glass's color, the wallpaper).
 //!
 //! `render` is the drawing, and has no part in windows: it is what the tests look at.
 
@@ -47,14 +47,14 @@ const EDGE: ([f32; 3], f32) = ([4.0 / 255.0, 16.0 / 255.0, 32.0 / 255.0], 0.4);
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Look {
     /// The margin's glass, straight (not premultiplied) RGBA, 0 to 1. `None` until the page has said: a piece is then
-    /// drawn in the margin's colour as read off the screen, glass and all.
+    /// drawn in the margin's color as read off the screen, glass and all.
     pub glass: Option<[f32; 4]>,
     /// The glass border's width in pixels (0 when it is off).
     pub border: f32,
 }
 
 /// What is under one corner piece: the wallpaper (seen through the glass), or, where it could not be had or does not
-/// line up with the margin, the margin's own colour as seen beside the corner.
+/// line up with the margin, the margin's own color as seen beside the corner.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Ground {
     /// The wallpaper under the piece, `size` by `size`, RGB rows from the piece's top left.
@@ -117,9 +117,9 @@ fn bevel_alpha(y: f32, top: f32, height: f32) -> f32 {
     BEVEL[BEVEL.len() - 1].1
 }
 
-fn over(under: [f32; 3], colour: [f32; 3], alpha: f32) -> [f32; 3] {
+fn over(under: [f32; 3], color: [f32; 3], alpha: f32) -> [f32; 3] {
     let a = alpha.clamp(0.0, 1.0);
-    [under[0] + (colour[0] - under[0]) * a, under[1] + (colour[1] - under[1]) * a, under[2] + (colour[2] - under[2]) * a]
+    [under[0] + (color[0] - under[0]) * a, under[1] + (color[1] - under[1]) * a, under[2] + (color[2] - under[2]) * a]
 }
 
 /// Draw one piece: `size` by `size` pixels, premultiplied BGRA rows from the top left, as `UpdateLayeredWindow` takes
@@ -150,7 +150,7 @@ pub fn render(piece: &Piece, ground: &Ground, look: &Look) -> Vec<u8> {
                 }
                 Ground::Flat(p) => [p[0] as f32 / 255.0, p[1] as f32 / 255.0, p[2] as f32 / 255.0],
             };
-            // the glass over the wallpaper (a flat colour was read with the glass already over it)
+            // the glass over the wallpaper (a flat color was read with the glass already over it)
             if let (Ground::Wallpaper(_), Some(g)) = (ground, look.glass) {
                 c = over(c, [g[0], g[1], g[2]], g[3]);
             }
@@ -174,8 +174,8 @@ pub fn render(piece: &Piece, ground: &Ground, look: &Look) -> Vec<u8> {
     out
 }
 
-/// The colour a page gives for the glass (`rgba(r, g, b, a)` or `rgb(r, g, b)`), as straight RGBA from 0 to 1.
-pub fn parse_css_colour(s: &str) -> Option<[f32; 4]> {
+/// The color a page gives for the glass (`rgba(r, g, b, a)` or `rgb(r, g, b)`), as straight RGBA from 0 to 1.
+pub fn parse_css_color(s: &str) -> Option<[f32; 4]> {
     let inner = s.trim().strip_prefix("rgba(").or_else(|| s.trim().strip_prefix("rgb("))?.strip_suffix(')')?;
     let parts: Vec<f32> = inner.split(',').map(|p| p.trim().parse::<f32>()).collect::<Result<_, _>>().ok()?;
     match parts.as_slice() {
@@ -396,14 +396,14 @@ mod tests {
     }
 
     #[test]
-    fn the_glass_is_laid_over_the_wallpaper_and_a_flat_colour_is_left_as_it_is() {
+    fn the_glass_is_laid_over_the_wallpaper_and_a_flat_color_is_left_as_it_is() {
         let p = piece(0);
         let white = Ground::Wallpaper(vec![[255, 255, 255]; 14 * 14]);
         let img = render(&p, &white, &Look { glass: Some([0.0, 0.0, 0.0, 0.5]), border: 0.0 });
         // white wallpaper through half-black glass: mid grey
         let c = at(&p, &img, 10, 44);
         assert!((c[0] as i32 - 128).abs() <= 1 && c[3] == 255, "{c:?}");
-        // a flat colour already has the glass in it
+        // a flat color already has the glass in it
         let flat = render(&p, &Ground::Flat([200, 100, 50]), &Look { glass: Some([0.0, 0.0, 0.0, 0.5]), border: 0.0 });
         assert_eq!(at(&p, &flat, 10, 44), [50, 100, 200, 255]);
     }
@@ -421,10 +421,10 @@ mod tests {
     }
 
     #[test]
-    fn a_page_colour_is_read() {
-        assert_eq!(parse_css_colour("rgba(255, 0, 51, 0.5)"), Some([1.0, 0.0, 0.2, 0.5]));
-        assert_eq!(parse_css_colour("rgb(0, 0, 0)"), Some([0.0, 0.0, 0.0, 1.0]));
-        assert_eq!(parse_css_colour("none"), None);
+    fn a_page_color_is_read() {
+        assert_eq!(parse_css_color("rgba(255, 0, 51, 0.5)"), Some([1.0, 0.0, 0.2, 0.5]));
+        assert_eq!(parse_css_color("rgb(0, 0, 0)"), Some([0.0, 0.0, 0.0, 1.0]));
+        assert_eq!(parse_css_color("none"), None);
     }
 
     #[test]

@@ -4,7 +4,7 @@
  * Round glass buttons with a single clean symbol on them, after Apple's:
  * a magnifying glass and a gear, drawn in one weight with round ends. The
  * symbol is the light one the menu bar's icons use, on glass tinted with the
- * theme's colour, with a soft shadow that lifts it off the glass.
+ * theme's color, with a soft shadow that lifts it off the glass.
  */
 
 import type { ReactNode } from "react";

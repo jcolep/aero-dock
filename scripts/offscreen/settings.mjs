@@ -34,7 +34,7 @@ const settings = (s) => {
     check(items.length === 15 && items.includes("General") && items.includes("Support Liquidock"), `the sidebar lists every section (${items.length})`);
     check((await q("document.querySelectorAll('.sb-item .section-icon').length")) === 15, "each with its icon");
     check((await q("document.querySelector('.sb-name').textContent")) === "Liquidock", "under the app's name, Liquidock");
-    check((await q("document.querySelectorAll('[data-section]').length")) === 1 && (await q("document.querySelector('.pane-title h1').textContent")) === "Colour & materials", "one section shown at a time, the first to begin with");
+    check((await q("document.querySelectorAll('[data-section]').length")) === 1 && (await q("document.querySelector('.pane-title h1').textContent")) === "Color & materials", "one section shown at a time, the first to begin with");
     check((await q("getComputedStyle(document.querySelector('.sb')).position")) !== "absolute", "wide, the sidebar stands beside the page");
     shots.wide = await h.shot(0, 0, 1100, 760);
 
@@ -113,7 +113,7 @@ const settings = (s) => {
 }
 
 // every section, at every size: nothing spills sideways, and a narrow window slides the sidebar away
-const sections = ["colour", "glass", "animations", "dock", "dock-items", "modes", "audio", "menubar", "start", "frame", "widgets", "accessibility", "behavior", "support", "about"];
+const sections = ["color", "glass", "animations", "dock", "dock-items", "modes", "audio", "menubar", "start", "frame", "widgets", "accessibility", "behavior", "support", "about"];
 for (const [w, hgt] of [[1280, 800], [900, 700], [620, 700], [340, 640]]) {
   const h = await startHarness({ out, window: "settings", viewport: [w, hgt], settings });
   try {

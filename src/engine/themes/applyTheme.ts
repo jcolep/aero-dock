@@ -1,5 +1,5 @@
 /**
- * Theme applier: projects settings (the accent colour + numeric appearance)
+ * Theme applier: projects settings (the accent color + numeric appearance)
  * onto CSS custom properties. Components never read settings for
  * styling — they read tokens.
  */
@@ -29,9 +29,9 @@ function dockDropShadow(strength: number): string {
 export type SurfaceTarget = "dock" | "settings";
 
 /**
- * The colour everything is derived from: the one picked in settings, or for
+ * The color everything is derived from: the one picked in settings, or for
  * settings saved before the picker existed, where their old theme started.
- * With "tint from wallpaper" on, the wallpaper's colour is used in its place.
+ * With "tint from wallpaper" on, the wallpaper's color is used in its place.
  */
 export function effectiveAccent(settings: Settings, wallpaperAccent?: string | null): string {
   const a = settings.appearance;
@@ -41,7 +41,7 @@ export function effectiveAccent(settings: Settings, wallpaperAccent?: string | n
 }
 
 /**
- * The colour ambient effects are drawn in, as `0xrrggbb`: the bloom colour of
+ * The color ambient effects are drawn in, as `0xrrggbb`: the bloom color of
  * the current look. Worked out from settings rather than read back from the
  * page, so it is right on the first render, before the tokens are applied.
  */
@@ -92,7 +92,7 @@ export function applyAppearance(
   // The material is an attribute rather than a token because it swaps a
   // whole block of tokens at once, plus the shape of the gloss layer.
   // the settings window is always the clear glass over a dark ground (settings.css); everything else wears the dock's
-  // material (an old "aero" still met here is drawn as liquid, which kept its colours)
+  // material (an old "aero" still met here is drawn as liquid, which kept its colors)
   document.documentElement.dataset.surface = target === "settings" ? "clear" : a.dockSurface === "clear" ? "clear" : "liquid";
   // The two windows composite differently, so a material has to know
   // which one it is in. See surfaces.css for why that matters.
@@ -120,7 +120,7 @@ export function applyAppearance(
     root.setProperty(token, value);
   }
 
-  // the colours of a symbol in the tinted look: the theme's colour, pale and deep
+  // the colors of a symbol in the tinted look: the theme's color, pale and deep
   const glyphAccent = effectiveAccent(settings, wallpaperAccent);
   root.setProperty("--glyph-tint", `color-mix(in srgb, ${glyphAccent} 46%, #ffffff)`);
   root.setProperty("--glyph-tint-deep", `color-mix(in srgb, ${glyphAccent} 72%, #06142a)`);

@@ -52,7 +52,7 @@ interface Box {
 
 interface EffectsLayerProps {
   settings: Settings;
-  /** The wallpaper's colour, when the dock is tinted from it. */
+  /** The wallpaper's color, when the dock is tinted from it. */
   wallpaperAccent: string | null;
 }
 
@@ -66,7 +66,7 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
   const speed = settings.appearance.animationSpeed;
   const bloom = settings.appearance.bloomAmount;
   const band = dockBandSize(settings.dock);
-  // only the colour settings change it, and this renders on every running-app
+  // only the color settings change it, and this renders on every running-app
   // update, so it is not worked out afresh each time
   const { accent, theme, wallpaperSync } = settings.appearance;
   const tint = useMemo(
@@ -167,7 +167,7 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
 
   // ---- the ambient scene ----
   // It lives in the dock band, pinned to the dock's edge. Rebuilt when the
-  // scene, its density, its colour, or the band changes.
+  // scene, its density, its color, or the band changes.
   const awake = !asleep && !dockHidden;
   const awakeRef = useRef(awake);
   awakeRef.current = awake;

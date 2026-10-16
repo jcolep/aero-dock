@@ -4,10 +4,10 @@
  * This is a window of its own, as large as the free space, kept behind every
  * ordinary window, with Rust clipping it to the margin so the opening in the
  * middle neither draws nor takes clicks (see commands/frame.rs). What is drawn
- * here is the glass: the theme's colour as a flat translucent body, exactly the
+ * here is the glass: the theme's color as a flat translucent body, exactly the
  * menu bar's, and the ambient scene in the four bands of the margin, as in the
  * menu bar. The pieces laid over a maximised app's corners are drawn natively
- * (platform/windows/corners.rs); this page tells them what colour its glass is.
+ * (platform/windows/corners.rs); this page tells them what color its glass is.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -56,13 +56,13 @@ export function FrameApp() {
     hydrate();
   }, [hydrate]);
 
-  // the same colours and material as the dock
+  // the same colors and material as the dock
   useEffect(() => {
     if (settings) applyAppearance(settings, null, "dock");
   }, [settings]);
 
   // the corner pieces lay this same glass over the wallpaper, so they are told what it is: what the stylesheet makes
-  // of the theme's colour and the tint, as drawn (Rust ignores a repeat)
+  // of the theme's color and the tint, as drawn (Rust ignores a repeat)
   const glass = useRef<SVGPathElement>(null);
   useEffect(() => {
     const fill = glass.current && getComputedStyle(glass.current).fill;
@@ -82,7 +82,7 @@ export function FrameApp() {
       className="frame-root"
       style={{ ["--frame-tint" as string]: f.tint * settings.menuBar.tint } as React.CSSProperties}
     >
-      {/* flat, as the menu bar's body is: the same colour at the same strength,
+      {/* flat, as the menu bar's body is: the same color at the same strength,
           so the two read as one material */}
       <svg className="frame-body" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
         <path ref={glass} className="frame-glass" d={ringPath(shape)} fillRule="evenodd" />

@@ -678,7 +678,7 @@ pub fn restore(hwnd: isize, target: Area, requested: Effect) -> bool {
 mod tests {
     use super::*;
 
-    /// A picture whose rows are told apart by colour: row r is (r, r, r, 255).
+    /// A picture whose rows are told apart by color: row r is (r, r, r, 255).
     fn striped(w: usize, h: usize) -> Frame {
         let mut px = Vec::with_capacity(w * h * 4);
         for r in 0..h {
@@ -706,7 +706,7 @@ mod tests {
         let (mut buf, stride) = buffer(&from, &to);
         let placed = render(&frame, &from, &to, 0.0, Effect::Genie, &mut buf, stride).expect("something to draw");
         assert_eq!((placed.x, placed.y, placed.w, placed.h), (100, 50, 200, 120));
-        // every pixel is the window's own: row r is the colour r
+        // every pixel is the window's own: row r is the color r
         for r in 0..120 {
             let px = &buf[r * stride..r * stride + 4];
             assert_eq!(px, &[r as u8, r as u8, r as u8, 255], "row {r}");
@@ -830,7 +830,7 @@ mod tests {
         }
         let mut whole = RECT::default();
         unsafe { GetWindowRect(hwnd, &mut whole).expect("its rectangle") };
-        // an empty STATIC window is painted in the system's window colour, which
+        // an empty STATIC window is painted in the system's window color, which
         // is not black, so a good photograph is not mistaken for a failed one
         let frame = capture(hwnd, whole);
         unsafe {

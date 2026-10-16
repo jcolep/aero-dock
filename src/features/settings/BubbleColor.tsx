@@ -1,6 +1,6 @@
 /**
- * Choosing the colour of one of the Control Center's circles: a row of colours
- * to pick from, "Theme" to follow the theme's own, and a custom colour from the
+ * Choosing the color of one of the Control Center's circles: a row of colors
+ * to pick from, "Theme" to follow the theme's own, and a custom color from the
  * full spectrum for anything else.
  */
 
@@ -9,7 +9,7 @@ import { normalizeHex } from "../../engine/themes/accent";
 import { ColorSpectrum } from "./ColorSpectrum";
 import "./bubblecolor.css";
 
-/** The colours offered at a click: the system colours Apple's controls use. */
+/** The colors offered at a click: the system colors Apple's controls use. */
 const SWATCHES: { name: string; hex: string }[] = [
   { name: "Blue", hex: "#0a84ff" },
   { name: "Teal", hex: "#30b0c7" },
@@ -25,7 +25,7 @@ const SWATCHES: { name: string; hex: string }[] = [
 
 interface BubbleColorProps {
   label: string;
-  /** `#rrggbb`, or "" for the theme's colour. */
+  /** `#rrggbb`, or "" for the theme's color. */
   value: string;
   /** What "Theme" looks like, to draw its swatch. */
   themeColor: string;
@@ -77,8 +77,8 @@ export function BubbleColor({ label, value, themeColor, onChange }: BubbleColorP
             type="button"
             role="radio"
             aria-checked={chosen !== "" && !isPreset}
-            aria-label="Choose a colour"
-            title="Any colour…"
+            aria-label="Choose a color"
+            title="Any color…"
             className="bubble-swatch bubble-swatch-custom"
             data-on={chosen !== "" && !isPreset}
             style={chosen !== "" && !isPreset ? ({ ["--swatch" as string]: chosen } as React.CSSProperties) : undefined}

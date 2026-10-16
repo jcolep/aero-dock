@@ -6,13 +6,13 @@
  * when they are not lit instead of being left out, so a glyph keeps its shape
  * as its state changes.
  *
- * All are 24 by 24, take their colour from the theme's glyph tokens so every
+ * All are 24 by 24, take their color from the theme's glyph tokens so every
  * theme stays legible, and are sized by the stylesheet that places them.
  */
 
 import type { BluetoothDevice, SystemStatus } from "../../ipc/types";
 
-/** Ink and warning colours come from theme tokens. */
+/** Ink and warning colors come from theme tokens. */
 const GLYPH = "var(--aero-glyph)";
 const ALERT = "var(--aero-glyph-alert)";
 /** What an unlit part of a glyph is drawn at. */

@@ -38,7 +38,7 @@
   --glass-border: rgba(255, 255, 255, 0.5);
   --glass-border-dark: rgba(190, 230, 255, 0.22);
 
-  /* Thin glass blurs more than thick glass, but it must not push colour
+  /* Thin glass blurs more than thick glass, but it must not push color
      harder: over a blue sky a big saturate just makes denser blue, which
      reads as a heavier slab. Lightness is what sells a lens, so the
      saturation comes down and the brightness goes up instead. */

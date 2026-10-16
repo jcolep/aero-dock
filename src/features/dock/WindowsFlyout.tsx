@@ -161,11 +161,13 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
 
   const cols = Math.min(windows.length, COLS_MAX);
   const flyoutWidth = cols * (SLOT_W + 10) + 18;
+  const single = windows.length === 1;
 
-  // rows of previews, capped by COLS_MAX -> approximate height for clamping
+  // rows of previews, capped by COLS_MAX -> approximate height for clamping (a picture, its close bar, and with
+  // several windows the title over each)
   const rows = Math.ceil(windows.length / COLS_MAX);
   const style = anchor
-    ? flyoutStyle(edge, anchor, flyoutWidth, 14, rows * (SLOT_H + 26) + 30)
+    ? flyoutStyle(edge, anchor, flyoutWidth, 14, rows * (SLOT_H + 34 + (single ? 0 : 18)) + 30)
     : {};
   const pm = usePanelMotion(edge);
 
@@ -183,7 +185,8 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
           onMouseLeave={() => useMenu.getState().scheduleClose(350)}
         >
           <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
-          <div className="windows-flyout-title">{item.name}</div>
+          {/* one window: its title, once, at the top; several: the app's name, and each window's title over its picture */}
+          <div className="windows-flyout-title">{single ? (windows[0].title || item.name) : item.name}</div>
           <div
             className="windows-flyout-grid"
             style={{ gridTemplateColumns: `repeat(${cols}, ${SLOT_W}px)` }}
@@ -196,9 +199,13 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
                 onMouseEnter={() => peek(w.hwnd)}
                 onMouseLeave={() => peek(null)}
               >
+                {!single && <span className="windows-preview-title">{w.title || item.name}</span>}
+                {/* No hover titles here: the live picture is drawn by Windows over the page, so a tooltip from
+                    the picture or the button under it came up behind the picture and stayed there. */}
                 <div
                   className="windows-preview-frame"
                   style={{ height: SLOT_H }}
+                  aria-label={w.title}
                   ref={(el) => {
                     if (el) slotRefs.current.set(w.hwnd, el);
                     else slotRefs.current.delete(w.hwnd);
@@ -207,18 +214,17 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
                     ipc.activateWindow(w.hwnd).catch(notify.on("Could not focus that window"));
                     close();
                   }}
-                  title={w.title}
                 />
-                <div className="windows-preview-caption">
-                  <span className="windows-preview-title">{w.title}</span>
-                  <button
-                    className="windows-flyout-close"
-                    title="Close window"
-                    onClick={() => ipc.closeWindow(w.hwnd).catch(notify.on("Could not close that window"))}
-                  >
-                    ✕
-                  </button>
-                </div>
+                <button
+                  className="windows-flyout-close"
+                  aria-label={`Close ${w.title || item.name}`}
+                  onClick={() => ipc.closeWindow(w.hwnd).catch(notify.on("Could not close that window"))}
+                >
+                  <svg viewBox="0 0 12 12" aria-hidden>
+                    <path d="m3 3 6 6M9 3 3 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  </svg>
+                  <span>Close</span>
+                </button>
               </div>
             ))}
           </div>

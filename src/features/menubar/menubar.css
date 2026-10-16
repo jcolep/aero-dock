@@ -1,20 +1,20 @@
 /* The menu bar. The window is much taller than the strip and Rust clips all
    of it but the strip until a menu is open, so everything here is laid out
-   from the top of the window. Colours come from the dock's own tokens
+   from the top of the window. Colors come from the dock's own tokens
    (--clear-tint, --aero-accent and friends), so the bar, its menus and the
-   Control Center all follow the colour picked in settings.
+   Control Center all follow the color picked in settings.
 
    The look is tunable from settings through a few variables set on the root:
      --menubar-height  height of the bar
      --mb-gap          space between the bar and the screen's top and sides
      --mb-radius       corner radius
-     --mb-tint         how strongly the theme colour tints the bar (1 = default)
+     --mb-tint         how strongly the theme color tints the bar (1 = default)
      --mb-spacing      space between items
      --mb-font         text size */
 
 .menubar-root {
   --mb-hover: color-mix(in srgb, var(--aero-accent) 55%, rgba(255, 255, 255, 0.22));
-  /* The body of menus and panels: the theme colour, pulled toward a deep
+  /* The body of menus and panels: the theme color, pulled toward a deep
      blue-black so white text stays readable whatever was picked and whatever
      is behind the window, then made a little see-through. */
   --mb-surface: color-mix(in srgb, rgb(var(--clear-tint)) 52%, rgb(9 13 22));
@@ -45,7 +45,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 8px;
-  /* the picked colour, flat: the same idea as the dock's glass body. In a variable so that, with a picture of
+  /* the picked color, flat: the same idea as the dock's glass body. In a variable so that, with a picture of
      the desktop under the bar (BackdropLayer), it is drawn over the picture */
   --bd-tint: rgba(var(--clear-tint), calc(0.5 * var(--clear-strength) * var(--mb-tint, 1)));
   background: var(--bd-tint);
@@ -191,10 +191,12 @@ html[data-pointer-light="on"] .menubar:hover::before {
   background: radial-gradient(120% 140% at 14% -12%, rgba(255, 255, 255, 0.3), transparent 55%);
 }
 
+/* Liquidock's drop, in the theme's color (Droplet) */
 .mb-logo {
-  /* the orb takes the colour of the theme */
-  color: var(--aero-accent);
   padding: 0 10px;
+}
+.mb-logo svg {
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.35));
 }
 
 .mb-app {
@@ -214,7 +216,7 @@ html[data-pointer-light="on"] .menubar:hover::before {
 /* ---- glass for menus and panels ---- */
 
 /* A dropdown and the Control Center are drawn as one material: the theme's
-   colour as a deep, slightly see-through body, a soft sheen across the top,
+   color as a deep, slightly see-through body, a soft sheen across the top,
    a glow in one corner, and a rim that is bright where the light catches it
    and faint elsewhere. Nothing here blurs what is behind the window (a web
    page cannot see the desktop), so the body does the work of keeping text
@@ -822,7 +824,7 @@ html[data-pointer-light="on"] .menubar:hover::before {
   font: inherit;
   text-align: left;
   cursor: default;
-  /* the colour comes in quickly; the lift settles with a little overshoot */
+  /* the color comes in quickly; the lift settles with a little overshoot */
   transition:
     background-color var(--m-quick) var(--e-out),
     border-color var(--m-quick) var(--e-out),
@@ -830,7 +832,7 @@ html[data-pointer-light="on"] .menubar:hover::before {
     transform var(--m-settle) var(--mb-settle);
 }
 
-/* Hovering a tile floods it with the theme colour and lifts it; pressing it
+/* Hovering a tile floods it with the theme color and lifts it; pressing it
    pushes it back in. */
 .cc-tile:hover {
   background: var(--mb-hover);
@@ -989,8 +991,8 @@ html[data-pointer-light="on"] .menubar:hover::before {
     transform var(--m-settle) var(--mb-settle);
 }
 
-/* --cc-on and --cc-hover are the colours chosen for a circle in settings; left
-   unset it follows the colour of the theme */
+/* --cc-on and --cc-hover are the colors chosen for a circle in settings; left
+   unset it follows the color of the theme */
 .cc-tile-icon[data-on="true"] {
   background: var(--cc-on, color-mix(in srgb, var(--aero-accent) 86%, white));
   box-shadow:
@@ -998,7 +1000,7 @@ html[data-pointer-light="on"] .menubar:hover::before {
     0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-/* The tile is flooded with the theme colour on hover, so the bubble goes
+/* The tile is flooded with the theme color on hover, so the bubble goes
    darker than the tile, with a ring, to stay distinct from it. */
 .cc-tile:hover .cc-tile-icon {
   background: var(--cc-hover, color-mix(in srgb, var(--aero-accent) 72%, black));
@@ -1323,7 +1325,7 @@ html[data-pointer-light="on"] .menubar:hover::before {
   transform: scale(1.08);
 }
 
-/* today is the theme's colour, filled, as the Control Center's circles are */
+/* today is the theme's color, filled, as the Control Center's circles are */
 .cal-day[data-today="true"] {
   background: color-mix(in srgb, var(--aero-accent) 86%, white);
   color: var(--aero-text-on-glass, #fff);

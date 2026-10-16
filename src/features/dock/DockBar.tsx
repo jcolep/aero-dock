@@ -58,7 +58,7 @@ const SATELLITE_ROOM = 60;
 const MODE_TILE_SPACE = 38; // the Modes tile, when Modes is switched on
 const REVEAL_STRIP = 8; // window height while auto-hidden (mouse sensor)
 const DOCK_ZONE_BUFFER = 14;
-/** The dock's glass with the theme colour taken out (Settings > Dock > Tinted with the theme colour, off): the colour
+/** The dock's glass with the theme color taken out (Settings > Dock > Tinted with the theme color, off): the color
  *  tokens of a white pick, which every material reads as plain glass. Only the bar's glass: the marks keep theirs. */
 const NEUTRAL_GLASS = Object.fromEntries(
   Object.entries(tokensFromAccent("#ffffff")).filter(([k]) => /^--(glass-tint|glass-border|clear-)/.test(k)),
@@ -894,8 +894,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       // cascade's icons are timed from these (see dock.css)
       data-anim={animations.dockReveal}
       data-reveal={hidden ? "out" : "in"}
-      // how strongly the theme's colour tints the glass (clear.css, global.css): the dock's own, or the menu bar's put in
-      // the dock's terms (the bar's body is half the colour at its Tint, the dock's a third), so the two match
+      // how strongly the theme's color tints the glass (clear.css, global.css): the dock's own, or the menu bar's put in
+      // the dock's terms (the bar's body is half the color at its Tint, the dock's a third), so the two match
       style={{ ["--dock-tint" as string]: settings.dock.tint ?? 1 } as React.CSSProperties}
       onMouseEnter={(e) => setPointerInside(inDockZone(e))}
       onMouseLeave={() => {

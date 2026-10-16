@@ -23,7 +23,7 @@ import { usePress, useSubpixelBox } from "../../engine/motion/subpixelBox";
 /**
  * What the lens does to what is under it: bend it. One filter for every size it
  * takes, because the map stretches with the lens (so the warp stretches with the
- * blob), then a touch of brightness and colour as light through glass has.
+ * blob), then a touch of brightness and color as light through glass has.
  * Drawn above the buttons, so it is their symbols it bends.
  */
 function refraction(warp: number): string {

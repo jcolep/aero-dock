@@ -270,11 +270,11 @@ fn look(settings: &Settings, scale: f64, pad: i32) -> corners::Look {
 /// The margin's glass, as the frame's page reported it (see `report_frame_glass`).
 static GLASS: Mutex<Option<[f32; 4]>> = Mutex::new(None);
 
-/// The frame's page says what colour its glass is (the computed fill of `.frame-glass`), so that the corner pieces
+/// The frame's page says what color its glass is (the computed fill of `.frame-glass`), so that the corner pieces
 /// lay the very same over the wallpaper. Sent when the page starts and whenever the theme or tint changes.
 #[tauri::command]
-pub fn report_frame_glass(app: AppHandle, colour: String) {
-    let parsed = corners::parse_css_colour(&colour);
+pub fn report_frame_glass(app: AppHandle, color: String) {
+    let parsed = corners::parse_css_color(&color);
     let changed = std::mem::replace(&mut *GLASS.lock(), parsed) != parsed;
     if changed {
         corners_later(&app);
@@ -284,7 +284,7 @@ pub fn report_frame_glass(app: AppHandle, colour: String) {
 /// What the margin looks like beside each corner of the opening, in the order top left, top right, bottom right,
 /// bottom left: a few pixels of it, on either side of the corner, in a picture of the screen (the glass over the
 /// wallpaper). A piece whose wallpaper cannot be had is drawn in this.
-fn corner_colours(seen: &Picture, opening: &Rect, pad: i32, radius: i32) -> [[u8; 3]; 4] {
+fn corner_colors(seen: &Picture, opening: &Rect, pad: i32, radius: i32) -> [[u8; 3]; 4] {
     // in the middle of the margin: clear of the glass border along the opening's edge, and of whatever is beyond the
     // margin (the menu bar, the dock, the screen edge)
     let d = (pad / 2).max(2);
@@ -303,7 +303,7 @@ fn corner_colours(seen: &Picture, opening: &Rect, pad: i32, radius: i32) -> [[u8
 
 /// What is under each of a monitor's pieces: the wallpaper, where the desktop's own picture of it lines up with the
 /// margin as seen beside the corner (checked along the margin, so a monitor the shell lays out differently falls back
-/// to the colour), or the margin's colour as seen. The second value says whether any corner fell back: that may only
+/// to the color), or the margin's color as seen. The second value says whether any corner fell back: that may only
 /// have been a window over the margin at the time, so it is looked at again later.
 fn look_under(pieces: &[corners::Piece; 4], pad: i32) -> ([Ground; 4], bool) {
     use crate::platform::windows::screenpick::lines_up;
@@ -328,7 +328,7 @@ fn look_under(pieces: &[corners::Piece; 4], pad: i32) -> ([Ground; 4], bool) {
         }
         let Some(seen) = Picture::screen(&area) else { continue };
         if attempt == 0 {
-            flat = corner_colours(&seen, &opening, pad, radius);
+            flat = corner_colors(&seen, &opening, pad, radius);
         }
         let Some(desk) = &desk else { break };
         for k in 0..4 {
@@ -360,7 +360,7 @@ fn look_under(pieces: &[corners::Piece; 4], pad: i32) -> ([Ground; 4], bool) {
 struct Grounds {
     key: (Rect, i32),
     grounds: Option<[Ground; 4]>,
-    /// A corner fell back to the colour; looked at again (a few times, further apart) when the pieces are next laid.
+    /// A corner fell back to the color; looked at again (a few times, further apart) when the pieces are next laid.
     fell_back: bool,
     tries: u32,
     next_try: std::time::Instant,
@@ -390,7 +390,7 @@ fn grounds_for(app: &AppHandle, monitor: &str, pieces: &[corners::Piece; 4], pad
         crate::trace!("corners {monitor}: looking at what is under them");
         let spawned = std::thread::Builder::new().name("frame-corner-look".into()).spawn(move || {
             let (grounds, fell_back) = look_under(&pieces, pad);
-            crate::trace!("corners {monitor}: looked (fell back to a colour: {fell_back})");
+            crate::trace!("corners {monitor}: looked (fell back to a color: {fell_back})");
             let again = {
                 let mut all = GROUNDS.lock();
                 match all.get_mut(&monitor) {
@@ -411,7 +411,7 @@ fn grounds_for(app: &AppHandle, monitor: &str, pieces: &[corners::Piece; 4], pad
                 }
             };
             corners_later(&app);
-            // A corner fell back to the colour, perhaps because a window was crossing the margin (the shell moves the
+            // A corner fell back to the color, perhaps because a window was crossing the margin (the shell moves the
             // snapped and maximised ones when the frame takes its strips): look again a little later, whether or not
             // anything else lays the frame out by then.
             if let Some(wait) = again {
@@ -489,7 +489,7 @@ pub fn shutdown() {
 
 /// Place only the corner pieces again, from where each monitor's frame was last laid out: what is wanted when the
 /// corners held change (every maximise, restore and snap), when what is under them has been looked at, or when the
-/// glass changes colour. Nothing else of the frame (its strips, its ring) is touched. Main thread only.
+/// glass changes color. Nothing else of the frame (its strips, its ring) is touched. Main thread only.
 fn corners_all(app: &AppHandle) {
     let settings = app.state::<SettingsStore>().get();
     if !settings.frame.enabled {

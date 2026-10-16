@@ -1,5 +1,5 @@
 /**
- * A colour picker: a square for how vivid and how bright, a spectrum bar for
+ * A color picker: a square for how vivid and how bright, a spectrum bar for
  * the hue, and a box for typing a hex value.
  *
  * It works in hue, saturation and value rather than in hex because hex loses
@@ -13,7 +13,7 @@ import { hexToHsv, hsvToHex, normalizeHex } from "../../engine/themes/accent";
 import "./colorspectrum.css";
 
 interface ColorSpectrumProps {
-  /** Current colour, `#rrggbb`. */
+  /** Current color, `#rrggbb`. */
   value: string;
   onChange: (hex: string) => void;
 }
@@ -42,7 +42,7 @@ function useDrag(onMove: (x: number, y: number) => void) {
 export function ColorSpectrum({ value, onChange }: ColorSpectrumProps) {
   const [hsv, setHsv] = useState<[number, number, number]>(() => hexToHsv(value));
   const [text, setText] = useState(value);
-  // the last colour this picker produced, to tell its own echo from a change
+  // the last color this picker produced, to tell its own echo from a change
   // made elsewhere (a reset, an import)
   const own = useRef(value.toLowerCase());
 
@@ -96,7 +96,7 @@ export function ColorSpectrum({ value, onChange }: ColorSpectrumProps) {
           value={text}
           spellCheck={false}
           maxLength={7}
-          aria-label="Colour as a hex code"
+          aria-label="Color as a hex code"
           onChange={(e) => {
             setText(e.target.value);
             const hex = normalizeHex(e.target.value);

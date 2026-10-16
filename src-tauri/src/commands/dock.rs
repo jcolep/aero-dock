@@ -531,6 +531,16 @@ pub fn quit_app(app: AppHandle) {
     app.exit(0);
 }
 
+/// The tray icon, drawn by the page in the theme's color (Liquidock's drop, as a PNG): the icon the app starts with is
+/// the drop in silver, and this tints it to match the theme as soon as the dock has its colors, and whenever they
+/// change.
+#[tauri::command]
+pub fn set_tray_icon(app: AppHandle, png: Vec<u8>) -> AeroResult<()> {
+    let Some(tray) = app.tray_by_id("aero-dock-tray") else { return Ok(()) };
+    tray.set_icon(Some(tauri::image::Image::from_bytes(&png)?))?;
+    Ok(())
+}
+
 /// Let the calling dock take keyboard focus (search overlay) or give its
 /// focus-immunity back when the overlay closes.
 #[tauri::command]

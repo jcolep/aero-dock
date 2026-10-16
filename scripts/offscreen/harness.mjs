@@ -267,7 +267,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         }
         // commands with a real effect are acknowledged and recorded, never run
         case "resize_menubar": case "resize_dock": case "set_menubar_menu_open": case "activate_window":
-        case "set_dock_focusable": case "report_dock_bar": case "close_window": case "minimize_window": case "show_window_previews": case "hide_window_previews": case "toggle_mission": case "close_mission": case "toggle_window": case "set_memory_saver": case "set_volume": case "set_radio":
+        case "set_dock_focusable": case "set_tray_icon": case "report_dock_bar": case "close_window": case "minimize_window": case "show_window_previews": case "hide_window_previews": case "toggle_mission": case "close_mission": case "toggle_window": case "set_memory_saver": case "set_volume": case "set_radio":
         case "connect_wifi": case "disconnect_wifi": case "set_brightness": case "launch": return null;
         default:
           if (cmd.startsWith("list_")) return [];

@@ -9,8 +9,17 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Liquidock (October 16)
 
+- **A new mark: a drop of glass**, tinted with your theme color in the menu bar, the settings window, the welcome card
+  and the tray. The app's own icon is the drop in silver.
+- **Window previews say a window's title once.** One window: its title at the top and a close bar of glass as wide as
+  the picture under it, warming to red under the pointer. Several: the app's name at the top and each window's title
+  over its picture. The close button's tooltip, which came up behind the live picture and stuck there, is gone.
+- **The menu bar's lens keeps up on a long way across the bar**: it glides along under the pointer between buttons
+  (stepping aside over the media pill) instead of waiting at the last button and then standing stretched and off its
+  target for a second. It also no longer appears half its width off for its first few frames.
+- **"Color", not "colour"**, everywhere in the app.
 - **Aero Dock is now Liquidock.** Everything you see says so; your settings and data are where they were.
-- **A new settings window**, laid out like a Mac's System Settings: a sidebar of sections with coloured icons and a search,
+- **A new settings window**, laid out like a Mac's System Settings: a sidebar of sections with colored icons and a search,
   and one section at a time, its settings in rounded groups with a short line under each saying what it does. It fits
   any size: controls drop under their labels when there is no room, and a narrow window slides the sidebar away, to
   come out when the pointer reaches the left edge (or always, if you choose: General › This window › Sidebar).

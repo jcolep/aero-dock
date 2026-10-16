@@ -16,6 +16,7 @@
 import { Roll } from "../../engine/type/Roll";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
+import { Droplet } from "../../engine/brand/droplet";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { listen } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -81,26 +82,9 @@ interface MenuItem {
   separatorAbove?: boolean;
 }
 
+/** Liquidock's drop, in the theme's color, where a Mac has its apple. */
 function Logo() {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden>
-      <defs>
-        <radialGradient id="mb-logo" cx="35%" cy="30%" r="75%">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="55%" stopColor="currentColor" stopOpacity="0.95" />
-          <stop offset="100%" stopColor="currentColor" />
-        </radialGradient>
-      </defs>
-      <circle cx="12" cy="12" r="8.5" fill="url(#mb-logo)" />
-      <path
-        d="M7.2 9.6a5.6 5.6 0 0 1 4.2-3.4"
-        fill="none"
-        stroke="rgba(255,255,255,0.9)"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <Droplet size={17} />;
 }
 
 function SearchIcon() {
@@ -259,7 +243,7 @@ export function MenuBarApp() {
     void hydrateIdle();
   }, [hydrate, hydrateRunning, hydrateSystem, hydrateIdle]);
 
-  // borrow the dock's material and colours
+  // borrow the dock's material and colors
   useEffect(() => {
     if (settings) applyAppearance(settings, null, "dock");
   }, [settings]);

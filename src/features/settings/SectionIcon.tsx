@@ -1,6 +1,6 @@
 /**
  * A section's icon in the settings sidebar and at the top of its page: a small rounded tile of glass in the section's
- * own colour, with a white glyph on it, as the system settings of a Mac have.
+ * own color, with a white glyph on it, as the system settings of a Mac have.
  */
 
 import type { ReactNode } from "react";
@@ -8,7 +8,7 @@ import { sectionById } from "./sections";
 
 /** The glyphs, drawn on a 20-unit grid, white strokes and fills. */
 const GLYPHS: Record<string, ReactNode> = {
-  colour: (
+  color: (
     <>
       <path d="M10 3.2a6.8 6.8 0 1 0 0 13.6c1.2 0 1.8-.8 1.4-1.8-.5-1.2.2-2.2 1.5-2.2h1.4a2.5 2.5 0 0 0 2.5-2.5C16.8 6.2 13.8 3.2 10 3.2Z" fill="none" stroke="#fff" strokeWidth="1.5" />
       <circle cx="6.6" cy="9.4" r="1.15" fill="#fff" />

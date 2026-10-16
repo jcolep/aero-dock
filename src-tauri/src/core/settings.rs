@@ -106,9 +106,9 @@ pub struct DockSettings {
     /// End Task does, so unsaved work is lost), `close` asks its windows to close the way their own close button
     /// would (one with unsaved work still asks first).
     pub middle_click: String,
-    /// How strongly the theme's colour tints the dock's glass, 0 to 1.5 (1 = as the material has it).
+    /// How strongly the theme's color tints the dock's glass, 0 to 1.5 (1 = as the material has it).
     pub tint: f32,
-    /// Tint the dock's glass with the theme colour (Colour & materials); off, it is plain glass.
+    /// Tint the dock's glass with the theme color (Color & materials); off, it is plain glass.
     pub tint_with_theme: bool,
     /// What marks running apps: `dots` (a dot under every running app, the focused one brighter) or `focus` (one
     /// mark, under the app in front, with a ghost of it under the app the pointer is on).
@@ -176,10 +176,10 @@ impl Default for DockSettings {
 
 /// How a surface is rendered.
 ///
-/// `Liquid` renders the theme's colour as a thin lens: little tint in the body, the work at the rim, where light
+/// `Liquid` renders the theme's color as a thin lens: little tint in the body, the work at the rim, where light
 /// enters and bends. `Clear` is neutral glass in the style of Apple's Liquid Glass: rounded shapes, a specular rim,
-/// the picked colour as a flat veil. (There was a third, the glossy beveled `aero` panel; a file that still names it
-/// gets Liquid, which kept its colours.)
+/// the picked color as a flat veil. (There was a third, the glossy beveled `aero` panel; a file that still names it
+/// gets Liquid, which kept its colors.)
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SurfaceStyle {
@@ -193,11 +193,11 @@ pub enum SurfaceStyle {
 #[serde(rename_all = "camelCase", default)]
 pub struct AppearanceSettings {
     /// Theme id: aero | ocean | forest | aurora | sunset | night. No longer
-    /// chosen from a list; it is kept so settings saved before the colour
+    /// chosen from a list; it is kept so settings saved before the color
     /// picker still know where their look started, which the picker's
-    /// starting colour is taken from while `accent` is empty.
+    /// starting color is taken from while `accent` is empty.
     pub theme: String,
-    /// The colour the whole look is derived from, `#rrggbb`. Empty until one
+    /// The color the whole look is derived from, `#rrggbb`. Empty until one
     /// is picked.
     pub accent: String,
     /// Overall dock opacity, 0.3..=1.0.
@@ -228,7 +228,7 @@ pub struct AppearanceSettings {
     /// A soft highlight that follows the pointer across the glass.
     pub pointer_light: bool,
     /// What a menu's items and a panel's sections do under the pointer: `magnify` (swell a little and rise, as the
-    /// Control Center's tiles do), `lift` (rise, with a shadow), `glow` (light up in the theme colour) or `none`.
+    /// Control Center's tiles do), `lift` (rise, with a shadow), `glow` (light up in the theme color) or `none`.
     pub hover_effect: String,
     /// A fine grain over the glass, which keeps its gradients from banding.
     pub glass_grain: bool,
@@ -473,7 +473,7 @@ pub struct MenuBarSettings {
     /// Corner radius in logical px (the bottom corners only while the bar
     /// touches the top of the screen).
     pub corner_radius: u32,
-    /// How strongly the bar is tinted with the theme colour, 1.0 being the
+    /// How strongly the bar is tinted with the theme color, 1.0 being the
     /// default. Lower is clearer, higher is more solid.
     pub tint: f32,
     /// Space in logical px between the items in the bar.
@@ -482,8 +482,8 @@ pub struct MenuBarSettings {
     pub font_size: u32,
     /// The hairline of light round the bar's edge.
     pub edge_highlight: bool,
-    /// The colour of the circle behind the Wi-Fi icon in the Control Center,
-    /// as `#rrggbb`. Empty follows the theme colour.
+    /// The color of the circle behind the Wi-Fi icon in the Control Center,
+    /// as `#rrggbb`. Empty follows the theme color.
     pub wifi_color: String,
     /// The same for the Bluetooth icon.
     pub bluetooth_color: String,
@@ -501,7 +501,7 @@ pub struct MenuBarSettings {
     pub show_privacy: bool,
     /// A small load graph in the bar, opening a popover of what is using the machine.
     pub show_stats: bool,
-    /// The Now Playing card takes its colours from the cover.
+    /// The Now Playing card takes its colors from the cover.
     pub media_tint: bool,
     /// The card draws the sound that is playing as moving bars. This listens to the
     /// output (a loopback capture; nothing is recorded or kept).
@@ -601,7 +601,7 @@ pub struct FrameSettings {
     pub padding: u32,
     /// Corner radius of the opening the apps sit in, in logical px.
     pub corner_radius: u32,
-    /// How strongly the margin is tinted with the theme colour (1 = default).
+    /// How strongly the margin is tinted with the theme color (1 = default).
     pub tint: f32,
     /// Play the ambient scene in the margin.
     pub ambient: bool,
@@ -855,7 +855,7 @@ impl Settings {
         m.tint = if m.tint.is_finite() { m.tint.clamp(0.2, 2.0) } else { 1.0 };
         m.item_spacing = m.item_spacing.min(16);
         m.font_size = m.font_size.clamp(11, 17);
-        // written into a style, so only ever a plain colour
+        // written into a style, so only ever a plain color
         m.wifi_color = normalize_hex(&m.wifi_color);
         m.bluetooth_color = normalize_hex(&m.bluetooth_color);
         m.lens_grow = m.lens_grow.min(10);
@@ -1022,8 +1022,8 @@ fn strip_bom(raw: &str) -> &str {
     raw.strip_prefix('\u{feff}').unwrap_or(raw)
 }
 
-/// `#rrggbb`, lowercase, or empty if the text is not a colour. A hand-edited
-/// file cannot push anything but a colour into the stylesheet this way.
+/// `#rrggbb`, lowercase, or empty if the text is not a color. A hand-edited
+/// file cannot push anything but a color into the stylesheet this way.
 fn normalize_hex(raw: &str) -> String {
     let text = raw.trim().trim_start_matches('#');
     if text.len() == 6 && text.chars().all(|c| c.is_ascii_hexdigit()) {
@@ -1136,7 +1136,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn accent_is_kept_only_if_it_is_a_colour() {
+    fn accent_is_kept_only_if_it_is_a_color() {
         assert_eq!(normalize_hex("#ABCDEF"), "#abcdef");
         assert_eq!(normalize_hex("  2f9de3 "), "#2f9de3");
         // anything else would otherwise travel into a stylesheet
@@ -1404,7 +1404,7 @@ mod tests {
     }
 
     #[test]
-    fn the_control_center_bubble_colours_default_to_the_theme_and_only_keep_real_colours() {
+    fn the_control_center_bubble_colors_default_to_the_theme_and_only_keep_real_colors() {
         let old: Settings = serde_json::from_str(r#"{"menuBar":{"enabled":true}}"#)
             .expect("an older menu bar block must still load");
         assert_eq!(old.menu_bar.wifi_color, "");
@@ -1431,7 +1431,7 @@ mod tests {
     }
 
     #[test]
-    fn a_missing_accent_is_empty_not_a_colour() {
+    fn a_missing_accent_is_empty_not_a_color() {
         let s = Settings::default();
         assert_eq!(s.appearance.accent, "");
     }
@@ -1604,7 +1604,7 @@ mod tests {
 
     #[test]
     fn the_classic_material_that_was_comes_back_as_liquid() {
-        // the glossy `aero` panel is gone; a file that chose it gets Liquid, which kept its colours
+        // the glossy `aero` panel is gone; a file that chose it gets Liquid, which kept its colors
         let s: Settings = serde_json::from_str(r#"{ "appearance": { "dockSurface": "aero" } }"#).expect("loads");
         assert_eq!(s.appearance.dock_surface, SurfaceStyle::Liquid);
         let w: Settings = serde_json::from_str(r#"{ "appearance": { "dockSurface": "clear" } }"#).expect("loads");

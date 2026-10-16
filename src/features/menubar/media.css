@@ -1,4 +1,4 @@
-/* The Now Playing card (see MediaCard.tsx). Colours come from the cover when
+/* The Now Playing card (see MediaCard.tsx). Colors come from the cover when
    there is one: --np-a, --np-b and --np-accent are set on the card, and
    without them it is the plain glass of the cards around it. */
 

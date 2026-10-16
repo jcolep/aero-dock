@@ -1,5 +1,5 @@
-﻿/**
- * The colours of the cover that is showing, for a surface that is tinted by it (see tint.ts for how they are read).
+/**
+ * The colors of the cover that is showing, for a surface that is tinted by it (see tint.ts for how they are read).
  * The cover is read from a thumbnail-sized copy, so this costs next to nothing.
  */
 

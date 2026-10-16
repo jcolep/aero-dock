@@ -1,4 +1,4 @@
-// The Control Center's Now Playing card, off screen: the cover and its colours,
+// The Control Center's Now Playing card, off screen: the cover and its colors,
 // the program it comes from, the scrubber, the ten-second buttons, shuffle and
 // repeat, the list of players, and the sound wave fed by real events.
 //
@@ -12,7 +12,7 @@ import { startHarness } from "./harness.mjs";
 
 const out = process.argv[2] ?? "offscreen-out";
 
-// two covers drawn here, so the card has something to take colours from
+// two covers drawn here, so the card has something to take colors from
 const cover = (a, b, c) =>
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
@@ -109,7 +109,7 @@ try {
   await h.sleep(300);
   console.log("live view removed on switching off:", (await h.eval("window.__calls.filter((c) => c.cmd === 'hide_window_previews').length")) > 0);
 
-  // another track with a cool cover: the colours follow
+  // another track with a cool cover: the colors follow
   await h.eval(`window.__art = ${JSON.stringify(cool)}; Object.assign(window.__media, { key: "cool", title: "A very long title that has to scroll across the card to be read in full", artist: "Someone", playing: true, hasArtwork: true, players: [{ id: "Spotify.exe", name: "Spotify", title: "The hero", playing: true, current: true }, { id: "chrome.exe", name: "Google Chrome", title: "Some video", playing: false, current: false }] })`);
   await h.sleep(5200);
   console.log("accent now:", await card("c.style.getPropertyValue('--np-accent')"));

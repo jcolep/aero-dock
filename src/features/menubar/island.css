@@ -190,7 +190,7 @@
   outline-offset: 1px;
 }
 
-/* where in the track it is: a hairline along the foot of the pill, in the cover's own light colour */
+/* where in the track it is: a hairline along the foot of the pill, in the cover's own light color */
 .isl-progress {
   position: absolute;
   left: 14px;

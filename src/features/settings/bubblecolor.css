@@ -1,4 +1,4 @@
-/* The colour choice for a Control Center circle: a row of round swatches. */
+/* The color choice for a Control Center circle: a row of round swatches. */
 
 .bubble-swatches {
   display: flex;
@@ -41,7 +41,7 @@
     0 1px 4px rgba(10, 45, 80, 0.4);
 }
 
-/* "follow the theme": the theme's colour, with a bar across it to say it is
+/* "follow the theme": the theme's color, with a bar across it to say it is
    not one of the fixed ones */
 .bubble-swatch-theme {
   background:
@@ -49,7 +49,7 @@
     var(--swatch, #888);
 }
 
-/* "any colour": the spectrum, or the custom colour once one is chosen */
+/* "any color": the spectrum, or the custom color once one is chosen */
 .bubble-swatch-custom {
   background: conic-gradient(#ff453a, #ffd60a, #30d158, #30b0c7, #0a84ff, #bf5af2, #ff375f, #ff453a);
 }

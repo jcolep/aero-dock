@@ -1,7 +1,7 @@
 /* ==================================================================== */
 /* Clear                                                                */
 /*                                                                      */
-/* Neutral, colourless glass after Apple's Liquid Glass. Where `liquid` */
+/* Neutral, colorless glass after Apple's Liquid Glass. Where `liquid` */
 /* in surfaces.css keeps the Aero palette and only thins it, this drops */
 /* the blue altogether: the body is a faint veil and the material is    */
 /* carried by its edge.                                                 */
@@ -24,7 +24,7 @@
 /*                                                                      */
 /* Backgrounds are written out here instead of read from the --glass-   */
 /* tint tokens, because wallpaper sync rewrites those inline and would  */
-/* colour the glass. The dock window cannot sample the desktop (see the */
+/* color the glass. The dock window cannot sample the desktop (see the */
 /* note on `liquid` in surfaces.css), so the veil is the whole body     */
 /* there.                                                               */
 /* ==================================================================== */
@@ -92,7 +92,7 @@
 /* With nothing behind it to refract, the veil has to hold the shape on a
    bright wallpaper, so it is a touch denser here than in settings. */
 [data-surface="clear"][data-window="dock"] .glass {
-  /* the picked colour, flat: the same strength all the way across, so what
+  /* the picked color, flat: the same strength all the way across, so what
      is picked is what the dock is */
   --bd-tint: rgba(var(--clear-tint), calc(0.34 * var(--clear-strength) * var(--dock-tint, 1)));
   background: var(--bd-tint);
@@ -195,7 +195,7 @@
 }
 
 /* A tooltip is dark glass so white text stays readable on any wallpaper.
-   The theme shows through as a hint of its deep colour. */
+   The theme shows through as a hint of its deep color. */
 [data-surface="clear"] .dock-label {
   background: color-mix(
     in srgb,

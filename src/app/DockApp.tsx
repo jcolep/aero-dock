@@ -11,6 +11,8 @@ import { useEffect, useMemo } from "react";
 import { DockBar } from "../features/dock/DockBar";
 import { EffectsLayer } from "../engine/effects/EffectsLayer";
 import { applyAppearance } from "../engine/themes/applyTheme";
+import { accentForTheme, normalizeHex } from "../engine/themes/accent";
+import { useTrayDroplet } from "../engine/brand/useTrayDroplet";
 import { notify } from "../features/feedback/toastStore";
 import { ipc } from "../ipc/commands";
 import { useAppAudio } from "../state/audioStore";
@@ -156,6 +158,10 @@ export function DockApp() {
   useEffect(() => {
     if (settings) applyAppearance(settings, accent);
   }, [settings, accent]);
+
+  // the tray icon in the theme's color (the main dock does it, for every window)
+  const themeHex = settings ? (accent ?? normalizeHex(settings.appearance.accent) ?? accentForTheme(settings.appearance.theme)) : null;
+  useTrayDroplet(themeHex, isPrimary);
 
   // first-run onboarding lives in DockBar (Welcome card)
 

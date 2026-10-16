@@ -222,7 +222,7 @@ impl WidgetsSettings {
                 }
             }
             if let Some(accent) = &w.accent {
-                if !is_hex_colour(accent) {
+                if !is_hex_color(accent) {
                     w.accent = None;
                 }
             }
@@ -248,7 +248,7 @@ impl WidgetsSettings {
 }
 
 /// `#rrggbb`, the only form the pickers produce.
-fn is_hex_colour(value: &str) -> bool {
+fn is_hex_color(value: &str) -> bool {
     let bytes = value.as_bytes();
     bytes.len() == 7
         && bytes[0] == b'#'
@@ -391,7 +391,7 @@ mod tests {
     }
 
     #[test]
-    fn sanitize_rejects_a_malformed_colour_rather_than_passing_it_to_css() {
+    fn sanitize_rejects_a_malformed_color_rather_than_passing_it_to_css() {
         let mut s = WidgetsSettings {
             enabled: true,
             widgets: vec![

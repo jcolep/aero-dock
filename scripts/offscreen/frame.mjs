@@ -72,9 +72,9 @@ async function h_sheet(images) {
     })`);
     check(strips === 4, `four bands, each with its scene (${strips})`);
     // the corner pieces are drawn natively, in the very glass this page draws: it says what that is
-    const said = await h.eval("window.__calls.filter((c) => c.cmd === 'report_frame_glass').map((c) => c.args.colour)");
+    const said = await h.eval("window.__calls.filter((c) => c.cmd === 'report_frame_glass').map((c) => c.args.color)");
     const fill = await h.eval("getComputedStyle(document.querySelector('.frame-glass')).fill");
-    check(said.length > 0 && said.at(-1) === fill && /^rgba?\(/.test(fill), `it tells Rust what colour its glass is (${said.at(-1)})`);
+    check(said.length > 0 && said.at(-1) === fill && /^rgba?\(/.test(fill), `it tells Rust what color its glass is (${said.at(-1)})`);
     check(frames > 6 && frames <= 14, `and the page draws about twelve frames a second for all four together (${frames.toFixed(1)})`);
   } finally {
     h.close();

@@ -82,7 +82,7 @@ function Root() {
   );
 }
 
-/** Icons are made in the look chosen (and, for the tinted one, in the theme's colour), so a
+/** Icons are made in the look chosen (and, for the tinted one, in the theme's color), so a
  *  change of either throws away what has been fetched, and what shows them asks again. */
 function useIconLook() {
   const look = useSettings((s) => {

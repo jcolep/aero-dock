@@ -5,7 +5,7 @@
  * over the video's thumbnail), the program it comes from, a scrubber that can
  * be dragged, transport buttons that go back and forward ten seconds as well as
  * between tracks, shuffle and repeat where the player has them, a live
- * sound-wave of what is playing, and a card that takes its colours from the
+ * sound-wave of what is playing, and a card that takes its colors from the
  * cover. Players give as much or as little as they like, so each part appears
  * only when there is something behind it: a player that cannot seek gets a
  * progress bar that cannot be dragged, a live stream has no bar at all.
@@ -379,7 +379,7 @@ export function MediaCard() {
   const sourceName = names[target] || np?.sourceName || "";
   const sourceIcon = target ? iconUrls[target] : undefined;
 
-  // ---- the colours of the cover ----
+  // ---- the colors of the cover ----
   const tintOn = menuBar?.mediaTint ?? true;
   const seq = useRef(0);
   useEffect(() => {
@@ -391,7 +391,7 @@ export function MediaCard() {
     const img = new Image();
     img.onload = () => {
       if (!live) return;
-      // a thumbnail-sized copy is read for its colours (a real blur on a surface this size
+      // a thumbnail-sized copy is read for its colors (a real blur on a surface this size
       // would be slow, so the blur is a tiny copy stretched over the card)
       const c = document.createElement("canvas");
       c.width = c.height = 24;
@@ -399,7 +399,7 @@ export function MediaCard() {
       if (!ctx) return;
       ctx.drawImage(img, 0, 0, 24, 24);
       const tint = pickTint(ctx.getImageData(0, 0, 24, 24).data);
-      // the backdrop is smaller still, so the cover is a wash of colour and not a picture
+      // the backdrop is smaller still, so the cover is a wash of color and not a picture
       const b = document.createElement("canvas");
       b.width = b.height = 5;
       b.getContext("2d")?.drawImage(c, 0, 0, 5, 5);
