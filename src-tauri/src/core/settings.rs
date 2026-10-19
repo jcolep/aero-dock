@@ -731,11 +731,14 @@ pub struct StartSettings {
     /// Darken the glass where what is behind the panel is light, so its text stays readable (looked at once, as it
     /// opens: `commands::start::backdrop_behind`).
     pub adaptive_tint: bool,
+    /// The Windows key, pressed and let go on its own, opens this Start menu instead of Windows' (Ctrl+Win opens
+    /// Windows'). Needs a keyboard hook while it is on (`platform::windows::winkey`).
+    pub windows_key: bool,
 }
 
 impl Default for StartSettings {
     fn default() -> Self {
-        Self { pinned: Vec::new(), seeded: false, show_recommended: true, adaptive_tint: true }
+        Self { pinned: Vec::new(), seeded: false, show_recommended: true, adaptive_tint: true, windows_key: false }
     }
 }
 

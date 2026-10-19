@@ -16,6 +16,7 @@ pub mod filesearch;
 pub mod genie;
 pub mod glass;
 pub mod hotkeys;
+pub mod winkey;
 pub mod icons;
 pub mod memory;
 pub mod media;

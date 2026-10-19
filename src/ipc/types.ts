@@ -502,6 +502,8 @@ export interface StartSettings {
   showRecommended: boolean;
   /** Darken the glass where what is behind the panel is light, so its text stays readable. */
   adaptiveTint: boolean;
+  /** The Windows key opens this Start menu instead of Windows' (Ctrl+Win opens Windows'). */
+  windowsKey: boolean;
 }
 
 /** How frosted one surface's glass is. */

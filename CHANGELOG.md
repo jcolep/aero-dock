@@ -50,6 +50,13 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The Windows key (October 19)
+
+- **The Windows key can open Liquidock's Start menu** (Settings › Start menu › "The Windows key opens it", off until
+  switched on). Press and let go of it on its own for Liquidock's; Ctrl+Win opens Windows' own. Win+E, Win+D and
+  every other Windows shortcut work as before. While an app running as administrator has the keyboard, the key opens
+  Windows' menu.
+
 ### The Liquidock button (October 19)
 
 - **The dock's search button is now the Liquidock button**: Liquidock's frosted drop on its own, with no glass circle

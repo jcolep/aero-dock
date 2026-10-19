@@ -915,6 +915,12 @@ export function SettingsApp() {
 
             <SettingsSection id="start">
               <AeroToggle
+                label="The Windows key opens it"
+                checked={settings.start.windowsKey}
+                hint="Press and let go of the Windows key on its own for this Start menu; Ctrl+Win opens Windows' own. Shortcuts like Win+E and Win+D work as always. Not while an app running as administrator has the keyboard"
+                onChange={(v) => set((d) => void (d.start.windowsKey = v))}
+              />
+              <AeroToggle
                 label="Recent downloads and files"
                 checked={settings.start.showRecommended}
                 hint="Under the pinned apps: what was lately downloaded, and the files opened lately"
@@ -944,8 +950,8 @@ export function SettingsApp() {
                 </div>
               </div>
               <p className="settings-note">
-                Opened by the search button on the dock, or Ctrl+Alt+Space and Ctrl+Esc while keyboard shortcuts are on. The
-                Windows key still opens Windows' own Start menu.
+                Opened by the Liquidock button on the dock, or Ctrl+Alt+Space and Ctrl+Esc while keyboard shortcuts are on,
+                and by the Windows key if that is switched on above.
               </p>
             </SettingsSection>
 

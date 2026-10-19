@@ -106,7 +106,7 @@ export const GROUPS: GroupDef[] = [
         id: "start",
         title: "Start menu",
         blurb: "Pinned apps, recent files and downloads",
-        keywords: "start menu pinned apps recent files downloads recommended reset ctrl alt space ctrl esc keyboard readable readability contrast light background tint shadow",
+        keywords: "start menu pinned apps recent files downloads recommended reset ctrl alt space ctrl esc windows key win key keyboard readable readability contrast light background tint shadow",
         hue: 150,
       },
       {

@@ -295,10 +295,16 @@ Say plainly in a report when something native was not seen.
   single shared instance owned by the menu bar and cannot serve two. Pins are our own list
   (`settings.start`; Windows' real layout is an unreadable file), started from the dock's pins
   once. Files come from Windows' index (`filesearch.rs`, WinRT `QueryOptions`), the account
-  from the registry (`profile.rs`). Shortcuts: Ctrl+Alt+Space and Ctrl+Esc. **The Windows key is
-  deliberately not taken over**: that needs a permanent low-level keyboard hook (and a stray key
-  press to cancel Windows' own Start), which the owner chose not to do for now; PowerToys is not
-  installable on their machine.
+  from the registry (`profile.rs`). Shortcuts: Ctrl+Alt+Space and Ctrl+Esc, and **the Windows key when
+  `start.windowsKey` is on** (off by default; `platform/windows/winkey.rs`). That is the AutoHotkey / PowerToys
+  way, chosen after researching the options (October 19): a `WH_KEYBOARD_LL` hook, installed only while the
+  setting is on, lets the key's press through, and on a lone release returns 1 and `SendInput`s 0xFF down/up
+  plus the release (tagged `dwExtraInfo` "LQDK", which the hook passes), so Windows sees Win+<key> and opens
+  nothing; if `SendInput` fails, the real release goes through (never a stuck key). Ctrl+Win (no Start for
+  Windows) sends a tagged LWin tap once Ctrl is up, which opens Windows' menu. The decision is `Tracker`, plain
+  code with tests. **Not** Open-Shell's way (it IAT-hooks twinui's `RegisterHotKey(MOD_WIN, 0)` inside Explorer):
+  code in Explorer is not for a work machine. Elevated foreground: the hook isn't shown those keys (UIPI), so
+  Windows' menu opens there. Untested by hand so far (the owner presses the key).
 - **Gliding highlight** (`engine/lens/useGlideHighlight.tsx`): the menu bar lens made general (four
   edge springs, the leading edges quick, stretch capped, shaped like what it sits on, held inside
   `data-lens-clip` lists) **and drawn like it**: *above* the items with a refraction backdrop filter

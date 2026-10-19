@@ -33,6 +33,8 @@ pub async fn set_settings(
     // the keyboard shortcuts follow their switch
     #[cfg(windows)]
     crate::platform::windows::hotkeys::set_enabled(result.accessibility.keyboard_shortcuts);
+    #[cfg(windows)]
+    crate::platform::windows::winkey::set_enabled(result.start.windows_key);
     crate::commands::dock::position_dock_later(&app);
     crate::trace!("set_settings: docks queued for placing");
     // "a dock on every monitor" may have been switched, or the first dock

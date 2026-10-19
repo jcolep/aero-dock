@@ -158,6 +158,18 @@ pub fn run() {
                     let _ = handle.run_on_main_thread(move || commands::keyboard::enter(&h, target));
                 });
             }
+            // the Windows key opening the Start menu, if it was chosen
+            #[cfg(windows)]
+            {
+                let enabled = app.state::<SettingsStore>().get().start.windows_key;
+                let handle = handle.clone();
+                platform::windows::winkey::start(enabled, move || {
+                    let h = handle.clone();
+                    let _ = handle.run_on_main_thread(move || {
+                        commands::keyboard::enter(&h, platform::windows::hotkeys::Target::Start)
+                    });
+                });
+            }
             #[cfg(windows)]
             {
                 let handle = handle.clone();
