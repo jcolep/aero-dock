@@ -694,6 +694,16 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   files it watches, which turns off cargo's rerun-on-any-change, so without that line `resource.lib` (the exe's
   embedded icon, `target/release/build/aero-dock-*/out/`) kept the old orb for days. Check an exe's icon with
   System.Drawing `ExtractAssociatedIcon`.
+- **A lens's backdrop filter doubles anything see-through under it** (the bent copy is laid over the original): the
+  Start menu's readability veil went near-black in its lens. `refraction.ts` starts with `SOLID_ONLY` (alpha^4), so
+  only solid text and icons are bent. `startveil.mjs` reproduces it (sends `start://open` with a light `backdrop`).
+  The settings sidebar uses `useGlideHighlight` with `axis: "y"`, `stretch: 14`, `grow: 0` and magnifies only the icon
+  (`settingslens.mjs`); the menu bar's reach and squeeze are wrong for full-width rows.
+- **Work machine's monitors**: the Dell (DISPLAY2, primary, 75 Hz) is driven by the **Intel UHD 770**, the Samsung
+  (DISPLAY1, 165 Hz) by the **NVIDIA RTX 5000**. The frame overlay shows **every** web view at 75 fps, the Samsung's
+  too (Chromium paces from the primary display), and the Start menu on the Dell at a clean 75 with 0 late frames, real
+  blur on or off. So "low fps on the Dell" is not the page; suspect the cross-adapter copy to the Intel-driven monitor,
+  which the frame meter cannot see. Unresolved (October 19).
 - **The Liquidock button** (`LiquidockButton`, DockControls; was the search button, still `dock.showSearchButton`):
   `.dock-drop-btn`, deliberately not `.dock-control-btn` (no glass circle, no icon-look filter); a `Droplet` plus an
   overlay svg clipped to `DROP_PATH` with the shine `dock.startShine` (`sweep` | `caustic` | `rim`). The shines are

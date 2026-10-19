@@ -50,6 +50,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Lenses (October 19)
+
+- **The Settings window's sidebar lens is the row now**: the same size as the section it is on, gliding straight up
+  and down the list with a little stretch, and magnifying the section's icon. It used to be bigger than the rows (lying
+  over the ones above and below), narrowed and slid sideways as it travelled, and grew the whole row from its middle so
+  the icon jumped left and the row poked out past it.
+- **The Start menu's lens no longer turns dark over light windows.** With "Keep text readable" darkening the glass,
+  the lens drew that darkening twice and became a near-black slab (seen on the Dell, over DriveWorks).
+
 ### The Windows key (October 19)
 
 - **The Windows key can open Liquidock's Start menu** (Settings › Start menu › "The Windows key opens it", off until
