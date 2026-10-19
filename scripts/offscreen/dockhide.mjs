@@ -43,12 +43,13 @@ try {
 
   check((await q("!!document.querySelector('.dock-satellites')")) === true, "the layer the buttons hang on is there");
 
-  // out of the room beside the bar, and then out of the window
-  await h.move(bar.left - 150, bar.mid);
+  // out of the room beside the bar, and then out of the window (the Settings button, at the clock end: the Liquidock
+  // button sits in the bar now, StartSlot, and is not one of these)
+  await h.move(bar.right + 150, bar.mid);
   await h.sleep(200);
-  await h.move(bar.left - 40, bar.mid);
+  await h.move(bar.right + 40, bar.mid);
   await h.sleep(500);
-  check((await satellites()) === "left", `a button is out with the pointer beside the bar: ${await satellites()}`);
+  check((await satellites()) === "right", `a button is out with the pointer beside the bar: ${await satellites()}`);
   await q("(() => { document.querySelector('.dock-viewport').dispatchEvent(new MouseEvent('mouseout', { bubbles: true, relatedTarget: null })); return 1; })()");
   await h.sleep(450);
   check((await satellites()) === "none", `and put away when the pointer leaves the window: ${await satellites()}`);

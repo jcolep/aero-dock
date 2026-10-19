@@ -24,7 +24,8 @@ import { WidgetCluster } from "../widgets/WidgetCluster";
 import { ContextMenu } from "./ContextMenu";
 import { DockMenu } from "./DockMenu";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
-import { LiquidockButton, SettingsButton } from "./DockControls";
+import { LiquidockButton, SettingsButton, StartSlot } from "./DockControls";
+import { useReduced } from "../../engine/accessibility/policy";
 import { GlyphFilters } from "./GlyphFilters";
 import { playCue } from "../../engine/sound/ui";
 import { usePointerLight } from "../../engine/light/usePointerLight";
@@ -56,6 +57,10 @@ const TOAST_SPACE = 210; // extra cross-axis room while toasts are on screen
 const PULL_OFF = 40; // px past the bar, away from the edge, that unpins on release
 const CLOCK_SPACE = 76; // the clock and date
 const CONTROLS_SPACE = 76; // Search and Settings buttons, when they sit in the bar
+// the Liquidock button's slot in the bar when Settings is revealed from outside it (the button, a well's width, its
+// divider and the gaps), and the divider alone when both buttons sit in the bar (CONTROLS_SPACE has the button)
+const START_SLOT_ROOM = 64;
+const START_DIVIDER_ROOM = 18;
 // room each end needs for a revealed control: 8px gap, a 30px button that
 // overshoots to about 1.3x on entrance, and some margin
 const SATELLITE_ROOM = 60;
@@ -562,7 +567,9 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     // Search and Settings take room in the bar, unless they are revealed
     // from outside it, in which case the window needs room at each end for
     // them instead, including the overshoot of their entrance
-    const controls = revealMode ? 2 * SATELLITE_ROOM : CONTROLS_SPACE;
+    // the Liquidock button now always sits in the bar, with a divider after it (StartSlot): its room, and the divider's
+    const startRoom = settings.dock.showSearchButton ? (revealMode ? START_SLOT_ROOM : START_DIVIDER_ROOM) : 0;
+    const controls = (revealMode ? 2 * SATELLITE_ROOM : CONTROLS_SPACE) + startRoom;
     const main =
       mainBase +
       mainGrowth +
@@ -631,6 +638,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     modesOn,
     modesOpen,
     edgeGap,
+    settings.dock.showSearchButton,
   ]);
 
   // The room a flyout takes is given back only after its exit has played. A
@@ -658,7 +666,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   // where a pinned app is being held when it has been pulled far enough off
   // the dock that letting go would unpin it
   const [pullOut, setPullOut] = useState<{ x: number; y: number } | null>(null);
-  const [revealLeft, setRevealLeft] = useState(false);
+  // (the left end's button, the Liquidock button, is in the bar now: StartSlot; this is only tracked for symmetry)
+  const [, setRevealLeft] = useState(false);
   const [revealRight, setRevealRight] = useState(false);
   const revealHideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -673,12 +682,52 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   }, []);
   useEffect(() => () => clearTimeout(revealHideTimer.current), []);
 
+  // The Liquidock button out of sight until the pointer nears the bar's start (dock.startReveal "expand", horizontal
+  // docks): within the reveal zone of the bar's start edge it opens (StartSlot), and it stays open while the pointer is
+  // over it or not far past its divider; moving on (or leaving) shuts it a moment later.
+  const startExpands = settings.dock.showSearchButton && settings.dock.startReveal === "expand" && !vertical;
+  const [startNear, setStartNear] = useState(false);
+  const startNearRef = useRef(false);
+  startNearRef.current = startNear;
+  const reducedMotion = useReduced().motion;
+  const startShutTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(startShutTimer.current), []);
+  const trackStart = useCallback(
+    (x: number, y: number) => {
+      if (!startExpands || draggingRef.current) return;
+      const barEl = barRef.current;
+      if (!barEl) return;
+      const bar = barEl.getBoundingClientRect();
+      const level = y >= bar.top - 14 && y <= bar.bottom + 14;
+      let near: boolean;
+      if (!startNearRef.current) {
+        near = level && x < bar.left + revealZone && x > bar.left - SATELLITE_ROOM - 24;
+      } else {
+        const slot = barEl.querySelector(".dock-start-slot")?.getBoundingClientRect();
+        const end = slot ? slot.right : bar.left;
+        near = level && x < end + Math.max(16, revealZone * 0.6) && x > bar.left - SATELLITE_ROOM - 24;
+      }
+      if (near) {
+        clearTimeout(startShutTimer.current);
+        startShutTimer.current = undefined;
+        if (!startNearRef.current) setStartNear(true);
+      } else if (startNearRef.current && startShutTimer.current === undefined) {
+        startShutTimer.current = setTimeout(() => {
+          startShutTimer.current = undefined;
+          setStartNear(false);
+        }, 180);
+      }
+    },
+    [startExpands, revealZone],
+  );
+
   const handleMove = useCallback(
     (e: React.MouseEvent) => {
       if (!draggingRef.current) {
         measureRest(magnifyField);
         mouseAxis.set(vertical ? e.clientY : e.clientX);
       }
+      trackStart(e.clientX, e.clientY);
       if (!revealMode || draggingRef.current) return;
       const bar = e.currentTarget.getBoundingClientRect();
       const left = e.clientX - bar.left < revealZone;
@@ -687,7 +736,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       setRevealLeft(left);
       setRevealRight(right);
     },
-    [mouseAxis, magnifyField, vertical, revealMode, revealZone, cancelRevealHide],
+    [mouseAxis, magnifyField, vertical, revealMode, revealZone, cancelRevealHide, trackStart],
   );
 
   // Coming at the dock's end from outside it, along the screen, never crosses the bar before the
@@ -695,8 +744,9 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   // window is wider than the bar by the room the buttons need, so this watches that room too.
   const handleOutside = useCallback(
     (e: React.MouseEvent) => {
-      if (!revealMode || draggingRef.current) return;
       const barEl = barRef.current;
+      if (barEl && !barEl.contains(e.target as Node)) trackStart(e.clientX, e.clientY);
+      if (!revealMode || draggingRef.current) return;
       if (!barEl || barEl.contains(e.target as Node)) return;
       const bar = barEl.getBoundingClientRect();
       // level with the bar, give or take a little
@@ -712,12 +762,20 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         scheduleRevealHide();
       }
     },
-    [revealMode, revealZone, cancelRevealHide, scheduleRevealHide],
+    [revealMode, revealZone, cancelRevealHide, scheduleRevealHide, trackStart],
   );
 
   const handleLeave = useCallback(() => {
     mouseAxis.set(Infinity);
     if (revealMode) scheduleRevealHide();
+    // off the bar altogether: the button goes, unless the pointer is only crossing to the room beside the bar (the
+    // window's own move handler keeps it then)
+    if (startNearRef.current && startShutTimer.current === undefined) {
+      startShutTimer.current = setTimeout(() => {
+        startShutTimer.current = undefined;
+        setStartNear(false);
+      }, 260);
+    }
   }, [mouseAxis, revealMode, scheduleRevealHide]);
 
   // The dock slid away: a button still out goes with it (the layer they are on takes the same
@@ -1007,8 +1065,20 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
           <span className="glass-sweep" aria-hidden />
         </div>
         <ModeSwitcher settings={settings} edge={edge} />
-        {!revealMode && settings.dock.showSearchButton && (
-          <LiquidockButton effect={settings.dock.startShine} tune={settings.dock.startShineTune} onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
+        {settings.dock.showSearchButton && (
+          // always in the bar now, with its divider: open, or opening as the pointer nears the start (startExpands)
+          <StartSlot open={!startExpands || startNear} vertical={vertical} still={reducedMotion}>
+            <LiquidockButton
+              effect={settings.dock.startShine}
+              tune={settings.dock.startShineTune}
+              clickEffect={settings.dock.startClick}
+              clickTune={settings.dock.startClickTune}
+              look={settings.dock.startStyle}
+              wellColor={settings.dock.startWellColor}
+              onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))}
+            />
+            <span className="dock-divider" aria-hidden />
+          </StartSlot>
         )}
         <Reorder.Group
           as="div"
@@ -1021,7 +1091,9 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
             draggableItem(item, i, "pinned", () => ipc.reorderPinned(order)),
           )}
         </Reorder.Group>
-        {runningItems.length > 0 && <span className="dock-divider" aria-hidden />}
+        {/* between pinned and running apps; with nothing pinned there is nothing to divide (and the Liquidock
+            button's divider would stand beside it as a double line) */}
+        {runningItems.length > 0 && orderedPinned.length > 0 && <span className="dock-divider" aria-hidden />}
         {runningItems.length > 0 && (
           <Reorder.Group
             as="div"
@@ -1060,17 +1132,6 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
           initial={reveal.initial}
           animate={hidden ? reveal.hidden : reveal.shown}
         >
-          <AnimatePresence>
-            {settings.dock.showSearchButton && revealLeft && (
-              <DockSatellite
-                key="search"
-                side="left"
-                onHover={(over) => (over ? cancelRevealHide() : scheduleRevealHide())}
-              >
-                <LiquidockButton effect={settings.dock.startShine} tune={settings.dock.startShineTune} onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
-              </DockSatellite>
-            )}
-          </AnimatePresence>
           <AnimatePresence>
             {settings.dock.showSettingsButton && revealRight && (
               <DockSatellite

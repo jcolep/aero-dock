@@ -712,8 +712,46 @@ export function SettingsApp() {
             </SettingsSection>
 
             <SettingsSection id="dock-items">
-              <SettingsSub>Buttons</SettingsSub>
-              <AeroToggle label="Liquidock button" checked={dock.showSearchButton} hint="The drop at the left end of the dock, which opens Start" onChange={(v) => set((d) => void (d.dock.showSearchButton = v))} />
+              <SettingsSub>The Liquidock button</SettingsSub>
+              <AeroToggle label="Liquidock button" checked={dock.showSearchButton} hint="The drop at the start of the dock, which opens Start" onChange={(v) => set((d) => void (d.dock.showSearchButton = v))} />
+              {dock.showSearchButton && (
+                <>
+                  <AeroSegmented<"solid" | "outline" | "well">
+                    label="Look"
+                    hint="Solid: the drop in your theme colour. Outline: the frosted drop with a fine dark edge. Well: the frosted drop in a groove pressed into the bar"
+                    value={dock.startStyle ?? "solid"}
+                    options={[
+                      { value: "solid", label: "Solid drop" },
+                      { value: "outline", label: "Fine outline" },
+                      { value: "well", label: "Well" },
+                    ]}
+                    onChange={(v) => set((d) => void (d.dock.startStyle = v))}
+                  />
+                  {dock.startStyle === "well" && (
+                    <BubbleColor
+                      label="Well colour"
+                      value={dock.startWellColor ?? ""}
+                      themeColor="#0a101e"
+                      defaultName="Dark glass"
+                      onChange={(hex) => set((d) => void (d.dock.startWellColor = hex))}
+                    />
+                  )}
+                  <AeroSegmented<"static" | "expand">
+                    label="Where it is"
+                    hint={
+                      dock.startReveal === "expand"
+                        ? "Out of sight until the pointer nears the start of the dock; then the dock grows to take it in, with its divider, and lets it go again as you move on. Horizontal docks"
+                        : "Always in the dock, with a divider between it and your apps"
+                    }
+                    value={dock.startReveal ?? "static"}
+                    options={[
+                      { value: "static", label: "Always in the dock" },
+                      { value: "expand", label: "Comes in near the start" },
+                    ]}
+                    onChange={(v) => set((d) => void (d.dock.startReveal = v))}
+                  />
+                </>
+              )}
               {dock.showSearchButton && (
                 <AnimationPicker
                   label="On hover"
@@ -736,14 +774,38 @@ export function SettingsApp() {
                   />
                 </AnimationPicker>
               )}
+              {dock.showSearchButton && (
+                <AnimationPicker
+                  label="On click"
+                  summary="What plays on the drop when you click it"
+                  value={dock.startClick ?? "dimple"}
+                  options={CLICK_ANIMS}
+                  onChange={(id) => set((d) => void (d.dock.startClick = id as typeof d.dock.startClick))}
+                  preview={(id, run) => <ClickPreview preset={id} run={run} tune={dock.startClickTune} drop />}
+                >
+                  <ClickTuneControls
+                    effect={dock.startClick ?? "dimple"}
+                    tune={dock.startClickTune}
+                    themeColor={themeColor}
+                    onChange={(change) =>
+                      set((d) => {
+                        d.dock.startClickTune ??= { ...PLAIN_CLICK_TUNE };
+                        change(d.dock.startClickTune);
+                      })
+                    }
+                  />
+                </AnimationPicker>
+              )}
+
+              <SettingsSub>The Settings button</SettingsSub>
               <AeroToggle label="Settings button" checked={dock.showSettingsButton} onChange={(v) => set((d) => void (d.dock.showSettingsButton = v))} />
               <AeroToggle
-                label="Reveal them on hover"
+                label="Reveal it on hover"
                 checked={dock.revealControls}
-                hint="Hidden until the pointer reaches the left end (the Liquidock button) or the clock end (Settings). Horizontal docks only"
+                hint="Hidden until the pointer reaches the clock end of the dock. Horizontal docks only"
                 onChange={(v) => set((d) => void (d.dock.revealControls = v))}
               />
-              {dock.revealControls && (
+              {(dock.revealControls || (dock.showSearchButton && dock.startReveal === "expand")) && (
                 <AeroSlider
                   label="How close to the end"
                   value={dock.revealZone}
@@ -751,7 +813,7 @@ export function SettingsApp() {
                   max={120}
                   step={4}
                   format={pxFmt}
-                  hint="How near the pointer must get to the dock's end before its button appears. Smaller means further to travel"
+                  hint="How near the pointer must get to the dock's end before its button appears (the Liquidock button's, and Settings'). Smaller means further to travel"
                   onChange={(v) => set((d) => void (d.dock.revealZone = v))}
                 />
               )}

@@ -102,6 +102,18 @@ pub struct DockSettings {
     pub start_shine: String,
     /// How that effect plays, as each click effect can be tuned.
     pub start_shine_tune: ClickTune,
+    /// What plays on the button when it is clicked: one of the click effects too, chosen apart from the hover's.
+    pub start_click: String,
+    pub start_click_tune: ClickTune,
+    /// How the button is drawn: `solid` (the drop's body in the theme's colour, solid glass), `outline` (the frosted
+    /// drop with a fine dark rim round its outline) or `well` (the frosted drop in a groove pressed into the bar).
+    pub start_style: String,
+    /// The groove's colour for `well`, `#rrggbb`, or empty for the dark glass default.
+    pub start_well_color: String,
+    /// Where the button is: `static` (always in the bar, a divider between it and the apps) or `expand` (out of
+    /// sight, the bar as if it had none, until the pointer comes within `reveal_zone` of the bar's start end; then the
+    /// bar grows to take it and its divider in, and gives them up again when the pointer moves on past the divider).
+    pub start_reveal: String,
     pub show_settings_button: bool,
     pub show_clock: bool,
     /// Battery, network, volume and Recycle Bin glyphs.
@@ -174,6 +186,11 @@ impl Default for DockSettings {
             show_search_button: true,
             start_shine: "shine".into(),
             start_shine_tune: ClickTune::default(),
+            start_click: "dimple".into(),
+            start_click_tune: ClickTune::default(),
+            start_style: "solid".into(),
+            start_well_color: String::new(),
+            start_reveal: "static".into(),
             show_settings_button: true,
             show_clock: true,
             show_system_status: true,
@@ -944,6 +961,11 @@ impl Settings {
         }
         keep_known(&mut self.dock.start_shine, AnimationSettings::CLICK, "shine");
         self.dock.start_shine_tune.sanitize();
+        keep_known(&mut self.dock.start_click, AnimationSettings::CLICK, "dimple");
+        self.dock.start_click_tune.sanitize();
+        keep_known(&mut self.dock.start_style, &["solid", "outline", "well"], "solid");
+        self.dock.start_well_color = normalize_hex(&self.dock.start_well_color);
+        keep_known(&mut self.dock.start_reveal, &["static", "expand"], "static");
         self.dock.mark_color = normalize_hex(&self.dock.mark_color);
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
         keep_known(&mut self.appearance.hover_effect, &["magnify", "lift", "glow", "none"], "magnify");

@@ -18,7 +18,12 @@
 import { useId } from "react";
 import { DROP_PATH } from "./dropletSvg";
 
-export function Droplet({ size = 20, tint = "var(--aero-accent, #8fb3d9)", shadow = false, className }: { size?: number; tint?: string; shadow?: boolean; className?: string }) {
+/**
+ * `solid` paints the body in the colour as solid glass (light at the top, the colour, deeper at the foot) instead of
+ * frosting it: the dock's Liquidock button by default (picked from a comparison, October 2026), where a see-through
+ * drop all but vanished over a white window.
+ */
+export function Droplet({ size = 20, tint = "var(--aero-accent, #8fb3d9)", shadow = false, solid = false, className }: { size?: number; tint?: string; shadow?: boolean; solid?: boolean; className?: string }) {
   const id = `drop${useId().replace(/:/g, "")}`;
   const g = (name: string) => `${id}-${name}`;
   const mix = (pct: number, other: string) => `color-mix(in srgb, ${tint} ${pct}%, ${other})`;
@@ -72,11 +77,21 @@ export function Droplet({ size = 20, tint = "var(--aero-accent, #8fb3d9)", shado
         <clipPath id={g("clip")}>
           <path d={DROP_PATH} />
         </clipPath>
+        {/* the solid body: light at the top, the colour through the middle, deeper at the foot */}
+        <linearGradient id={g("solid")} x1="0.2" y1="0" x2="0.8" y2="1">
+          <stop offset="0" style={{ stopColor: mix(70, "#ffffff") }} />
+          <stop offset="0.6" style={{ stopColor: tint }} />
+          <stop offset="1" style={{ stopColor: mix(70, "#0b1626") }} />
+        </linearGradient>
       </defs>
       {shadow && <ellipse cx="50" cy="95" rx="27" ry="4.2" fill={`url(#${g("shadow")})`} />}
-      <g clipPath={`url(#${g("clip")})`} filter={`url(#${g("frost")})`}>
-        <path d={DROP_PATH} fill={`url(#${g("glow")})`} />
-      </g>
+      {solid ? (
+        <path d={DROP_PATH} fill={`url(#${g("solid")})`} />
+      ) : (
+        <g clipPath={`url(#${g("clip")})`} filter={`url(#${g("frost")})`}>
+          <path d={DROP_PATH} fill={`url(#${g("glow")})`} />
+        </g>
+      )}
       <g clipPath={`url(#${g("clip")})`}>
         <ellipse cx="51" cy="81" rx="21" ry="10" fill={`url(#${g("caustic")})`} />
         <ellipse cx="38" cy="23" rx="4.2" ry="10.5" fill={`url(#${g("catch")})`} transform="rotate(-15 38 23)" />

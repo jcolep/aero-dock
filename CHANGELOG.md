@@ -50,6 +50,16 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The Liquidock button, in the dock (October 19)
+
+- **A solid coloured drop by default**, easy to find over a white window: the drop's body in your theme colour. Two
+  other looks: the frosted drop with a fine outline, or in a well pressed into the bar (with its own colour).
+- **Its own click effect**, chosen apart from its hover effect, with the same tuning.
+- **A divider** between it and your apps, as in the mockups.
+- **Where it is**: always in the dock, or out of sight until the pointer nears the dock's start; then the dock grows
+  to take it and its divider in, and gives them up again when you move on past the divider, looking as if it had no
+  button at all. (The Settings button keeps its own reveal at the clock end.)
+
 ### The Liquidock button's hover, readability strength, menus that open whole (October 19)
 
 - **The Liquidock button plays the click effects on hover**: Press Dimple, Edge Halo, Shine Sweep or Light Bloom, on the

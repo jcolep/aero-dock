@@ -737,6 +737,12 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   and replaces it if a fresh read differs. The list ends on a whole row (ContextMenu trims `max-height` to the last
   fitting row, never a lone heading) with mask fades (`data-more`/`data-scrolled`); the separator under it is outside
   the scroller. The harness's `jump_list` takes `window.__jumpDelay`.
+- **Liquidock button in the bar** (`StartSlot` in DockControls, DockBar): always in the bar now (never a satellite;
+  only Settings is), in a slot with its divider. `dock.startReveal` `static` | `expand`: expand springs the slot's
+  width 0 ↔ natural (spring.settle, progress mv; `--open` takes back the bar's gap) on `trackStart` (within
+  `revealZone` of the bar's start; stays while within the slot's right + max(16, zone·0.6); shuts 180 ms after).
+  Looks `dock.startStyle` solid (Droplet `solid`) | outline | well (`--well` from `startWellColor`); its own click
+  effect `startClick`/`startClickTune`. The running divider shows only with pinned apps. `startslot.mjs`.
 - **Liquidock button hover** = a click effect via `effectsBus` `glint` (EffectsLayer), `dock.startShine` +
   `startShineTune`; the drop's outline is a white `DROP_PATH` image (`dropShapeImage`). `dropglint.mjs` films it.
   Shared `ClickTuneControls` (settings). Readability strength: `start.adaptiveTintStrength` → `veilFor(b, strength)`.

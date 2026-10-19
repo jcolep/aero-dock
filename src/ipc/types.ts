@@ -49,6 +49,15 @@ export interface DockSettings {
   startShine: "dimple" | "halo" | "shine" | "bloom";
   /** How that effect plays. */
   startShineTune: ClickTune;
+  /** What plays on the Liquidock button when it is clicked: one of the click effects. */
+  startClick: "dimple" | "halo" | "shine" | "bloom";
+  startClickTune: ClickTune;
+  /** How the button is drawn: a solid coloured drop, a frosted drop with a fine outline, or a frosted drop in a well. */
+  startStyle: "solid" | "outline" | "well";
+  /** The well's colour, `#rrggbb`, or "" for dark glass. */
+  startWellColor: string;
+  /** Always in the bar, or out of sight until the pointer nears the bar's start end (the bar then grows to take it in). */
+  startReveal: "static" | "expand";
   showSettingsButton: boolean;
   showClock: boolean;
   /** Battery, network, volume and Recycle Bin glyphs. */
