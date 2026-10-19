@@ -679,6 +679,14 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   `node --experimental-websocket scripts/brand/make-icons.mjs` renders `src-tauri/icons/source.png` (1024,
   transparent; the page must have no scrollbars or they are captured) and runs `pnpm tauri icon` (don't pipe its
   output through `Select-Object -First`: that kills it part way).
+- **The dock's own menu** (`DockMenu.tsx`, right-click on the viewport where `inDockZone` holds and the target is not
+  a `.dock-icon` or a flyout): `useMenu.open("dock", null, anchor)` — a flyout may now have no item, so **"is a
+  flyout open" is `menu.anchor !== null`, never `menu.item !== null`** (DockBar's `menuOpen` and window height,
+  DockIcon's `flyoutOpen`). Window arrangements and Show the desktop go through `system_action`
+  (`cascade|stacked|sideBySide|desktop`) to `platform/windows/arrange.rs`, which only touches `running::snapshot()`
+  windows on the monitor under the pointer (never ours: a plain `CascadeWindows` or Win+D would take the dock and bar
+  too). `openPreview` refuses to replace an open `menu`/`dock` flyout (the hover dwell used to swap an icon's menu for
+  its previews). `dockmenu.mjs`.
 - **Window previews** (WindowsFlyout): one window shows its title once (header) and a full-width close bar under the
   picture; several show the app name and each window's title over its picture. No `title` attributes anywhere in it:
   the DWM thumbnail is drawn over the page, so a tooltip comes up behind it and sticks (`previews.mjs`).

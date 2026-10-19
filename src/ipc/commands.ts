@@ -245,7 +245,7 @@ export const ipc = {
    *  Escape, while one is open, and sends `menubarOutside` / `menubarEscape`. */
   setMenubarMenuOpen: (open: boolean) => invoke<void>("set_menubar_menu_open", { open }),
   /** Run a power or session action; restart, shut down and log out ask first. */
-  systemAction: (kind: "lock" | "sleep" | "restart" | "shutdown" | "logoff" | "taskmgr") =>
+  systemAction: (kind: "lock" | "sleep" | "restart" | "shutdown" | "logoff" | "taskmgr" | "cascade" | "stacked" | "sideBySide" | "desktop") =>
     invoke<void>("system_action", { kind }),
   hideApp: (exe: string) => invoke<void>("hide_app", { exe }),
   hideOthers: (exe: string) => invoke<void>("hide_others", { exe }),

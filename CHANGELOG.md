@@ -50,6 +50,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The dock's own menu (October 19)
+
+- **Right-click the dock's empty space for its menu**, as on the Windows taskbar: Liquidock Settings, switches for
+  auto-hide and magnification, Cascade windows, Show windows stacked, Show windows side by side, Show the desktop,
+  Task Manager and Taskbar settings. The window arrangements and Show the desktop act only on the apps' windows on that
+  monitor, never on Liquidock's own (Show the desktop chosen again brings them back). An icon keeps its own menu.
+- **An icon's right-click menu no longer turns into the window previews** if the pointer rests on the icon: the
+  previews that come up on hover used to replace the menu after half a second.
+
 ### Liquidock (October 16)
 
 - **Press Dimple and Shine Sweep clip to the icon's own drawn pixels now, not its tile.** Most real icons have

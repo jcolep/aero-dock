@@ -22,6 +22,7 @@ import { useFileDrag } from "../../state/dragStore";
 import { Welcome } from "../onboarding/Welcome";
 import { WidgetCluster } from "../widgets/WidgetCluster";
 import { ContextMenu } from "./ContextMenu";
+import { DockMenu } from "./DockMenu";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { SearchButton, SettingsButton } from "./DockControls";
 import { GlyphFilters } from "./GlyphFilters";
@@ -219,7 +220,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       unlisten.then((fn) => fn());
     };
   }, []);
-  const menuOpen = menu.item !== null || welcomeOpen || modesOpen || trayOpen;
+  const menuOpen = menu.anchor !== null || welcomeOpen || modesOpen || trayOpen;
   // toasts sit in the band above the dock, which is only tall enough for a
   // tooltip — without extra room the window would clip them
   const toastCount = useToasts((s) => s.items.length);
@@ -550,7 +551,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     // size it needs, and the window takes the largest.
     const crossFull = Math.max(
       band,
-      menu.item !== null || welcomeOpen ? band + MENU_SPACE : 0,
+      menu.anchor !== null || welcomeOpen ? band + MENU_SPACE : 0,
       // the mode flyout is taller than the tooltip band it hangs off
       modesOpen ? band + MODE_FLYOUT_HEIGHT + FLYOUT_GAP : 0,
       toastCount > 0 ? band + TOAST_SPACE : 0,
@@ -597,7 +598,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     liftPx,
     magnificationReach,
     vertical,
-    menu.item,
+    menu.anchor,
     welcomeOpen,
     toastCount,
     windowShrunk,
@@ -737,7 +738,12 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
 
   const openPreview = useCallback(
     (item: DockItemView, target: HTMLElement) => {
-      if (!draggingRef.current) menu.open("windows", item, anchorFor(target));
+      if (draggingRef.current) return;
+      // a right-click menu that is open (an icon's, or the dock's own) is not swept away by the previews that come up
+      // when the pointer rests on the icon: it opened with the pointer resting there, and its own hover would replace it
+      const m = useMenu.getState();
+      if (m.anchor && (m.kind === "menu" || m.kind === "dock")) return;
+      menu.open("windows", item, anchorFor(target));
     },
     [menu],
   );
@@ -912,6 +918,26 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       // the dock's terms (the bar's body is half the color at its Tint, the dock's a third), so the two match
       style={{ ["--dock-tint" as string]: settings.dock.tint ?? 1, ...markColorVars } as React.CSSProperties}
       onMouseEnter={(e) => setPointerInside(inDockZone(e))}
+      // a right-click on the dock's empty space (not an icon, which has its own menu) opens the dock's menu, as the
+      // taskbar's does; only on the dock itself, not the empty room above it the window keeps for flyouts
+      onContextMenu={(e) => {
+        e.preventDefault();
+        const target = e.target as HTMLElement;
+        if (draggingRef.current || target.closest(".dock-icon, .aero-menu, .windows-flyout, .folder-flyout, .stack-flyout")) return;
+        if (!inDockZone(e)) return;
+        const glass = (bodyRef.current ?? barRef.current)?.getBoundingClientRect();
+        if (!glass) return;
+        menu.open("dock", null, {
+          left: glass.left,
+          top: glass.top,
+          right: glass.right,
+          bottom: glass.bottom,
+          cx: e.clientX,
+          cy: e.clientY,
+          winW: window.innerWidth,
+          winH: window.innerHeight,
+        });
+      }}
       onMouseLeave={() => {
         setPointerInside(false);
         // a button budded from the room beside the bar (see handleOutside) is not put away by
@@ -1040,6 +1066,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         </div>
       )}
       <ContextMenu settings={settings} edge={edge} />
+      <DockMenu settings={settings} edge={edge} />
       <FolderFlyout edge={edge} />
       <StackFlyout edge={edge} />
       <WindowsFlyout edge={edge} />

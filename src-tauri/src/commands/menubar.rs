@@ -330,6 +330,20 @@ fn run_system_action(kind: &str) -> AeroResult<()> {
         "lock" => run("rundll32.exe", &["user32.dll,LockWorkStation"]),
         "sleep" => run("rundll32.exe", &["powrprof.dll,SetSuspendState", "0,1,0"]),
         "taskmgr" => run("taskmgr.exe", &[]),
+        // the dock's own menu: the apps' windows on the monitor it was opened on (arrange.rs)
+        "cascade" | "stacked" | "sideBySide" => {
+            use crate::platform::windows::arrange::{arrange, Layout};
+            arrange(match kind {
+                "cascade" => Layout::Cascade,
+                "stacked" => Layout::Stacked,
+                _ => Layout::SideBySide,
+            });
+            Ok(())
+        }
+        "desktop" => {
+            crate::platform::windows::arrange::toggle_desktop();
+            Ok(())
+        }
         "restart" => {
             if confirm("Restart", "Are you sure you want to restart your PC now?") {
                 run("shutdown.exe", &["/r", "/t", "0"])?;

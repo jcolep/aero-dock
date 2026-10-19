@@ -117,7 +117,7 @@ export function DockIcon({
   const [hovered, setHovered] = useState(false);
   // a flyout already names what you're pointing at, and the pill would
   // otherwise float over its bottom edge
-  const flyoutOpen = useMenu((m) => m.item !== null);
+  const flyoutOpen = useMenu((m) => m.anchor !== null);
   // chosen under Settings > Animations; read as plain strings so this
   // re-renders only when the choice changes
   const launchPreset = useSettings((s) => s.settings?.animations?.launch ?? "bounce");

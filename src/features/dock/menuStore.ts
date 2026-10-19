@@ -21,13 +21,15 @@ export interface MenuAnchor {
   winH: number;
 }
 
-export type FlyoutKind = "menu" | "folder" | "windows" | "stack";
+/** `dock` is the dock's own menu (a right-click on its empty space), which belongs to no icon. */
+export type FlyoutKind = "menu" | "folder" | "windows" | "stack" | "dock";
 
 interface MenuState {
   kind: FlyoutKind;
+  /** The icon a flyout belongs to; null for the dock's own menu. Whether a flyout is open is `anchor !== null`. */
   item: DockItemView | null;
   anchor: MenuAnchor | null;
-  open: (kind: FlyoutKind, item: DockItemView, anchor: MenuAnchor) => void;
+  open: (kind: FlyoutKind, item: DockItemView | null, anchor: MenuAnchor) => void;
   close: () => void;
   /** Close soon unless something (re-entering the flyout) cancels it. */
   scheduleClose: (delayMs: number) => void;
