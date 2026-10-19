@@ -481,11 +481,15 @@ repo (`...\OneDrive\Documents\Dev\aero-dock`), so code and commits move between 
 **Where the live, running app lives is different on each one** — check which machine a session is
 on (ask, or look for the monitors below) before touching either.
 
-- **Work computer.** Policy there requires the repo and its build output to stay under OneDrive's
-  "repos" folder — that is a constraint of that machine, not a preference, and not something to
-  change. `dist-portable/` is both the build-output drop zone and where the owner runs it, exactly
-  as "Build, check, ship" describes by default. No further detail about this machine is known here;
-  a session running on it should ask the owner rather than assume the home-machine notes below apply.
+- **Work computer.** The repo is at `C:\Users\JakePascoe\source\repos\Aero Dock\data\aero-dock`
+  (confirmed by the owner, 19 October 2026: not under `...\OneDrive\Documents\Dev\`, and there is no
+  `%LOCALAPPDATA%\Liquidock\` here). Keep the repo and its build output where they are; that is a
+  constraint of that machine, not a preference. `dist-portable/` is both the build-output drop zone
+  and where the owner runs it (`dist-portable\Liquidock.vNN.exe`, data in `dist-portable\data`, which
+  is the real, live data here), exactly as "Build, check, ship" describes by default: swap a new build
+  in by stopping the running `Liquidock.v*` and starting the new exe from `dist-portable`. Tell this
+  machine from the home one by that path; ask the owner about anything else rather than assume the
+  home-machine notes below apply.
 - **Home computer.** Two monitors: a Dell, the primary (`DISPLAY2`, 1920x1080 at 100%, 75 Hz over
   a DVI-type link, IPS), and a Samsung to its right (`DISPLAY1`, 2560x1440, 165 Hz, DisplayPort,
   VA). The glass looks best on the Samsung; the Dell shows its limits (lower contrast, coarse grain).
