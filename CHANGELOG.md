@@ -56,6 +56,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   switched on). Press and let go of it on its own for Liquidock's; Ctrl+Win opens Windows' own. Win+E, Win+D and
   every other Windows shortcut work as before. While an app running as administrator has the keyboard, the key opens
   Windows' menu.
+- **Fixed the same day:** pressing it while Liquidock's own Start menu (or another of its windows) had the keyboard
+  opened Windows' menu as well, which then took the keyboard and closed Liquidock's a moment later.
 
 ### The Liquidock button (October 19)
 

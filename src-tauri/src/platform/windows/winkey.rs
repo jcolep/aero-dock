@@ -135,11 +135,26 @@ impl Tracker {
     }
 }
 
-/// Which Start menu to open.
+/// Which Start menu to open, or (only while tracing) what the hook saw, to write down off the hook's thread.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Open {
     Ours,
     Original,
+    Saw { vk: u32, down: bool, injected: bool, verdict: Verdict, sent: Option<bool>, error: u32, front: isize },
+}
+
+/// The class and program of a window, for the trace.
+fn describe(hwnd: isize) -> String {
+    use windows::Win32::Foundation::HWND;
+    use windows::Win32::UI::WindowsAndMessaging::{GetClassNameW, GetWindowThreadProcessId};
+    let hwnd = HWND(hwnd as *mut _);
+    let mut class = [0u16; 128];
+    let n = unsafe { GetClassNameW(hwnd, &mut class) } as usize;
+    let mut pid = 0u32;
+    unsafe { GetWindowThreadProcessId(hwnd, Some(&mut pid)) };
+    let exe = crate::platform::windows::running::process_path(pid).unwrap_or_default();
+    let exe = exe.rsplit('\\').next().unwrap_or("").to_string();
+    format!("{:#x} {} ({exe}, pid {pid})", hwnd.0 as isize, String::from_utf16_lossy(&class[..n]))
 }
 
 static TRACKER: Mutex<Option<Tracker>> = Mutex::new(None);
@@ -178,23 +193,37 @@ unsafe extern "system" fn key_proc(code: i32, wparam: WPARAM, lparam: LPARAM) ->
             };
             if let Some(down) = down {
                 let verdict = TRACKER.lock().get_or_insert_with(Tracker::default).key(info.vkCode, down);
+                let mut sent = None;
+                let mut error = 0;
+                let mut swallow = false;
                 match verdict {
                     Verdict::Pass => {}
                     Verdict::Ours => {
                         // the mask, then the release held back; if Windows refuses them, the real release goes on
                         let win = info.vkCode as u16;
-                        if send(&[key_input(MASK, false, false), key_input(MASK, true, false), key_input(win, true, true)]) {
-                            if let Some(tx) = SENDER.lock().as_ref() {
-                                let _ = tx.send(Open::Ours);
-                            }
-                            return LRESULT(1);
+                        let ok = send(&[key_input(MASK, false, false), key_input(MASK, true, false), key_input(win, true, true)]);
+                        if !ok {
+                            error = unsafe { windows::Win32::Foundation::GetLastError() }.0;
                         }
+                        sent = Some(ok);
+                        swallow = ok;
                     }
-                    Verdict::Original => {
-                        if let Some(tx) = SENDER.lock().as_ref() {
-                            let _ = tx.send(Open::Original);
-                        }
+                    Verdict::Original => {}
+                }
+                if let Some(tx) = SENDER.lock().as_ref() {
+                    if crate::core::trace::enabled() && (info.vkCode == LWIN || info.vkCode == RWIN || verdict != Verdict::Pass) {
+                        let front = unsafe { windows::Win32::UI::WindowsAndMessaging::GetForegroundWindow() }.0 as isize;
+                        let injected = info.flags.0 & 0x10 != 0;
+                        let _ = tx.send(Open::Saw { vk: info.vkCode, down, injected, verdict, sent, error, front });
                     }
+                    match verdict {
+                        Verdict::Ours if swallow => drop(tx.send(Open::Ours)),
+                        Verdict::Original => drop(tx.send(Open::Original)),
+                        _ => {}
+                    }
+                }
+                if swallow {
+                    return LRESULT(1);
                 }
             }
         }
@@ -213,6 +242,14 @@ pub fn start(enabled: bool, open_ours: impl Fn() + Send + 'static) {
     let opener = std::thread::Builder::new().name("winkey-open".into()).spawn(move || {
         while let Ok(open) = rx.recv() {
             match open {
+                Open::Saw { vk, down, injected, verdict, sent, error, front } => {
+                    crate::trace!(
+                        "winkey: {vk:#x} {} {}{verdict:?} sent={sent:?} error={error} front={}",
+                        if down { "down" } else { "up" },
+                        if injected { "(injected) " } else { "" },
+                        describe(front)
+                    );
+                }
                 Open::Ours => open_ours(),
                 // after the hook has let Ctrl's release through: a Windows key press of our own, which Windows opens
                 // its menu for

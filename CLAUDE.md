@@ -304,7 +304,12 @@ Say plainly in a report when something native was not seen.
   Windows) sends a tagged LWin tap once Ctrl is up, which opens Windows' menu. The decision is `Tracker`, plain
   code with tests. **Not** Open-Shell's way (it IAT-hooks twinui's `RegisterHotKey(MOD_WIN, 0)` inside Explorer):
   code in Explorer is not for a work machine. Elevated foreground: the hook isn't shown those keys (UIPI), so
-  Windows' menu opens there. Untested by hand so far (the owner presses the key).
+  Windows' menu opens there. **The hook needs `.device_event_filter(DeviceEventFilter::Always)` on the Builder**
+  (lib.rs): with tao's default it got no keys at all while our own WebView2 window had the keyboard (tauri-apps/wry
+  #1761), so a press with our Start open (or just hidden but still foreground) opened Windows' menu, which then took
+  the keyboard and our watch closed ours. Found natively: `trace.on` logs every Win event, its verdict, the send
+  and the foreground (`winkey:` lines), and `start: shown/closing`; Win taps sent by a script (untagged) go through
+  the hook like real ones. Checked October 19 on both monitors: open/close/open/close, Windows' menu never up.
 - **Gliding highlight** (`engine/lens/useGlideHighlight.tsx`): the menu bar lens made general (four
   edge springs, the leading edges quick, stretch capped, shaped like what it sits on, held inside
   `data-lens-clip` lists) **and drawn like it**: *above* the items with a refraction backdrop filter

@@ -32,6 +32,10 @@ pub fn run() {
     commands::settings::apply_gpu_choice(context.config_mut());
 
     tauri::Builder::default()
+        // No raw keyboard and mouse events (nothing here reads them). Registering for them, which tao does by default
+        // while a window of ours has focus, kept the Windows key's hook (`winkey`) from being called at all while our
+        // own windows had the keyboard, so Windows' Start menu opened instead (tauri-apps/wry#1761).
+        .device_event_filter(tauri::DeviceEventFilter::Always)
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             // Second launch: just make sure the existing docks are visible.
             for window in commands::dock::dock_windows(app) {

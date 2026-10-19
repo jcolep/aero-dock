@@ -724,7 +724,7 @@ fn window_aumid(hwnd: HWND) -> Option<String> {
     }
 }
 
-fn process_path(pid: u32) -> Option<String> {
+pub fn process_path(pid: u32) -> Option<String> {
     unsafe {
         let handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid).ok()?;
         let mut buf = [0u16; 1024];

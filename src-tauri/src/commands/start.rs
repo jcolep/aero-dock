@@ -250,6 +250,7 @@ fn place_and_show(app: &AppHandle, monitor: &MonitorInfoEx) -> AeroResult<()> {
     window.show()?;
     window.set_always_on_top(true)?;
     window.set_focus()?;
+    crate::trace!("start: shown {:#x}, foreground now {:#x} (was {:#x})", hwnd.0 as isize, unsafe { GetForegroundWindow() }.0 as isize, previous.0 as isize);
     let _ = app.emit_to(LABEL, OPEN_EVENT, Opening { previous: previous.0 as isize as i64, backdrop });
     watch(app.clone(), hwnd, monitor.scale);
     Ok(())
@@ -334,6 +335,7 @@ fn watch(app: AppHandle, window_handle: HWND, scale: f64) {
             if !outside && started.elapsed() > Duration::from_millis(600) {
                 let front = unsafe { GetForegroundWindow() };
                 if front != hwnd && !front.0.is_null() {
+                    crate::trace!("start: closing, the keyboard went to {:#x}", front.0 as isize);
                     outside = true;
                 }
             }
