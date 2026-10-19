@@ -30,7 +30,7 @@ import type {
   WidgetStyle,
   WifiNetwork,
 } from "./types";
-import type { DesktopBounds, FrameRow, Download, FoundFile, HitRect, MediaAction, NowPlaying, Profile } from "./types";
+import type { DesktopBounds, FrameRow, Download, FoundFile, HitRect, JumpItem, JumpList, MediaAction, NowPlaying, Profile } from "./types";
 
 export const ipc = {
   // settings
@@ -59,6 +59,13 @@ export const ipc = {
   /** What an app calls itself (its Start menu name, or the description in its
    *  version information), as opposed to the title of a window it has open. */
   appDisplayName: (target: string) => invoke<string | null>("app_display_name", { target }),
+  /** An app's Jump List (what the taskbar shows on a right-click), or null if it has none. */
+  jumpList: (target: string, exe: string, hwnds: number[], pids: number[]) =>
+    invoke<JumpList | null>("jump_list", { target, exe, hwnds, pids }),
+  jumpOpen: (item: JumpItem, exe: string) => invoke<void>("jump_open", { item, exe }),
+  /** How light the screen is behind a part of this window (CSS px), for a panel to keep its text readable. */
+  backdropLight: (x: number, y: number, width: number, height: number, cols: number, rows: number) =>
+    invoke<{ cols: number; rows: number; light: number[] } | null>("backdrop_light", { x, y, width, height, cols, rows }),
   resolveIcons: (targets: string[], style?: string, tint?: string) =>
     invoke<Record<string, string>>("resolve_icons", { targets, style: style ?? null, tint: tint ?? null }),
   launch: (target: string, args?: string) =>

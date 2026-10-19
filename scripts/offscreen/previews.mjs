@@ -57,6 +57,23 @@ try {
     check(/rgba\(255, 128, 110/.test(warm), `${name}: the close bar warms to red under the pointer`);
     if (n === 1) shots[`${name}, close under the pointer`] = await h.shot(Math.max(0, r.x), Math.max(0, r.y), r.w, r.h, 2);
   }
+  // readable over a light window behind: the glass is darkened there (the Start menu's veil), and not over a dark one
+  for (const [name, light, want] of [["over a dark window", 0.1, false], ["over a white window", 0.95, true]]) {
+    await h.move(5, 5);
+    await h.sleep(600);
+    await h.eval(`window.__light = ${light}`);
+    const at = await iconOf("/mail/i");
+    await h.move(at.x, at.y);
+    await h.sleep(1300);
+    const veiled = await h.eval("(() => { const f = document.querySelector('.windows-flyout'); return f ? { veil: !!f.querySelector('.windows-flyout-veil'), flag: f.hasAttribute('data-veiled') } : null; })()");
+    check(veiled && veiled.veil === want && veiled.flag === want, `${name}: ${want ? "the glass is darkened behind the titles and Close" : "nothing is added"} (${JSON.stringify(veiled)})`);
+    if (want) {
+      const r = await h.eval("(() => { const b = document.querySelector('.windows-flyout').getBoundingClientRect(); return { x: b.left - 20, y: b.top - 20, w: b.width + 40, h: b.height + 40 }; })()");
+      await h.desktop("#f4f6f8");
+      await h.sleep(200);
+      shots[name] = await h.shot(Math.max(0, r.x), Math.max(0, r.y), r.w, r.h, 2);
+    }
+  }
   check((await h.errors()).length === 0, "no errors in the page");
   console.log("sheet:", await h.sheet(shots, "previews", 700));
 } finally {

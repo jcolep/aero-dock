@@ -59,7 +59,7 @@ struct Opening {
 
 /// How light what is behind the panel is: a grid laid over the panel, row by row, 0 (black) to 1 (white).
 #[derive(Debug, Clone, Serialize)]
-struct Backdrop {
+pub struct Backdrop {
     cols: usize,
     rows: usize,
     light: Vec<f32>,
@@ -78,6 +78,35 @@ fn backdrop_behind(x: i32, y: i32, width: i32, height: i32, scale: f64) -> Optio
     let area = crate::platform::windows::monitors::Rect { x: x + margin, y: y + margin, width: width - 2 * margin, height: height - 2 * margin };
     let picture = crate::platform::windows::screenpick::Picture::screen(&area)?;
     Some(Backdrop { cols: BACKDROP_COLS, rows: BACKDROP_ROWS, light: picture.light_grid(BACKDROP_COLS, BACKDROP_ROWS) })
+}
+
+/// How light the screen is behind a part of the calling window (CSS pixels within it), as a `cols` × `rows` grid:
+/// for a panel of the dock's (the window previews) to keep its text readable over a light window behind it, as the
+/// Start menu does. Looked at once, as the panel opens, before it has been drawn.
+#[tauri::command]
+pub async fn backdrop_light(
+    window: tauri::WebviewWindow,
+    x: f64,
+    y: f64,
+    width: f64,
+    height: f64,
+    cols: usize,
+    rows: usize,
+) -> AeroResult<Option<Backdrop>> {
+    let origin = window.inner_position()?;
+    let scale = window.scale_factor()?;
+    let (cols, rows) = (cols.clamp(1, 12), rows.clamp(1, 12));
+    let area = crate::platform::windows::monitors::Rect {
+        x: origin.x + (x * scale).round() as i32,
+        y: origin.y + (y * scale).round() as i32,
+        width: ((width * scale).round() as i32).max(1),
+        height: ((height * scale).round() as i32).max(1),
+    };
+    tauri::async_runtime::spawn_blocking(move || {
+        crate::platform::windows::screenpick::Picture::screen(&area).map(|p| Backdrop { cols, rows, light: p.light_grid(cols, rows) })
+    })
+    .await
+    .map_err(|e| AeroError::other(format!("backdrop task failed: {e}")))
 }
 
 /// Whoever had the keyboard before the menu took it.

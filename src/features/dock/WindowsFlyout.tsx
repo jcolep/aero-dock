@@ -9,11 +9,13 @@ import { layoutRect } from "./layoutRect";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
 import type { Settings } from "../../ipc/types";
 import { targetKey, useRunning, windowKey } from "../../state/runningStore";
+import { useSettings } from "../../state/settingsStore";
+import { veilFor, type Veil } from "../start/readability";
 import { flyoutStyle, useMenu } from "./menuStore";
 import { usePanelMotion } from "./usePanelMotion";
 import "./windowsflyout.css";
@@ -159,6 +161,34 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
     };
   }, [active, close]);
 
+  // Readable over whatever is behind: as the shelf opens, the screen behind where it will be is looked at once, and
+  // its glass darkened where that is light (the Start menu's veil, readability.ts), so the titles and the Close
+  // buttons do not wash out over a white window. Follows the Start menu's "Keep text readable" setting.
+  const flyoutRef = useRef<HTMLDivElement>(null);
+  const [veil, setVeil] = useState<Veil | null>(null);
+  const readable = useSettings((s) => s.settings?.start.adaptiveTint !== false);
+  useEffect(() => {
+    setVeil(null);
+    if (!active || !readable) return;
+    let live = true;
+    const frame = requestAnimationFrame(() => {
+      const el = flyoutRef.current;
+      if (!el) return;
+      // where it will finally be: layout, not its bounding box, which the entrance's transform shrinks
+      const r = layoutRect(el);
+      ipc
+        .backdropLight(r.left, r.top, r.width, r.height, 4, 4)
+        .then((b) => live && setVeil(veilFor(b)))
+        .catch(() => undefined);
+    });
+    return () => {
+      live = false;
+      cancelAnimationFrame(frame);
+    };
+    // looked at once per opening, for this app
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, item?.id, readable]);
+
   const cols = Math.min(windows.length, COLS_MAX);
   const flyoutWidth = cols * (SLOT_W + 10) + 18;
   const single = windows.length === 1;
@@ -175,8 +205,10 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
     <AnimatePresence>
       {active && item && (
         <motion.div
+          ref={flyoutRef}
           className="windows-flyout glass"
-          style={{ ...style, transformOrigin: pm.origin }}
+          data-veiled={veil ? "" : undefined}
+          style={{ ...style, transformOrigin: pm.origin, ...(veil ? { ["--wf-shadow" as string]: veil.shadow.toFixed(3) } : {}) }}
           initial={pm.initial}
           animate={pm.animate}
           exit={pm.exit}
@@ -185,6 +217,7 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
           onMouseLeave={() => useMenu.getState().scheduleClose(350)}
         >
           <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
+          {veil && <span className="windows-flyout-veil" aria-hidden style={{ backgroundImage: `url(${veil.image})` }} />}
           {/* one window: its title, once, at the top; several: the app's name, and each window's title over its picture */}
           <div className="windows-flyout-title">{single ? (windows[0].title || item.name) : item.name}</div>
           <div

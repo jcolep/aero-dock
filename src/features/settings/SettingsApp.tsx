@@ -962,7 +962,7 @@ export function SettingsApp() {
               <AeroToggle
                 label="Keep text readable over light backgrounds"
                 checked={settings.start.adaptiveTint !== false}
-                hint="Where what is behind the menu is light, its glass is darkened there, and the text given a soft shadow. Measured once as it opens, so nothing shifts while it is open"
+                hint="Where what is behind the menu (or the dock's window previews) is light, its glass is darkened there, and the text given a soft shadow. Measured once as it opens, so nothing shifts while it is open"
                 onChange={(v) => set((d) => void (d.start.adaptiveTint = v))}
               />
               <div className="ctl-row">

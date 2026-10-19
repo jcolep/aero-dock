@@ -17,6 +17,7 @@ pub mod genie;
 pub mod glass;
 pub mod fullscreen;
 pub mod hotkeys;
+pub mod jumplist;
 pub mod winkey;
 pub mod icons;
 pub mod memory;

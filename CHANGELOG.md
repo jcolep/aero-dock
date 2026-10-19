@@ -50,6 +50,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Jump Lists, readable previews (October 19)
+
+- **Right-clicking an app in the dock shows its Jump List**, as the taskbar does, above the menu's own items: Remote
+  Desktop's recent connections, VS Code's recent folders and files and its "New Window", a browser's frequent sites,
+  File Explorer's pinned and frequent folders, an app's recent documents. A click opens it the way the taskbar would
+  (a file in an app's list opens in that app). Read only; nothing is written to an app's list.
+- **The window previews keep their titles and Close readable** over a light window behind them, as the Start menu
+  does (the same "Keep text readable" setting).
+
 ### Fixes (October 19)
 
 - **Restart Liquidock works**: it showed "Windows cannot find '\\'" and did not come back.

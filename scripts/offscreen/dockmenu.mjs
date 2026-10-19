@@ -96,6 +96,28 @@ try {
   await rightAt((bar.l + bar.r) / 2, bar.t - 140);
   check(!(await q("!!document.querySelector('.dock-menu')")), "a right-click in the empty room above the dock opens nothing");
 
+  // an app's Jump List, at the top of its menu, as on the taskbar: Remote Desktop's recent connections and a task
+  await h.eval(`window.__jump = { appId: "Microsoft.Windows.RemoteDesktop", sections: [
+    { title: "Recent", items: [
+      { title: "sw-dwa-03", kind: "link", path: "C:\\\\Windows\\\\System32\\\\mstsc.exe", args: '/v:"sw-dwa-03"', dir: "" },
+      { title: "sw-dwl-01", kind: "link", path: "C:\\\\Windows\\\\System32\\\\mstsc.exe", args: '/v:"sw-dwl-01"', dir: "" } ] },
+    { title: "Tasks", items: [ { title: "New connection", kind: "link", path: "C:\\\\Windows\\\\System32\\\\mstsc.exe", args: "", dir: "" } ] } ] }`);
+  await rightAt(icon.x, icon.y);
+  await h.sleep(300);
+  const jumpRows = await q("[...document.querySelectorAll('.aero-menu:not(.dock-menu) .aero-menu-jump .aero-menu-heading, .aero-menu:not(.dock-menu) .aero-menu-jump-item')].map((e) => e.textContent.trim())");
+  check(JSON.stringify(jumpRows) === JSON.stringify(["Recent", "sw-dwa-03", "sw-dwl-01", "Tasks", "New connection"]), `the app's Jump List heads its menu (${JSON.stringify(jumpRows)})`);
+  const firstItem = await q("(() => { const items = [...document.querySelectorAll('.aero-menu:not(.dock-menu) .aero-menu-item')]; return items[0]?.classList.contains('aero-menu-jump-item'); })()");
+  check(firstItem, "above the menu's own items");
+  shots["jump list"] = await h.shot(Math.max(0, icon.x - 160), Math.max(0, icon.y - 470), 320, 450);
+  const before2 = await q("window.__calls.length");
+  const conn = await q("(() => { const r = document.querySelector('.aero-menu-jump-item').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()");
+  await h.click(conn.x, conn.y);
+  await h.sleep(400);
+  const opened = await q(`window.__calls.slice(${before2}).filter((c) => c.cmd === 'jump_open').map((c) => c.args.item.args)`);
+  check(JSON.stringify(opened) === JSON.stringify(['/v:"sw-dwa-03"']) && !(await q("!!document.querySelector('.aero-menu:not(.dock-menu)')")), `clicking a connection opens it, and the menu closes (${JSON.stringify(opened)})`);
+  await h.eval("window.__jump = null");
+  await awayClick();
+
   // nor on the dock's own things: the Recycle Bin (which empties on a right-click, its own) and the clock
   for (const [what, sel] of [["the Recycle Bin", ".widget-chip-button:last-of-type"], ["the clock", ".widget-clock-button"]]) {
     const r = await q(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e) return null; const b = e.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; })()`);

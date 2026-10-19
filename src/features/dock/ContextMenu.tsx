@@ -10,7 +10,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
-import type { AudioDevice, Settings, StackView } from "../../ipc/types";
+import type { AudioDevice, JumpList, Settings, StackView } from "../../ipc/types";
 import { exeKey, useAppAudio } from "../../state/audioStore";
 import type { DockItemView } from "../../state/dockStore";
 import { flyoutStyle, useMenu } from "./menuStore";
@@ -212,6 +212,23 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
     setShowDevices(false);
   }, [item?.id]);
 
+  // the app's Jump List (recent connections, recent files, its own tasks), read as the menu opens for it
+  const [jump, setJump] = useState<JumpList | null>(null);
+  const exe = item ? (item.windows[0]?.exe ?? (item.target.toLowerCase().endsWith(".exe") ? item.target : item.audioExe ?? "")) : "";
+  useEffect(() => {
+    setJump(null);
+    if (!item || item.kind === "stack") return;
+    let live = true;
+    ipc
+      .jumpList(item.target, exe, item.windows.map((w) => w.hwnd), [...new Set(item.windows.map((w) => w.pid))])
+      .then((list) => live && setJump(list))
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item?.id]);
+
   // endpoints are only listed once the user asks for them
   useEffect(() => {
     if (!showDevices || devices.length > 0) return;
@@ -265,6 +282,31 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
           transition={pm.transition}
         >
           <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
+          {jump && jump.sections.length > 0 && (
+            // the app's own list first, as on the taskbar; held to a height of its own so the menu's items below it
+            // are always in view
+            <div className="aero-menu-jump">
+              {jump.sections.map((section) => (
+                <div key={section.title} className="aero-menu-jump-section">
+                  <div className="aero-menu-heading">{section.title}</div>
+                  {section.items.map((entry, i) => (
+                    <button
+                      key={`${entry.path}|${entry.args}|${i}`}
+                      className="aero-menu-item aero-menu-jump-item"
+                      title={entry.kind === "file" ? entry.path : entry.title}
+                      onClick={() => {
+                        ipc.jumpOpen(entry, exe).catch(notify.on(`Could not open ${entry.title}`));
+                        close();
+                      }}
+                    >
+                      <span className="aero-menu-window-title">{entry.title}</span>
+                    </button>
+                  ))}
+                </div>
+              ))}
+              <div className="aero-menu-separator" />
+            </div>
+          )}
           {item.windows.length > 1 && (
             <div className="aero-menu-windows">
               {item.windows.slice(0, 6).map((w) => (

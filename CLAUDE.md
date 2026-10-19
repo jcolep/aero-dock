@@ -708,6 +708,19 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   The menu bar's lens (`menubar/Lens.tsx`) is back to its first behaviour by the owner's choice: between buttons it
   waits on the last one (no `floatTo`, removed October 19; `lensglide.mjs` checks it waits), and it fades on any
   document leave/hide (a no-activate window can miss leaves).
+- **Jump Lists** (`platform/windows/jumplist.rs`, `jump_list`/`jump_open`, the top of `ContextMenu`): read with the
+  undocumented `IAutomaticDestinationList` (CLSID F0AE1542…, IID E9C5EF8D… on Win10/11, BC10DCE3… before) and
+  `IInternalCustomDestinationList` (CLSID 77F10CF0…, IID 507101CD…), layouts from 0x5bfa's JumpListManager (MIT); the
+  first project here to declare COM interfaces (`windows_core::interface`, hence the `windows-core = 0.62` line).
+  **The hard part is the AppUserModelID**: window's own, process's package, `shell:AppsFolder\` target, Explorer's
+  well-known one, **the Start menu entry whose `System.Link.TargetParsingPath` is the exe** (Remote Desktop is
+  `Microsoft.Windows.RemoteDesktop`, VS Code `Microsoft.VisualStudioCode`), then the implicit known-folder path
+  (`{6D809377…}\Notepad++\notepad++.exe`). File names under `Recent\*Destinations` are CRC-64 (poly
+  0x92C64265D32139A4, reflected, init all ones) of the **uppercased** UTF-16LE id (`find_the_hash`,
+  `match_files_to_apps`, `print_lists` are ignored tests that read this machine's lists). `APPDESTCATEGORY` is given
+  spare room (undocumented). Files open with the app (`open`), links as written. `dockmenu.mjs` covers the menu.
+- **Readable previews**: `backdrop_light` (start.rs: the calling window's CSS rect → a light grid of the screen behind)
+  + `veilFor` (start/readability.ts) in `WindowsFlyout`, behind `start.adaptiveTint`. `previews.mjs` checks both cases.
 - **App names**: `runningStore.appName(exe)` looks up `app_display_name` (FileDescription) once per exe and caches it
   ("Microsoft Teams", not "Ms-teams"); draw with `useAppNames` subscribed. Menu bar, Mission Control, dock tooltips.
 - **Spawning through cmd needs `raw_arg`** (`restart_app`): `arg` escapes inner quotes as `\"`, which cmd reads

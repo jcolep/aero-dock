@@ -34,6 +34,9 @@ image = { version = "0.25", default-features = false, features = ["png", "jpeg",
 [target.'cfg(windows)'.dependencies]
 webview2-com = "0.38"
 windows-core-061 = { package = "windows-core", version = "0.61" }
+# the same windows-core the `windows` crate below is built on (already in the lock file), named so that its
+# `#[interface]` macro can find it: platform/windows/jumplist.rs declares two undocumented shell interfaces
+windows-core = "0.62"
 windows-numerics = "0.3.1"
 
 [target.'cfg(windows)'.dependencies.windows]

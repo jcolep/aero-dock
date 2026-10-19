@@ -256,6 +256,11 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "get_stats": { window.__statsTick = (window.__statsTick || 0) + 1; const t = window.__statsTick; return { cpuPercent: 20 + ((t * 7) % 50), memoryPercent: 61, memoryUsedMb: 19800, memoryTotalMb: 32500, netDown: 180000 + t * 9000, netUp: 24000 }; }
         case "get_top_processes": return [{ name: "msedge", cpuPercent: 6.2, memoryMb: 1660, processes: 14 }, { name: "Code", cpuPercent: 3.1, memoryMb: 2526, processes: 19 }, { name: "Teams", cpuPercent: 1.4, memoryMb: 640, processes: 7 }, { name: "explorer", cpuPercent: 0.4, memoryMb: 180, processes: 1 }];
         case "resolve_icons": { const out = {}; for (const t of (args && args.targets) || []) out[t] = ICON; return out; }
+        // an app's Jump List: a script sets window.__jump (null, the default, is an app with none)
+        case "jump_list": return window.__jump ?? null;
+        case "jump_open": return null;
+        // how light the screen is behind a panel: a script sets window.__light (0..1, everywhere); dark by default
+        case "backdrop_light": return { cols: args.cols, rows: args.rows, light: Array.from({ length: args.cols * args.rows }, () => window.__light ?? 0.1) };
         case "plugin:event|listen": (listeners[args.event] = listeners[args.event] || []).push(args.handler); return args.handler;
         case "plugin:event|unlisten": return null;
         case "get_user_idle": case "get_idle": return false;

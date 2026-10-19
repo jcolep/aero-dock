@@ -238,6 +238,33 @@ pub async fn app_display_name(target: String) -> AeroResult<Option<String>> {
         .map_err(|e| AeroError::other(format!("name lookup failed: {e}")))
 }
 
+/// An app's Jump List, as the taskbar would show it on a right-click (`platform::windows::jumplist`): looked for under
+/// each name the app's list could have (its windows' own, its package's, its Start menu entry's, its path's). Up to ten
+/// entries a section. None if it has none.
+#[tauri::command]
+pub async fn jump_list(
+    target: String,
+    exe: String,
+    hwnds: Vec<isize>,
+    pids: Vec<u32>,
+) -> AeroResult<Option<crate::platform::windows::jumplist::JumpList>> {
+    tauri::async_runtime::spawn_blocking(move || {
+        use crate::platform::windows::jumplist;
+        let ids = jumplist::app_ids(&target, &exe, &hwnds, &pids);
+        jumplist::read(&ids, 10)
+    })
+    .await
+    .map_err(|e| AeroError::other(format!("jump list task failed: {e}")))
+}
+
+/// Open one entry of a Jump List, as the taskbar would.
+#[tauri::command]
+pub async fn jump_open(item: crate::platform::windows::jumplist::JumpItem, exe: String) -> AeroResult<()> {
+    tauri::async_runtime::spawn_blocking(move || crate::platform::windows::jumplist::open(&item, &exe))
+        .await
+        .map_err(|e| AeroError::other(format!("open task failed: {e}")))?
+}
+
 /// Launch elevated (UAC prompt) — the "Run as administrator" menu action.
 #[tauri::command]
 pub async fn launch_as_admin(target: String, args: Option<String>) -> AeroResult<()> {

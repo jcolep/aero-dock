@@ -608,6 +608,26 @@ export interface MonitorInfoEx {
   isPrimary: boolean;
 }
 
+/** One entry of an app's Jump List: a shortcut to run, or a file or folder to open with the app. */
+export interface JumpItem {
+  title: string;
+  kind: "link" | "file";
+  path: string;
+  args: string;
+  dir: string;
+}
+
+export interface JumpSection {
+  title: string;
+  items: JumpItem[];
+}
+
+/** An app's Jump List, as the taskbar shows it on a right-click. */
+export interface JumpList {
+  appId: string;
+  sections: JumpSection[];
+}
+
 export interface WindowInfo {
   hwnd: number;
   title: string;
