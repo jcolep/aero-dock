@@ -24,8 +24,8 @@
 
 .windows-flyout[data-veiled] {
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, calc(0.55 * var(--wf-shadow, 0))),
-    0 0 10px rgba(0, 0, 0, calc(0.3 * var(--wf-shadow, 0)));
+    0 1px 2px rgba(0, 0, 0, calc(0.55 * var(--veil-shadow, 0))),
+    0 0 10px rgba(0, 0, 0, calc(0.3 * var(--veil-shadow, 0)));
 }
 
 .windows-flyout[data-veiled] :is(.windows-flyout-title, .windows-preview-title, .windows-flyout-close) {

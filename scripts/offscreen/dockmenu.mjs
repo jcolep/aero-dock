@@ -115,6 +115,22 @@ try {
   await h.sleep(400);
   const opened = await q(`window.__calls.slice(${before2}).filter((c) => c.cmd === 'jump_open').map((c) => c.args.item.args)`);
   check(JSON.stringify(opened) === JSON.stringify(['/v:"sw-dwa-03"']) && !(await q("!!document.querySelector('.aero-menu:not(.dock-menu)')")), `clicking a connection opens it, and the menu closes (${JSON.stringify(opened)})`);
+  // a long list: four sections of ten. The menu keeps to the window (its top is not cut off), its own items stay in
+  // view at the bottom, and the list scrolls instead
+  await h.eval(`window.__jump = { appId: "x", sections: ["Pinned", "Recent", "Frequent", "Tasks"].map((t) => ({ title: t, items: Array.from({ length: 10 }, (_, i) => ({ title: t + " " + (i + 1), kind: "link", path: "C:\\\\x.exe", args: String(i), dir: "" })) })) }`);
+  await rightAt(icon.x, icon.y);
+  await h.sleep(400);
+  const fit = await q(`(() => {
+    const m = document.querySelector('.aero-menu:not(.dock-menu)'); const r = m.getBoundingClientRect();
+    const items = [...m.querySelectorAll(':scope > div > .aero-menu-item')]; const last = items[items.length - 1]?.getBoundingClientRect();
+    const j = m.querySelector('.aero-menu-jump');
+    return { top: Math.round(r.top), bottom: Math.round(r.bottom), lastBottom: last ? Math.round(last.bottom) : null, lastText: items[items.length - 1]?.textContent, scrolls: j.scrollHeight > j.clientHeight + 4, labels: [...m.querySelectorAll('.aero-menu-item')].map((b) => b.textContent.trim()) };
+  })()`);
+  check(fit.top >= 0, `a long Jump List: the menu's top stays inside the window (top ${fit.top})`);
+  check(fit.lastBottom !== null && fit.lastBottom <= fit.bottom, `and its own last item is in view ("${fit.lastText}")`);
+  check(fit.scrolls, "the Jump List scrolls instead");
+  check(!fit.labels.includes("Dock settings…") && !fit.labels.some((l) => l.startsWith("Audio output")), "no \"Dock settings…\", and no \"Audio output\" unless it is switched on");
+  shots["long jump list"] = await h.shot(Math.max(0, icon.x - 160), 0, 320, Math.min(560, fit.bottom + 20));
   await h.eval("window.__jump = null");
   await awayClick();
 

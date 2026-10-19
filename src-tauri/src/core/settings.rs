@@ -114,6 +114,8 @@ pub struct DockSettings {
     /// End Task does, so unsaved work is lost), `close` asks its windows to close the way their own close button
     /// would (one with unsaved work still asks first).
     pub middle_click: String,
+    /// An app's right-click menu offers "Audio output", to choose the speakers it plays through.
+    pub menu_audio_output: bool,
     /// How strongly the theme's color tints the dock's glass, 0 to 1.5 (1 = as the material has it).
     pub tint: f32,
     /// Tint the dock's glass with the theme color (Color & materials); off, it is plain glass.
@@ -174,6 +176,7 @@ impl Default for DockSettings {
             show_system_status: true,
             attention_bounce: true,
             middle_click: "endTask".into(),
+            menu_audio_output: false,
             minimize_effect: "genie".into(),
             tint: 1.0,
             tint_with_theme: true,

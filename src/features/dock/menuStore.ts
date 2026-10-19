@@ -80,6 +80,16 @@ export function anchorFor(target: HTMLElement): MenuAnchor {
  *
  * `maxHeight` (when known) keeps side-edge flyouts inside the window.
  */
+/**
+ * The room above the dock's bar that its window keeps for a menu (DockBar), and so the tallest a menu may be: an app's
+ * menu holds itself to it (less a little air), its Jump List giving up height and scrolling, so the menu's own items
+ * are always in view and its top is never cut off by the window's edge. The window is see-through outside what is
+ * shown, so room kept for a tall menu costs nothing to look at.
+ */
+export const MENU_ROOM = 560;
+/** The air kept between a menu and the window's far edge. */
+export const MENU_AIR = 18;
+
 export function flyoutStyle(
   edge: DockEdge,
   anchor: MenuAnchor,

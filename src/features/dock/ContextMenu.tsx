@@ -7,14 +7,15 @@ import { Roll } from "../../engine/type/Roll";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
 import type { AudioDevice, JumpList, Settings, StackView } from "../../ipc/types";
 import { exeKey, useAppAudio } from "../../state/audioStore";
 import type { DockItemView } from "../../state/dockStore";
-import { flyoutStyle, useMenu } from "./menuStore";
+import { flyoutStyle, MENU_AIR, useMenu } from "./menuStore";
 import { usePanelMotion } from "./usePanelMotion";
+import { useReadableVeil } from "./useReadableVeil";
 import { pinRunningItem } from "./pinRunning";
 import "./contextmenu.css";
 
@@ -115,11 +116,6 @@ function buildActions(item: DockItemView, settings: Settings): Action[] {
       label: "Unpin from Dock",
       run: () => ipc.unpinItem(item.id),
     });
-    actions.push({
-      label: "Dock settings…",
-      separatorAbove: true,
-      run: () => ipc.openSettings(),
-    });
     return actions;
   }
 
@@ -159,12 +155,6 @@ function buildActions(item: DockItemView, settings: Settings): Action[] {
       run: () => pinRunningItem(item, settings.pinned.length),
     });
   }
-
-  actions.push({
-    label: "Dock settings…",
-    separatorAbove: true,
-    run: () => ipc.openSettings(),
-  });
 
   if (item.windows.length === 1) {
     actions.push({
@@ -268,20 +258,37 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
   }, [item, close]);
 
   const style = anchor ? flyoutStyle(edge, anchor, MENU_WIDTH, 12, 360) : {};
+  // The most the menu may be: the room between the dock's bar and the window's far edge, less a little air (the
+  // window keeps MENU_ROOM for it). Its Jump List gives up height and scrolls, so the menu's own items are always in
+  // view and its top is never cut off.
+  const room = anchor
+    ? edge === "bottom"
+      ? anchor.top - 12 - MENU_AIR
+      : edge === "top"
+        ? anchor.winH - anchor.bottom - 12 - MENU_AIR
+        : anchor.winH - 16
+    : 0;
   const pm = usePanelMotion(edge);
+  // readable over a light window behind
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { veil, props: veiled } = useReadableVeil(!!item && !!anchor, menuRef, item?.id);
+  const showOutput = settings.dock.menuAudioOutput === true;
 
   return (
     <AnimatePresence>
       {item && anchor && (
         <motion.div
-          className="aero-menu glass"
-          style={{ ...style, transformOrigin: pm.origin }}
+          ref={menuRef}
+          className="aero-menu aero-menu-app glass"
+          {...("data-veiled" in veiled ? { "data-veiled": "" } : {})}
+          style={{ ...style, maxHeight: Math.max(160, room), transformOrigin: pm.origin, ...("style" in veiled ? veiled.style : {}) }}
           initial={pm.initial}
           animate={pm.animate}
           exit={pm.exit}
           transition={pm.transition}
         >
           <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
+          {veil && <span className="aero-menu-veil" aria-hidden style={{ backgroundImage: `url(${veil.image})` }} />}
           {jump && jump.sections.length > 0 && (
             // the app's own list first, as on the taskbar; held to a height of its own so the menu's items below it
             // are always in view
@@ -324,7 +331,7 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
               <div className="aero-menu-separator" />
             </div>
           )}
-          {item.kind !== "stack" && (
+          {item.kind !== "stack" && (audio || showOutput) && (
             <div className="aero-menu-audio">
               {audio && (
                 <button
@@ -340,15 +347,17 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
                   </span>
                 </button>
               )}
-              <button
-                className="aero-menu-item"
-                aria-expanded={showDevices}
-                onClick={() => setShowDevices((v) => !v)}
-              >
-                Audio output
-                <span className="aero-menu-hint">{showDevices ? "hide" : "choose"}</span>
-              </button>
-              {showDevices && (
+              {showOutput && (
+                <button
+                  className="aero-menu-item"
+                  aria-expanded={showDevices}
+                  onClick={() => setShowDevices((v) => !v)}
+                >
+                  Audio output
+                  <span className="aero-menu-hint">{showDevices ? "hide" : "choose"}</span>
+                </button>
+              )}
+              {showOutput && showDevices && (
                 <div className="aero-menu-devices">
                   {devices.length === 0 && (
                     <div className="aero-menu-note">Looking for outputs…</div>

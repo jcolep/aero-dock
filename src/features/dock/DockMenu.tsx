@@ -13,13 +13,14 @@ import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { Droplet } from "../../engine/brand/droplet";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
 import type { Settings } from "../../ipc/types";
 import { useSettings } from "../../state/settingsStore";
 import { flyoutStyle, useMenu } from "./menuStore";
 import { usePanelMotion } from "./usePanelMotion";
+import { useReadableVeil } from "./useReadableVeil";
 
 const MENU_WIDTH = 252;
 
@@ -96,21 +97,27 @@ export function DockMenu({ settings, edge }: { settings: Settings; edge: Setting
 
   const style = anchor ? flyoutStyle(edge, anchor, MENU_WIDTH, 12, 380) : {};
   const pm = usePanelMotion(edge);
+  // readable over a light window behind
+  const menuRef = useRef<HTMLDivElement>(null);
+  const { veil } = useReadableVeil(open, menuRef, anchor ? `${anchor.cx},${anchor.cy}` : null);
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={menuRef}
           className="aero-menu dock-menu glass"
           role="menu"
           aria-label="Dock"
-          style={{ ...style, transformOrigin: pm.origin }}
+          data-veiled={veil ? "" : undefined}
+          style={{ ...style, transformOrigin: pm.origin, ...(veil ? { ["--veil-shadow" as string]: veil.shadow.toFixed(3) } : {}) }}
           initial={pm.initial}
           animate={pm.animate}
           exit={pm.exit}
           transition={pm.transition}
         >
           <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} />
+          {veil && <span className="aero-menu-veil" aria-hidden style={{ backgroundImage: `url(${veil.image})` }} />}
           {rows(settings).map((row) => (
             <div key={row.label}>
               {row.separatorAbove && <div className="aero-menu-separator" />}

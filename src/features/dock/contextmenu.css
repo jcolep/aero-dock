@@ -75,13 +75,41 @@
 
 /* ---- the app's Jump List (jumplist.rs): its sections at the top ---- */
 
-/* held to a height of its own, scrolling, so the menu's items below are always in view however long the list */
+/* An app's menu is held to the room it has (ContextMenu: maxHeight). It is a column in which only the Jump List gives
+   up height, scrolling, so the menu's own items below are always in view however long the list. */
+.aero-menu-app {
+  display: flex;
+  flex-direction: column;
+}
+.aero-menu-app > * {
+  flex-shrink: 0;
+}
+.aero-menu-app > .aero-menu-jump {
+  flex: 0 1 auto;
+  min-height: 72px;
+}
 .aero-menu-jump {
   position: relative;
   z-index: 3;
-  max-height: min(320px, 46vh);
   overflow-y: auto;
   scrollbar-width: none;
+}
+
+/* Readable over a light window behind (useReadableVeil): a darker tint over the glass where what is behind is light,
+   under everything on it; and where any of it is light, a soft shadow under the text. */
+.aero-menu-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: var(--r);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.aero-menu[data-veiled] :is(.aero-menu-item, .aero-menu-heading, .dock-menu-label) {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, calc(0.6 * var(--veil-shadow, 0))),
+    0 0 10px rgba(0, 0, 0, calc(0.35 * var(--veil-shadow, 0)));
 }
 
 .aero-menu-heading {

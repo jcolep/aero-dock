@@ -57,6 +57,8 @@ export interface DockSettings {
   minimizeEffect: "genie" | "scale" | "off";
   /** What a middle click on an icon does: end the app, or ask its windows to close. */
   middleClick: "endTask" | "close";
+  /** An app's right-click menu offers "Audio output". */
+  menuAudioOutput: boolean;
   /** How strongly the theme's color tints the dock's glass, 0 to 1.5 (1 = as the material has it). */
   tint: number;
   /** Tint the dock's glass with the theme color (Color & materials); off, it is plain glass. */

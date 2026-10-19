@@ -666,6 +666,12 @@ export function SettingsApp() {
               )}
 
               <SettingsSub>Behaviour</SettingsSub>
+              <AeroToggle
+                label="Audio output in an app's menu"
+                checked={dock.menuAudioOutput === true}
+                hint="Right-click an app to choose which speakers it plays through"
+                onChange={(v) => set((d) => void (d.dock.menuAudioOutput = v))}
+              />
               <AeroSegmented<"endTask" | "close">
                 label="Middle click on an app"
                 hint={

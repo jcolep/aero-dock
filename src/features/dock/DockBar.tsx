@@ -37,7 +37,7 @@ import { tokensFromAccent } from "../../engine/themes/accent";
 import { FolderFlyout } from "./FolderFlyout";
 import { StackFlyout } from "./StackFlyout";
 import { WindowsFlyout } from "./WindowsFlyout";
-import { anchorFor, useMenu } from "./menuStore";
+import { anchorFor, MENU_ROOM, useMenu } from "./menuStore";
 import { pinRunningItem } from "./pinRunning";
 import "./dock.css";
 
@@ -46,7 +46,8 @@ const PAD_MAIN = 18; // dock padding along the axis
 // the bar's width (the window size is computed, not measured) costs a bit of
 // empty window rather than a clipped end.
 const EDGE_SLACK = 48;
-const MENU_SPACE = 360; // extra cross-axis room while a context menu is open
+// extra cross-axis room while a context menu is open (menuStore: the menu holds itself to it, its Jump List scrolling)
+const MENU_SPACE = MENU_ROOM;
 const FLYOUT_GAP = 16; // breathing room between a flyout and the window edge
 const TOAST_SPACE = 210; // extra cross-axis room while toasts are on screen
 // How close to the dock's end the pointer must get for that end's button to
