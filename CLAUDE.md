@@ -732,6 +732,14 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   0x92C64265D32139A4, reflected, init all ones) of the **uppercased** UTF-16LE id (`find_the_hash`,
   `match_files_to_apps`, `print_lists` are ignored tests that read this machine's lists). `APPDESTCATEGORY` is given
   spare room (undocumented). Files open with the app (`open`), links as written. `dockmenu.mjs` covers the menu.
+- **Jump List cache** (`features/dock/jumpCache.ts`): kept per target, read ahead on icon hover (`warmJump`, 60 s
+  fresh) and for every item 6 s after the dock settles (`warmAll`, one at a time on idle); the menu shows the kept list
+  and replaces it if a fresh read differs. The list ends on a whole row (ContextMenu trims `max-height` to the last
+  fitting row, never a lone heading) with mask fades (`data-more`/`data-scrolled`); the separator under it is outside
+  the scroller. The harness's `jump_list` takes `window.__jumpDelay`.
+- **Liquidock button hover** = a click effect via `effectsBus` `glint` (EffectsLayer), `dock.startShine` +
+  `startShineTune`; the drop's outline is a white `DROP_PATH` image (`dropShapeImage`). `dropglint.mjs` films it.
+  Shared `ClickTuneControls` (settings). Readability strength: `start.adaptiveTintStrength` → `veilFor(b, strength)`.
 - **Readable previews**: `backdrop_light` (start.rs: the calling window's CSS rect → a light grid of the screen behind)
   + `veilFor` (start/readability.ts) in `WindowsFlyout`, behind `start.adaptiveTint`. `previews.mjs` checks both cases.
 - **App names**: `runningStore.appName(exe)` looks up `app_display_name` (FileDescription) once per exe and caches it

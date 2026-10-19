@@ -129,9 +129,32 @@ try {
   check(fit.top >= 0, `a long Jump List: the menu's top stays inside the window (top ${fit.top})`);
   check(fit.lastBottom !== null && fit.lastBottom <= fit.bottom, `and its own last item is in view ("${fit.lastText}")`);
   check(fit.scrolls, "the Jump List scrolls instead");
+  const whole = await q(`(() => {
+    const j = document.querySelector('.aero-menu-jump'); const top = j.getBoundingClientRect().top; const h = j.clientHeight;
+    const rows = [...j.querySelectorAll('.aero-menu-heading, .aero-menu-jump-item')].map((e) => { const r = e.getBoundingClientRect(); return { t: r.top - top, b: r.bottom - top, heading: e.classList.contains('aero-menu-heading') }; });
+    const cut = rows.filter((r) => r.t < h - 0.5 && r.b > h + 0.5);
+    const lastShown = rows.filter((r) => r.b <= h + 0.5).pop();
+    return { cut: cut.length, lastIsHeading: !!lastShown?.heading, more: j.hasAttribute('data-more') };
+  })()`);
+  check(whole.cut === 0 && !whole.lastIsHeading, `the list ends on a whole row, not half of one or a lone heading (${JSON.stringify(whole)})`);
+  check(whole.more, "and fades at its foot, where there is more");
   check(!fit.labels.includes("Dock settings…") && !fit.labels.some((l) => l.startsWith("Audio output")), "no \"Dock settings…\", and no \"Audio output\" unless it is switched on");
   shots["long jump list"] = await h.shot(Math.max(0, icon.x - 160), 0, 320, Math.min(560, fit.bottom + 20));
-  await h.eval("window.__jump = null");
+  await awayClick();
+
+  // read ahead: with Windows slow to answer (0.8 s), an app whose icon the pointer has rested on opens its menu with
+  // the list already in it
+  await h.eval(`window.__jumpDelay = 800; window.__jump = { appId: "y", sections: [{ title: "Recent", items: [{ title: "kept one", kind: "link", path: "C:\\\\y.exe", args: "", dir: "" }] }] }`);
+  await h.move(icon.x + 2, icon.y);
+  await h.sleep(1200);
+  await h.click(icon.x + 2, icon.y, "right");
+  await h.sleep(120);
+  const early = await q("[...document.querySelectorAll('.aero-menu-jump-item')].map((b) => b.textContent.trim())");
+  check(early.length > 0, `the list kept for the app is in the menu as it opens (${early.length} entries at 120 ms)`);
+  await h.sleep(1000);
+  const fresh = await q("[...document.querySelectorAll('.aero-menu-jump-item')].map((b) => b.textContent.trim())");
+  check(JSON.stringify(fresh) === JSON.stringify(["kept one"]), `and the fresh read replaces it when it comes (${JSON.stringify(fresh)})`);
+  await h.eval("window.__jump = null; window.__jumpDelay = 0");
   await awayClick();
 
   // nor on the dock's own things: the Recycle Bin (which empties on a right-click, its own) and the clock

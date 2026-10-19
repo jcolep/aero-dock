@@ -50,6 +50,17 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The Liquidock button's hover, readability strength, menus that open whole (October 19)
+
+- **The Liquidock button plays the click effects on hover**: Press Dimple, Edge Halo, Shine Sweep or Light Bloom, on the
+  drop's own outline, with their own speed, opacity, size and colour (Settings › Dock items › On hover). Its old
+  glint, swell and rim trace became Shine Sweep, Light Bloom and Edge Halo.
+- **Readability strength**: one slider for how dark the glass goes over a light background, for the Start menu, the
+  window previews and the dock's menus (Settings › Glass & light › Readability, where the switch now lives too).
+- **An app's menu opens with its Jump List in it**: lists are read ahead (the pointer on an icon, and every app a
+  little after start) and the last one shown at once while a fresh one is read behind it.
+- **No half rows**: a Jump List that scrolls ends on a whole row and fades at the edge; the line under it stays put.
+
 ### Dock menus (October 19)
 
 - **An app's menu is never cut off**: with a long Jump List the menu keeps to the room above the dock, and the list

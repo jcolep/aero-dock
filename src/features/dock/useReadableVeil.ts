@@ -17,6 +17,7 @@ import { layoutRect } from "./layoutRect";
 export function useReadableVeil(open: boolean, ref: RefObject<HTMLElement | null>, key: string | null | undefined) {
   const [veil, setVeil] = useState<Veil | null>(null);
   const readable = useSettings((s) => s.settings?.start.adaptiveTint !== false);
+  const strength = useSettings((s) => s.settings?.start.adaptiveTintStrength ?? 1);
   useEffect(() => {
     setVeil(null);
     if (!open || !readable) return;
@@ -28,7 +29,7 @@ export function useReadableVeil(open: boolean, ref: RefObject<HTMLElement | null
       const r = layoutRect(el);
       ipc
         .backdropLight(r.left, r.top, r.width, r.height, 4, 4)
-        .then((b) => live && setVeil(veilFor(b)))
+        .then((b) => live && setVeil(veilFor(b, strength)))
         .catch(() => undefined);
     });
     return () => {
@@ -37,7 +38,7 @@ export function useReadableVeil(open: boolean, ref: RefObject<HTMLElement | null
     };
     // looked at once per opening
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, key, readable]);
+  }, [open, key, readable, strength]);
   const props = veil ? { "data-veiled": "", style: { ["--veil-shadow" as string]: veil.shadow.toFixed(3) } } : {};
   return { veil, props };
 }

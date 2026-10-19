@@ -32,6 +32,7 @@ import { useSettings } from "../../state/settingsStore";
 import { playCue } from "../../engine/sound/ui";
 import { SpeakerShape } from "../widgets/SystemGlyphs";
 import { useMenu } from "./menuStore";
+import { warmJump } from "./jumpCache";
 
 interface DockIconProps {
   item: DockItemView;
@@ -360,6 +361,8 @@ export function DockIcon({
         setHovered(true);
         // a note for each icon the pointer crosses
         playCue("hover", index);
+        // its Jump List read ahead, so a right-click opens the menu with it already in it
+        warmJump(item);
         const m = useMenu.getState();
         if (m.kind === "windows" && m.item?.id === item.id) {
           // back onto the icon that owns the open preview: keep it

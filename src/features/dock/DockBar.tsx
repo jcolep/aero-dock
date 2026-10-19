@@ -38,6 +38,7 @@ import { FolderFlyout } from "./FolderFlyout";
 import { StackFlyout } from "./StackFlyout";
 import { WindowsFlyout } from "./WindowsFlyout";
 import { anchorFor, MENU_ROOM, useMenu } from "./menuStore";
+import { warmAll } from "./jumpCache";
 import { pinRunningItem } from "./pinRunning";
 import "./dock.css";
 
@@ -195,6 +196,15 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
 
   const pinnedItems = useMemo(() => items.filter((i) => i.pinned), [items]);
   const runningItems = useMemo(() => items.filter((i) => !i.pinned), [items]);
+
+  // every app's Jump List read a little after the dock has settled (and for an app that appears later), one at a
+  // time while the page is idle, so even a first right-click opens the menu complete (jumpCache)
+  const itemKeys = items.map((i) => i.target).join("|");
+  useEffect(() => {
+    const t = setTimeout(() => warmAll(items), 6000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemKeys]);
 
   // Local order during a drag; resynced from settings between drags. Both
   // groups, pinned and running, are draggable and share this logic.
@@ -998,7 +1008,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         </div>
         <ModeSwitcher settings={settings} edge={edge} />
         {!revealMode && settings.dock.showSearchButton && (
-          <LiquidockButton shine={settings.dock.startShine} onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
+          <LiquidockButton effect={settings.dock.startShine} tune={settings.dock.startShineTune} onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
         )}
         <Reorder.Group
           as="div"
@@ -1057,7 +1067,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
                 side="left"
                 onHover={(over) => (over ? cancelRevealHide() : scheduleRevealHide())}
               >
-                <LiquidockButton shine={settings.dock.startShine} onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
+                <LiquidockButton effect={settings.dock.startShine} tune={settings.dock.startShineTune} onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
               </DockSatellite>
             )}
           </AnimatePresence>

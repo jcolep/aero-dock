@@ -159,6 +159,25 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
           engine.spawn(new LightBloom(track, toCanvas, iconSource, live.current.tint, live.current.bloom, tuneOf(tunes?.bloom)));
       }
     });
+    // a click effect played on something else (the Liquidock button, as the pointer comes onto it), with its own
+    // choice and tuning
+    const offGlint = effectsBus.on("glint", ({ effect, tune, winW, winH, track, iconSource }) => {
+      const toCanvas = (wx: number, wy: number) => place(wx, wy, winW, winH);
+      const t = tuneOf(tune);
+      switch (effect) {
+        case "halo":
+          engine.spawn(new EdgeHalo(track, toCanvas, iconSource, t));
+          return;
+        case "shine":
+          engine.spawn(new ShineSweep(track, toCanvas, iconSource, t));
+          return;
+        case "dimple":
+          engine.spawn(new PressDimple(track, toCanvas, iconSource, 0.5, 0.55, t));
+          return;
+        case "bloom":
+          engine.spawn(new LightBloom(track, toCanvas, iconSource, live.current.tint, live.current.bloom, t));
+      }
+    });
     const offBurst = effectsBus.on("burst", ({ x, y, winW, winH }) => {
       const p = place(x, y, winW, winH);
       engine.spawn(new LaunchBurst(p.x, p.y, live.current.tint, live.current.bloom));
@@ -169,6 +188,7 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
 
     return () => {
       offRipple();
+      offGlint();
       offBurst();
       document.removeEventListener("visibilitychange", onVisibility);
       engine.dispose();

@@ -93,6 +93,17 @@
   z-index: 3;
   overflow-y: auto;
   scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+/* more below: the last rows fade into the edge; scrolled: the first ones fade into the top */
+.aero-menu-jump[data-more] {
+  mask-image: linear-gradient(180deg, #000 calc(100% - 22px), transparent);
+}
+.aero-menu-jump[data-scrolled] {
+  mask-image: linear-gradient(180deg, transparent, #000 16px);
+}
+.aero-menu-jump[data-more][data-scrolled] {
+  mask-image: linear-gradient(180deg, transparent, #000 16px, #000 calc(100% - 22px), transparent);
 }
 
 /* Readable over a light window behind (useReadableVeil): a darker tint over the glass where what is behind is light,

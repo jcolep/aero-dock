@@ -42,10 +42,11 @@ const smooth = (a: number, b: number, x: number) => {
   return t * t * (3 - 2 * t);
 };
 
-/** The veil for what is behind the panel; `null` when nothing behind it is light enough to need one. */
-export function veilFor(backdrop: Backdrop | null | undefined): Veil | null {
+/** The veil for what is behind the panel; `null` when nothing behind it is light enough to need one. `strength`
+ *  (Settings › Glass & light › Readability, `start.adaptiveTintStrength`) scales how dark it goes, 1 as designed. */
+export function veilFor(backdrop: Backdrop | null | undefined, strength = 1): Veil | null {
   if (!backdrop || backdrop.cols < 1 || backdrop.rows < 1 || backdrop.light.length !== backdrop.cols * backdrop.rows) return null;
-  const alphas = backdrop.light.map((l) => smooth(FROM, TO, l) * DEEPEST);
+  const alphas = backdrop.light.map((l) => Math.min(0.92, smooth(FROM, TO, l) * DEEPEST * strength));
   const most = Math.max(...alphas);
   if (most < 0.02) return null;
   const canvas = document.createElement("canvas");
@@ -59,5 +60,5 @@ export function veilFor(backdrop: Backdrop | null | undefined): Veil | null {
   });
   ctx.putImageData(img, 0, 0);
   const lightest = Math.max(...backdrop.light);
-  return { image: canvas.toDataURL("image/png"), shadow: smooth(0.6, 0.95, lightest), most };
+  return { image: canvas.toDataURL("image/png"), shadow: Math.min(1, smooth(0.6, 0.95, lightest) * Math.sqrt(strength)), most };
 }

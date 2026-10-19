@@ -36,6 +36,7 @@ import "../menubar/menubar.css";
 import "../start/start.css";
 import "./animations.css";
 import { Droplet } from "../../engine/brand/droplet";
+import { dropletSvg } from "../../engine/brand/dropletSvg";
 import { useSettings } from "../../state/settingsStore";
 
 interface PickerProps {
@@ -381,7 +382,7 @@ function paddedIconSrc(hex: string): string {
  * preview mostly proves the shape is right, not the live-tracking (that needs the dock itself, or an off-screen
  * scenario that sweeps the pointer across a real icon).
  */
-export function ClickPreview({ preset, run, tune }: { preset: string; run: number; tune?: Partial<ClickTune> }) {
+export function ClickPreview({ preset, run, tune, drop = false }: { preset: string; run: number; tune?: Partial<ClickTune>; drop?: boolean }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const iconRef = useRef<HTMLImageElement>(null);
@@ -461,7 +462,14 @@ export function ClickPreview({ preset, run, tune }: { preset: string; run: numbe
         {DOT_COLORS.slice(0, 5).map((c, i) =>
           i === 2 ? (
             <span key={c} className="anim-slot">
-              <img ref={iconRef} className="anim-icon anim-icon-padded" src={paddedIconSrc(c)} alt="" draggable={false} />
+              {/* the Liquidock button's hover plays on its drop; an app's click on a stand-in icon */}
+              <img
+                ref={iconRef}
+                className={drop ? "anim-icon anim-icon-drop" : "anim-icon anim-icon-padded"}
+                src={drop ? `data:image/svg+xml;utf8,${encodeURIComponent(dropletSvg("#9fc3ec", 128))}` : paddedIconSrc(c)}
+                alt=""
+                draggable={false}
+              />
             </span>
           ) : (
             <span key={c} className="anim-slot">

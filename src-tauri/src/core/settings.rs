@@ -96,10 +96,12 @@ pub struct DockSettings {
     pub show_running_apps: bool,
     /// Built-in dock controls, each independently hideable.
     pub show_search_button: bool,
-    /// How the Liquidock button (the drop that opens Start, where the search button was) shines under the pointer:
-    /// `sweep` (a glint crosses it), `caustic` (the light at its foot swells, with a glow behind) or `rim` (a bright
-    /// line runs once round its outline).
+    /// What plays on the Liquidock button (the drop that opens Start) as the pointer comes onto it: one of the click
+    /// effects (`dimple`, `halo`, `shine`, `bloom`), drawn as they are on an app's icon. (It had shines of its own:
+    /// `sweep`, `caustic` and `rim` are read as `shine`, `bloom` and `halo`.)
     pub start_shine: String,
+    /// How that effect plays, as each click effect can be tuned.
+    pub start_shine_tune: ClickTune,
     pub show_settings_button: bool,
     pub show_clock: bool,
     /// Battery, network, volume and Recycle Bin glyphs.
@@ -170,7 +172,8 @@ impl Default for DockSettings {
             reserve_space: true,
             show_running_apps: true,
             show_search_button: true,
-            start_shine: "sweep".into(),
+            start_shine: "shine".into(),
+            start_shine_tune: ClickTune::default(),
             show_settings_button: true,
             show_clock: true,
             show_system_status: true,
@@ -768,7 +771,7 @@ pub struct StartPin {
 }
 
 /// The Start menu (the panel the dock's search button opens).
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase", default)]
 pub struct StartSettings {
     /// What is pinned, in order. Windows keeps its own pinned layout in a file that
@@ -781,6 +784,9 @@ pub struct StartSettings {
     /// Darken the glass where what is behind the panel is light, so its text stays readable (looked at once, as it
     /// opens: `commands::start::backdrop_behind`).
     pub adaptive_tint: bool,
+    /// How dark that tint goes, 0.25 to 2 (1 as designed). It is used by every panel that keeps its text readable this
+    /// way: the Start menu, the dock's window previews and its menus.
+    pub adaptive_tint_strength: f32,
     /// The Windows key, pressed and let go on its own, opens this Start menu instead of Windows' (Ctrl+Win opens
     /// Windows'). Needs a keyboard hook while it is on (`platform::windows::winkey`).
     pub windows_key: bool,
@@ -796,6 +802,7 @@ impl Default for StartSettings {
             seeded: false,
             show_recommended: true,
             adaptive_tint: true,
+            adaptive_tint_strength: 1.0,
             windows_key: false,
             dock_while_open: "usable".into(),
         }
@@ -807,6 +814,7 @@ const MAX_START_PINS: usize = 80;
 impl StartSettings {
     fn sanitize(&mut self) {
         keep_known(&mut self.dock_while_open, &["usable", "hidden"], "usable");
+        self.adaptive_tint_strength = if self.adaptive_tint_strength.is_finite() { self.adaptive_tint_strength.clamp(0.25, 2.0) } else { 1.0 };
         let mut seen: Vec<(String, String)> = Vec::new();
         self.pinned.retain_mut(|p| {
             p.name.truncate(120);
@@ -924,7 +932,18 @@ impl Settings {
         keep_known(&mut self.dock.focus_motion, MARK_MOTIONS, "glide");
         keep_known(&mut self.dock.ghost_motion, MARK_MOTIONS, "glide");
         keep_known(&mut self.dock.running_cue, &["dots", "halo", "dim", "none"], "dots");
-        keep_known(&mut self.dock.start_shine, &["sweep", "caustic", "rim"], "sweep");
+        // the button's own shines, before it played the click effects: the nearest of those
+        let migrated = match self.dock.start_shine.as_str() {
+            "sweep" => Some("shine"),
+            "caustic" => Some("bloom"),
+            "rim" => Some("halo"),
+            _ => None,
+        };
+        if let Some(m) = migrated {
+            self.dock.start_shine = m.into();
+        }
+        keep_known(&mut self.dock.start_shine, AnimationSettings::CLICK, "shine");
+        self.dock.start_shine_tune.sanitize();
         self.dock.mark_color = normalize_hex(&self.dock.mark_color);
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
         keep_known(&mut self.appearance.hover_effect, &["magnify", "lift", "glow", "none"], "magnify");

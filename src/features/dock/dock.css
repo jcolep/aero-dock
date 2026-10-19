@@ -843,9 +843,8 @@
 }
 
 /* ---- the Liquidock button (DockControls) ----
-   The drop on its own, no circle: the button is a bare box the drop fills, and the shine is a second drawing laid
-   over it. Every shine is a transition on :hover (on the tokens), so it plays as the pointer comes on and turns back
-   if it leaves part way; the sweep's band ends off the drop on both sides, so its snap back is never seen. */
+   The drop on its own: the button is a bare box the drop fills. What plays on it under the pointer is one of the click
+   effects, drawn by the dock's effects layer (EffectsLayer, "glint"), not here. */
 .dock-drop-btn {
   --control-size: clamp(20px, calc(var(--icon-size) + 6px), 34px);
   position: relative;
@@ -881,68 +880,6 @@
 
 .dock-drop-mark {
   filter: drop-shadow(0 1px 2px rgba(4, 20, 40, 0.4));
-}
-
-/* the glint: a slanted band crossing from the left; off-hover it fades and only then jumps back */
-.dock-drop-band {
-  transform-box: view-box;
-  transform: translateX(-20px) rotate(18deg);
-  opacity: 0;
-  transition:
-    opacity var(--m-quick) var(--e-out),
-    transform 0s linear var(--m-quick);
-}
-
-.dock-drop-btn:hover .dock-drop-band {
-  transform: translateX(130px) rotate(18deg);
-  opacity: 1;
-  transition:
-    opacity var(--m-quick) var(--e-out),
-    transform var(--m-heavy) var(--e-inout);
-}
-
-/* the swell: the pool of light at the foot grows and a glow comes up behind */
-.dock-drop-pool,
-.dock-drop-halo {
-  transform-box: view-box;
-  transform-origin: 51px 82px;
-  transform: scale(0.7);
-  opacity: 0;
-  transition:
-    opacity var(--m-settle) var(--e-out),
-    transform var(--m-settle) var(--e-spring);
-}
-
-.dock-drop-halo {
-  transform: none;
-}
-
-.dock-drop-btn:hover .dock-drop-pool {
-  transform: scale(1.25);
-  opacity: 1;
-}
-
-.dock-drop-btn:hover .dock-drop-halo {
-  opacity: 0.8;
-}
-
-/* the rim trace: a bright line draws itself round the outline and holds while the pointer stays */
-.dock-drop-trace {
-  stroke-dasharray: 100 100;
-  stroke-dashoffset: 100;
-  opacity: 0;
-  filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.9));
-  transition:
-    stroke-dashoffset var(--m-settle) var(--e-in),
-    opacity var(--m-settle) var(--e-out);
-}
-
-.dock-drop-btn:hover .dock-drop-trace {
-  stroke-dashoffset: 0;
-  opacity: 0.9;
-  transition:
-    stroke-dashoffset var(--m-heavy) var(--e-inout),
-    opacity var(--m-quick) var(--e-out);
 }
 
 /* ---- the dock's symbols follow the icon look ----

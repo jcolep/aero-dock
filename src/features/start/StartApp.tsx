@@ -431,7 +431,8 @@ export function StartApp() {
   useEffect(() => {
     const un = listen<Opening>("start://open", (e) => {
       // the tint that keeps the text readable over what is behind it, for this opening (and only this one)
-      setVeil(useSettings.getState().settings?.start.adaptiveTint === false ? null : veilFor(e.payload.backdrop));
+      const s = useSettings.getState().settings?.start;
+      setVeil(s?.adaptiveTint === false ? null : veilFor(e.payload.backdrop, s?.adaptiveTintStrength ?? 1));
       setQuery("");
       setSelected(0);
       setView("home");

@@ -45,8 +45,10 @@ export interface DockSettings {
   showRunningApps: boolean;
   /** Built-in dock controls, each independently hideable. */
   showSearchButton: boolean;
-  /** How the Liquidock button shines under the pointer: a glint sweeps across, the light at its foot swells, or a line traces its rim. */
-  startShine: "sweep" | "caustic" | "rim";
+  /** What plays on the Liquidock button as the pointer comes onto it: one of the click effects. */
+  startShine: "dimple" | "halo" | "shine" | "bloom";
+  /** How that effect plays. */
+  startShineTune: ClickTune;
   showSettingsButton: boolean;
   showClock: boolean;
   /** Battery, network, volume and Recycle Bin glyphs. */
@@ -523,6 +525,8 @@ export interface StartSettings {
   showRecommended: boolean;
   /** Darken the glass where what is behind the panel is light, so its text stays readable. */
   adaptiveTint: boolean;
+  /** How dark that goes, 0.25 to 2 (1 as designed), for every panel that does it. */
+  adaptiveTintStrength: number;
   /** The Windows key opens this Start menu instead of Windows' (Ctrl+Win opens Windows'). */
   windowsKey: boolean;
   /** The dock while the menu is open: reachable and clickable, or kept out of sight. */

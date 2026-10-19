@@ -7,7 +7,7 @@ import { Roll } from "../../engine/type/Roll";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
 import type { AudioDevice, JumpList, Settings, StackView } from "../../ipc/types";
@@ -16,6 +16,7 @@ import type { DockItemView } from "../../state/dockStore";
 import { flyoutStyle, MENU_AIR, useMenu } from "./menuStore";
 import { usePanelMotion } from "./usePanelMotion";
 import { useReadableVeil } from "./useReadableVeil";
+import { exeOf, keptJump, readJump, sameJump } from "./jumpCache";
 import { pinRunningItem } from "./pinRunning";
 import "./contextmenu.css";
 
@@ -202,17 +203,18 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
     setShowDevices(false);
   }, [item?.id]);
 
-  // the app's Jump List (recent connections, recent files, its own tasks), read as the menu opens for it
+  // The app's Jump List (recent connections, recent files, its own tasks): the one kept for it at once (jumpCache:
+  // read ahead on hover and at start), and a fresh read behind it that replaces it only if it changed. Read only when
+  // the menu opened, the list arrived a moment after the menu and the menu grew.
   const [jump, setJump] = useState<JumpList | null>(null);
-  const exe = item ? (item.windows[0]?.exe ?? (item.target.toLowerCase().endsWith(".exe") ? item.target : item.audioExe ?? "")) : "";
+  const exe = item ? exeOf(item) : "";
   useEffect(() => {
-    setJump(null);
+    setJump(item && item.kind !== "stack" ? (keptJump(item) ?? null) : null);
     if (!item || item.kind === "stack") return;
     let live = true;
-    ipc
-      .jumpList(item.target, exe, item.windows.map((w) => w.hwnd), [...new Set(item.windows.map((w) => w.pid))])
-      .then((list) => live && setJump(list))
-      .catch(() => undefined);
+    void readJump(item).then((list) => {
+      if (live) setJump((now) => (sameJump(now, list) ? now : list));
+    });
     return () => {
       live = false;
     };
@@ -274,6 +276,38 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
   const { veil, props: veiled } = useReadableVeil(!!item && !!anchor, menuRef, item?.id);
   const showOutput = settings.dock.menuAudioOutput === true;
 
+  // The Jump List, when it has to scroll, ends on a whole row: its height is cut back to the last row (or separator)
+  // that fits entirely, never leaving a heading at the foot with nothing under it, so nothing shows half cut off. The
+  // edge where there is more fades (data-more), and the top fades once it has been scrolled (data-scrolled).
+  const jumpRef = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ more: false, scrolled: false });
+  const readEdges = () => {
+    const j = jumpRef.current;
+    if (!j) return;
+    const more = j.scrollTop + j.clientHeight < j.scrollHeight - 2;
+    const scrolled = j.scrollTop > 2;
+    setEdges((e) => (e.more === more && e.scrolled === scrolled ? e : { more, scrolled }));
+  };
+  useLayoutEffect(() => {
+    const j = jumpRef.current;
+    if (!j) return;
+    j.style.maxHeight = "";
+    if (j.scrollHeight > j.clientHeight + 1) {
+      const rows = [...j.querySelectorAll<HTMLElement>(".aero-menu-heading, .aero-menu-jump-item, .aero-menu-separator")];
+      let cut = 0;
+      for (let i = 0; i < rows.length; i++) {
+        const bottom = rows[i].offsetTop + rows[i].offsetHeight;
+        if (bottom > j.clientHeight) break;
+        // a heading counts only with its first row under it
+        if (rows[i].classList.contains("aero-menu-heading")) continue;
+        cut = bottom;
+      }
+      if (cut > 0) j.style.maxHeight = `${cut}px`;
+    }
+    readEdges();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jump, room, item?.id, showDevices]);
+
   return (
     <AnimatePresence>
       {item && anchor && (
@@ -292,7 +326,7 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
           {jump && jump.sections.length > 0 && (
             // the app's own list first, as on the taskbar; held to a height of its own so the menu's items below it
             // are always in view
-            <div className="aero-menu-jump">
+            <div ref={jumpRef} className="aero-menu-jump" data-more={edges.more || undefined} data-scrolled={edges.scrolled || undefined} onScroll={readEdges}>
               {jump.sections.map((section) => (
                 <div key={section.title} className="aero-menu-jump-section">
                   <div className="aero-menu-heading">{section.title}</div>
@@ -311,9 +345,10 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
                   ))}
                 </div>
               ))}
-              <div className="aero-menu-separator" />
             </div>
           )}
+          {/* the line under the list stays put, outside what scrolls */}
+          {jump && jump.sections.length > 0 && <div className="aero-menu-separator aero-menu-jump-end" />}
           {item.windows.length > 1 && (
             <div className="aero-menu-windows">
               {item.windows.slice(0, 6).map((w) => (

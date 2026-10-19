@@ -7,7 +7,8 @@
  * theme's color, with a soft shadow that lifts it off the glass.
  */
 
-import { useId, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { effectsBus } from "../../engine/effects/effectsBus";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { Droplet } from "../../engine/brand/droplet";
@@ -31,55 +32,58 @@ function ControlButton({
   );
 }
 
+/** The drop's outline as a picture, for the click effects to mask and outline themselves by (they read an image). */
+let dropShape: HTMLImageElement | null = null;
+function dropShapeImage(): HTMLImageElement {
+  if (!dropShape) {
+    dropShape = new Image();
+    dropShape.src = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200"><path d="${DROP_PATH}" fill="#fff"/></svg>`)}`;
+  }
+  return dropShape;
+}
+
 /**
- * The Liquidock button, where the search button was: Liquidock's drop on its own, no glass circle behind it, opening
- * Start the way the Windows button does on the taskbar. Under the pointer light plays over it, laid on top of the drop
- * and clipped to its shape (dock.css, `.dock-drop-btn`): a glint sweeping across (`sweep`, the default), the light at
- * its foot swelling with a glow behind (`caustic`), or a bright line tracing its outline (`rim`). All three are
- * transitions on `:hover`, so leaving part way turns them back.
+ * The Liquidock button, where the search button was: Liquidock's drop, opening Start the way the Windows button does
+ * on the taskbar. As the pointer comes onto it, one of the click effects plays on it (Settings › Dock items: the same
+ * Press Dimple, Edge Halo, Shine Sweep and Light Bloom an app's icon plays when clicked, with their own tuning), drawn
+ * by the dock's effects layer over the drop's own outline (`glint`, EffectsLayer). It used to have shines of its own
+ * (a CSS glint, swell and rim trace); the owner preferred the click effects.
  */
-export function LiquidockButton({ onClick, shine }: { onClick: () => void; shine: "sweep" | "caustic" | "rim" }) {
-  const id = `ldb${useId().replace(/:/g, "")}`;
+export function LiquidockButton({
+  onClick,
+  effect,
+  tune,
+}: {
+  onClick: () => void;
+  effect: string;
+  tune: { speed?: number; opacity?: number; size?: number; color?: string } | undefined;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
   return (
-    <button className="dock-drop-btn" data-shine={shine} title="Start" aria-label="Start" onClick={onClick}>
+    <button
+      ref={ref}
+      className="dock-drop-btn"
+      title="Start"
+      aria-label="Start"
+      onClick={onClick}
+      onPointerEnter={() => {
+        const el = ref.current;
+        if (!el) return;
+        effectsBus.emit("glint", {
+          effect,
+          tune,
+          winW: window.innerWidth,
+          winH: window.innerHeight,
+          track: () => {
+            if (!el.isConnected) return null;
+            const r = el.getBoundingClientRect();
+            return { x: r.left, y: r.top, w: r.width, h: r.height };
+          },
+          iconSource: () => dropShapeImage(),
+        });
+      }}
+    >
       <Droplet size={100} className="dock-drop-mark" />
-      <svg className="dock-drop-shine" viewBox="0 0 100 100" aria-hidden>
-        <defs>
-          <clipPath id={`${id}-clip`}>
-            <path d={DROP_PATH} />
-          </clipPath>
-          <linearGradient id={`${id}-band`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor="white" stopOpacity="0" />
-            <stop offset="0.5" stopColor="white" stopOpacity="0.85" />
-            <stop offset="1" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-          <radialGradient id={`${id}-hot`} cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stopColor="white" stopOpacity="1" />
-            <stop offset="0.5" style={{ stopColor: "color-mix(in srgb, var(--aero-accent) 30%, white)", stopOpacity: 0.7 }} />
-            <stop offset="1" stopColor="white" stopOpacity="0" />
-          </radialGradient>
-          <radialGradient id={`${id}-halo`} cx="0.5" cy="0.6" r="0.5">
-            <stop offset="0" style={{ stopColor: "color-mix(in srgb, var(--aero-accent) 60%, white)", stopOpacity: 0.65 }} />
-            <stop offset="1" style={{ stopColor: "var(--aero-accent)", stopOpacity: 0 }} />
-          </radialGradient>
-        </defs>
-        {shine === "sweep" && (
-          <g clipPath={`url(#${id}-clip)`}>
-            <rect className="dock-drop-band" x="-30" y="-20" width="34" height="160" fill={`url(#${id}-band)`} />
-          </g>
-        )}
-        {shine === "caustic" && (
-          <>
-            <ellipse className="dock-drop-halo" cx="50" cy="60" rx="56" ry="54" fill={`url(#${id}-halo)`} />
-            <g clipPath={`url(#${id}-clip)`}>
-              <ellipse className="dock-drop-pool" cx="51" cy="80" rx="26" ry="13" fill={`url(#${id}-hot)`} />
-            </g>
-          </>
-        )}
-        {shine === "rim" && (
-          <path className="dock-drop-trace" d={DROP_PATH} pathLength={100} fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round" />
-        )}
-      </svg>
     </button>
   );
 }

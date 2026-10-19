@@ -257,7 +257,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "get_top_processes": return [{ name: "msedge", cpuPercent: 6.2, memoryMb: 1660, processes: 14 }, { name: "Code", cpuPercent: 3.1, memoryMb: 2526, processes: 19 }, { name: "Teams", cpuPercent: 1.4, memoryMb: 640, processes: 7 }, { name: "explorer", cpuPercent: 0.4, memoryMb: 180, processes: 1 }];
         case "resolve_icons": { const out = {}; for (const t of (args && args.targets) || []) out[t] = ICON; return out; }
         // an app's Jump List: a script sets window.__jump (null, the default, is an app with none)
-        case "jump_list": return window.__jump ?? null;
+        case "jump_list": { const j = window.__jump ?? null; const ms = window.__jumpDelay ?? 0; return ms ? new Promise((r) => setTimeout(() => r(j), ms)) : j; }
         case "jump_open": return null;
         // how light the screen is behind a panel: a script sets window.__light (0..1, everywhere); dark by default
         case "backdrop_light": return { cols: args.cols, rows: args.rows, light: Array.from({ length: args.cols * args.rows }, () => window.__light ?? 0.1) };

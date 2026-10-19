@@ -16,9 +16,10 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { accentForTheme, normalizeHex } from "../../engine/themes/accent";
 import { BubbleColor } from "./BubbleColor";
+import { ClickTuneControls, PLAIN_CLICK_TUNE } from "./ClickTuneControls";
 import { ColorSpectrum } from "./ColorSpectrum";
 import { ipc } from "../../ipc/commands";
-import type { AppearanceSettings, ClickTune, ClickTunes, DockEdge, DockSettings, IconStyle, MarkMotion, MonitorInfoEx, Settings, StorageInfo, SurfaceStyle } from "../../ipc/types";
+import type { AppearanceSettings, ClickTunes, DockEdge, DockSettings, IconStyle, MarkMotion, MonitorInfoEx, Settings, StorageInfo, SurfaceStyle } from "../../ipc/types";
 import { useSettings } from "../../state/settingsStore";
 import { KOFI_URL, REPO_URL } from "../../links";
 import { AudioCard } from "./AudioCard";
@@ -331,6 +332,26 @@ export function SettingsApp() {
                 onChange={(v) => set((d) => void (d.appearance.dockShadow = v))}
               />
 
+              <SettingsSub>Readability</SettingsSub>
+              <AeroToggle
+                label="Keep text readable over light backgrounds"
+                checked={settings.start.adaptiveTint !== false}
+                hint="Where what is behind a panel is light (the Start menu, the dock's window previews and menus), its glass is darkened there and the text given a soft shadow. Measured once as it opens, so nothing shifts while it is open"
+                onChange={(v) => set((d) => void (d.start.adaptiveTint = v))}
+              />
+              {settings.start.adaptiveTint !== false && (
+                <AeroSlider
+                  label="Strength"
+                  hint="How dark the glass goes over a light background"
+                  value={settings.start.adaptiveTintStrength ?? 1}
+                  min={0.25}
+                  max={2}
+                  step={0.05}
+                  format={(v) => `${Math.round(v * 100)}%`}
+                  onChange={(v) => set((d) => void (d.start.adaptiveTintStrength = v))}
+                />
+              )}
+
               <SettingsSub>Ambient scene</SettingsSub>
               <AeroSegmented<string>
                 label="Scene"
@@ -433,30 +454,21 @@ export function SettingsApp() {
                 preview={(id, run) => <ClickPreview preset={id} run={run} tune={settings.animations.clickTune?.[id as keyof ClickTunes]} />}
               >
               {(() => {
-                // the chosen click effect's own tuning: what "size" is depends on the effect
+                // the chosen click effect's own tuning
                 const effect = settings.animations.click as keyof ClickTunes;
-                const tune = settings.animations.clickTune?.[effect] ?? { speed: 1, opacity: 1, size: 1, color: "" };
-                const setTune = (change: (t: ClickTune) => void) =>
-                  set((d) => {
-                    d.animations.clickTune ??= {} as ClickTunes;
-                    d.animations.clickTune[effect] ??= { speed: 1, opacity: 1, size: 1, color: "" };
-                    change(d.animations.clickTune[effect]);
-                  });
-                const sizeLabel = { halo: "Line thickness", shine: "Band width", dimple: "Ring thickness", bloom: "Size" }[effect] ?? "Size";
-                const times = (v: number) => `${v.toFixed(2)}×`;
                 return (
-                  <div className="click-tune">
-                    <AeroSlider label="Speed" value={tune.speed} min={0.25} max={3} step={0.05} format={times} onChange={(v) => setTune((t) => void (t.speed = v))} />
-                    <AeroSlider label="Opacity" value={tune.opacity} min={0.1} max={1.5} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={(v) => setTune((t) => void (t.opacity = v))} />
-                    <AeroSlider label={sizeLabel} value={tune.size} min={0.25} max={3} step={0.05} format={times} onChange={(v) => setTune((t) => void (t.size = v))} />
-                    <BubbleColor
-                      label="Color"
-                      value={tune.color}
-                      themeColor={effect === "bloom" ? themeColor : "#ffffff"}
-                      defaultName={effect === "bloom" ? "Follow the theme" : "White light"}
-                      onChange={(hex) => setTune((t) => void (t.color = hex))}
-                    />
-                  </div>
+                  <ClickTuneControls
+                    effect={effect}
+                    tune={settings.animations.clickTune?.[effect]}
+                    themeColor={themeColor}
+                    onChange={(change) =>
+                      set((d) => {
+                        d.animations.clickTune ??= {} as ClickTunes;
+                        d.animations.clickTune[effect] ??= { ...PLAIN_CLICK_TUNE };
+                        change(d.animations.clickTune[effect]);
+                      })
+                    }
+                  />
                 );
               })()}
               </AnimationPicker>
@@ -703,16 +715,26 @@ export function SettingsApp() {
               <SettingsSub>Buttons</SettingsSub>
               <AeroToggle label="Liquidock button" checked={dock.showSearchButton} hint="The drop at the left end of the dock, which opens Start" onChange={(v) => set((d) => void (d.dock.showSearchButton = v))} />
               {dock.showSearchButton && (
-                <AeroSegmented<"sweep" | "caustic" | "rim">
-                  label="It shines with"
+                <AnimationPicker
+                  label="On hover"
+                  summary="What plays on the drop as the pointer comes onto it: the same effects as a click on an app"
                   value={dock.startShine}
-                  options={[
-                    { value: "sweep", label: "A glint" },
-                    { value: "caustic", label: "A swell" },
-                    { value: "rim", label: "A rim trace" },
-                  ]}
-                  onChange={(v) => set((d) => void (d.dock.startShine = v))}
-                />
+                  options={CLICK_ANIMS}
+                  onChange={(id) => set((d) => void (d.dock.startShine = id as typeof d.dock.startShine))}
+                  preview={(id, run) => <ClickPreview preset={id} run={run} tune={dock.startShineTune} drop />}
+                >
+                  <ClickTuneControls
+                    effect={dock.startShine}
+                    tune={dock.startShineTune}
+                    themeColor={themeColor}
+                    onChange={(change) =>
+                      set((d) => {
+                        d.dock.startShineTune ??= { ...PLAIN_CLICK_TUNE };
+                        change(d.dock.startShineTune);
+                      })
+                    }
+                  />
+                </AnimationPicker>
               )}
               <AeroToggle label="Settings button" checked={dock.showSettingsButton} onChange={(v) => set((d) => void (d.dock.showSettingsButton = v))} />
               <AeroToggle
@@ -945,12 +967,6 @@ export function SettingsApp() {
                 checked={settings.start.showRecommended}
                 hint="Under the pinned apps: what was lately downloaded, and the files opened lately"
                 onChange={(v) => set((d) => void (d.start.showRecommended = v))}
-              />
-              <AeroToggle
-                label="Keep text readable over light backgrounds"
-                checked={settings.start.adaptiveTint !== false}
-                hint="Where what is behind the menu (or the dock's window previews) is light, its glass is darkened there, and the text given a soft shadow. Measured once as it opens, so nothing shifts while it is open"
-                onChange={(v) => set((d) => void (d.start.adaptiveTint = v))}
               />
               <div className="ctl-row">
                 <span className="ctl-label">Pinned apps</span>

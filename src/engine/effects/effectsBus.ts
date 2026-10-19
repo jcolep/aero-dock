@@ -32,9 +32,21 @@ export interface BurstEvent {
   winH: number;
 }
 
+/** One of the click effects, played on something that is not an app's icon (the Liquidock button, on hover), with
+ *  the effect and its tuning given rather than read from the click setting. */
+export interface GlintEvent {
+  effect: string;
+  tune: { speed?: number; opacity?: number; size?: number; color?: string } | undefined;
+  winW: number;
+  winH: number;
+  track: RippleEvent["track"];
+  iconSource: RippleEvent["iconSource"];
+}
+
 type EffectEvents = {
   ripple: RippleEvent;
   burst: BurstEvent;
+  glint: GlintEvent;
 };
 
 type Handler<T> = (payload: T) => void;
@@ -42,6 +54,7 @@ type Handler<T> = (payload: T) => void;
 const handlers: { [K in keyof EffectEvents]: Set<Handler<EffectEvents[K]>> } = {
   ripple: new Set(),
   burst: new Set(),
+  glint: new Set(),
 };
 
 export const effectsBus = {

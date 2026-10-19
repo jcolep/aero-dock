@@ -40,9 +40,9 @@ export const GROUPS: GroupDef[] = [
       {
         id: "glass",
         title: "Glass & light",
-        blurb: "Frosted glass, light, depth and the ambient scene",
+        blurb: "Frosted glass, light, depth, readability and the ambient scene",
         keywords:
-          "frosted glass blur real blur frosting frost grain dock start menu bar menubar pointer light opacity transparency intensity bloom reflections dock shadow ambient scene dust rain snow ocean aurora particles",
+          "frosted glass blur real blur frosting frost grain dock start menu bar menubar pointer light opacity transparency intensity bloom reflections dock shadow ambient scene dust rain snow ocean aurora particles readable readability contrast light background tint strength darken",
         hue: 195,
       },
       {
