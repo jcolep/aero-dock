@@ -18,7 +18,7 @@ import { accentForTheme, normalizeHex } from "../../engine/themes/accent";
 import { BubbleColor } from "./BubbleColor";
 import { ColorSpectrum } from "./ColorSpectrum";
 import { ipc } from "../../ipc/commands";
-import type { AppearanceSettings, DockEdge, DockSettings, IconStyle, MarkMotion, MonitorInfoEx, Settings, StorageInfo, SurfaceStyle } from "../../ipc/types";
+import type { AppearanceSettings, ClickTune, ClickTunes, DockEdge, DockSettings, IconStyle, MarkMotion, MonitorInfoEx, Settings, StorageInfo, SurfaceStyle } from "../../ipc/types";
 import { useSettings } from "../../state/settingsStore";
 import { KOFI_URL, REPO_URL } from "../../links";
 import { AudioCard } from "./AudioCard";
@@ -430,8 +430,35 @@ export function SettingsApp() {
                 value={settings.animations.click}
                 options={CLICK_ANIMS}
                 onChange={(id) => set((d) => void (d.animations.click = id))}
-                preview={(id, run) => <ClickPreview preset={id} run={run} />}
+                preview={(id, run) => <ClickPreview preset={id} run={run} tune={settings.animations.clickTune?.[id as keyof ClickTunes]} />}
               />
+              {(() => {
+                // the chosen click effect's own tuning: what "size" is depends on the effect
+                const effect = settings.animations.click as keyof ClickTunes;
+                const tune = settings.animations.clickTune?.[effect] ?? { speed: 1, opacity: 1, size: 1, color: "" };
+                const setTune = (change: (t: ClickTune) => void) =>
+                  set((d) => {
+                    d.animations.clickTune ??= {} as ClickTunes;
+                    d.animations.clickTune[effect] ??= { speed: 1, opacity: 1, size: 1, color: "" };
+                    change(d.animations.clickTune[effect]);
+                  });
+                const sizeLabel = { halo: "Line thickness", shine: "Band width", dimple: "Ring thickness", bloom: "Size" }[effect] ?? "Size";
+                const times = (v: number) => `${v.toFixed(2)}×`;
+                return (
+                  <div className="click-tune">
+                    <AeroSlider label="Speed" value={tune.speed} min={0.25} max={3} step={0.05} format={times} onChange={(v) => setTune((t) => void (t.speed = v))} />
+                    <AeroSlider label="Opacity" value={tune.opacity} min={0.1} max={1.5} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={(v) => setTune((t) => void (t.opacity = v))} />
+                    <AeroSlider label={sizeLabel} value={tune.size} min={0.25} max={3} step={0.05} format={times} onChange={(v) => setTune((t) => void (t.size = v))} />
+                    <BubbleColor
+                      label="Color"
+                      value={tune.color}
+                      themeColor={effect === "bloom" ? themeColor : "#ffffff"}
+                      defaultName={effect === "bloom" ? "Follow the theme" : "White light"}
+                      onChange={(hex) => setTune((t) => void (t.color = hex))}
+                    />
+                  </div>
+                );
+              })()}
               <AnimationPicker
                 label="Icon magnification"
                 summary="How icons swell under the pointer"

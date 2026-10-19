@@ -29,10 +29,13 @@ interface BubbleColorProps {
   value: string;
   /** What "Theme" looks like, to draw its swatch. */
   themeColor: string;
+  /** What the first swatch (the empty value) is called, where it is not the theme's color (a click effect's own
+   *  white light, say). */
+  defaultName?: string;
   onChange: (hex: string) => void;
 }
 
-export function BubbleColor({ label, value, themeColor, onChange }: BubbleColorProps) {
+export function BubbleColor({ label, value, themeColor, defaultName = "Follow the theme", onChange }: BubbleColorProps) {
   const chosen = normalizeHex(value) ?? "";
   const isPreset = SWATCHES.some((s) => s.hex === chosen);
   const [open, setOpen] = useState(false);
@@ -46,8 +49,8 @@ export function BubbleColor({ label, value, themeColor, onChange }: BubbleColorP
             type="button"
             role="radio"
             aria-checked={chosen === ""}
-            aria-label="Follow the theme"
-            title="Follow the theme"
+            aria-label={defaultName}
+            title={defaultName}
             className="bubble-swatch bubble-swatch-theme"
             data-on={chosen === ""}
             style={{ ["--swatch" as string]: themeColor } as React.CSSProperties}

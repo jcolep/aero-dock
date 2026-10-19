@@ -50,6 +50,18 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Click effects, tuned (October 19)
+
+- **Each click effect can be tuned** under its picker in Settings › Animations: speed, opacity, size (the halo's line,
+  the shine's band, the dimple's ring, the bloom's reach) and color (white light by default; the theme's color for the
+  bloom). The preview plays again a moment after a slider stops.
+- **Edge Halo is only the outline**: on glass-look icons (see-through inside) its light no longer swept across the
+  middle like a clock's hand. The line is thinner and the lap faster.
+- **The Settings sidebar's lens stays on the row under the pointer** when the list has been scrolled (it sat as far
+  below it as the list was scrolled).
+- **The menu bar's lens goes when the pointer is on nothing**: over the bar's empty space it fades a moment after,
+  and leaving the bar by any route lets it go (it could stay lit, in the last button's shape).
+
 ### Click effects (October 19)
 
 - **Edge Halo traces the icon's own outline**, like the Liquidock button's rim trace: a bright line with a fading

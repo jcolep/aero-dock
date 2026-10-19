@@ -50,7 +50,7 @@ export const GROUPS: GroupDef[] = [
         title: "Animations",
         blurb: "How things open, close and answer the pointer",
         keywords:
-          "animation animations speed hover effect magnify lift glow menu items sections hardware acceleration gpu graphics card software rendering restart frame timings smoothness fps stutter refresh rate hz overlay performance menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close media pill island peek gloop jelly drop unfurl bloom spring click ripple press dimple edge halo shine sweep glass glow",
+          "animation animations speed hover effect magnify lift glow menu items sections hardware acceleration gpu graphics card software rendering restart frame timings smoothness fps stutter refresh rate hz overlay performance menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close media pill island peek gloop jelly drop unfurl bloom spring click ripple press dimple edge halo shine sweep glass glow line thickness band width ring opacity color light bloom size",
         hue: 320,
       },
     ],

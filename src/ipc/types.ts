@@ -389,6 +389,23 @@ export interface AnimationSettings {
   start: string;
   /** The media pill in the menu bar and the card under the Control Center button. */
   island: string;
+  /** How each click effect plays. */
+  clickTune: ClickTunes;
+}
+
+/** How one click effect plays: multiples of it as designed, and its light's color ("" for its own). */
+export interface ClickTune {
+  speed: number;
+  opacity: number;
+  size: number;
+  color: string;
+}
+
+export interface ClickTunes {
+  dimple: ClickTune;
+  halo: ClickTune;
+  shine: ClickTune;
+  bloom: ClickTune;
 }
 
 /** A frame of glass round the free space of every monitor, between the menu bar

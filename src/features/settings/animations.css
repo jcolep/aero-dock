@@ -10,6 +10,14 @@
   border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
 
+/* the chosen click effect's tuning, right under its picker (and so with no rule of its own above it) */
+.click-tune {
+  display: flex;
+  flex-direction: column;
+  margin-top: -10px;
+  padding-bottom: 8px;
+}
+
 .anim-picker:first-of-type {
   border-top: none;
   padding-top: 4px;

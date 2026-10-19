@@ -698,7 +698,13 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   silhouette (shape spread 8 ways, less shape eroded 8 ways; the rounded tile if there is no image), which `EdgeHalo`
   fills with a conic-gradient head sweeping one lap (and a blurred copy for glow). `LightBloom` now tracks the icon
   and cuts the icon's shape out of a radial glow (the effects canvas is above the icons), scaled by `bloomAmount`.
-  `clickfx.mjs` films all four in the Settings preview. The preview canvas covers the whole stage.
+  `clickfx.mjs` films all four in the Settings preview. The preview canvas covers the whole stage. The outline is of
+  the icon made solid first (`solidShape`: an SVG filter, `fx-solid-shape`, alpha ≥ 0.25 → white, applied through
+  `ctx.filter`; **no `getImageData`**, the icons are cross-origin and reading one back throws). Every click effect
+  takes a `Tune` (`animations.clickTune.<effect>`: speed, opacity, size, color; Rust `ClickTune`, clamped).
+- **Lens in a scrolling root** (`useGlideHighlight`): boxes add `root.scrollTop/Left` (the settings sidebar's list
+  scrolls and holds the lens); `settingslens.mjs` checks a scrolled list. The menu bar's lens (`menubar/Lens.tsx`)
+  fades `IDLE_MS` after resting on empty bar, and on any document leave/hide (a no-activate window can miss leaves).
 - **The menu bar steps aside for full screen** (`platform/windows/fullscreen.rs`, `menubar.rs::step_aside`,
   `menuBar.hideForFullscreen`): `position_menubar` points the watcher at the bar's monitor; it looks (WinEvents:
   foreground, minimise, show/hide/destroy, location; and every 1 s) at the window on top at the monitor's top middle,

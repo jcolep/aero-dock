@@ -802,5 +802,6 @@ export function animationsOf(settings: { animations?: Partial<AnimationSettings>
     magnify: a.magnify ?? "soft",
     start: a.start ?? "rise",
     island: a.island ?? "gloop",
+    clickTune: a.clickTune ?? (Object.fromEntries(["dimple", "halo", "shine", "bloom"].map((k) => [k, { speed: 1, opacity: 1, size: 1, color: "" }])) as unknown as AnimationSettings["clickTune"]),
   };
 }

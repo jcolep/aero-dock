@@ -53,6 +53,9 @@ const TRAIL = lens.trail;
 const MAX_STRETCH = 84;
 /** For a button that is not a hop away (the same one resizing). */
 const SETTLE = lens.settle;
+/** How long the lens follows the pointer over the bar's empty space before it goes, in ms: long enough to carry it
+ *  across a gap to the next button, short enough that it does not sit lit on nothing in the old button's shape. */
+const IDLE_MS = 260;
 
 interface Box {
   left: number;
@@ -222,7 +225,24 @@ export function useLens(activeKey: string | null, look: LensLook) {
     travel({ left: x - w / 2, right: x + w / 2 }, false);
   };
 
+  // resting on the bar's empty space it goes, a moment after (so a short way across a gap to the next button is
+  // still a glide); a button reached first keeps it
+  const idle = useRef<number | undefined>(undefined);
+  const fadeSoon = () => {
+    if (idle.current !== undefined || activeRef.current) return;
+    idle.current = window.setTimeout(() => {
+      idle.current = undefined;
+      if (!activeRef.current && !current.current) fade();
+    }, IDLE_MS);
+  };
+  const keep = () => {
+    window.clearTimeout(idle.current);
+    idle.current = undefined;
+  };
+
   const fade = useCallback(() => {
+    window.clearTimeout(idle.current);
+    idle.current = undefined;
     controls.current.push(animate(opacity, 0, { duration: 0.22, delay: 0.05 }));
     // the next time it appears it appears in place
     placed.current = false;
@@ -247,11 +267,37 @@ export function useLens(activeKey: string | null, look: LensLook) {
 
   useEffect(() => () => observer.current?.disconnect(), []);
 
+  // The bar's window never takes the keyboard, and a pointer that leaves it fast (or a bar hidden under it, for a
+  // full-screen app) may not be told to the page as a leave: the lens then stayed lit on the bar with nothing under
+  // the pointer. So leaving the document by any means, and the window being hidden, let it go as well.
+  useEffect(() => {
+    const away = () => {
+      hovering.current = false;
+      if (!activeRef.current) fade();
+    };
+    const out = (e: MouseEvent) => {
+      if (!e.relatedTarget) away();
+    };
+    const hidden = () => document.visibilityState === "hidden" && away();
+    document.addEventListener("mouseout", out);
+    document.documentElement.addEventListener("mouseleave", away);
+    document.addEventListener("visibilitychange", hidden);
+    window.addEventListener("blur", away);
+    return () => {
+      document.removeEventListener("mouseout", out);
+      document.documentElement.removeEventListener("mouseleave", away);
+      document.removeEventListener("visibilitychange", hidden);
+      window.removeEventListener("blur", away);
+      window.clearTimeout(idle.current);
+    };
+  }, [fade]);
+
   const handlers = {
     onPointerOver: (e: React.PointerEvent<HTMLElement>) => {
       const item = (e.target as HTMLElement).closest<HTMLElement>(ITEM);
       if (!item) return;
       hovering.current = true;
+      keep();
       // with a menu open the lens stays on its button until another is chosen
       goTo(item);
     },
@@ -265,6 +311,7 @@ export function useLens(activeKey: string | null, look: LensLook) {
       }
       hovering.current = true;
       floatTo(e.clientX);
+      fadeSoon();
     },
     onPointerLeave: () => {
       hovering.current = false;

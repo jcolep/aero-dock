@@ -26,6 +26,7 @@ import {
   LightBloom,
   PressDimple,
   ShineSweep,
+  tuneOf,
 } from "./fx2d";
 
 /** Where the dock is glued; effect coordinates anchor there so they
@@ -116,8 +117,9 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
 
   // the latest of everything the event handlers need, without resubscribing
   const clickEffect = settings.animations.click;
-  const live = useRef({ edge, viewport, box, tint, bloom, clickEffect });
-  live.current = { edge, viewport, box, tint, bloom, clickEffect };
+  const clickTune = settings.animations.clickTune;
+  const live = useRef({ edge, viewport, box, tint, bloom, clickEffect, clickTune });
+  live.current = { edge, viewport, box, tint, bloom, clickEffect, clickTune };
 
   // ---- the engine: once ----
   useEffect(() => {
@@ -141,19 +143,20 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
 
     const offRipple = effectsBus.on("ripple", ({ winW, winH, track, iconSource, clickX, clickY }) => {
       const toCanvas = (wx: number, wy: number) => place(wx, wy, winW, winH);
+      const tunes = live.current.clickTune;
       switch (live.current.clickEffect) {
         case "halo":
-          engine.spawn(new EdgeHalo(track, toCanvas, iconSource));
+          engine.spawn(new EdgeHalo(track, toCanvas, iconSource, tuneOf(tunes?.halo)));
           return;
         case "shine":
-          engine.spawn(new ShineSweep(track, toCanvas, iconSource));
+          engine.spawn(new ShineSweep(track, toCanvas, iconSource, tuneOf(tunes?.shine)));
           return;
         case "dimple":
-          engine.spawn(new PressDimple(track, toCanvas, iconSource, clickX, clickY));
+          engine.spawn(new PressDimple(track, toCanvas, iconSource, clickX, clickY, tuneOf(tunes?.dimple)));
           return;
         case "bloom":
         default:
-          engine.spawn(new LightBloom(track, toCanvas, iconSource, live.current.tint, live.current.bloom));
+          engine.spawn(new LightBloom(track, toCanvas, iconSource, live.current.tint, live.current.bloom, tuneOf(tunes?.bloom)));
       }
     });
     const offBurst = effectsBus.on("burst", ({ x, y, winW, winH }) => {

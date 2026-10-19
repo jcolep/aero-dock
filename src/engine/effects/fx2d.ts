@@ -128,6 +128,26 @@ export interface IconSource {
   (): CanvasImageSource | null;
 }
 
+/** How a click effect is to play (Settings > Animations, under the click effect: `animations.clickTune`): speed,
+ *  strength and size as multiples of the effect as designed, and its light's color (`null` for its own: white, or
+ *  the theme's tint for the bloom). */
+export interface Tune {
+  speed: number;
+  opacity: number;
+  size: number;
+  color: number | null;
+}
+export const PLAIN_TUNE: Tune = { speed: 1, opacity: 1, size: 1, color: null };
+export function tuneOf(t: { speed?: number; opacity?: number; size?: number; color?: string } | undefined): Tune {
+  const hex = t?.color && /^#[0-9a-f]{6}$/i.test(t.color) ? parseInt(t.color.slice(1), 16) : null;
+  return { speed: t?.speed ?? 1, opacity: t?.opacity ?? 1, size: t?.size ?? 1, color: hex };
+}
+/** The effect's light at `alpha`: white unless it was given a color. */
+function light(tune: Tune, alpha: number): string {
+  const a = Math.max(0, Math.min(1, alpha));
+  return tune.color === null ? `rgba(255,255,255,${a})` : rgba(tune.color, a);
+}
+
 /** A canvas shared by every icon-surface effect, large enough for whichever one is using it this frame, kept
  *  around rather than made fresh each time — a canvas element is not cheap to create, and at most one or two of
  *  these effects are ever drawing at once. */
@@ -251,6 +271,36 @@ function drawShape(c: CanvasRenderingContext2D, source: CanvasImageSource | null
 
 const EIGHT: [number, number][] = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.7, 0.7], [-0.7, 0.7], [0.7, -0.7], [-0.7, -0.7]];
 
+/** An SVG filter, put in the page once, that makes a picture's shape solid: white wherever it is a quarter opaque or
+ *  more, nothing elsewhere. Canvas filters can use it (`ctx.filter = "url(#…)"`), which needs no reading back of
+ *  pixels, so it works on an icon from another origin (reading one back would throw). */
+const SOLID_FILTER = "fx-solid-shape";
+function ensureSolidFilter(): void {
+  if (document.getElementById(SOLID_FILTER)) return;
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("width", "0");
+  svg.setAttribute("height", "0");
+  svg.setAttribute("aria-hidden", "true");
+  svg.style.position = "absolute";
+  svg.innerHTML = `<filter id="${SOLID_FILTER}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/><feComponentTransfer><feFuncA type="discrete" tableValues="0 1 1 1"/></feComponentTransfer></filter>`;
+  document.body.appendChild(svg);
+}
+
+/** The icon's shape made solid (`SOLID_FILTER`), on a scratch canvas: so its outline is the edge of its silhouette
+ *  only. Taken from the picture as it is, a glass-look icon is partly see-through inside, and the faint edges
+ *  across its middle were outlined too (the halo's light swept across the icon like a clock's hand). */
+function solidShape(source: CanvasImageSource | null, w: number, h: number, dpr: number): CanvasImageSource | null {
+  if (!readable(source)) return null;
+  const c = scratchCanvas("solid-shape", Math.ceil(w * dpr), Math.ceil(h * dpr));
+  if (!c) return source;
+  ensureSolidFilter();
+  c.filter = `url(#${SOLID_FILTER})`;
+  c.drawImage(source, 0, 0, c.canvas.width, c.canvas.height);
+  c.filter = "none";
+  return c.canvas;
+}
+
 /**
  * A thin band along the icon's own outline, as an alpha mask on the scratch canvas `name`: its shape spread out by
  * half of `thick` (drawn eight ways offset) less its shape pulled in by half (eight ways intersected). For an
@@ -260,6 +310,7 @@ const EIGHT: [number, number][] = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.7, 0.7],
 function outlineBand(name: string, source: CanvasImageSource | null, w: number, h: number, thick: number, pad: number, dpr: number): HTMLCanvasElement | null {
   const pw = Math.ceil((w + pad * 2) * dpr);
   const ph = Math.ceil((h + pad * 2) * dpr);
+  source = solidShape(source, w, h, dpr);
   const inner = scratchCanvas(`${name}-in`, pw, ph);
   const band = scratchCanvas(name, pw, ph);
   if (!inner || !band) return null;
@@ -300,10 +351,13 @@ export class LightBloom implements Effect {
     private tint: number,
     /** `appearance.bloomAmount`, 0..1. */
     private amount = 0.7,
-  ) {}
+    private tune: Tune = PLAIN_TUNE,
+  ) {
+    if (tune.color !== null) this.tint = tune.color;
+  }
 
   update(dt: number): void {
-    this.t += dt;
+    this.t += dt * this.tune.speed;
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
@@ -315,10 +369,10 @@ export class LightBloom implements Effect {
       return;
     }
     // up quickly, then a long fall; the light reaches out as it fades
-    const a = (lt < 0.14 ? lt / 0.14 : (1 - (lt - 0.14) / 0.86) ** 1.6) * (0.55 + 0.6 * this.amount);
-    // from just past the icon's edge to about half its size beyond, short of the icons beside it
-    const reach = Math.max(r.w, r.h) * (0.6 + 0.32 * (1 - (1 - lt) ** 3));
-    const pad = Math.ceil(Math.max(r.w, r.h) * 0.75);
+    const a = (lt < 0.14 ? lt / 0.14 : (1 - (lt - 0.14) / 0.86) ** 1.6) * (0.55 + 0.6 * this.amount) * this.tune.opacity;
+    // from just past the icon's edge to about half its size beyond, short of the icons beside it (at size 1)
+    const reach = Math.max(r.w, r.h) * (0.6 + 0.32 * this.tune.size * (1 - (1 - lt) ** 3));
+    const pad = Math.ceil(Math.max(r.w, r.h) * (0.45 + 0.32 * this.tune.size));
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     const c = scratchCanvas("bloom", Math.ceil((r.w + pad * 2) * dpr), Math.ceil((r.h + pad * 2) * dpr));
     if (!c) return;
@@ -327,8 +381,8 @@ export class LightBloom implements Effect {
     const cy = r.h / 2;
     const g = c.createRadialGradient(cx, cy, 0, cx, cy, reach);
     // the inner half is under the icon (cut out below): the light that shows is from its edge outward
-    g.addColorStop(0, `rgba(255,255,255,${Math.min(1, a)})`);
-    g.addColorStop(0.55, `rgba(255,255,255,${Math.min(1, 0.85 * a)})`);
+    g.addColorStop(0, light(this.tune, a));
+    g.addColorStop(0.55, light(this.tune, 0.85 * a));
     g.addColorStop(0.78, rgba(this.tint, Math.min(1, 0.45 * a)));
     g.addColorStop(1, rgba(this.tint, 0));
     c.fillStyle = g;
@@ -370,10 +424,11 @@ export class PressDimple implements Effect {
     private source: IconSource,
     private fx: number,
     private fy: number,
+    private tune: Tune = PLAIN_TUNE,
   ) {}
 
   update(dt: number): void {
-    this.t += dt;
+    this.t += dt * this.tune.speed;
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
@@ -391,7 +446,7 @@ export class PressDimple implements Effect {
       c.translate(this.fx * r.w, this.fy * r.h);
       const dimR = r.w * 0.12 + press * r.w * 0.32;
       const dim = c.createRadialGradient(0, 0, 0, 0, 0, dimR);
-      dim.addColorStop(0, `rgba(0,10,25,${0.4 * (1 - release)})`);
+      dim.addColorStop(0, `rgba(0,10,25,${Math.min(1, 0.4 * (1 - release) * this.tune.opacity)})`);
       dim.addColorStop(1, "rgba(0,10,25,0)");
       c.beginPath();
       c.arc(0, 0, dimR, 0, TAU);
@@ -402,8 +457,8 @@ export class PressDimple implements Effect {
         const ringR = release * Math.max(r.w, r.h) * 0.8;
         c.beginPath();
         c.arc(0, 0, ringR, 0, TAU);
-        c.lineWidth = Math.max(0.6, r.w * 0.03);
-        c.strokeStyle = `rgba(255,255,255,${(1 - release) ** 1.6 * 0.75})`;
+        c.lineWidth = Math.max(0.6, r.w * 0.03 * this.tune.size);
+        c.strokeStyle = light(this.tune, (1 - release) ** 1.6 * 0.75 * this.tune.opacity);
         c.stroke();
       }
     });
@@ -427,16 +482,17 @@ export class PressDimple implements Effect {
  */
 export class EdgeHalo implements Effect {
   private t = 0;
-  private readonly life = 1;
+  private readonly life = 0.62;
 
   constructor(
     private track: IconTrack,
     private toCanvas: ToCanvas,
     private source: IconSource = () => null,
+    private tune: Tune = PLAIN_TUNE,
   ) {}
 
   update(dt: number): void {
-    this.t += dt;
+    this.t += dt * this.tune.speed;
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
@@ -448,29 +504,31 @@ export class EdgeHalo implements Effect {
       return;
     }
     const dpr = Math.max(1, window.devicePixelRatio || 1);
-    const thick = Math.max(1.4, Math.min(r.w, r.h) * 0.05);
-    const pad = Math.ceil(thick * 3);
+    // a fine line at size 1 (about a pixel and a half on a 48px icon)
+    const thick = Math.max(0.8, Math.min(r.w, r.h) * 0.03 * this.tune.size);
+    const pad = Math.ceil(thick * 3) + 2;
     const band = outlineBand("halo-band", this.source(), r.w, r.h, thick, pad, dpr);
     const c = band && scratchCanvas("halo", band.width, band.height);
     if (!band || !c) return;
     // the running light: once round in the first 55%, in quickly and out after the lap
     const lap = Math.min(1, lt / 0.55);
     const head = -Math.PI / 2 + lap * TAU;
-    const runA = lt < 0.06 ? lt / 0.06 : lt < 0.55 ? 1 : Math.max(0, 1 - (lt - 0.55) / 0.15);
+    const k = this.tune.opacity;
+    const runA = (lt < 0.06 ? lt / 0.06 : lt < 0.55 ? 1 : Math.max(0, 1 - (lt - 0.55) / 0.15)) * k;
     // then the whole outline, up as the lap ends and fading away
-    const glowA = lt < 0.45 ? 0 : lt < 0.6 ? ((lt - 0.45) / 0.15) * 0.55 : 0.55 * (1 - (lt - 0.6) / 0.4) ** 1.5;
+    const glowA = (lt < 0.45 ? 0 : lt < 0.6 ? ((lt - 0.45) / 0.15) * 0.55 : 0.55 * (1 - (lt - 0.6) / 0.4) ** 1.5) * k;
     c.setTransform(dpr, 0, 0, dpr, pad * dpr, pad * dpr);
     if (glowA > 0) {
-      c.fillStyle = `rgba(255,255,255,${glowA})`;
+      c.fillStyle = light(this.tune, glowA);
       c.fillRect(-pad, -pad, r.w + pad * 2, r.h + pad * 2);
     }
     if (runA > 0) {
       const TAIL = 1.7;
       const g = c.createConicGradient(head - TAIL, r.w / 2, r.h / 2);
-      g.addColorStop(0, "rgba(255,255,255,0)");
-      g.addColorStop((TAIL / TAU) * 0.999, `rgba(255,255,255,${runA})`);
-      g.addColorStop(TAIL / TAU, "rgba(255,255,255,0)");
-      g.addColorStop(1, "rgba(255,255,255,0)");
+      g.addColorStop(0, light(this.tune, 0));
+      g.addColorStop((TAIL / TAU) * 0.999, light(this.tune, runA));
+      g.addColorStop(TAIL / TAU, light(this.tune, 0));
+      g.addColorStop(1, light(this.tune, 0));
       c.fillStyle = g;
       c.fillRect(-pad, -pad, r.w + pad * 2, r.h + pad * 2);
     }
@@ -483,10 +541,12 @@ export class EdgeHalo implements Effect {
     const at = [o.x - pad, o.y - pad, r.w + pad * 2, r.h + pad * 2] as const;
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
-    // a soft glow under the line, then the line itself
-    ctx.filter = `blur(${(thick * 1.2).toFixed(1)}px)`;
+    // a faint glow under the line, then the line itself
+    ctx.filter = `blur(${(thick * 1.5).toFixed(1)}px)`;
+    ctx.globalAlpha = 0.6;
     ctx.drawImage(c.canvas, ...at);
     ctx.filter = "none";
+    ctx.globalAlpha = 1;
     ctx.drawImage(c.canvas, ...at);
     ctx.restore();
   }
@@ -507,10 +567,11 @@ export class ShineSweep implements Effect {
     private track: IconTrack,
     private toCanvas: ToCanvas,
     private source: IconSource,
+    private tune: Tune = PLAIN_TUNE,
   ) {}
 
   update(dt: number): void {
-    this.t += dt;
+    this.t += dt * this.tune.speed;
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
@@ -528,12 +589,12 @@ export class ShineSweep implements Effect {
       const cx = -span * 0.3 + lt * span;
       c.translate(cx, r.h / 2);
       c.rotate(-0.4);
-      const a = Math.sin(Math.PI * Math.min(1, lt * 1.15)) * 0.9;
-      const bandW = Math.max(10, r.w * 0.26);
+      const a = Math.sin(Math.PI * Math.min(1, lt * 1.15)) * 0.9 * this.tune.opacity;
+      const bandW = Math.max(4, r.w * 0.26 * this.tune.size);
       const g = c.createLinearGradient(-bandW, 0, bandW, 0);
-      g.addColorStop(0, "rgba(255,255,255,0)");
-      g.addColorStop(0.5, `rgba(255,255,255,${a})`);
-      g.addColorStop(1, "rgba(255,255,255,0)");
+      g.addColorStop(0, light(this.tune, 0));
+      g.addColorStop(0.5, light(this.tune, a));
+      g.addColorStop(1, light(this.tune, 0));
       c.fillStyle = g;
       c.fillRect(-bandW, -r.h, bandW * 2, r.h * 2);
     });

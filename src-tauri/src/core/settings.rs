@@ -667,6 +667,48 @@ pub struct AnimationSettings {
     pub start: String,
     /// The media pill in the menu bar, and the card that hangs from the Control Center button, arriving and leaving.
     pub island: String,
+    /// How each click effect plays: its own speed, strength, size and color.
+    pub click_tune: ClickTunes,
+}
+
+/// How one click effect plays. Each is a multiple of the effect as designed (1 = as it is), and the color is
+/// `#rrggbb` or empty for the effect's own (white light; the theme's color for the bloom).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase", default)]
+pub struct ClickTune {
+    /// How fast it plays, 0.25 to 3.
+    pub speed: f32,
+    /// How strong (opaque) it is, 0.1 to 1.5.
+    pub opacity: f32,
+    /// How big: the halo's line, the shine's band, the dimple's ring, the bloom's reach. 0.25 to 3.
+    pub size: f32,
+    pub color: String,
+}
+
+impl Default for ClickTune {
+    fn default() -> Self {
+        Self { speed: 1.0, opacity: 1.0, size: 1.0, color: String::new() }
+    }
+}
+
+impl ClickTune {
+    fn sanitize(&mut self) {
+        let clamp = |v: f32, lo: f32, hi: f32| if v.is_finite() { v.clamp(lo, hi) } else { 1.0 };
+        self.speed = clamp(self.speed, 0.25, 3.0);
+        self.opacity = clamp(self.opacity, 0.1, 1.5);
+        self.size = clamp(self.size, 0.25, 3.0);
+        self.color = normalize_hex(&self.color);
+    }
+}
+
+/// A `ClickTune` for each click effect.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct ClickTunes {
+    pub dimple: ClickTune,
+    pub halo: ClickTune,
+    pub shine: ClickTune,
+    pub bloom: ClickTune,
 }
 
 impl AnimationSettings {
@@ -700,6 +742,7 @@ impl Default for AnimationSettings {
             magnify: "soft".into(),
             start: "rise".into(),
             island: "gloop".into(),
+            click_tune: ClickTunes::default(),
         }
     }
 }
@@ -884,6 +927,9 @@ impl Settings {
         keep_known(&mut n.magnify, AnimationSettings::MAGNIFY, "soft");
         keep_known(&mut n.start, AnimationSettings::START, "rise");
         keep_known(&mut n.island, AnimationSettings::ISLAND, "gloop");
+        for t in [&mut n.click_tune.dimple, &mut n.click_tune.halo, &mut n.click_tune.shine, &mut n.click_tune.bloom] {
+            t.sanitize();
+        }
         let m = &mut self.menu_bar;
         m.height = m.height.clamp(22, 44);
         m.gap = m.gap.min(24);
@@ -1304,6 +1350,21 @@ mod tests {
         s.animations.click = "<script>".into();
         s.sanitize();
         assert_eq!(s.animations.click, "dimple", "an unknown click effect falls back");
+    }
+
+    #[test]
+    fn click_effect_tuning_is_kept_in_range() {
+        // a file from before it existed plays every effect as designed
+        let old: Settings = serde_json::from_str(r#"{"animations":{"click":"halo"}}"#).unwrap();
+        assert_eq!(old.animations.click_tune.halo, ClickTune::default());
+        let mut s = Settings::default();
+        s.animations.click_tune.halo = ClickTune { speed: 99.0, opacity: -1.0, size: f32::NAN, color: "red; x".into() };
+        s.animations.click_tune.bloom.color = "#AABBCC".into();
+        s.sanitize();
+        let h = &s.animations.click_tune.halo;
+        assert_eq!((h.speed, h.opacity, h.size), (3.0, 0.1, 1.0));
+        assert_eq!(h.color, "", "only a color gets through");
+        assert_eq!(s.animations.click_tune.bloom.color, "#aabbcc");
     }
 
     #[test]

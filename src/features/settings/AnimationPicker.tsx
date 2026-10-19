@@ -19,7 +19,8 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { EdgeHalo, Fx2D, LightBloom, PressDimple, ShineSweep } from "../../engine/effects/fx2d";
+import { EdgeHalo, Fx2D, LightBloom, PressDimple, ShineSweep, tuneOf } from "../../engine/effects/fx2d";
+import type { ClickTune } from "../../ipc/types";
 import {
   islandExitMs,
   islandMotion,
@@ -377,7 +378,7 @@ function paddedIconSrc(hex: string): string {
  * preview mostly proves the shape is right, not the live-tracking (that needs the dock itself, or an off-screen
  * scenario that sweeps the pointer across a real icon).
  */
-export function ClickPreview({ preset, run }: { preset: string; run: number }) {
+export function ClickPreview({ preset, run, tune }: { preset: string; run: number; tune?: Partial<ClickTune> }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const iconRef = useRef<HTMLImageElement>(null);
@@ -425,26 +426,29 @@ export function ClickPreview({ preset, run }: { preset: string; run: number }) {
     };
     // the same contract DockIcon.tsx's handler builds for the real engine
     const iconSource = () => (icon.isConnected ? icon : null);
+    const tuned = tuneOf(tune);
     // a short beat first, so the replay is seen starting (same as LaunchPreview)
     const t = setTimeout(() => {
       switch (preset) {
         case "halo":
-          engine.spawn(new EdgeHalo(track, toCanvas, iconSource));
+          engine.spawn(new EdgeHalo(track, toCanvas, iconSource, tuned));
           return;
         case "shine":
-          engine.spawn(new ShineSweep(track, toCanvas, iconSource));
+          engine.spawn(new ShineSweep(track, toCanvas, iconSource, tuned));
           return;
         case "bloom":
-          engine.spawn(new LightBloom(track, toCanvas, iconSource, PREVIEW_TINT, bloom));
+          engine.spawn(new LightBloom(track, toCanvas, iconSource, PREVIEW_TINT, bloom, tuned));
           return;
         case "dimple":
         default:
-          engine.spawn(new PressDimple(track, toCanvas, iconSource, 0.5, 0.5));
+          engine.spawn(new PressDimple(track, toCanvas, iconSource, 0.5, 0.5, tuned));
       }
     }, 250);
     return () => clearTimeout(t);
+    // replayed when a chip or the stage is clicked, and when a tuning slider comes to rest (each step of it starts
+    // the beat above again, so it plays once, a quarter second after the slider stops)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset, run]);
+  }, [preset, run, JSON.stringify(tune ?? null)]);
 
   // the canvas covers the whole stage, not just the little dock, so a glow reaching past the icons is not cut off
   return (

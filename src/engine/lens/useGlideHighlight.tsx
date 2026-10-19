@@ -140,11 +140,15 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
       b = Math.min(b, c.bottom);
     }
     if (rr - l < 4 || b - t < 4) return null;
+    // the highlight is placed in the root's own content, so a root that scrolls (the settings sidebar's list) has
+    // its scroll added back: without it, once the list was scrolled the lens sat that far below the row it was on
+    const sx = root.scrollLeft;
+    const sy = root.scrollTop;
     return {
-      left: l - rootRect.left - o.grow,
-      right: rr - rootRect.left + o.grow,
-      top: t - rootRect.top - o.grow,
-      bottom: b - rootRect.top + o.grow,
+      left: l - rootRect.left + sx - o.grow,
+      right: rr - rootRect.left + sx + o.grow,
+      top: t - rootRect.top + sy - o.grow,
+      bottom: b - rootRect.top + sy + o.grow,
       radius: radiusOf(item, rr - l, b - t) + o.grow,
     };
   };

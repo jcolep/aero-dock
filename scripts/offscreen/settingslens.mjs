@@ -98,4 +98,23 @@ try {
 } finally {
   h.close();
 }
+
+// a short window, where the list scrolls: scrolled to its end, the lens still sits on the row under the pointer
+{
+  const s = await startHarness({ out, window: "settings", viewport: [1100, 480], settings: (st) => real && merge(st, real) });
+  try {
+    await s.open(".settings-root");
+    await s.sleep(800);
+    const q = (js) => s.eval(`(() => ${js})()`);
+    const scrolled = await q("(() => { const l = document.querySelector('.sb-list'); l.scrollTop = l.scrollHeight; return l.scrollTop; })()");
+    await s.sleep(300);
+    const row = await q("(() => { const r = [...document.querySelectorAll('.sb-item')].find((b) => b.textContent.trim() === 'General').getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; })()");
+    await s.move(row.x + row.w / 2, row.y + row.h / 2);
+    await s.sleep(700);
+    const lens = await q("(() => { const r = document.querySelector('.glide-highlight').getBoundingClientRect(); return { y: r.top, h: r.height }; })()");
+    check(scrolled > 20 && Math.abs(lens.y - row.y) <= 1 && Math.abs(lens.h - row.h) <= 1, `with the list scrolled ${Math.round(scrolled)}px, the lens is on the row under the pointer (lens at ${Math.round(lens.y)}, row at ${Math.round(row.y)})`);
+  } finally {
+    s.close();
+  }
+}
 process.exit(failed ? 1 : 0);
