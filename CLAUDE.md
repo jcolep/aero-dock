@@ -694,6 +694,11 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   files it watches, which turns off cargo's rerun-on-any-change, so without that line `resource.lib` (the exe's
   embedded icon, `target/release/build/aero-dock-*/out/`) kept the old orb for days. Check an exe's icon with
   System.Drawing `ExtractAssociatedIcon`.
+- **Click effects' outline and bloom** (`fx2d.ts`): `outlineBand` makes an alpha band along the icon image's real
+  silhouette (shape spread 8 ways, less shape eroded 8 ways; the rounded tile if there is no image), which `EdgeHalo`
+  fills with a conic-gradient head sweeping one lap (and a blurred copy for glow). `LightBloom` now tracks the icon
+  and cuts the icon's shape out of a radial glow (the effects canvas is above the icons), scaled by `bloomAmount`.
+  `clickfx.mjs` films all four in the Settings preview. The preview canvas covers the whole stage.
 - **The menu bar steps aside for full screen** (`platform/windows/fullscreen.rs`, `menubar.rs::step_aside`,
   `menuBar.hideForFullscreen`): `position_menubar` points the watcher at the bar's monitor; it looks (WinEvents:
   foreground, minimise, show/hide/destroy, location; and every 1 s) at the window on top at the monitor's top middle,

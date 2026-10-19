@@ -222,6 +222,17 @@
     0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
+/* the click preview's stand-in for a real icon: a picture with a transparent margin round its square, as real icons
+   have, drawn larger than the slot so the square is its neighbours' size (it was half of it) */
+.anim-icon-padded {
+  width: 36px;
+  height: 36px;
+  margin: -5px;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+}
+
 .anim-dot {
   width: 22px;
   height: 22px;

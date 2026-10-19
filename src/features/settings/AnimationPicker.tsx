@@ -35,6 +35,7 @@ import "../menubar/menubar.css";
 import "../start/start.css";
 import "./animations.css";
 import { Droplet } from "../../engine/brand/droplet";
+import { useSettings } from "../../state/settingsStore";
 
 interface PickerProps {
   label: string;
@@ -363,7 +364,8 @@ const PREVIEW_TINT = 0x4db2f0;
  *  transparent padding round it — a flat CSS-colored tile has no padding to speak of, so it could not show
  *  `dimple`/`shine` actually staying off that empty margin instead of pressed into it. */
 function paddedIconSrc(hex: string): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="22" y="22" width="56" height="56" rx="14" fill="${hex}"/></svg>`;
+  // drawn larger than its slot (see `.anim-icon-padded`) so that the square itself is its neighbours' size
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="14" y="14" width="72" height="72" rx="17" fill="${hex}"/></svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
@@ -380,6 +382,7 @@ export function ClickPreview({ preset, run }: { preset: string; run: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const iconRef = useRef<HTMLImageElement>(null);
   const engineRef = useRef<Fx2D | null>(null);
+  const bloom = useSettings((s) => s.settings?.appearance.bloomAmount ?? 0.7);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -426,33 +429,32 @@ export function ClickPreview({ preset, run }: { preset: string; run: number }) {
     const t = setTimeout(() => {
       switch (preset) {
         case "halo":
-          engine.spawn(new EdgeHalo(track, toCanvas));
+          engine.spawn(new EdgeHalo(track, toCanvas, iconSource));
           return;
         case "shine":
           engine.spawn(new ShineSweep(track, toCanvas, iconSource));
           return;
-        case "bloom": {
-          const r = icon.getBoundingClientRect();
-          const p = toCanvas(r.left + r.width / 2, r.bottom - 2);
-          engine.spawn(new LightBloom(p.x, p.y, PREVIEW_TINT));
+        case "bloom":
+          engine.spawn(new LightBloom(track, toCanvas, iconSource, PREVIEW_TINT, bloom));
           return;
-        }
         case "dimple":
         default:
           engine.spawn(new PressDimple(track, toCanvas, iconSource, 0.5, 0.5));
       }
     }, 250);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preset, run]);
 
+  // the canvas covers the whole stage, not just the little dock, so a glow reaching past the icons is not cut off
   return (
-    <div className="anim-launch-stage">
-      <div ref={stageRef} className="glass anim-mini-dock" style={{ position: "relative" }}>
-        <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, pointerEvents: "none" }} aria-hidden />
+    <div ref={stageRef} className="anim-launch-stage">
+      <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }} aria-hidden />
+      <div className="glass anim-mini-dock" style={{ position: "relative" }}>
         {DOT_COLORS.slice(0, 5).map((c, i) =>
           i === 2 ? (
             <span key={c} className="anim-slot">
-              <img ref={iconRef} className="anim-icon" src={paddedIconSrc(c)} alt="" draggable={false} />
+              <img ref={iconRef} className="anim-icon anim-icon-padded" src={paddedIconSrc(c)} alt="" draggable={false} />
             </span>
           ) : (
             <span key={c} className="anim-slot">

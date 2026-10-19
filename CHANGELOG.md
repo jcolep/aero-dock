@@ -50,6 +50,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Click effects (October 19)
+
+- **Edge Halo traces the icon's own outline**, like the Liquidock button's rim trace: a bright line with a fading
+  tail runs once round the icon's actual shape, then the outline glows a moment and fades. It used to run round the
+  icon's square box, which for most icons (with a margin round their picture) was empty space.
+- **Light Bloom can be seen**: a soft light swelling from behind the whole icon, past its edge, instead of a small
+  squashed flash at its foot that the icon mostly hid. It follows the Bloom amount slider.
+- **The preview's middle icon is its neighbours' size** (it was half), and the preview no longer cuts off a glow.
+
 ### Full screen (October 19)
 
 - **The menu bar gets out of the way of a full-screen app** on its monitor (a YouTube video, a game, a slideshow) and

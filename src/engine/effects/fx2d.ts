@@ -204,24 +204,102 @@ function iconClip(ctx: CanvasRenderingContext2D, w: number, h: number): void {
   ctx.clip();
 }
 
+/** Scratch canvases for the effects that build a picture of their own before drawing it (the halo, the bloom),
+ *  kept rather than made each frame. */
+const scratch = new Map<string, { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D }>();
+function scratchCanvas(name: string, pw: number, ph: number): CanvasRenderingContext2D | null {
+  let s = scratch.get(name);
+  if (!s) {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    s = { canvas, ctx };
+    scratch.set(name, s);
+  }
+  if (s.canvas.width !== pw || s.canvas.height !== ph) {
+    s.canvas.width = pw;
+    s.canvas.height = ph;
+  } else {
+    s.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    s.ctx.clearRect(0, 0, pw, ph);
+  }
+  return s.ctx;
+}
+
+/** Whether `source` has pixels `drawImage` can read now (an `<img>` that has loaded). */
+function readable(source: CanvasImageSource | null): source is CanvasImageSource {
+  return !!source && !(source instanceof HTMLImageElement && !(source.complete && source.naturalWidth > 0));
+}
+
+/** Draw the icon's shape at (x, y), w × h: its own image if it has one, else the rounded tile. */
+function drawShape(c: CanvasRenderingContext2D, source: CanvasImageSource | null, x: number, y: number, w: number, h: number): void {
+  if (readable(source)) {
+    c.drawImage(source, x, y, w, h);
+    return;
+  }
+  const r = Math.min(w, h) * 0.22;
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r);
+  c.closePath();
+  c.fillStyle = "#fff";
+  c.fill();
+}
+
+const EIGHT: [number, number][] = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.7, 0.7], [-0.7, 0.7], [0.7, -0.7], [-0.7, -0.7]];
+
 /**
- * Light bloom: a soft flash under the icon, white at its centre fading through the theme's
- * tint, with no ring. Picked over three other shapes (a single clean ring, a spray of
- * droplets, radiating glass facets) and the old triple-ring water ripple it replaces, in a
- * side-by-side comparison (an artifact made for that, October 2026) — the quietest of the
- * five, and the one read as closest to "a light catching the glass" rather than water or
- * impact. Still a floor-plane flash: flattened, like the ripple it replaces. Behind the icon,
- * not on it — the one `animations.click` choice that is not clipped to the icon's own shape,
- * since a glow spilling onto the glass under the icon is its whole character.
+ * A thin band along the icon's own outline, as an alpha mask on the scratch canvas `name`: its shape spread out by
+ * half of `thick` (drawn eight ways offset) less its shape pulled in by half (eight ways intersected). For an
+ * icon's real silhouette, not its tile — the empty margin round most icons is transparent, so it is not in it. In
+ * device pixels, with `pad` of room round the icon for the band's outer half and a glow. Returns the canvas.
+ */
+function outlineBand(name: string, source: CanvasImageSource | null, w: number, h: number, thick: number, pad: number, dpr: number): HTMLCanvasElement | null {
+  const pw = Math.ceil((w + pad * 2) * dpr);
+  const ph = Math.ceil((h + pad * 2) * dpr);
+  const inner = scratchCanvas(`${name}-in`, pw, ph);
+  const band = scratchCanvas(name, pw, ph);
+  if (!inner || !band) return null;
+  const d = thick / 2;
+  for (const c of [inner, band]) c.setTransform(dpr, 0, 0, dpr, pad * dpr, pad * dpr);
+  // pulled in: the shape where every one of its eight shifted copies is too
+  drawShape(inner, source, 0, 0, w, h);
+  inner.globalCompositeOperation = "destination-in";
+  for (const [dx, dy] of EIGHT) drawShape(inner, source, dx * d, dy * d, w, h);
+  inner.globalCompositeOperation = "source-over";
+  // spread out, less the pulled-in shape
+  for (const [dx, dy] of EIGHT) drawShape(band, source, dx * d, dy * d, w, h);
+  band.globalCompositeOperation = "destination-out";
+  band.setTransform(1, 0, 0, 1, 0, 0);
+  band.drawImage(inner.canvas, 0, 0);
+  band.globalCompositeOperation = "source-over";
+  return band.canvas;
+}
+
+/**
+ * Light bloom: a soft light that swells out from behind the icon and fades, white at its heart through the theme's
+ * tint at its edge. Picked in a side-by-side comparison (October 2026) as the one closest to "a light catching the
+ * glass". Behind the icon, not on it: the effects canvas is above the icons, so the icon's own shape is cut out of
+ * the light (its image where it has one), and what shows is the glow round its silhouette.
+ *
+ * It was a small flattened flash at the icon's foot (10 to 56 px across, squashed to half height), most of which fell
+ * under the icon or in the dock's padding: picked, it could hardly be seen, least of all with a grey theme. Now it is
+ * round the whole icon, reaching past it by about half its size, and bright enough to read with any tint.
  */
 export class LightBloom implements Effect {
   private t = 0;
-  private readonly life = 0.5;
+  private readonly life = 0.75;
 
   constructor(
-    private x: number,
-    private y: number,
+    private track: IconTrack,
+    private toCanvas: ToCanvas,
+    private source: IconSource,
     private tint: number,
+    /** `appearance.bloomAmount`, 0..1. */
+    private amount = 0.7,
   ) {}
 
   update(dt: number): void {
@@ -231,21 +309,36 @@ export class LightBloom implements Effect {
   draw(ctx: CanvasRenderingContext2D): void {
     const lt = this.t / this.life;
     if (lt >= 1) return;
-    const r = 10 + lt * 46;
-    const a = (1 - lt) ** 1.4;
-    ctx.save();
-    ctx.globalCompositeOperation = "lighter";
-    ctx.translate(this.x, this.y);
-    ctx.scale(1, 0.55);
-    const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-    glow.addColorStop(0, `rgba(255,255,255,${0.8 * a})`);
-    glow.addColorStop(0.4, rgba(this.tint, 0.5 * a));
-    glow.addColorStop(1, rgba(this.tint, 0));
-    ctx.beginPath();
-    ctx.arc(0, 0, r, 0, TAU);
-    ctx.fillStyle = glow;
-    ctx.fill();
-    ctx.restore();
+    const r = this.track();
+    if (!r) {
+      this.t = this.life;
+      return;
+    }
+    // up quickly, then a long fall; the light reaches out as it fades
+    const a = (lt < 0.14 ? lt / 0.14 : (1 - (lt - 0.14) / 0.86) ** 1.6) * (0.55 + 0.6 * this.amount);
+    // from just past the icon's edge to about half its size beyond, short of the icons beside it
+    const reach = Math.max(r.w, r.h) * (0.6 + 0.32 * (1 - (1 - lt) ** 3));
+    const pad = Math.ceil(Math.max(r.w, r.h) * 0.75);
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const c = scratchCanvas("bloom", Math.ceil((r.w + pad * 2) * dpr), Math.ceil((r.h + pad * 2) * dpr));
+    if (!c) return;
+    c.setTransform(dpr, 0, 0, dpr, pad * dpr, pad * dpr);
+    const cx = r.w / 2;
+    const cy = r.h / 2;
+    const g = c.createRadialGradient(cx, cy, 0, cx, cy, reach);
+    // the inner half is under the icon (cut out below): the light that shows is from its edge outward
+    g.addColorStop(0, `rgba(255,255,255,${Math.min(1, a)})`);
+    g.addColorStop(0.55, `rgba(255,255,255,${Math.min(1, 0.85 * a)})`);
+    g.addColorStop(0.78, rgba(this.tint, Math.min(1, 0.45 * a)));
+    g.addColorStop(1, rgba(this.tint, 0));
+    c.fillStyle = g;
+    c.fillRect(-pad, -pad, r.w + pad * 2, r.h + pad * 2);
+    // behind the icon: its own shape is not lit
+    c.globalCompositeOperation = "destination-out";
+    drawShape(c, this.source(), 0, 0, r.w, r.h);
+    c.globalCompositeOperation = "source-over";
+    const o = this.toCanvas(r.x, r.y);
+    ctx.drawImage(c.canvas, o.x - pad, o.y - pad, r.w + pad * 2, r.h + pad * 2);
   }
 
   done(): boolean {
@@ -322,24 +415,24 @@ export class PressDimple implements Effect {
 }
 
 /**
- * Edge halo: a bright trace races once around the icon's own rounded-square outline, then fades. The cheapest
- * of the icon-surface effects to draw — one dashed stroke of a path already being built for the clip every
- * other effect in this file uses. Tracks the icon live, same as `PressDimple`.
+ * Edge halo: a bright line runs once round the icon's own outline — its real silhouette, not its tile — with a
+ * fading tail, and then the whole outline glows a moment and fades, as the Liquidock button's rim trace does.
  *
- * Deliberately not masked to the icon's own drawn pixels the way `PressDimple`/`ShineSweep` are: masking a
- * *stroke* this way does not trace the icon's real silhouette, it just keeps whatever part of the rounded-rect's
- * border happens to cross opaque pixels — and since most icons have padding inset from the tile's edge, that is
- * usually none of it, so the halo would vanish. Tracing the icon's actual outline needs finding its silhouette
- * (something like marching squares over its alpha), a materially bigger feature than masking a fill or a band
- * is, and not built here. This effect is about the tile's edge on purpose, not the icon's.
+ * The outline is a thin band along the edge of the icon's own image (`outlineBand`: the shape spread out a little
+ * less the shape pulled in a little), so it follows whatever the icon is (a round icon gets a round trace, a glyph
+ * with a margin is traced where its pixels are, not round the box). The running light is a narrow wedge of a conic
+ * gradient sweeping round the icon's middle, kept to that band; for an outline that goes round its middle once, as
+ * an icon's does, that is a light travelling along it. It was a dashed stroke round the rounded square, which on a
+ * real icon (with its margin) traced empty space round it. Tracks the icon live, same as `PressDimple`.
  */
 export class EdgeHalo implements Effect {
   private t = 0;
-  private readonly life = 0.65;
+  private readonly life = 1;
 
   constructor(
     private track: IconTrack,
     private toCanvas: ToCanvas,
+    private source: IconSource = () => null,
   ) {}
 
   update(dt: number): void {
@@ -354,32 +447,47 @@ export class EdgeHalo implements Effect {
       this.t = this.life;
       return;
     }
-    const origin = this.toCanvas(r.x, r.y);
-    ctx.save();
-    ctx.translate(origin.x, origin.y);
-    ctx.globalCompositeOperation = "lighter";
-    const radius = Math.min(r.w, r.h) * 0.22;
-    ctx.beginPath();
-    ctx.moveTo(radius, 0);
-    ctx.arcTo(r.w, 0, r.w, r.h, radius);
-    ctx.arcTo(r.w, r.h, 0, r.h, radius);
-    ctx.arcTo(0, r.h, 0, 0, radius);
-    ctx.arcTo(0, 0, r.w, 0, radius);
-    ctx.closePath();
-    const perim = 2 * (r.w + r.h);
-    const sweep = Math.min(1, lt / 0.45) * perim;
-    const fade = lt < 0.45 ? 1 : 1 - (lt - 0.45) / 0.55;
-    ctx.setLineDash([sweep, perim]);
-    ctx.lineDashOffset = 0;
-    ctx.lineWidth = Math.max(1, r.w * 0.04);
-    ctx.strokeStyle = `rgba(255,255,255,${0.95 * fade})`;
-    ctx.stroke();
-    if (lt > 0.45) {
-      ctx.setLineDash([]);
-      ctx.lineWidth = Math.max(0.6, r.w * 0.024);
-      ctx.strokeStyle = `rgba(255,255,255,${0.35 * fade})`;
-      ctx.stroke();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const thick = Math.max(1.4, Math.min(r.w, r.h) * 0.05);
+    const pad = Math.ceil(thick * 3);
+    const band = outlineBand("halo-band", this.source(), r.w, r.h, thick, pad, dpr);
+    const c = band && scratchCanvas("halo", band.width, band.height);
+    if (!band || !c) return;
+    // the running light: once round in the first 55%, in quickly and out after the lap
+    const lap = Math.min(1, lt / 0.55);
+    const head = -Math.PI / 2 + lap * TAU;
+    const runA = lt < 0.06 ? lt / 0.06 : lt < 0.55 ? 1 : Math.max(0, 1 - (lt - 0.55) / 0.15);
+    // then the whole outline, up as the lap ends and fading away
+    const glowA = lt < 0.45 ? 0 : lt < 0.6 ? ((lt - 0.45) / 0.15) * 0.55 : 0.55 * (1 - (lt - 0.6) / 0.4) ** 1.5;
+    c.setTransform(dpr, 0, 0, dpr, pad * dpr, pad * dpr);
+    if (glowA > 0) {
+      c.fillStyle = `rgba(255,255,255,${glowA})`;
+      c.fillRect(-pad, -pad, r.w + pad * 2, r.h + pad * 2);
     }
+    if (runA > 0) {
+      const TAIL = 1.7;
+      const g = c.createConicGradient(head - TAIL, r.w / 2, r.h / 2);
+      g.addColorStop(0, "rgba(255,255,255,0)");
+      g.addColorStop((TAIL / TAU) * 0.999, `rgba(255,255,255,${runA})`);
+      g.addColorStop(TAIL / TAU, "rgba(255,255,255,0)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      c.fillStyle = g;
+      c.fillRect(-pad, -pad, r.w + pad * 2, r.h + pad * 2);
+    }
+    // only along the outline
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.globalCompositeOperation = "destination-in";
+    c.drawImage(band, 0, 0);
+    c.globalCompositeOperation = "source-over";
+    const o = this.toCanvas(r.x, r.y);
+    const at = [o.x - pad, o.y - pad, r.w + pad * 2, r.h + pad * 2] as const;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    // a soft glow under the line, then the line itself
+    ctx.filter = `blur(${(thick * 1.2).toFixed(1)}px)`;
+    ctx.drawImage(c.canvas, ...at);
+    ctx.filter = "none";
+    ctx.drawImage(c.canvas, ...at);
     ctx.restore();
   }
 

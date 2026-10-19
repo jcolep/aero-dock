@@ -139,11 +139,11 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
       };
     };
 
-    const offRipple = effectsBus.on("ripple", ({ x, y, winW, winH, track, iconSource, clickX, clickY }) => {
+    const offRipple = effectsBus.on("ripple", ({ winW, winH, track, iconSource, clickX, clickY }) => {
       const toCanvas = (wx: number, wy: number) => place(wx, wy, winW, winH);
       switch (live.current.clickEffect) {
         case "halo":
-          engine.spawn(new EdgeHalo(track, toCanvas));
+          engine.spawn(new EdgeHalo(track, toCanvas, iconSource));
           return;
         case "shine":
           engine.spawn(new ShineSweep(track, toCanvas, iconSource));
@@ -152,10 +152,8 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
           engine.spawn(new PressDimple(track, toCanvas, iconSource, clickX, clickY));
           return;
         case "bloom":
-        default: {
-          const p = place(x, y, winW, winH);
-          engine.spawn(new LightBloom(p.x, p.y, live.current.tint));
-        }
+        default:
+          engine.spawn(new LightBloom(track, toCanvas, iconSource, live.current.tint, live.current.bloom));
       }
     });
     const offBurst = effectsBus.on("burst", ({ x, y, winW, winH }) => {
