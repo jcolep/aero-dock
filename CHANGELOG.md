@@ -50,6 +50,20 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The settings window, tidied and restyled (October 19)
+
+- **One look with the rest of Liquidock**: groups and cards have the dock menus' corners (14px) and the glass's light
+  on their edges, as the sidebar and the menus do; every control inside has the same 8px corners; the sidebar the
+  Start menu's 16px.
+- **A choice slides**: in every segmented choice, what is chosen sits under one piece of glass that glides to the new
+  choice. The animation pickers' choices look and behave the same way.
+- **Tidier sections**: hardware acceleration and frame timings moved to General › Performance; the click effect's
+  tuning is inside its card; Dock items, Start menu and Window frame have headings; "Hide for full-screen apps" is
+  with the bar's other settings; the lens sliders say they set every lens.
+- **The Start menu: the dock while it is open** (Usable or Hidden). Usable, the dock comes up and can be clicked (it
+  used to slide away again under the menu's invisible margin, and a click only closed the menu).
+- **The Start menu's names no longer re-render** as the lens arrives: only the icon swells.
+
 ### Jump Lists, readable previews (October 19)
 
 - **Right-clicking an app in the dock shows its Jump List**, as the taskbar does, above the menu's own items: Remote

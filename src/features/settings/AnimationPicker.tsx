@@ -47,9 +47,11 @@ interface PickerProps {
   onChange: (id: string) => void;
   /** The stage's content for a preset; `run` changes to ask for a replay. */
   preview: (id: string, run: number) => ReactNode;
+  /** More controls for what is chosen, in the same card under the stage (the click effect's tuning). */
+  children?: ReactNode;
 }
 
-export function AnimationPicker({ label, summary, value, options, onChange, preview }: PickerProps) {
+export function AnimationPicker({ label, summary, value, options, onChange, preview, children }: PickerProps) {
   // bumped to replay: when the choice changes, and when the stage is clicked
   const [run, setRun] = useState(0);
   const chosen = options.find((o) => o.id === value) ?? options[0];
@@ -89,6 +91,7 @@ export function AnimationPicker({ label, summary, value, options, onChange, prev
           ↻ {chosen.hint}
         </span>
       </button>
+      {children}
     </div>
   );
 }

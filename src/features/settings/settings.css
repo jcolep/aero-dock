@@ -24,6 +24,17 @@ html[data-window="settings"],
   --lit: color-mix(in srgb, var(--aero-accent, #4aa8ff) 70%, white);
   --clear-strength: 0.7;
   --row-pad-x: 14px;
+  /* Corners, as the rest of Liquidock has them: a panel 16 (the Start menu's, the menu bar's), a group or card 14 (the
+     dock's menus), a control in one 8 (a menu's row: the panel less its padding), a segmented choice 10 round 8. */
+  --set-r-panel: 16px;
+  --set-r-card: 14px;
+  --set-r-control: 8px;
+  --set-r-seg: 10px;
+  --set-r-stage: 10px;
+  /* The glass's light on a group's edge, as `--rim` lays it on a panel: bright at the top and left, faint at the
+     bottom and right. */
+  --edge-lit: rgba(255, 255, 255, 0.2);
+  --edge-dim: rgba(255, 255, 255, 0.07);
 }
 
 .settings-root {
@@ -60,7 +71,7 @@ html[data-window="settings"],
   flex-direction: column;
   gap: 10px;
   padding: 14px 8px 8px;
-  border-radius: 18px;
+  border-radius: var(--set-r-panel);
   overflow: hidden;
 }
 
@@ -362,24 +373,29 @@ html[data-window="settings"],
 
 /* A run of rows is one rounded group: the first has the top corners, the last the bottom ones, and a hairline (inset
    from the left, as the Mac's are) lies between each. A heading or a note between rows starts a new group. */
+/* Each group is lit as the app's glass is (`--rim`): a brighter edge at its top and left, a fainter one at its bottom
+   and right, so the page's groups read as the same glass as the sidebar beside them and the menus. */
 .settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field) {
   position: relative;
   background: var(--group);
-  border-inline: 1px solid var(--group-edge);
+  border-left: 1px solid var(--edge-lit);
+  border-right: 1px solid var(--edge-dim);
 }
 .settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field):not(:is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field) + *) {
   margin-top: 8px;
-  border-top: 1px solid var(--group-edge);
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  border-top: 1px solid var(--edge-lit);
+  border-top-left-radius: var(--set-r-card);
+  border-top-right-radius: var(--set-r-card);
 }
 .settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field):first-child {
   margin-top: 0;
 }
 .settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field):not(:has(+ :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field))) {
-  border-bottom: 1px solid var(--group-edge);
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-bottom: 1px solid var(--edge-dim);
+  border-bottom-left-radius: var(--set-r-card);
+  border-bottom-right-radius: var(--set-r-card);
+  /* the group's own depth, under its last row only (a shadow on each row would lie across the hairlines) */
+  box-shadow: 0 6px 14px -8px rgba(2, 8, 20, 0.45);
 }
 .settings-section-inner > :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field) + :is(.ctl-row, .bubble-color, .audio-row, .mode-icon-field)::before {
   content: "";
@@ -592,21 +608,36 @@ html[data-window="settings"],
 /* ---- segmented choice ---- */
 
 .ctl-segmented {
+  position: relative;
   flex: 0 1 auto;
   display: inline-flex;
   flex-wrap: wrap;
   gap: 2px;
   margin-left: auto;
   padding: 2px;
-  border-radius: 9px;
+  border-radius: var(--set-r-seg);
   background: var(--fill);
   box-shadow: inset 0 0 0 1px var(--line);
 }
+/* the glass under what is chosen, gliding from choice to choice (AeroSegmented) */
+.ctl-seg-thumb {
+  position: absolute;
+  z-index: 0;
+  border-radius: calc(var(--set-r-seg) - 2px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.14));
+  box-shadow:
+    var(--rim),
+    0 1px 3px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  transform-origin: center;
+}
 .ctl-segmented button {
+  position: relative;
+  z-index: 1;
   flex: 1 0 auto;
   padding: 5px 12px;
   border: none;
-  border-radius: 7px;
+  border-radius: calc(var(--set-r-seg) - 2px);
   background: none;
   color: var(--ink-2);
   font: inherit;
@@ -623,11 +654,9 @@ html[data-window="settings"],
   background: var(--fill-hover);
   color: var(--ink);
 }
+/* what is chosen: its glass is the thumb under it */
 .ctl-segmented button[data-active="true"] {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.14));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 1px 3px rgba(0, 0, 0, 0.3);
+  background: none;
   color: #fff;
   font-weight: 600;
 }
@@ -637,11 +666,10 @@ html[data-window="settings"],
 .aero-button {
   padding: 5px 14px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--set-r-control);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.09));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    var(--rim),
     0 1px 2px rgba(0, 0, 0, 0.3);
   color: var(--ink);
   font: inherit;
@@ -690,15 +718,15 @@ html[data-window="settings"],
 .settings-section-inner > :is(.spectrum, .anim-picker, .settings-support-card) {
   margin-top: 8px;
   padding: 14px var(--row-pad-x);
-  border: 1px solid var(--group-edge);
-  border-radius: 12px;
+  border: 1px solid var(--edge-dim);
+  border-top-color: var(--edge-lit);
+  border-left-color: var(--edge-lit);
+  border-radius: var(--set-r-card);
   background: var(--group);
+  box-shadow: 0 6px 14px -8px rgba(2, 8, 20, 0.45);
 }
 .settings-section-inner > :is(.spectrum, .anim-picker):first-child {
   margin-top: 0;
-}
-.settings-section-inner > .anim-picker {
-  border-top: 1px solid var(--group-edge);
 }
 
 /* ---- text fields, color wells, the icon picker ---- */
@@ -708,7 +736,7 @@ html[data-window="settings"],
   min-width: 0;
   padding: 6px 10px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--set-r-control);
   background: rgba(0, 0, 0, 0.28);
   box-shadow: inset 0 0 0 1px var(--line);
   color: var(--ink);

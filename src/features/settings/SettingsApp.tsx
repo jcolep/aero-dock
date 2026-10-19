@@ -431,7 +431,7 @@ export function SettingsApp() {
                 options={CLICK_ANIMS}
                 onChange={(id) => set((d) => void (d.animations.click = id))}
                 preview={(id, run) => <ClickPreview preset={id} run={run} tune={settings.animations.clickTune?.[id as keyof ClickTunes]} />}
-              />
+              >
               {(() => {
                 // the chosen click effect's own tuning: what "size" is depends on the effect
                 const effect = settings.animations.click as keyof ClickTunes;
@@ -459,6 +459,7 @@ export function SettingsApp() {
                   </div>
                 );
               })()}
+              </AnimationPicker>
               <AnimationPicker
                 label="Icon magnification"
                 summary="How icons swell under the pointer"
@@ -467,46 +468,6 @@ export function SettingsApp() {
                 onChange={(id) => set((d) => void (d.animations.magnify = id))}
                 preview={(id, run) => <MagnifyPreview feel={id} run={run} />}
               />
-
-              <SettingsSub>Smoothness</SettingsSub>
-              <AeroToggle
-                label="Hardware acceleration"
-                checked={appearance.hardwareAcceleration}
-                hint="Draw with the graphics card instead of the processor: smoother on a fast screen, about 60 MB more memory. Takes effect after a restart"
-                onChange={(v) => set((d) => void (d.appearance.hardwareAcceleration = v))}
-              />
-              <div className="ctl-row">
-                <span className="ctl-label">Apply it</span>
-                <div className="ctl-actions">
-                  <button className="aero-button" onClick={() => ipc.restartApp().catch((e) => setStatus({ tone: "error", text: `Could not restart: ${humane(e)}` }))}>
-                    Restart Liquidock
-                  </button>
-                </div>
-              </div>
-              <AeroToggle
-                label="Show frame timings"
-                checked={appearance.frameOverlay}
-                hint="A small table at the top left of the main screen: every window's frames a second, its slowest frames, in green, amber or red. A diagnostic: it keeps every window drawing, so turn it off when you are done"
-                onChange={(v) => set((d) => void (d.appearance.frameOverlay = v))}
-              />
-              {appearance.frameOverlay && (
-                <div className="ctl-row">
-                  <span className="ctl-label">Frame timings report</span>
-                  <div className="ctl-actions">
-                    <button
-                      className="aero-button"
-                      onClick={() =>
-                        ipc
-                          .frameReport()
-                          .then(() => setStatus({ tone: "ok", text: "Saved frame-report.txt in Liquidock's data folder." }))
-                          .catch((e) => setStatus({ tone: "error", text: `Could not save the report: ${humane(e)}` }))
-                      }
-                    >
-                      Save a report
-                    </button>
-                  </div>
-                </div>
-              )}
             </SettingsSection>
 
             {/* ---- Dock ---- */}
@@ -733,6 +694,7 @@ export function SettingsApp() {
             </SettingsSection>
 
             <SettingsSection id="dock-items">
+              <SettingsSub>Buttons</SettingsSub>
               <AeroToggle label="Liquidock button" checked={dock.showSearchButton} hint="The drop at the left end of the dock, which opens Start" onChange={(v) => set((d) => void (d.dock.showSearchButton = v))} />
               {dock.showSearchButton && (
                 <AeroSegmented<"sweep" | "caustic" | "rim">
@@ -750,7 +712,7 @@ export function SettingsApp() {
               <AeroToggle
                 label="Reveal them on hover"
                 checked={dock.revealControls}
-                hint="Hidden until the pointer reaches the left end (Search) or the clock end (Settings). Horizontal docks only"
+                hint="Hidden until the pointer reaches the left end (the Liquidock button) or the clock end (Settings). Horizontal docks only"
                 onChange={(v) => set((d) => void (d.dock.revealControls = v))}
               />
               {dock.revealControls && (
@@ -765,6 +727,8 @@ export function SettingsApp() {
                   onChange={(v) => set((d) => void (d.dock.revealZone = v))}
                 />
               )}
+
+              <SettingsSub>Clock and status</SettingsSub>
               <AeroToggle label="Clock and date" checked={dock.showClock} onChange={(v) => set((d) => void (d.dock.showClock = v))} />
               <AeroToggle label="Battery, network, volume, Recycle Bin" checked={dock.showSystemStatus} onChange={(v) => set((d) => void (d.dock.showSystemStatus = v))} />
               {dock.showSystemStatus && (
@@ -831,6 +795,12 @@ export function SettingsApp() {
                     hint="The scene from Glass & light, kept inside the bar. Rests while you are away"
                     onChange={(v) => set((d) => void (d.menuBar.ambient = v))}
                   />
+                  <AeroToggle
+                    label="Hide for full-screen apps"
+                    checked={settings.menuBar.hideForFullscreen !== false}
+                    hint="A video, game or slideshow gone full screen on the bar's monitor has the whole screen; the bar comes back when it leaves full screen"
+                    onChange={(v) => set((d) => void (d.menuBar.hideForFullscreen = v))}
+                  />
 
                   <SettingsSub>The lens</SettingsSub>
                   <AeroSlider
@@ -863,6 +833,7 @@ export function SettingsApp() {
                     format={(v) => (v < 0.02 ? "Clear" : `${Math.round(v * 100)}%`)}
                     onChange={(v) => set((d) => void (d.menuBar.lensWarp = v))}
                   />
+                  <p className="settings-note">One lens for the whole app: these also set the Start menu's and this window's.</p>
 
                   <SettingsSub>What the bar shows</SettingsSub>
                   <AeroToggle
@@ -936,17 +907,12 @@ export function SettingsApp() {
                     hint="A menu or the Control Center goes when you move off it. Opened from the keyboard, they stay until you choose or press Escape"
                     onChange={(v) => set((d) => void (d.menuBar.closeOnLeave = v))}
                   />
-                  <AeroToggle
-                    label="Hide for full-screen apps"
-                    checked={settings.menuBar.hideForFullscreen !== false}
-                    hint="A video, game or slideshow gone full screen on the bar's monitor has the whole screen; the bar comes back when it leaves full screen"
-                    onChange={(v) => set((d) => void (d.menuBar.hideForFullscreen = v))}
-                  />
                 </>
               )}
             </SettingsSection>
 
             <SettingsSection id="start">
+              <SettingsSub>Opening it</SettingsSub>
               <AeroToggle
                 label="The Windows key opens it"
                 checked={settings.start.windowsKey}
@@ -963,6 +929,11 @@ export function SettingsApp() {
                 hint="Usable: the dock comes up and can be clicked, which closes the menu and does what you clicked, as with the taskbar. Hidden: the dock stays out of sight until the menu closes"
                 onChange={(v) => set((d) => void (d.start.dockWhileOpen = v))}
               />
+              <p className="settings-note">
+                Also opened by the Liquidock button on the dock, and Ctrl+Alt+Space or Ctrl+Esc while keyboard shortcuts are on.
+              </p>
+
+              <SettingsSub>In the menu</SettingsSub>
               <AeroToggle
                 label="Recent downloads and files"
                 checked={settings.start.showRecommended}
@@ -992,10 +963,6 @@ export function SettingsApp() {
                   </button>
                 </div>
               </div>
-              <p className="settings-note">
-                Opened by the Liquidock button on the dock, or Ctrl+Alt+Space and Ctrl+Esc while keyboard shortcuts are on,
-                and by the Windows key if that is switched on above.
-              </p>
             </SettingsSection>
 
             <SettingsSection id="frame">
@@ -1044,6 +1011,8 @@ export function SettingsApp() {
                     hint="The scene from Glass & light, kept inside the margin. Rests while you are away"
                     onChange={(v) => set((d) => void (d.frame.ambient = v))}
                   />
+
+                  <SettingsSub>Border</SettingsSub>
                   <AeroToggle
                     label="A glass border round the apps"
                     checked={settings.frame.glassBorder}
@@ -1144,6 +1113,46 @@ export function SettingsApp() {
                   set((d) => void (d.hideTaskbar = v));
                 }}
               />
+
+              <SettingsSub>Performance</SettingsSub>
+              <AeroToggle
+                label="Hardware acceleration"
+                checked={appearance.hardwareAcceleration}
+                hint="Draw with the graphics card instead of the processor: smoother on a fast screen, about 60 MB more memory. Takes effect after a restart"
+                onChange={(v) => set((d) => void (d.appearance.hardwareAcceleration = v))}
+              />
+              <div className="ctl-row">
+                <span className="ctl-label">Apply it</span>
+                <div className="ctl-actions">
+                  <button className="aero-button" onClick={() => ipc.restartApp().catch((e) => setStatus({ tone: "error", text: `Could not restart: ${humane(e)}` }))}>
+                    Restart Liquidock
+                  </button>
+                </div>
+              </div>
+              <AeroToggle
+                label="Show frame timings"
+                checked={appearance.frameOverlay}
+                hint="A small table at the top left of the main screen: every window's frames a second, its slowest frames, in green, amber or red. A diagnostic: it keeps every window drawing, so turn it off when you are done"
+                onChange={(v) => set((d) => void (d.appearance.frameOverlay = v))}
+              />
+              {appearance.frameOverlay && (
+                <div className="ctl-row">
+                  <span className="ctl-label">Frame timings report</span>
+                  <div className="ctl-actions">
+                    <button
+                      className="aero-button"
+                      onClick={() =>
+                        ipc
+                          .frameReport()
+                          .then(() => setStatus({ tone: "ok", text: "Saved frame-report.txt in Liquidock's data folder." }))
+                          .catch((e) => setStatus({ tone: "error", text: `Could not save the report: ${humane(e)}` }))
+                      }
+                    >
+                      Save a report
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <SettingsSub>This window</SettingsSub>
               <AeroSegmented<SidebarMode>

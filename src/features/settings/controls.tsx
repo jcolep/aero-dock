@@ -7,7 +7,11 @@
  */
 
 import { Roll } from "../../engine/type/Roll";
-import { useId, useState } from "react";
+import { animate, motion, useMotionValue } from "motion/react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
+import { spring } from "../../engine/motion/tokens";
+import { useSubpixelBox } from "../../engine/motion/subpixelBox";
+import { useReduced } from "../../engine/accessibility/policy";
 
 /** A row's label, and under it what the setting does (two lines at most; the whole of it on hover). */
 function Label({ label, hint, htmlFor }: { label: string; hint?: string; htmlFor?: string }) {
@@ -115,11 +119,59 @@ interface SegmentedProps<T extends string> {
   hint?: string;
 }
 
+/**
+ * A choice of a few. What is chosen sits under one piece of glass (`ctl-seg-thumb`) that glides from choice to choice
+ * on the standard spring, as the app's lenses travel, instead of each choice lighting up on its own; placed by
+ * transform (useSubpixelBox), and at once with reduced motion or the first time it is drawn.
+ */
 export function AeroSegmented<T extends string>({ label, value, options, onChange, hint }: SegmentedProps<T>) {
+  const groupRef = useRef<HTMLDivElement>(null);
+  const reduced = useReduced();
+  const left = useMotionValue(0);
+  const top = useMotionValue(0);
+  const width = useMotionValue(0);
+  const height = useMotionValue(0);
+  const shown = useMotionValue(0);
+  const placed = useRef(false);
+  const box = useSubpixelBox(left, top, width, height);
+
+  useLayoutEffect(() => {
+    const group = groupRef.current;
+    if (!group) return;
+    const place = (glide: boolean) => {
+      const active = group.querySelector<HTMLElement>("button[data-active='true']");
+      if (!active) {
+        shown.set(0);
+        return;
+      }
+      const to = { l: active.offsetLeft, t: active.offsetTop, w: active.offsetWidth, h: active.offsetHeight };
+      if (!glide || !placed.current || reduced.motion) {
+        left.jump(to.l);
+        top.jump(to.t);
+        width.jump(to.w);
+        height.jump(to.h);
+      } else {
+        animate(left, to.l, spring.standard);
+        animate(top, to.t, spring.standard);
+        animate(width, to.w, spring.standard);
+        animate(height, to.h, spring.standard);
+      }
+      placed.current = true;
+      shown.set(1);
+    };
+    place(true);
+    // a row that wraps, or the chosen word turning bold, moves the choices under it: follow them (gliding, so a change
+    // of choice, which also changes the widths, is not cut short by a jump)
+    const observer = new ResizeObserver(() => place(true));
+    observer.observe(group);
+    return () => observer.disconnect();
+  }, [value, options.length, reduced.motion, left, top, width, height, shown]);
+
   return (
     <div className="ctl-row ctl-row-seg">
       <Label label={label} hint={hint} />
-      <div className="ctl-segmented" role="radiogroup" aria-label={label}>
+      <div ref={groupRef} className="ctl-segmented" role="radiogroup" aria-label={label}>
+        <motion.span className="ctl-seg-thumb" aria-hidden style={{ ...box, opacity: shown }} />
         {options.map((opt) => (
           <button key={opt.value} role="radio" aria-checked={opt.value === value} data-active={opt.value === value} onClick={() => onChange(opt.value)}>
             {opt.label}

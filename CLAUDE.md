@@ -708,6 +708,15 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   The menu bar's lens (`menubar/Lens.tsx`) is back to its first behaviour by the owner's choice: between buttons it
   waits on the last one (no `floatTo`, removed October 19; `lensglide.mjs` checks it waits), and it fades on any
   document leave/hide (a no-activate window can miss leaves).
+- **Settings look** (settings.css tokens): `--set-r-panel` 16, `--set-r-card` 14, `--set-r-control` 8, `--set-r-seg` 10,
+  `--set-r-stage` 10, and `--edge-lit`/`--edge-dim` for the rim light on groups (top/left lit, bottom/right dim; a
+  group is a run of rows with no wrapper, so the light is on the rows' borders and the depth only under the last).
+  `AeroSegmented` has a gliding `ctl-seg-thumb` (spring.standard, useSubpixelBox; its ResizeObserver glides too, as
+  the bold choice changes widths); anim chips share its look. `settingstour.mjs` screenshots every section with
+  real settings (`settings-<id>-<n>.png`) and tallies radii; `segglide.mjs` checks the glide.
+- **Start and the dock** (`start.dockWhileOpen`): usable cuts the Start window's region at panel foot + gap (its
+  shadow margin lay over the dock); hidden: `start://state` makes DockBar slide away (`awayForStart`). `startdock.mjs`.
+  Start's lens magnifies `.st-icon` only (will-change), never a tile (its text re-rasterised).
 - **Jump Lists** (`platform/windows/jumplist.rs`, `jump_list`/`jump_open`, the top of `ContextMenu`): read with the
   undocumented `IAutomaticDestinationList` (CLSID F0AE1542…, IID E9C5EF8D… on Win10/11, BC10DCE3… before) and
   `IInternalCustomDestinationList` (CLSID 77F10CF0…, IID 507101CD…), layouts from 0x5bfa's JumpListManager (MIT); the

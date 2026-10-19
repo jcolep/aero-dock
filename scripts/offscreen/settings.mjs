@@ -47,7 +47,8 @@ const settings = (s) => {
     check(subs.includes("The lens") && subs.includes("The Control Center"), `its groups have their headings (${subs.join(", ")})`);
     // rows in a group: the first rounded at the top, the last at the bottom, a hairline between
     const groups = await q("(() => { const rows = [...document.querySelectorAll('.settings-section-inner > .ctl-row')]; const second = rows.find((r) => r.previousElementSibling?.classList.contains('ctl-row')); const first = second.previousElementSibling; return { first: getComputedStyle(first).borderTopLeftRadius, mid: getComputedStyle(second).borderTopLeftRadius, line: getComputedStyle(second, '::before').content }; })()");
-    check(groups.first === "12px" && groups.mid === "0px" && groups.line !== "none", `rows sit in rounded groups with hairlines between them (${JSON.stringify(groups)})`);
+    // 14px: a group's corners are the dock menus' (--set-r-card), since the restyling pass of October 19
+    check(groups.first === "14px" && groups.mid === "0px" && groups.line !== "none", `rows sit in rounded groups with hairlines between them (${JSON.stringify(groups)})`);
 
     // remembered: opened again, it is on Menu bar
     await h.open(".settings-root");
