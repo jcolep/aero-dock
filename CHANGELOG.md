@@ -50,6 +50,13 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Dock menus (October 19)
+
+- **An app's menu is never cut off**: with a long Jump List the menu keeps to the room above the dock, and the list
+  scrolls while the menu's own items stay in view.
+- **"Dock settings…" is gone from an app's menu, and "Audio output" is an option** (Dock › Behaviour, off).
+- **The dock's menus stay readable over a light window behind them**, as the window previews and the Start menu do.
+
 ### The settings window, tidied and restyled (October 19)
 
 - **One look with the rest of Liquidock**: groups and cards have the dock menus' corners (14px) and the glass's light
