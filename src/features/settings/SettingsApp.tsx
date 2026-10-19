@@ -953,6 +953,16 @@ export function SettingsApp() {
                 hint="Press and let go of the Windows key on its own for this Start menu; Ctrl+Win opens Windows' own. Shortcuts like Win+E and Win+D work as always. Not while an app running as administrator has the keyboard"
                 onChange={(v) => set((d) => void (d.start.windowsKey = v))}
               />
+              <AeroSegmented<"usable" | "hidden">
+                label="The dock while it is open"
+                value={settings.start.dockWhileOpen ?? "usable"}
+                options={[
+                  { value: "usable", label: "Usable" },
+                  { value: "hidden", label: "Hidden" },
+                ]}
+                hint="Usable: the dock comes up and can be clicked, which closes the menu and does what you clicked, as with the taskbar. Hidden: the dock stays out of sight until the menu closes"
+                onChange={(v) => set((d) => void (d.start.dockWhileOpen = v))}
+              />
               <AeroToggle
                 label="Recent downloads and files"
                 checked={settings.start.showRecommended}

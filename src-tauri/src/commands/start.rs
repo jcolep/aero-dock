@@ -276,7 +276,22 @@ fn place_and_show(app: &AppHandle, monitor: &MonitorInfoEx) -> AeroResult<()> {
     // what is behind it, looked at while it is still hidden (a few milliseconds)
     let backdrop = backdrop_behind(x, y, width, height, monitor.scale);
     dock_window::set_bounds(hwnd, x, y, width, height)?;
+    // The window is the panel and a margin round it for its shadow, and it is above everything. Its margin below the
+    // panel lay over the dock: with the menu open, the pointer on the dock was on this window instead, so the dock took
+    // it for gone and slid away, and a click there landed here and only closed the menu. Unless the dock is to stay
+    // hidden while the menu is open, the window is cut off at the dock's edge (the panel's foot and the gap below it),
+    // and the dock under it is the dock's: reached, and clicked, as with the taskbar under Windows' own menu.
+    let usable = app.state::<crate::core::settings::SettingsStore>().get().start.dock_while_open != "hidden";
+    let cut = height - (MARGIN * monitor.scale).round() as i32 + (EDGE_GAP * monitor.scale).round() as i32;
+    let region = if usable {
+        unsafe { windows::Win32::Graphics::Gdi::CreateRectRgn(0, 0, width, cut.clamp(1, height)) }
+    } else {
+        unsafe { windows::Win32::Graphics::Gdi::CreateRectRgn(0, 0, width, height) }
+    };
+    let _ = dock_window::set_region(hwnd, region);
     window.show()?;
+    // the dock follows it, if it is to stay out of sight while the menu is open
+    let _ = app.emit("start://state", true);
     window.set_always_on_top(true)?;
     window.set_focus()?;
     crate::trace!("start: shown {:#x}, foreground now {:#x} (was {:#x})", hwnd.0 as isize, unsafe { GetForegroundWindow() }.0 as isize, previous.0 as isize);
@@ -293,6 +308,7 @@ pub fn close(app: &AppHandle, restore: bool) {
     if let Some(window) = app.get_webview_window(LABEL) {
         let _ = window.hide();
     }
+    let _ = app.emit("start://state", false);
     if restore {
         let previous = *PREVIOUS.lock();
         if previous != 0 {

@@ -523,6 +523,8 @@ export interface StartSettings {
   adaptiveTint: boolean;
   /** The Windows key opens this Start menu instead of Windows' (Ctrl+Win opens Windows'). */
   windowsKey: boolean;
+  /** The dock while the menu is open: reachable and clickable, or kept out of sight. */
+  dockWhileOpen: "usable" | "hidden";
 }
 
 /** How frosted one surface's glass is. */

@@ -781,11 +781,21 @@ pub struct StartSettings {
     /// The Windows key, pressed and let go on its own, opens this Start menu instead of Windows' (Ctrl+Win opens
     /// Windows'). Needs a keyboard hook while it is on (`platform::windows::winkey`).
     pub windows_key: bool,
+    /// The dock while the menu is open: `usable` (it can be reached and clicked; a click there closes the menu and does
+    /// what it was for, as the taskbar does) or `hidden` (it stays out of sight until the menu closes).
+    pub dock_while_open: String,
 }
 
 impl Default for StartSettings {
     fn default() -> Self {
-        Self { pinned: Vec::new(), seeded: false, show_recommended: true, adaptive_tint: true, windows_key: false }
+        Self {
+            pinned: Vec::new(),
+            seeded: false,
+            show_recommended: true,
+            adaptive_tint: true,
+            windows_key: false,
+            dock_while_open: "usable".into(),
+        }
     }
 }
 
@@ -793,6 +803,7 @@ const MAX_START_PINS: usize = 80;
 
 impl StartSettings {
     fn sanitize(&mut self) {
+        keep_known(&mut self.dock_while_open, &["usable", "hidden"], "usable");
         let mut seen: Vec<(String, String)> = Vec::new();
         self.pinned.retain_mut(|p| {
             p.name.truncate(120);

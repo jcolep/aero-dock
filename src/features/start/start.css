@@ -381,10 +381,16 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-/* the highlight under the pointer is the panel's one gliding glass (see
-   useGlideHighlight.tsx); an item it is on is raised a little, as if seen through it */
-.st-tile[data-lensed="true"] {
-  transform: scale(var(--lens-scale, 1.07));
+/* The highlight under the pointer is the panel's one gliding glass (see useGlideHighlight.tsx); the icon of what it
+   is on is raised a little, as if seen through it. Only the icon: a whole tile scaled was drawn as a stretched
+   picture while it moved and drawn afresh, sharp, once it stopped, so its name visibly re-rendered each time the lens
+   arrived. The icon is kept on a layer of its own (will-change), so it is never redrawn either, only moved. */
+.st-icon {
+  will-change: transform;
+  transition: transform var(--m-settle) var(--e-overshoot);
+}
+.st-tile[data-lensed="true"] .st-icon {
+  transform: scale(calc(1 + (var(--lens-scale, 1.07) - 1) * 1.6));
 }
 
 .st-tile:focus-visible,
@@ -399,11 +405,18 @@
   transition-duration: 80ms, 80ms, 80ms, 120ms;
 }
 
-/* rows and the account button swell a little less: they are long, and a wide thing scaled looks heavy */
-.st-row[data-lensed="true"],
-.st-rec[data-lensed="true"],
-.st-user[data-lensed="true"] {
-  transform: scale(calc(1 + (var(--lens-scale, 1.07) - 1) * 0.35));
+/* rows: their icon only, the same way (the account button's picture too) */
+.st-row[data-lensed="true"] .st-icon,
+.st-rec[data-lensed="true"] .st-icon {
+  transform: scale(calc(1 + (var(--lens-scale, 1.07) - 1) * 1.2));
+}
+.st-user img,
+.st-user .st-avatar {
+  will-change: transform;
+  transition: transform var(--m-settle) var(--e-overshoot);
+}
+.st-user[data-lensed="true"] :is(img, .st-avatar) {
+  transform: scale(calc(1 + (var(--lens-scale, 1.07) - 1) * 1.2));
 }
 
 /* ---- recommended ---- */

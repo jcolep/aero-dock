@@ -261,11 +261,26 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     ipc.setMemorySaver(asleep).catch((e) => console.debug("memory saver unavailable", e));
   }, [asleep]);
 
+  // The Start menu open, with the dock to stay out of sight meanwhile (Settings > Start menu): it slides away and
+  // nothing brings it back until the menu closes. (Usable, the other choice, needs nothing here: Rust cuts the
+  // menu's window off at the dock's edge so the dock gets the pointer.)
+  const [startOpen, setStartOpen] = useState(false);
+  useEffect(() => {
+    const un = listen<boolean>("start://state", (e) => setStartOpen(e.payload));
+    return () => void un.then((f) => f());
+  }, []);
+  const awayForStart = startOpen && settings.start?.dockWhileOpen === "hidden";
+
   const autoHide = settings.dock.autoHide;
   const autoHideDelay = settings.dock.autoHideDelayMs;
   useEffect(() => {
     clearTimeout(hideTimer.current);
     clearTimeout(shrinkTimer.current);
+    if (awayForStart) {
+      setHidden(true);
+      if (autoHide) shrinkTimer.current = setTimeout(() => setWindowShrunk(true), reveal.hideMs);
+      return () => clearTimeout(shrinkTimer.current);
+    }
     if (!autoHide) {
       setHidden(false);
       setWindowShrunk(false);
@@ -285,7 +300,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       clearTimeout(hideTimer.current);
       clearTimeout(shrinkTimer.current);
     };
-  }, [autoHide, pointerInside, menuOpen, fileDragOver, autoHideDelay, reveal.hideMs]);
+  }, [autoHide, pointerInside, menuOpen, fileDragOver, autoHideDelay, reveal.hideMs, awayForStart]);
 
   // Slid away, nothing of the dock can be seen, so none of its decoration
   // needs to run (the effects layer and the CSS float and sweep both stand
