@@ -366,6 +366,8 @@ export interface MenuBarSettings {
   mediaIsland: boolean;
   mediaIslandPinned: boolean;
   mediaPeek: boolean;
+  /** Get out of the way of an app gone full screen on the bar's monitor (a video, a game). */
+  hideForFullscreen: boolean;
 }
 
 /** Which animation each kind of thing uses: the id of a preset in

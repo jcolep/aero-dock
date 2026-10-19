@@ -15,6 +15,7 @@ pub mod endtask;
 pub mod filesearch;
 pub mod genie;
 pub mod glass;
+pub mod fullscreen;
 pub mod hotkeys;
 pub mod winkey;
 pub mod icons;

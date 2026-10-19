@@ -97,7 +97,7 @@ pub fn corner_snapped(visible: &Rect, opening: &Rect, i: usize) -> bool {
     }
 }
 
-fn contains(r: &Rect, p: (i32, i32)) -> bool {
+pub(crate) fn contains(r: &Rect, p: (i32, i32)) -> bool {
     p.0 >= r.x && p.0 < r.x + r.width && p.1 >= r.y && p.1 < r.y + r.height
 }
 
@@ -172,7 +172,7 @@ fn rect_of(r: RECT) -> Rect {
 }
 
 /// The bounds a window is drawn in (without its invisible borders).
-fn visible_bounds(hwnd: HWND) -> Option<Rect> {
+pub(crate) fn visible_bounds(hwnd: HWND) -> Option<Rect> {
     let mut r = RECT::default();
     unsafe {
         DwmGetWindowAttribute(

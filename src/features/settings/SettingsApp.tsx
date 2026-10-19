@@ -909,6 +909,12 @@ export function SettingsApp() {
                     hint="A menu or the Control Center goes when you move off it. Opened from the keyboard, they stay until you choose or press Escape"
                     onChange={(v) => set((d) => void (d.menuBar.closeOnLeave = v))}
                   />
+                  <AeroToggle
+                    label="Hide for full-screen apps"
+                    checked={settings.menuBar.hideForFullscreen !== false}
+                    hint="A video, game or slideshow gone full screen on the bar's monitor has the whole screen; the bar comes back when it leaves full screen"
+                    onChange={(v) => set((d) => void (d.menuBar.hideForFullscreen = v))}
+                  />
                 </>
               )}
             </SettingsSection>

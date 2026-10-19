@@ -50,6 +50,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Full screen (October 19)
+
+- **The menu bar gets out of the way of a full-screen app** on its monitor (a YouTube video, a game, a slideshow) and
+  comes back when it leaves full screen, is minimised or closes. A maximised window keeps the bar. Settings › Menu bar ›
+  "Hide for full-screen apps" (on).
+
 ### Lenses (October 19)
 
 - **The Settings window's sidebar lens is the row now**: the same size as the section it is on, gliding straight up

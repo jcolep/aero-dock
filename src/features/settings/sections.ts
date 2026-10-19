@@ -99,7 +99,7 @@ export const GROUPS: GroupDef[] = [
         title: "Menu bar",
         blurb: "The bar along the top, its lens and the Control Center",
         keywords:
-          "menu bar height gap corner radius seconds clock time media pill island now playing hover controls play pause next previous tint item spacing text size edge light lens size magnification warp control center wi-fi bluetooth circle color now playing cover sound wave spectrum camera microphone dots privacy cpu memory network readout stats date clock status icons close menus pointer away ambient scene",
+          "menu bar height gap corner radius seconds clock time media pill island now playing hover controls play pause next previous tint item spacing text size edge light lens size magnification warp control center wi-fi bluetooth circle color now playing cover sound wave spectrum camera microphone dots privacy cpu memory network readout stats date clock status icons close menus pointer away ambient scene full screen fullscreen video game hide",
         hue: 205,
       },
       {

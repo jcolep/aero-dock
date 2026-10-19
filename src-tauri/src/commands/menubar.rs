@@ -109,7 +109,39 @@ pub fn position_menubar(app: &AppHandle) -> AeroResult<()> {
     crate::platform::windows::dock_window::set_bounds(hwnd, strip.x, strip.y, width, height)?;
     crate::trace!("position_menubar: bounds set");
 
+    // watch its monitor for an app gone full screen, so it can step out of the way
+    let handle = app.clone();
+    crate::platform::windows::fullscreen::watch(settings.menu_bar.hide_for_fullscreen.then_some(monitor.bounds), move |_| {
+        let h = handle.clone();
+        let _ = handle.run_on_main_thread(move || step_aside(&h));
+    });
+    step_aside(app);
+
     clip_to_use(hwnd, scale, bar, width, height)
+}
+
+/// The bar was hidden for an app gone full screen, and is to come back when it leaves.
+static ASIDE: AtomicBool = AtomicBool::new(false);
+
+/// Hide the bar while an app is full screen on its monitor, and bring it back after; without taking the keyboard
+/// either way. Its glass (`glass.rs`) follows its window. Main thread.
+fn step_aside(app: &AppHandle) {
+    use windows::Win32::UI::WindowsAndMessaging::{IsWindowVisible, ShowWindow, SW_HIDE, SW_SHOWNOACTIVATE};
+    let Some(window) = app.get_webview_window(LABEL) else { return };
+    let Ok(hwnd) = window.hwnd() else { return };
+    let hwnd = windows::Win32::Foundation::HWND(hwnd.0);
+    let full = crate::platform::windows::fullscreen::is_full() && app.state::<SettingsStore>().get().menu_bar.hide_for_fullscreen;
+    unsafe {
+        if full && IsWindowVisible(hwnd).as_bool() {
+            // a menu that is open goes with it
+            let _ = app.emit_to(LABEL, "menubar://outside", ());
+            crate::platform::windows::outside_click::stop();
+            let _ = ShowWindow(hwnd, SW_HIDE);
+            ASIDE.store(true, Ordering::SeqCst);
+        } else if !full && ASIDE.swap(false, Ordering::SeqCst) {
+            let _ = ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+        }
+    }
 }
 
 /// Clip the window to what is in use: the bar, or the bar and what is open

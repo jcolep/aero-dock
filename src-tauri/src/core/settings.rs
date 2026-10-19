@@ -526,6 +526,9 @@ pub struct MenuBarSettings {
     pub media_island_pinned: bool,
     /// Resting the pointer on the Control Center button shows its Now Playing card, hanging from the button.
     pub media_peek: bool,
+    /// Step out of the way of an app gone full screen on the bar's monitor (a video, a game), as the taskbar does
+    /// (`platform::windows::fullscreen`).
+    pub hide_for_fullscreen: bool,
 }
 
 impl Default for MenuBarSettings {
@@ -556,6 +559,7 @@ impl Default for MenuBarSettings {
             media_island: true,
             media_island_pinned: false,
             media_peek: true,
+            hide_for_fullscreen: true,
         }
     }
 }

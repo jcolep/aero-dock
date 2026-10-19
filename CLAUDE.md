@@ -694,6 +694,13 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   files it watches, which turns off cargo's rerun-on-any-change, so without that line `resource.lib` (the exe's
   embedded icon, `target/release/build/aero-dock-*/out/`) kept the old orb for days. Check an exe's icon with
   System.Drawing `ExtractAssociatedIcon`.
+- **The menu bar steps aside for full screen** (`platform/windows/fullscreen.rs`, `menubar.rs::step_aside`,
+  `menuBar.hideForFullscreen`): `position_menubar` points the watcher at the bar's monitor; it looks (WinEvents:
+  foreground, minimise, show/hide/destroy, location; and every 1 s) at the window on top at the monitor's top middle,
+  skipping ours, tool/click-through, cloaked, the desktop and shell hosts, and if it covers the monitor
+  (`shaper::fullscreen`) the bar is `SW_HIDE`d (its glass follows), back with `SW_SHOWNOACTIVATE` (only if it was
+  hidden for this: `ASIDE`). Not the shell's global full-screen state (wrong for overlays and other monitors). The bar's
+  window is 1920x734 (the bar plus room for menus). Checked natively with test windows: 8 of 8.
 - **A lens's backdrop filter doubles anything see-through under it** (the bent copy is laid over the original): the
   Start menu's readability veil went near-black in its lens. `refraction.ts` starts with `SOLID_ONLY` (alpha^4), so
   only solid text and icons are bent. `startveil.mjs` reproduces it (sends `start://open` with a light `backdrop`).
