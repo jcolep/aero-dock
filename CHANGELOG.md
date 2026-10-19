@@ -56,6 +56,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   scrolls while the menu's own items stay in view.
 - **"Dock settings…" is gone from an app's menu, and "Audio output" is an option** (Dock › Behaviour, off).
 - **The dock's menus stay readable over a light window behind them**, as the window previews and the Start menu do.
+- **No white flash opening Settings**: the first "Liquidock Settings…" after the window had been closed showed a frame
+  of white before its page drew; it now opens on its own colour once the page has loaded.
 
 ### The settings window, tidied and restyled (October 19)
 

@@ -210,6 +210,10 @@ Say plainly in a report when something native was not seen.
   foreground window (Chromium takes focus for its web view), so closing a menu
   hands focus back. Do not set Tauri's `set_background_color` on these windows: tao
   paints it opaque on every `WM_ERASEBKGND`.
+- **A window built fresh flashes white** (a new web view's default background) if it is shown before its page has
+  painted. The Settings window is destroyed on close and rebuilt, so `open_settings` builds it `visible(false)` with
+  `background_color` its own night colour and shows it `on_page_load` Finished. (Opaque windows only: the bars are
+  see-through, see the note above.)
 - **Every window of ours must refuse a title bar** (`keep_caption_off`, called on the
   main thread from each placement: `position_menubar`, `position_one` for the docks,
   `layout_monitor` for the frame). Tauri puts `WS_CAPTION` back at moments of its

@@ -246,7 +246,19 @@ pub async fn open_settings(app: AppHandle) -> AeroResult<()> {
     )
     .title(crate::platform::windows::running::SETTINGS_TITLE)
     .inner_size(820.0, 640.0)
-    .min_inner_size(660.0, 500.0);
+    .min_inner_size(660.0, 500.0)
+    // Built hidden, on its own night colour, and shown once its page has loaded. Shown as it was made, a new web view
+    // drew a frame or more of its default white before the page painted: the first "Liquidock Settings…" after the
+    // window had been closed (it is destroyed on close) flashed white. This window is opaque, so a background colour
+    // is safe here (unlike the bars, see CLAUDE.md).
+    .visible(false)
+    .background_color(tauri::window::Color(13, 20, 36, 255))
+    .on_page_load(|window, payload| {
+        if matches!(payload.event(), tauri::webview::PageLoadEvent::Finished) {
+            let _ = window.show();
+            let _ = window.set_focus();
+        }
+    });
 
     // Every WebView2 window sharing a profile has to be created with the
     // same browser arguments, or the second one fails to appear at all.
