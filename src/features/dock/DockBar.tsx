@@ -48,7 +48,8 @@ const EDGE_SLACK = 48;
 const MENU_SPACE = 360; // extra cross-axis room while a context menu is open
 const FLYOUT_GAP = 16; // breathing room between a flyout and the window edge
 const TOAST_SPACE = 210; // extra cross-axis room while toasts are on screen
-const REVEAL_ZONE = 80; // px at the dock's left end that reveals Search
+// How close to the dock's end the pointer must get for that end's button to
+// bud out is a setting now (settings.dock.revealZone); see `revealZone` below.
 const PULL_OFF = 40; // px past the bar, away from the edge, that unpins on release
 const CLOCK_SPACE = 76; // the clock and date
 const CONTROLS_SPACE = 76; // Search and Settings buttons, when they sit in the bar
@@ -179,6 +180,9 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   // Search and Settings hang off the ends of the dock instead of sitting in
   // it. Horizontal docks only: a vertical dock keeps them in the bar.
   const revealMode = settings.dock.revealControls && !vertical;
+  // how close to the bar's end the pointer must get for that end's button to
+  // bud out (Settings > Dock items > How close to the end)
+  const revealZone = settings.dock.revealZone;
   const mouseAxis = useMotionValue(Infinity);
   const [magnifyField] = useState(newMagnifyField);
   magnifyField.restSize = iconSize;
@@ -650,16 +654,13 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       }
       if (!revealMode || draggingRef.current) return;
       const bar = e.currentTarget.getBoundingClientRect();
-      // the right-hand zone is the clock/status section, wherever it lands
-      const cluster = e.currentTarget.querySelector(".widget-cluster")?.getBoundingClientRect();
-      const rightEdge = cluster ? cluster.left - 12 : bar.right - REVEAL_ZONE;
-      const left = e.clientX - bar.left < REVEAL_ZONE;
-      const right = e.clientX > rightEdge;
+      const left = e.clientX - bar.left < revealZone;
+      const right = bar.right - e.clientX < revealZone;
       if (left || right) cancelRevealHide();
       setRevealLeft(left);
       setRevealRight(right);
     },
-    [mouseAxis, magnifyField, vertical, revealMode, cancelRevealHide],
+    [mouseAxis, magnifyField, vertical, revealMode, revealZone, cancelRevealHide],
   );
 
   // Coming at the dock's end from outside it, along the screen, never crosses the bar before the
@@ -671,12 +672,10 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       const barEl = barRef.current;
       if (!barEl || barEl.contains(e.target as Node)) return;
       const bar = barEl.getBoundingClientRect();
-      const cluster = barEl.querySelector(".widget-cluster")?.getBoundingClientRect();
-      const rightEdge = cluster ? cluster.left - 12 : bar.right - REVEAL_ZONE;
       // level with the bar, give or take a little
       const level = e.clientY >= bar.top - 14 && e.clientY <= bar.bottom + 14;
-      const left = level && e.clientX < bar.left + REVEAL_ZONE && e.clientX > bar.left - SATELLITE_ROOM - 24;
-      const right = level && e.clientX > rightEdge && e.clientX < bar.right + SATELLITE_ROOM + 24;
+      const left = level && e.clientX < bar.left + revealZone && e.clientX > bar.left - SATELLITE_ROOM - 24;
+      const right = level && e.clientX > bar.right - revealZone && e.clientX < bar.right + SATELLITE_ROOM + 24;
       if (left || right) {
         cancelRevealHide();
         setRevealLeft(left);
@@ -686,7 +685,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         scheduleRevealHide();
       }
     },
-    [revealMode, cancelRevealHide, scheduleRevealHide],
+    [revealMode, revealZone, cancelRevealHide, scheduleRevealHide],
   );
 
   const handleLeave = useCallback(() => {
@@ -879,10 +878,25 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     </Reorder.Item>
   );
 
+  // A custom running-mark color (Settings > Dock items > Running app mark): the same color math the theme's own
+  // accent gets (tokensFromAccent), computed once more for whatever color was picked, so the mark's gradient and
+  // glow are built the same way regardless of where the color came from. Empty (the default) leaves these unset
+  // and dock.css's own theme-accent fallback applies instead.
+  const markColorVars = useMemo(() => {
+    if (!settings.dock.markColor) return null;
+    const t = tokensFromAccent(settings.dock.markColor);
+    return {
+      ["--mark-custom-life" as string]: t["--aero-life"],
+      ["--mark-custom-deep" as string]: t["--aero-accent-deep"],
+      ["--mark-custom-glow" as string]: t["--clear-glow"],
+    } as React.CSSProperties;
+  }, [settings.dock.markColor]);
+
   return (
     <div
       ref={viewportRef}
       className="dock-viewport"
+      data-mark-color={markColorVars ? "custom" : "theme"}
       role="toolbar"
       aria-label="Dock"
       aria-orientation={vertical ? "vertical" : "horizontal"}
@@ -896,7 +910,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       data-reveal={hidden ? "out" : "in"}
       // how strongly the theme's color tints the glass (clear.css, global.css): the dock's own, or the menu bar's put in
       // the dock's terms (the bar's body is half the color at its Tint, the dock's a third), so the two match
-      style={{ ["--dock-tint" as string]: settings.dock.tint ?? 1 } as React.CSSProperties}
+      style={{ ["--dock-tint" as string]: settings.dock.tint ?? 1, ...markColorVars } as React.CSSProperties}
       onMouseEnter={(e) => setPointerInside(inDockZone(e))}
       onMouseLeave={() => {
         setPointerInside(false);

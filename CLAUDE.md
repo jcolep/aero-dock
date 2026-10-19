@@ -94,8 +94,12 @@ and the WebView2 runtime. `pnpm install` first.
   and `cargo test`, then `pnpm build`
 - Release build: `pnpm tauri build --no-bundle` (LTO, about 3 minutes). The owner
   runs the **portable** build: copy `src-tauri/target/release/aero-dock.exe` to
-  `dist-portable/Liquidock.vNN.exe` with the next version number (it was `Aero Dock.vNN.exe` up to v107). Their data sits
-  in `dist-portable/data`, marked by `portable.txt`.
+  `dist-portable/Liquidock.vNN.exe` with the next version number (it was `Aero Dock.vNN.exe`
+  up to v107) — that copy is always made, it is the build-output drop zone, git-ignored.
+  **Where the owner then runs it from differs by machine** (see "Environment notes"): on
+  the work computer that `dist-portable/` copy is also the live one; on the home computer
+  the same exe is copied again to a separate, non-OneDrive location. Check which machine a
+  session is on before assuming either.
 - A new exe cannot start while an older copy runs (the single-instance plugin is
   keyed on the identifier), so the owner must quit from the tray first. Old
   versions they are running are locked; they delete those themselves.
@@ -404,6 +408,21 @@ Say plainly in a report when something native was not seen.
   never to take the keyboard, so `keyboard.rs` makes the window activatable for the
   visit and `set_dock_focusable(false)` restores it. Real focus is what lets
   keystrokes and screen readers work.
+- **The dock's Search/Settings satellites (`DockSatellite.tsx`) are an open question, not a finished design.**
+  Their old bespoke three-phase squash-and-stretch entrance was quietly a fifth motion invented outside the four
+  named springs the rest of the app holds to (`engine/motion/tokens.ts` says as much in its own header); it is now
+  `springs.bloom`, the same settle spring every other flyout uses. That fixes the motion-language violation, but the
+  owner is not sold on the reveal-on-approach mechanic itself (how close the pointer must get is `dock.revealZone`,
+  a setting now, default 40px, not the old fixed 80). **The right-hand (Settings) zone used to ignore this setting
+  entirely**: `handleMove`/`handleOutside` special-cased the clock/status cluster's own left edge as the trigger line
+  whenever the cluster was shown, so the button budded out the moment the pointer reached the cluster — right after
+  crossing the running apps — well short of the bar's actual edge, no matter what the slider said. Both handlers now
+  measure from `bar.right - revealZone` uniformly, same as the left zone already did. Options discussed and not yet
+  chosen between: drop the reveal
+  entirely (`revealControls: false` already does this, zero new code), ghost the buttons in place and have the
+  existing `appearance.hoverEffect` system (magnify/lift/glow) light them up instead of budding from nothing, or
+  have them glide out of the bar's edge the way the menu bar's lens glides between buttons
+  (`engine/lens/useGlideHighlight`). Don't treat the current shape as settled; ask before polishing it further.
 - **Dock icon gestures:** click launches or focuses, scroll changes that app's volume,
   **middle-click closes the app** (asks each of the icon's windows to close, as its close
   button would, so an app with unsaved work still asks; nothing for a pin that is not
@@ -455,14 +474,43 @@ hotkeys taking focus, Narrator reading the bars, a visible taskbar.
 - A hole cut in the app window behind the dock was built and removed: the owner
   preferred it without.
 
-## Environment notes (the owner's machine)
+## Environment notes (the owner's machines)
 
-- Two monitors: a Dell, the primary (`DISPLAY2`, 1920x1080 at 100%, 75 Hz over a DVI-type
-  link, IPS), and a Samsung to its right (`DISPLAY1`, 2560x1440, 165 Hz, DisplayPort, VA).
-  The glass looks best on the Samsung; the Dell shows its limits (lower contrast, coarse grain).
-- The owner runs the portable build from `dist-portable/` (git-ignored), with their real
-  settings in `dist-portable/data/settings.json`. The off-screen harness can load that file
-  to reproduce exactly what they see.
+The owner works across two machines, both on the `custom-fork` branch of the same OneDrive-synced
+repo (`...\OneDrive\Documents\Dev\aero-dock`), so code and commits move between them by pulling.
+**Where the live, running app lives is different on each one** — check which machine a session is
+on (ask, or look for the monitors below) before touching either.
+
+- **Work computer.** Policy there requires the repo and its build output to stay under OneDrive's
+  "repos" folder — that is a constraint of that machine, not a preference, and not something to
+  change. `dist-portable/` is both the build-output drop zone and where the owner runs it, exactly
+  as "Build, check, ship" describes by default. No further detail about this machine is known here;
+  a session running on it should ask the owner rather than assume the home-machine notes below apply.
+- **Home computer.** Two monitors: a Dell, the primary (`DISPLAY2`, 1920x1080 at 100%, 75 Hz over
+  a DVI-type link, IPS), and a Samsung to its right (`DISPLAY1`, 2560x1440, 165 Hz, DisplayPort,
+  VA). The glass looks best on the Samsung; the Dell shows its limits (lower contrast, coarse grain).
+  No admin rights, which rules out the NSIS installer (`installMode: currentUser` still prompts for
+  elevation on a locked-down account) — portable is the only shape that works here. **The live copy
+  runs from `%LOCALAPPDATA%\Liquidock\`, not from `dist-portable/`** (moved there 16 October 2026):
+  the repo itself stays in OneDrive (so it keeps syncing with the work machine), but there is no
+  work-computer-style reason the *live install* needs to be there too, and the portable `data\webview`
+  folder is a live WebView2 profile (cache, cookies, IndexedDB, SQLite WAL files, written continuously
+  while the dock runs) — syncing that from inside OneDrive caused real I/O overhead and file-lock
+  risk. `dist-portable/` is still where a release build is dropped first (see "Build, check, ship");
+  after copying the exe there, also copy it to `%LOCALAPPDATA%\Liquidock\` (as `Liquidock.vNN.exe`,
+  replacing the previous version) — that is what actually runs. The owner's real `settings.json` on
+  this machine is `%LOCALAPPDATA%\Liquidock\data\settings.json`; the off-screen harness should load
+  that file to reproduce exactly what they see here. The old `dist-portable/data/` from before the
+  16 October move was left in place as a one-time backup, not kept in sync — don't read it for "what
+  the owner sees" by mistake, and don't assume a `dist-portable/data/` on another machine means the
+  same thing (on the work machine it is the real, live data).
+- **This machine's Rust toolchain is newer than the one the code was last cleared on**:
+  `cargo clippy --all-targets -- -D warnings` fails here on `genie.rs` alone
+  (`chunks_exact_to_as_chunks`, a lint new enough to not exist, or not fire, on whatever
+  toolchain the work machine last ran clippy with). `cargo build`/`cargo test` are
+  unaffected (clippy lints don't block them) — 262 tests pass, including genie's. Not yet
+  fixed; genie.rs's pixel-buffer code is exactly the kind of thing to actually understand
+  before changing rather than mechanically satisfying a lint.
 - **Do not run `cargo fmt`**: the crate is not rustfmt-formatted (its lines are longer), so it
   rewrites some 60 files. Match the surrounding style by hand.
 - Windows PowerShell 5.1 is the shell. In a double-quoted string a backtick escapes the next
@@ -611,16 +659,22 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   (smoothstep 0.42→0.92, at most 0.55) stretched over the panel as `.st-veil` (above the bd-layer, under content;
   bilinear scaling blends cells) plus `--st-shadow` text-shadow. Deliberately once per opening and never while open
   (no flicker); reopen-while-closing keeps the last one. `start.adaptiveTint` turns it off. `readability.mjs`.
-- **The mark is a drop of glass** (`engine/brand`): `Droplet` (React, colors are CSS color-mix of `--aero-accent`, so it
-  follows the theme live; gradient ids are per instance from `useId`) and `dropletSvg(hex, px)` (plain JS + .d.ts so
-  Node scripts can import it; the same drawing with literal colors). Change one, change the other (they share
-  `DROP_PATH`/`STREAK_PATH`/`TIP_PATH`). Used by the menu bar logo, the settings sidebar/splash/support card, Welcome,
-  the animation previews. Inline SVGs sharing gradient ids in one page all take the first one's colors (bit the preview
-  sheet) — render standalone copies as `<img>`. The tray icon is tinted at run time: the primary dock renders
-  `dropletSvg` at 64 px to a PNG and calls `set_tray_icon` (`useTrayDroplet`, debounced 400 ms). The exe/installer
-  icons are the drop in silver `#9fb4cc`: `node --experimental-websocket scripts/brand/make-icons.mjs` renders
-  `src-tauri/icons/source.png` (1024, transparent; the page must have no scrollbars or they are captured) and runs
-  `pnpm tauri icon` (don't pipe its output through `Select-Object -First`: that kills it part way).
+- **The mark is a drop of frosted glass** (`engine/brand`): `Droplet` (React, colors are CSS color-mix of
+  `--aero-accent`, so it follows the theme live; gradient/filter ids are per instance from `useId`) and
+  `dropletSvg(hex, px)` (plain JS + .d.ts so Node scripts can import it; the same drawing with literal colors).
+  Change one, change the other (they share `DROP_PATH`). True alpha transparency — a turbulence-and-blur diffusion
+  (`feTurbulence` + `feGaussianBlur`, merged) over a soft radial glow, clipped to the shape, rather than an opaque
+  fill shaded to look translucent — picked after building and comparing five real techniques side by side (an
+  artifact made for that comparison, October 2026); a crisper sheared-highlight look lost out because it read as
+  polished glass, not frosted. The grain holds up to about 32px; below that it softens into a plain soft glow, which
+  is ordinary icon behavior at small sizes and not a bug. Used by the menu bar logo, the settings sidebar/splash/
+  support card, Welcome, the animation previews. Inline SVGs sharing gradient ids in one page all take the first
+  one's colors (bit the preview sheet) — render standalone copies as `<img>`. The tray icon is tinted at run time:
+  the primary dock renders `dropletSvg` at 64 px to a PNG and calls `set_tray_icon` (`useTrayDroplet`, debounced
+  400 ms). The exe/installer icons are the drop in silver `#9fb4cc`:
+  `node --experimental-websocket scripts/brand/make-icons.mjs` renders `src-tauri/icons/source.png` (1024,
+  transparent; the page must have no scrollbars or they are captured) and runs `pnpm tauri icon` (don't pipe its
+  output through `Select-Object -First`: that kills it part way).
 - **Window previews** (WindowsFlyout): one window shows its title once (header) and a full-width close bar under the
   picture; several show the app name and each window's title over its picture. No `title` attributes anywhere in it:
   the DWM thumbnail is drawn over the page, so a tooltip comes up behind it and sticks (`previews.mjs`).
@@ -636,3 +690,154 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
 - **Never synthesise Alt** to win the foreground: apps show their KeyTips. `running::activate_window` tries `SetForegroundWindow`, then sends a zero mouse move and tries again.
 - **Read the window size again once a resize listener is attached** (FrameApp, MenuBarApp, BarScene): windows are made at 800x600 and resized, and with lazy-loaded pages that resize could land before the listener (the frame's border lost its right and bottom edges).
 - Settling glass comes in when the entrance has under `LANDING_MS` (180) to go, never while `data-leaving`; it fades in over 260 ms, eased.
+- **Dock click effects, two layers** (`engine/effects/fx2d.ts` + `EffectsLayer.tsx`, canvas 2D, no WebGL and no
+  blur filter — the dock's web view renders in software): every click emits `ripple`, and a launch of an app with
+  no window yet also emits `burst` (`LaunchBurst`, a fountain of sparks), so the two stay visually distinct —
+  don't make a new `ripple` candidate too close to the burst's look, that was the one problem found comparing
+  candidates (a droplet-spray option was shelved for exactly this). `burst` still anchors to the dock's own edge
+  (`anchorPoint`) and is re-placed if the window resizes between emit and draw (`place()`), so it survives a
+  flyout opening mid-animation. `EffectsLayer`'s canvas is `zIndex: 50`, above the dock's icons and glass,
+  `pointer-events: none`; a redesign that forgets the z-index (or the pointer-events) either hides the effect
+  behind the glass or steals clicks from the icons under it — both bit a first pass at a demo artifact for an
+  earlier comparison, off screen, before it ever reached real code.
+- **`animations.click` picks what `ripple` spawns** (`EffectsLayer.tsx`'s handler, keyed on `live.current.clickEffect`):
+  `bloom` (`LightBloom`, fx2d.ts) is a glow behind the icon, built the same way `burst` is — a point and a tint,
+  fixed at the moment of the click. `dimple`/`halo`/`shine` (`PressDimple`/`EdgeHalo`/`ShineSweep`) are different in
+  kind: each clips to the icon's own rounded-square (`iconClip`, 22% corner radius — the app's own convention for a
+  rounded icon tile, `.dock-icon-glyph`/`.dock-stack` in dock.css, not a radius read from the DOM) and **tracks the
+  icon live, every frame**, not just at the moment of the click — asked for explicitly, to see a swollen or
+  shrinking magnified icon carry the effect with it. `DockIcon.tsx`'s click handler hands these three an `IconTrack`
+  closure (`() => {x,y,w,h} | null`) that reads `.dock-icon-mag`'s own `getBoundingClientRect()` — not the outer
+  `.dock-icon` button's, whose layout box never grows (magnifyField.ts moves it, nothing resizes it; only the inner
+  `.dock-icon-mag` span is actually `scale`d) — plus a `ToCanvas` closure (`EffectsLayer`'s existing `place()`,
+  called fresh each frame, not cached, so a window resize mid-effect is still handled correctly). `track()` returns
+  `null` once `magEl.isConnected` is false (the pin was removed, the app closed) and the effect retires itself that
+  frame rather than drawing a stale rect. This per-frame `getBoundingClientRect()` read is deliberately not a
+  performance worry here: the dock's whole animation path is `transform`/`translate` only by convention (see the
+  sub-pixel rule below), so nothing in a frame where one of these effects is playing ever dirties layout, and the
+  read costs nothing beyond combining the cached layout box with the current transform matrix — measured, not
+  assumed, before committing to doing it this way rather than snapshotting the rect once at the click. The click
+  point itself (`clickX`/`clickY` on the `ripple` event) is a *fraction* of the icon's width/height, not a pixel
+  offset, so `PressDimple`'s anchor stays in the same place on the icon's face as the icon's live size changes
+  under it. The settings preview (`ClickPreview`, `AnimationPicker.tsx`) spawns the real effect classes through a
+  real `Fx2D` instance on a small canvas held over one mock icon, not a reimplementation — same contract as
+  `DockIcon.tsx` gives the live engine, so it can't drift from what actually plays; the preview's icon does not
+  magnify, so it mostly proves the shape is right, not the live-tracking (an off-screen scenario that swells a real
+  icon first, then clicks it mid-swell, is what actually proved that part — screenshotted at two points in the
+  effect's life, not just asserted). Its hero tile is a real `<img>` with its own padded content
+  (`paddedIconSrc`), not a flat CSS-colored div like the other four dots — a flat tile has no empty margin to
+  show the masking below staying off of, so it could not have demonstrated the one thing that changed.
+- **`PressDimple`/`ShineSweep` mask to the icon's own drawn pixels, not its rounded-square tile** (`drawMaskedToIcon`,
+  fx2d.ts): most real icons have empty padding around their actual glyph, and clipping to the full tile let the
+  first version of these two press or sweep across that padding, which read as acting on the tile rather than the
+  icon. The fix is `destination-in` canvas compositing, not pixel reads: the effect's own shapes are drawn onto a
+  small shared offscreen canvas (`maskCanvas`, module-level, reused across frames and effects — a canvas element
+  is not cheap to create and at most one or two of these are ever live at once), then `destination-in`-composited
+  against the icon's actual `<img>` (`ctx.drawImage`, which reads its bitmap the same way the browser already
+  does to paint it on screen — no `getImageData`, no per-pixel JS, no tainted-canvas/CORS concern since nothing
+  is read back into JS), then drawn onto the real canvas with normal blending (not `lighter` — the offscreen
+  buffer is already correctly blended light-and-dark, and `lighter` cannot darken, which would have made
+  `PressDimple`'s press invisible). `DockIcon.tsx`'s click handler supplies the actual `<img>` ref
+  (`glyphImgRef`) as an `IconSource` closure; it is `null`, and the effect falls back to the old rounded-rect
+  clip, for a stack mosaic or the no-icon-found glyph (neither is a plain image `drawImage` can read) and before
+  a real icon has finished loading. **`EdgeHalo` is deliberately not masked this way**: it strokes a path rather
+  than filling one, and masking a stroke to the icon's alpha does not trace the icon's real silhouette, it just
+  keeps whatever part of the rounded-rect border happens to cross opaque pixels — usually none of it, since most
+  icons' padding sits right where that border is drawn, so the halo would mostly vanish. Tracing an icon's actual
+  outline needs finding its silhouette (something like marching squares over its alpha), a materially bigger
+  feature than masking a fill is, and not built. Verified off screen with a high-contrast test icon (swapped in
+  over the harness's own mock) rather than trusted from the code: the shine band's light stops exactly at the
+  icon's own edge with no bleed into the margin around it, confirmed by screenshot, not just by reading the draw
+  calls.
+
+## Mark color, the frame's light, the settings sidebar's lens and a click-effect preview bug (October 2026)
+
+- **The running mark's color is theme-accent-derived by default now, with a custom-color option** (`dock.markColor`,
+  `#rrggbb` or empty for the theme — `normalize_hex`, same idiom as `menuBar.wifiColor`/`bluetoothColor`; a
+  `BubbleColor` control in Settings › Dock, same component those two already use). Fixed a pre-existing bug on the
+  way: `.dock-mark`/`.dock-indicator`'s dark gradient stop and glow were hardcoded (`#3f8f1d`, `rgba(122,208,58,…)`)
+  rather than reading `--aero-accent-deep`/`--clear-glow` like the rest of the mark already did — a pick other than
+  green always showed a faint, wrong green edge until this. A custom color is computed once, in JS, the same way
+  the theme's own accent is: `tokensFromAccent(markColor)` in `DockBar.tsx`, exposed as `--mark-custom-life/-deep/
+  -glow` on `.dock-viewport`, read by an override in dock.css keyed on `[data-mark-color="custom"]` — four
+  selector parts deep specifically so it beats clear.css's own override regardless of which stylesheet loads
+  first (`global.css`, which carries `clear.css`, loads *after* dock.css — see "Each window loads only its own
+  code" above; a tie goes to whichever loaded last, so this one cannot rely on source order at all). The ghost
+  mark is untouched by any of this, same as it already was untouched by the theme.
+- **The frame's glass border is lit on the same diagonal every other glass surface is** (`--rim`, tokens.css: bright
+  upper left, fainter lower right), not a plain top-to-bottom gradient. `corners::bevel_alpha` now projects each
+  pixel onto the frame's own top-left-to-bottom-right diagonal instead of just its vertical position, and
+  `FrameApp.tsx`'s matching `BevelGradient` SVG gradient now runs corner to corner (`x2={w} y2={h}`) instead of
+  top to bottom — the two are still deliberately kept in step (same stop values), per the comment on both that
+  was already there. `Piece` (corners.rs) gained `frame_left`/`frame_width` alongside `frame_top`/`frame_height`
+  to make the projection possible; every place that builds one (`frame.rs::place_corners`, the corners.rs test
+  helper) had to be updated together. Checked off screen (the SVG straight edges render and the corner math
+  passes its own tests, `cargo test corners`); **not yet seen natively** — the actual corner pieces are native
+  layered windows this harness cannot show, so whether the new diagonal genuinely reads as "the same light as the
+  menu bar" on a real screen is still to be looked at, not assumed from the math alone.
+- **The settings sidebar no longer force-closes when a section is chosen** (`goToSection`, `useSettingsUi.ts`,
+  which used to call `setSidebarOut(null)` unconditionally — removed). It now leaves by whatever already puts it
+  away: the pointer leaving it (a sidebar out at the edge) or the header button/scrim (one brought out by hand).
+  **A second bug surfaced fixing the first**: `SettingsNav.tsx`'s `away()` (the pointer-left-it timer) skipped
+  closing while `document.activeElement` was anywhere inside `.sb` — meant only to protect the search box while
+  typing, but a clicked `.sb-item` button also keeps the keyboard until something else takes it, so *any* section
+  click permanently blocked the sidebar from ever closing on its own again, not just that one time. Fixed to check
+  specifically for the search input, not "anything inside `.sb`".
+- **A third, real bug kept the edge-hover close flaky even after both of the above were fixed, caught only by
+  measuring, not by re-reading the code**: the sidebar used to track "is the pointer near it" with its own
+  `onPointerEnter`/`onPointerLeave`, but it slides in by a CSS `transform`, which moves its hit box through real
+  on-screen coordinates frame by frame while it animates. A pointer parked exactly in the 10px reveal strip at the
+  window's left edge (where a user's cursor naturally sits right after triggering the reveal) stayed still while
+  the panel's own left edge swept rightward *past* that x position on its way to its resting spot — so the panel
+  fired a `pointerleave` on itself, mid-slide, with the real pointer never having moved at all. That scheduled a
+  close 320ms later, which took the panel back off-screen, sweeping its edge back past the same still pointer a
+  second time — and the reveal strip remounting under that same resting pointer then fired a fresh `pointerenter`
+  on its own (Chromium resynthesizes hover state when the DOM changes under a stationary cursor), reopening it,
+  forever: a silent, perpetual open/close flicker whenever the pointer held still right at the edge instead of
+  drifting onto the panel itself. Found by logging every enter/leave/timer event with real timestamps
+  (`window.__navDebug`, removed after) rather than guessing from another round of sleep-timing tweaks — the
+  off-screen checks for this had been flipping between pass and fail across unrelated edits, which was the actual
+  tell that something was genuinely racing, not that the test's sleeps were merely too short. Fixed the same way
+  the dock's own auto-hide zone already solves the identical class of problem (see "Auto-hide zone" above): a
+  single `pointermove` listener on `window`, active only while `sliding`, that compares the event's real `clientX`
+  against the sidebar's *live* `getBoundingClientRect().right` (plus a small buffer) rather than relying on the
+  moving element's own enter/leave events. `.sb`'s and the reveal strip's (`.sb-edge`, now deleted — folded into
+  the same geometric check) per-element handlers are gone; one computed zone decides both "should it open" and
+  "should it close" from where the pointer actually is, which cannot be confused by what the panel underneath is
+  doing. `settings.mjs`'s edge-hover block (holds the pointer still at the very edge for a full second, no
+  movement at all, before checking) now passes every run instead of only when its sleep happened to land outside
+  the flicker's window — it also covers choosing a section from a button-opened sidebar (stays open, as it always
+  did) and from an edge-opened one (stays open while the pointer is still over it, closes once it genuinely
+  leaves) — and had to close the button-opened sidebar before testing the edge-opened case, since the edge strip
+  that brings one out doesn't even render (`{sliding && !out && …}`) while one is already out from the button.
+- **The sliding lens is in the Settings sidebar now** (`SettingsNav.tsx`, `useGlideHighlight` on `.sb-list`,
+  `items: ".sb-item"`, `clips: ".sb-list"` since the list scrolls). Reads `menuBar.lensGrow/lensWarp/lensMagnify`
+  like the widget cluster already does — "one set of sliders sets both lenses" now covers three. `.sb-list` needed
+  `position: relative` added (the Highlight positions itself against it); `.sb-item`'s own `:hover` background is
+  gone, same as the Start menu's rows when the lens arrived there — the lens is the hover feedback now, not a
+  second one competing with it. `.sb-item[data-active="true"]` (the currently-shown section) is untouched: that's
+  a standing "you are here" marker, a different thing from momentary hover, same as a dock icon's own running mark
+  stays separate from its magnify-on-hover.
+- **The click-effect settings preview drew nothing, ever, since it was added — a coordinate bug, not a motion-reduction
+  or load-order issue.** `ClickPreview`'s `track()` was already computing the hero icon's position *relative to the
+  stage* (`icon.left - stage.left`), but `toCanvas()` (meant to convert a *window-space* point, same contract as the
+  real `EffectsLayer`) subtracted the stage's position again on top of that — every effect's `origin` landed far
+  outside the small preview canvas, every single frame, for the effect's whole life, with no error anywhere a
+  silent off-canvas `drawImage` doesn't throw. Found by instrumenting `Fx2D.wake`/`spawn` and `drawMaskedToIcon`
+  directly and reading the actual numbers back through the harness, not by guessing from the code: the spawn was
+  firing, `track()` was returning a plausible-looking rect, the paint step was genuinely drawing pixels — all of
+  it just at the wrong place. Two false leads on the way, both worth remembering: `naturalWidth` on the preview's
+  inline SVG `<img>` (no explicit width/height attribute) reports a platform default (150), not 0 — it never was
+  the suspected cause, and `drawMaskedToIcon`'s fallback path means an unusable source draws unmasked rather than
+  nothing anyway; and checking the canvas's pixels too early (before the preview's own 250ms "let the replay be
+  seen starting" delay) or too late (after the effect's 500ms life has finished and the canvas naturally clears)
+  both read as "broken" when the real window to check was the ~150ms in between. Fixed: `track()` now returns
+  `icon.getBoundingClientRect()` directly, in window space, matching what `DockIcon.tsx` hands the real engine.
+- **Rigorous lens testing across all three surfaces that use it** (menu bar `useLens`, widget cluster and Start
+  menu `useGlideHighlight`) turned up one methodology trap and two small, real, open questions — see the
+  CHANGELOG entry for the specifics (widget-cluster settle overshoot growing into a wider button; Start menu
+  arrow keys only working with a search query active). The trap, worth remembering for any future lens test: a
+  single `move()` straight from inside a hoverable surface to far outside it does not reliably fire a real
+  `pointerleave` in the harness, which first read as "the lens stays visible after a menu closes and you leave the
+  bar" — a real-looking bug that was actually correct behavior (the menu's own close-on-leave timer firing,
+  the lens fading once nothing is left open) caught only by recording a `sweep()` across the same path instead.

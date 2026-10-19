@@ -84,6 +84,10 @@ pub struct DockSettings {
     /// nears their end of the dock (Search on the left, Settings beside the
     /// clock). Horizontal docks only.
     pub reveal_controls: bool,
+    /// How close to the dock's end the pointer must get for that end's button to
+    /// bud out (logical px, measured in from the bar's own edge). Smaller means
+    /// further to travel before it appears.
+    pub reveal_zone: u32,
     /// Reserve screen space for the dock like the Windows taskbar does, so
     /// maximised windows stop at the dock instead of running underneath it.
     /// Has no effect while auto-hide is on.
@@ -115,6 +119,9 @@ pub struct DockSettings {
     pub indicator_style: String,
     /// The focus mark's shape: `pill` or `dot` (the glowing dot).
     pub indicator_shape: String,
+    /// The running-app mark's own color, `#rrggbb`, or empty to follow the theme's accent. The ghost (the ring
+    /// under whatever the pointer is on) is never touched by this: it stays white, in every look.
+    pub mark_color: String,
     /// How the focus mark moves to the app that comes to the front: `glide`, `bounce`, `snap`, `float` or `fade`.
     pub focus_motion: String,
     /// How its ghost follows the pointer from app to app: the same choices.
@@ -153,6 +160,7 @@ impl Default for DockSettings {
             status_icon_size: 16,
             running_order: Vec::new(),
             reveal_controls: true,
+            reveal_zone: 40,
             reserve_space: true,
             show_running_apps: true,
             show_search_button: true,
@@ -166,6 +174,7 @@ impl Default for DockSettings {
             tint_with_theme: true,
             indicator_style: "dots".into(),
             indicator_shape: "pill".into(),
+            mark_color: String::new(),
             focus_motion: "glide".into(),
             ghost_motion: "glide".into(),
             mark_stretch: 0.5,
@@ -641,6 +650,8 @@ pub struct AnimationSettings {
     pub dock_reveal: String,
     /// What an icon does when an app is launched from it.
     pub launch: String,
+    /// What plays on the icon's own glass, or behind it, on every click.
+    pub click: String,
     /// How the icons swell as the pointer passes over them.
     pub magnify: String,
     /// The Start menu, opening and closing.
@@ -657,6 +668,9 @@ impl AnimationSettings {
     pub const DOCK_REVEAL: &'static [&'static str] =
         &["slide", "rise", "pop", "genie", "cascade", "fade", "none"];
     pub const LAUNCH: &'static [&'static str] = &["bounce", "hop", "jelly", "pulse", "none"];
+    /// `dimple` and `halo` and `shine` clip to the icon's own glass; `bloom` is a glow behind it, the one that
+    /// came first (see CHANGELOG) — picked second, in a side-by-side comparison, over itself as the baseline.
+    pub const CLICK: &'static [&'static str] = &["dimple", "halo", "shine", "bloom"];
     pub const MAGNIFY: &'static [&'static str] = &["soft", "snappy", "bouncy", "liquid"];
     pub const START: &'static [&'static str] = &["rise", "bloom", "genie", "slide", "fade", "none"];
     pub const ISLAND: &'static [&'static str] = &["gloop", "jelly", "drop", "unfurl", "bloom", "spring", "fade", "none"];
@@ -671,6 +685,9 @@ impl Default for AnimationSettings {
             flyout: "bloom".into(),
             dock_reveal: "slide".into(),
             launch: "bounce".into(),
+            // a new field, so there is no old behaviour to preserve: "dimple" won a side-by-side comparison
+            // (October 2026) against the three others here, including `bloom`, which is what shipped first
+            click: "dimple".into(),
             magnify: "soft".into(),
             start: "rise".into(),
             island: "gloop".into(),
@@ -820,6 +837,7 @@ impl Settings {
         d.icon_spacing = d.icon_spacing.min(32);
         d.corner_radius = d.corner_radius.map(|r| r.min(48));
         d.status_icon_size = d.status_icon_size.clamp(10, 32);
+        d.reveal_zone = d.reveal_zone.clamp(16, 120);
         // a hand-edited file cannot grow this without bound
         d.running_order.truncate(64);
         // below ~200ms the dock hides while you are still reaching for it
@@ -837,6 +855,7 @@ impl Settings {
         keep_known(&mut self.dock.focus_motion, MARK_MOTIONS, "glide");
         keep_known(&mut self.dock.ghost_motion, MARK_MOTIONS, "glide");
         keep_known(&mut self.dock.running_cue, &["dots", "halo", "dim", "none"], "dots");
+        self.dock.mark_color = normalize_hex(&self.dock.mark_color);
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
         keep_known(&mut self.appearance.hover_effect, &["magnify", "lift", "glow", "none"], "magnify");
         let a11y = &mut self.accessibility;
@@ -848,6 +867,7 @@ impl Settings {
         keep_known(&mut n.flyout, AnimationSettings::FLYOUT, "bloom");
         keep_known(&mut n.dock_reveal, AnimationSettings::DOCK_REVEAL, "slide");
         keep_known(&mut n.launch, AnimationSettings::LAUNCH, "bounce");
+        keep_known(&mut n.click, AnimationSettings::CLICK, "dimple");
         keep_known(&mut n.magnify, AnimationSettings::MAGNIFY, "soft");
         keep_known(&mut n.start, AnimationSettings::START, "rise");
         keep_known(&mut n.island, AnimationSettings::ISLAND, "gloop");
@@ -1235,6 +1255,9 @@ mod tests {
         assert_eq!(old.animations.flyout, "bloom");
         assert_eq!(old.animations.dock_reveal, "slide");
         assert_eq!(old.animations.launch, "bounce");
+        // click is a newer field than this fixture: there is no old behaviour to keep, so an older file just
+        // gets the default like any other missing field
+        assert_eq!(old.animations.click, "dimple");
         assert_eq!(old.animations.magnify, "soft");
         assert_eq!(old.animations.start, "rise");
 
@@ -1244,6 +1267,7 @@ mod tests {
         assert!(AnimationSettings::FLYOUT.contains(&d.flyout.as_str()));
         assert!(AnimationSettings::DOCK_REVEAL.contains(&d.dock_reveal.as_str()));
         assert!(AnimationSettings::LAUNCH.contains(&d.launch.as_str()));
+        assert!(AnimationSettings::CLICK.contains(&d.click.as_str()));
         assert!(AnimationSettings::MAGNIFY.contains(&d.magnify.as_str()));
 
         // a name that is not known goes back to the default; one that is, stays
@@ -1252,6 +1276,7 @@ mod tests {
         s.animations.flyout = "jelly".into();
         s.animations.dock_reveal = "<script>".into();
         s.animations.launch = String::new();
+        s.animations.click = "halo".into();
         s.animations.magnify = "liquid".into();
         s.animations.start = "explode".into();
         s.sanitize();
@@ -1259,8 +1284,13 @@ mod tests {
         assert_eq!(s.animations.flyout, "jelly");
         assert_eq!(s.animations.dock_reveal, "slide");
         assert_eq!(s.animations.launch, "bounce");
+        assert_eq!(s.animations.click, "halo", "a known click effect stays");
         assert_eq!(s.animations.magnify, "liquid");
         assert_eq!(s.animations.start, "rise", "an unknown Start animation falls back");
+
+        s.animations.click = "<script>".into();
+        s.sanitize();
+        assert_eq!(s.animations.click, "dimple", "an unknown click effect falls back");
     }
 
     #[test]
@@ -1362,6 +1392,12 @@ mod tests {
         s.dock.minimize_effect = "scale".into();
         s.sanitize();
         assert_eq!(s.dock.minimize_effect, "scale");
+        s.dock.mark_color = " 0A84FF ".into();
+        s.sanitize();
+        assert_eq!(s.dock.mark_color, "#0a84ff");
+        s.dock.mark_color = "not a color".into();
+        s.sanitize();
+        assert_eq!(s.dock.mark_color, "", "an invalid mark color goes back to following the theme");
     }
     #[test]
     fn accessibility_defaults_follow_the_system_and_keep_sounds_off() {
@@ -1504,6 +1540,19 @@ mod tests {
         s.dock.auto_hide_delay_ms = 99_000;
         s.sanitize();
         assert_eq!(s.dock.auto_hide_delay_ms, 10_000);
+    }
+
+    #[test]
+    fn reveal_zone_defaults_smaller_than_it_used_to_be_hardcoded_and_stays_in_range() {
+        let d = DockSettings::default();
+        assert_eq!(d.reveal_zone, 40, "the default now needs more travel to the edge than the old fixed 80px");
+        let mut s = Settings::default();
+        s.dock.reveal_zone = 1;
+        s.sanitize();
+        assert_eq!(s.dock.reveal_zone, 16, "clamped up to the floor");
+        s.dock.reveal_zone = 9_000;
+        s.sanitize();
+        assert_eq!(s.dock.reveal_zone, 120, "clamped down to the ceiling");
     }
 
     #[test]

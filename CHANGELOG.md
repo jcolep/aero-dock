@@ -7,8 +7,81 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Liquidock (October 17)
+
+- **The running-app mark's color is a setting now** (Settings › Dock › Running app mark, the same color picker
+  the Control Center's Wi-Fi/Bluetooth circles use): the theme's accent, or any color of your own. The ghost
+  (the ring under whatever the pointer rests on) stays white regardless, as asked — it was never touched by the
+  theme either. Fixed a bug along the way: the mark's own dark edge and glow were hardcoded to a fixed green,
+  left over from before the theme-picker existed, so even "the theme's color" was only half right until now.
+- **The window frame's glass border is lit the way the rest of the app is** — one light, high on the upper left,
+  the same `--rim` every glass surface (including the menu bar's own border) already uses — instead of its old
+  light-from-directly-above gradient, which was a second, different recipe nobody had asked for.
+- **The settings sidebar no longer closes when you click a section in it.** Only the pointer actually leaving it
+  (or the header button, for one brought out by hand) closes it now, matching how it already behaved when you
+  didn't click anything. Found and fixed two quieter bugs on the way: clicking a section left that button
+  focused, and the close-when-the-pointer-leaves logic treated any focus inside the sidebar as "still using the
+  search box" and refused to close, which would have silently stopped the sidebar closing on its own the first
+  time anything in it was clicked; and the sidebar's "is the pointer near it" tracking, based on the panel's own
+  hover events, could be fooled by its own slide-in animation sweeping past a pointer that was resting still right
+  at the window's edge, closing and reopening it over and over for as long as the pointer stayed there without
+  moving further onto the panel. That tracking now reads the pointer's real position against the panel's live
+  position instead (the same fix already used for the dock's own auto-hide edge), which an animation underneath
+  cannot confuse.
+- **The sliding lens is in the settings window now too**, on the sidebar's own list of sections — the same glass
+  that already travels the menu bar's buttons, the Start menu's rows and the dock's clock/status cluster, and the
+  same three sliders (Settings › Menu bar) set its grow/size/warp here as well. The sidebar's own flat `:hover`
+  background is gone, same reason the Start menu's was: the lens is the hover feedback now, not a second one.
+- **The click-effect settings preview works now.** It never actually drew anything: `track()` was already
+  returning stage-relative coordinates, and `toCanvas()` subtracted the stage's position again on top of that,
+  landing every effect's origin far outside the small preview canvas — no error anywhere, since an origin outside
+  the canvas just draws nothing. Found off screen, not guessed at: the effect was genuinely running every frame,
+  with a sensible-looking rect, for its whole lifetime — it just never once landed inside the canvas it was
+  drawing to. The real dock was never affected; only this preview built its own (wrong) coordinate math.
+- **The menu bar's gliding lens, the widget cluster's and the Start menu's, were tested rigorously** (asked for
+  explicitly, after "it does some weird stuff"), across rapid reversals, a menu staying open while hovering a
+  different button, floating through the gaps between buttons, growing from a narrow button to a much wider one,
+  and keyboard selection in the Start menu's search. Most of what looked wrong at first was a false alarm from
+  the test itself (a single pointer jump instead of a swept movement does not reliably fire a real `pointerleave`
+  — not a concern for an actual mouse, but it produced a misleading reading more than once before that was
+  caught). Two real, smaller things came out of it, left open rather than guessed at: the widget cluster's lens
+  settles about 5px wider than the target button specifically when growing from a narrow one to a much wider one
+  (not present shrinking the other way); and the Start menu's arrow keys only ever navigate while a search query
+  is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
+  intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
+
 ### Liquidock (October 16)
 
+- **Press Dimple and Shine Sweep clip to the icon's own drawn pixels now, not its tile.** Most real icons have
+  some empty padding around their actual glyph (apps draw their own icon differently), and the first version
+  pressed or swept across that empty margin too, which read as doing something to the tile, not the icon. They
+  now mask themselves to exactly the icon's own alpha, accurate to its real silhouette, feathered at its real
+  edges — confirmed with a high-contrast test icon off screen, not just by reading the code. Edge Halo stays as
+  it was: it traces the tile's edge on purpose, and masking a stroke this way wouldn't trace the icon's real
+  outline, just cut away whatever part of it happens to cross opaque pixels.
+- **The click effect is a setting now**, with four looks (Settings › Animations › Click effect, each with a live
+  preview): **Press Dimple** (new default) presses the icon's own glass in at the click point and releases with a
+  bright recoil ring; **Edge Halo** traces once around the icon's outline; **Shine Sweep** crosses it with a band
+  of light; **Light Bloom** is last round's glow behind the icon, kept as a fourth option. The first three are
+  clipped to the icon's own shape rather than the dock's glass, and track the icon live, frame by frame, so a
+  still-magnified or shrinking icon carries the effect with it rather than leaving it anchored to where the icon
+  was at the moment of the click.
+- **The click ripple behind a dock icon is a soft light bloom now**, not three overlapping rings. Six real
+  Canvas 2D effects were built and compared side by side (an artifact made for that comparison); this one won —
+  quieter, and reads as light catching the glass rather than water or impact. Same cost to draw, same place in
+  the code (`ClickRipple` in `fx2d.ts`, still fired by the dock's `ripple` effects-bus event).
+- **The drop of glass is frosted, and truly transparent.** Five real rendering techniques were built and compared
+  side by side (an artifact made for that comparison); the mark is now a turbulence-and-blur diffusion over true
+  alpha fill — whatever sits behind it shows through, softened — rather than an opaque shape shaded to look
+  translucent. Everywhere the mark is drawn, and in the app's own icon files, regenerated from it.
+- **How close the pointer has to get before Search and Settings bud out of the dock is a setting now**
+  (Settings › Dock items › How close to the end), not a fixed 80px. The default asks for a more deliberate approach
+  (40px): further to travel toward the dock's end before the button appears. Fixed a bug where the right-hand
+  (Settings) zone ignored this setting and triggered the moment the pointer reached the clock/status cluster,
+  well before the dock's actual edge — both ends now measure from the bar's own edge, as the slider says.
+- **Search and Settings arrive the way every other flyout does.** Their own bespoke squash-and-stretch entrance is
+  gone; they bloom open with the dock's one settle spring, same as a menu or a panel does. Their whole look and feel
+  is still under review.
 - **The Start menu stays readable over light backgrounds.** As it opens, Liquidock looks at what is behind it, region
   by region, and darkens the glass only where that is light (a white page behind one half darkens that half), with a
   soft shadow under the text when anything is light enough to need it. Measured once as it opens, so nothing shifts

@@ -81,15 +81,6 @@ html[data-window="settings"],
   transform: none;
 }
 
-.sb-edge {
-  position: absolute;
-  z-index: 19;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 10px;
-}
-
 .sb-scrim {
   position: absolute;
   z-index: 15;
@@ -157,6 +148,7 @@ html[data-window="settings"],
 }
 
 .sb-list {
+  position: relative; /* the gliding lens positions itself against this */
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -201,9 +193,10 @@ html[data-window="settings"],
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sb-item:hover {
-  background: var(--fill);
-  color: var(--ink);
+/* no :hover background of its own — the gliding lens (useGlideHighlight, SettingsNav.tsx) is the hover feedback,
+   same as the Start menu's rows and the widget cluster's clock/status buttons */
+.sb-item[data-lensed="true"] {
+  transform: scale(var(--lens-scale, 1.07));
 }
 .sb-item[data-active="true"] {
   background: color-mix(in srgb, var(--aero-accent, #4aa8ff) 34%, rgba(255, 255, 255, 0.08));

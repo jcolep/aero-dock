@@ -210,8 +210,8 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffffff, var(--aero-life) 55%, #3f8f1d);
-  box-shadow: 0 0 6px 1px rgba(122, 208, 58, 0.8);
+  background: radial-gradient(circle at 35% 30%, #ffffff, var(--aero-life) 55%, var(--aero-accent-deep));
+  box-shadow: 0 0 6px 1px rgba(var(--clear-glow), 0.8);
   pointer-events: none;
   /* it pops in when an app starts, and swells and settles as it gains and
      loses the focus, instead of switching size */
@@ -237,8 +237,8 @@
   height: var(--mark-h);
   margin-left: calc(var(--mark-w) / -2);
   border-radius: calc(var(--mark-h) / 2);
-  --mark-fill: radial-gradient(ellipse at 40% 30%, #ffffff, var(--aero-life) 60%, #3f8f1d);
-  --mark-shadow: 0 0 9px 2px rgba(122, 208, 58, 0.85);
+  --mark-fill: radial-gradient(ellipse at 40% 30%, #ffffff, var(--aero-life) 60%, var(--aero-accent-deep));
+  --mark-shadow: 0 0 9px 2px rgba(var(--clear-glow), 0.85);
   pointer-events: none;
 }
 /* What is seen of it is drawn on this, so it can stretch with the mark's speed (Stretch with speed: FocusMarks sets
@@ -268,11 +268,32 @@
 /* The marks' track: the icon's own box, with the icon's jumps undone (DockIcon), so the marks stay level along the
    bottom of the dock whatever the icon does. */
 .dock-mark-track {
-  /* the marks' glow, for what is drawn faint beside them (the clear surface has its own) */
-  --mark-glow: 122, 208, 58;
+  /* the marks' glow, for what is drawn faint beside them (the clear surface, and a custom mark color, override this) */
+  --mark-glow: var(--clear-glow);
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+/* A custom running-mark color (Settings > Dock items > Running app mark): DockBar.tsx works out this color's own
+   light/dark/glow the same way the theme's accent gets its own (tokensFromAccent) and writes them here as
+   --mark-custom-*; this beats both the default rule above and the clear-surface override below on specificity
+   alone (four selector parts here against three there), regardless of which stylesheet loads first — see
+   `scripts/offscreen/stylediff.mjs`'s own warning about import order mattering. The ghost is never touched: it
+   has no rule here, by design, so it stays white under every color and every material. */
+.dock-viewport[data-mark-color="custom"] .dock-mark:not(.dock-mark-ghost) {
+  --mark-fill: radial-gradient(ellipse at 40% 30%, #ffffff, var(--mark-custom-life) 60%, var(--mark-custom-deep));
+  --mark-shadow: 0 0 9px 2px rgba(var(--mark-custom-glow), 0.85);
+}
+.dock-viewport[data-mark-color="custom"] .dock-mark-track {
+  --mark-glow: var(--mark-custom-glow);
+}
+.dock-viewport[data-mark-color="custom"] .dock-icon .dock-indicator {
+  /* .dock-icon in the selector, not just .dock-indicator, so this beats clear.css's own
+     [data-surface="clear"] .dock-indicator[data-focused="true"] rule on specificity: global.css (which carries
+     clear.css) loads after dock.css, so a tie there would go to clear.css, not here */
+  background: radial-gradient(circle at 35% 30%, #ffffff, var(--mark-custom-life) 55%, var(--mark-custom-deep));
+  box-shadow: 0 0 6px 1px rgba(var(--mark-custom-glow), 0.8);
 }
 
 /* The other running apps, with the focus mark: a faint mark of the same shape in the same place, glowing low, which

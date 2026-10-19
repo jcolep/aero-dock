@@ -12,9 +12,16 @@ import { GROUPS, matches } from "./sections";
 import { SectionIcon } from "./SectionIcon";
 import { Droplet } from "../../engine/brand/droplet";
 import { goToSection, useSettingsUi } from "./useSettingsUi";
+import { useGlideHighlight } from "../../engine/lens/useGlideHighlight";
+import { useReduced } from "../../engine/accessibility/policy";
+import { useSettings } from "../../state/settingsStore";
 
 /** How long the pointer can be off a sidebar that came out at the edge before it goes again, in ms. */
 const LEAVE_MS = 320;
+
+/** How far past the sidebar's own right edge still counts as "near" it, so a slide-in that is still mid-transition
+ *  (and so momentarily narrower than its resting width) does not read as a leave of its own accord. */
+const EDGE_ZONE = 10;
 
 export function SettingsNav({ sliding }: { sliding: boolean }) {
   const query = useSettingsUi((s) => s.query);
@@ -23,7 +30,21 @@ export function SettingsNav({ sliding }: { sliding: boolean }) {
   const setQuery = useSettingsUi((s) => s.setQuery);
   const setOut = useSettingsUi((s) => s.setSidebarOut);
   const leaving = useRef<number | undefined>(undefined);
+  const sbRef = useRef<HTMLDivElement>(null);
   useEffect(() => () => window.clearTimeout(leaving.current), []);
+
+  // the same gliding glass every other list in the app uses, on the one list here: the sidebar's own sections.
+  // menuBar.lensGrow/lensMagnify/lensWarp, not settings of its own — "one set of sliders sets both lenses" already
+  // meant the menu bar and the widget cluster; this keeps the settings window's own sidebar on the same one.
+  const reduced = useReduced();
+  const mb = useSettings((s) => s.settings?.menuBar);
+  const lens = useGlideHighlight({
+    items: ".sb-item",
+    clips: ".sb-list",
+    grow: mb?.lensGrow ?? 3,
+    warp: mb?.lensWarp ?? 1,
+    still: reduced.motion,
+  });
 
   // Escape puts a sliding sidebar away
   useEffect(() => {
@@ -33,28 +54,49 @@ export function SettingsNav({ sliding }: { sliding: boolean }) {
     return () => window.removeEventListener("keydown", key);
   }, [sliding, out, query, setOut]);
 
-  /** The pointer is off a sidebar that came out at the edge: it goes after a moment, unless it comes back. */
-  const away = () => {
-    if (!sliding || useSettingsUi.getState().sidebarOut !== "edge") return;
-    window.clearTimeout(leaving.current);
-    leaving.current = window.setTimeout(() => {
-      // not while the search box has the keyboard: the pointer is not the only way to be using it
-      if (!document.activeElement?.closest(".sb")) setOut(null);
-    }, LEAVE_MS);
-  };
+  // Whether the pointer counts as near the sidebar: read from real pointer coordinates against the sidebar's own
+  // live rect (the dock's auto-hide zone does the same, for the same reason), not from the sidebar's own
+  // pointerenter/pointerleave. The sidebar slides in by a transform, which moves its hit box through real
+  // coordinates frame by frame; a pointer parked at the window's left edge (where the reveal strip below expects
+  // it) sat still while the sliding panel's own left edge swept rightward past it, so the panel's leave fired on
+  // its own, mid-slide, with the pointer having never actually moved — scheduling a close that then fought with a
+  // reveal strip remounting under that same still pointer, flickering open and shut forever. Geometry does not
+  // have that problem: a still pointer stays "near" or "away" by its own coordinates regardless of what the panel
+  // is doing underneath it.
+  useEffect(() => {
+    if (!sliding) return;
+    const move = (e: PointerEvent) => {
+      const state = useSettingsUi.getState();
+      const near = e.clientX <= (state.sidebarOut ? (sbRef.current?.getBoundingClientRect().right ?? EDGE_ZONE) + 4 : EDGE_ZONE);
+      if (near) {
+        window.clearTimeout(leaving.current);
+        if (!state.sidebarOut) setOut("edge");
+        return;
+      }
+      if (state.sidebarOut !== "edge") return;
+      window.clearTimeout(leaving.current);
+      leaving.current = window.setTimeout(() => {
+        // not while the search box itself has the keyboard: the pointer is not the only way to be using it. A
+        // click on a section also focuses that button, which used to be read the same way here — the search
+        // box's own protection meant a sidebar you had just clicked a section in could never close on its own
+        // again, since the clicked button kept the keyboard until something else took it. Only the search input
+        // gets this.
+        if (document.activeElement !== document.querySelector(".settings-search input")) setOut(null);
+      }, LEAVE_MS);
+    };
+    window.addEventListener("pointermove", move);
+    return () => window.removeEventListener("pointermove", move);
+  }, [sliding, setOut]);
 
   const anyShown = GROUPS.some((g) => g.sections.some((s) => matches(s, query)));
   return (
     <>
-      {/* the strip along the window's left edge that brings a sliding sidebar out */}
-      {sliding && !out && <div className="sb-edge" aria-hidden onPointerEnter={() => setOut("edge")} />}
       <aside
+        ref={sbRef}
         className="sb glass"
         data-sliding={sliding}
         data-out={!sliding || !!out}
         aria-label="Settings sections"
-        onPointerEnter={() => window.clearTimeout(leaving.current)}
-        onPointerLeave={away}
       >
         <div className="sb-brand">
           <Droplet size={26} className="settings-orb" />
@@ -77,7 +119,13 @@ export function SettingsNav({ sliding }: { sliding: boolean }) {
           />
         </div>
 
-        <nav className="sb-list">
+        <nav
+          className="sb-list"
+          ref={lens.rootRef}
+          style={{ ["--lens-scale" as string]: mb?.lensMagnify ?? 1.07 } as React.CSSProperties}
+          {...lens.handlers}
+        >
+          {lens.Highlight}
           {GROUPS.map((group) => {
             const items = group.sections.filter((s) => matches(s, query));
             if (items.length === 0) return null;
@@ -103,9 +151,9 @@ export function SettingsNav({ sliding }: { sliding: boolean }) {
           {!anyShown && <div className="sb-none">Nothing matches “{query}”.</div>}
         </nav>
       </aside>
-      {/* the page beside a sidebar that is out: clicked, it puts it away; moved over, a sidebar that came out at the
-          edge goes (also when the pointer touched the edge and turned back without going into the sidebar) */}
-      {sliding && out && <div className="sb-scrim" aria-hidden data-dim={out === "click"} onPointerDown={() => setOut(null)} onPointerMove={away} />}
+      {/* the page beside a sidebar that is out: a click puts it away (leaving it, for one out at the edge, is
+          handled by the pointermove geometry above, not by anything on this element) */}
+      {sliding && out && <div className="sb-scrim" aria-hidden data-dim={out === "click"} onPointerDown={() => setOut(null)} />}
     </>
   );
 }

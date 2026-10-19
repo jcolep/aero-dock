@@ -24,8 +24,8 @@ import { KOFI_URL, REPO_URL } from "../../links";
 import { AudioCard } from "./AudioCard";
 import { ModesCard } from "./ModesCard";
 import { WidgetsCard } from "./WidgetsCard";
-import { FLYOUT_ANIMS, ISLAND_ANIMS, LAUNCH_ANIMS, MAGNIFY_FEELS, MENU_ANIMS, REVEAL_ANIMS, START_ANIMS } from "../../engine/animation/presets";
-import { AnimationPicker, FlyoutPreview, IslandPreview, LaunchPreview, MagnifyPreview, MenuPreview, RevealPreview, StartPreview } from "./AnimationPicker";
+import { CLICK_ANIMS, FLYOUT_ANIMS, ISLAND_ANIMS, LAUNCH_ANIMS, MAGNIFY_FEELS, MENU_ANIMS, REVEAL_ANIMS, START_ANIMS } from "../../engine/animation/presets";
+import { AnimationPicker, ClickPreview, FlyoutPreview, IslandPreview, LaunchPreview, MagnifyPreview, MenuPreview, RevealPreview, StartPreview } from "./AnimationPicker";
 import { AeroSegmented, AeroSlider, AeroToggle } from "./controls";
 import { SettingsNav } from "./SettingsNav";
 import { SettingsNoMatch, SettingsSection, SettingsSub } from "./SettingsSection";
@@ -418,11 +418,19 @@ export function SettingsApp() {
               />
               <AnimationPicker
                 label="Launching an app"
-                summary="What the icon does when you click it"
+                summary="How the icon itself moves when you click it"
                 value={settings.animations.launch}
                 options={LAUNCH_ANIMS}
                 onChange={(id) => set((d) => void (d.animations.launch = id))}
                 preview={(id, run) => <LaunchPreview preset={id} run={run} />}
+              />
+              <AnimationPicker
+                label="Click effect"
+                summary="What plays on the icon's glass, or behind it, every click"
+                value={settings.animations.click}
+                options={CLICK_ANIMS}
+                onChange={(id) => set((d) => void (d.animations.click = id))}
+                preview={(id, run) => <ClickPreview preset={id} run={run} />}
               />
               <AnimationPicker
                 label="Icon magnification"
@@ -605,6 +613,12 @@ export function SettingsApp() {
                 ]}
                 onChange={(v) => set((d) => void (d.dock.indicatorStyle = v))}
               />
+              <BubbleColor
+                label="Running app mark"
+                value={dock.markColor}
+                themeColor={themeColor}
+                onChange={(hex) => set((d) => void (d.dock.markColor = hex))}
+              />
               {dock.indicatorStyle === "focus" && (
                 <>
                   <AeroSegmented<"pill" | "dot">
@@ -700,6 +714,18 @@ export function SettingsApp() {
                 hint="Hidden until the pointer reaches the left end (Search) or the clock end (Settings). Horizontal docks only"
                 onChange={(v) => set((d) => void (d.dock.revealControls = v))}
               />
+              {dock.revealControls && (
+                <AeroSlider
+                  label="How close to the end"
+                  value={dock.revealZone}
+                  min={16}
+                  max={120}
+                  step={4}
+                  format={pxFmt}
+                  hint="How near the pointer must get to the dock's end before its button appears. Smaller means further to travel"
+                  onChange={(v) => set((d) => void (d.dock.revealZone = v))}
+                />
+              )}
               <AeroToggle label="Clock and date" checked={dock.showClock} onChange={(v) => set((d) => void (d.dock.showClock = v))} />
               <AeroToggle label="Battery, network, volume, Recycle Bin" checked={dock.showSystemStatus} onChange={(v) => set((d) => void (d.dock.showSystemStatus = v))} />
               {dock.showSystemStatus && (

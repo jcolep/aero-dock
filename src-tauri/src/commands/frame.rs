@@ -247,7 +247,15 @@ fn layout_monitor(
 /// thread only.
 fn place_corners(app: &AppHandle, name: &str, scale: f64, settings: &Settings, g: &Geometry) {
     let opening = Rect { x: g.x + g.pad, y: g.y + g.pad, width: g.w - 2 * g.pad, height: g.h - 2 * g.pad };
-    let pieces = [0, 1, 2, 3].map(|corner| corners::Piece { corner, opening, radius: g.radius, frame_top: g.y, frame_height: g.h });
+    let pieces = [0, 1, 2, 3].map(|corner| corners::Piece {
+        corner,
+        opening,
+        radius: g.radius,
+        frame_left: g.x,
+        frame_top: g.y,
+        frame_width: g.w,
+        frame_height: g.h,
+    });
     let grounds = grounds_for(app, name, &pieces, g.pad);
     let mask = if g.radius <= 0 { 0 } else { shaper::cover_mask(name) };
     crate::trace!("corners {name}: held {mask:04b}, ground {}", if grounds.is_some() { "ready" } else { "not yet" });

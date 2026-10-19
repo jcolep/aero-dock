@@ -18,11 +18,14 @@ import { ambientTint } from "../themes/applyTheme";
 import { effectsBus } from "./effectsBus";
 import {
   bandBox,
-  ClickRipple,
   createScene,
+  EdgeHalo,
   Fx2D,
   isSceneKind,
   LaunchBurst,
+  LightBloom,
+  PressDimple,
+  ShineSweep,
 } from "./fx2d";
 
 /** Where the dock is glued; effect coordinates anchor there so they
@@ -112,8 +115,9 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
       };
 
   // the latest of everything the event handlers need, without resubscribing
-  const live = useRef({ edge, viewport, box, tint, bloom });
-  live.current = { edge, viewport, box, tint, bloom };
+  const clickEffect = settings.animations.click;
+  const live = useRef({ edge, viewport, box, tint, bloom, clickEffect });
+  live.current = { edge, viewport, box, tint, bloom, clickEffect };
 
   // ---- the engine: once ----
   useEffect(() => {
@@ -135,9 +139,24 @@ export function EffectsLayer({ settings, wallpaperAccent }: EffectsLayerProps) {
       };
     };
 
-    const offRipple = effectsBus.on("ripple", ({ x, y, winW, winH }) => {
-      const p = place(x, y, winW, winH);
-      engine.spawn(new ClickRipple(p.x, p.y, live.current.tint));
+    const offRipple = effectsBus.on("ripple", ({ x, y, winW, winH, track, iconSource, clickX, clickY }) => {
+      const toCanvas = (wx: number, wy: number) => place(wx, wy, winW, winH);
+      switch (live.current.clickEffect) {
+        case "halo":
+          engine.spawn(new EdgeHalo(track, toCanvas));
+          return;
+        case "shine":
+          engine.spawn(new ShineSweep(track, toCanvas, iconSource));
+          return;
+        case "dimple":
+          engine.spawn(new PressDimple(track, toCanvas, iconSource, clickX, clickY));
+          return;
+        case "bloom":
+        default: {
+          const p = place(x, y, winW, winH);
+          engine.spawn(new LightBloom(p.x, p.y, live.current.tint));
+        }
+      }
     });
     const offBurst = effectsBus.on("burst", ({ x, y, winW, winH }) => {
       const p = place(x, y, winW, winH);

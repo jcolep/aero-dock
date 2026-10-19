@@ -108,10 +108,115 @@ function isScene(fx: Effect): fx is Scene {
   return typeof (fx as Scene).idle === "function";
 }
 
-/** Water ripple: expanding rings that thin and fade, on a floor plane. */
-export class ClickRipple implements Effect {
+/** Where an icon is right now, read fresh — a click effect that lives on the icon's own glass rather than the
+ *  dock's has to track it as it moves and swells with magnification, not just where it was at the click. `null`
+ *  once the icon is gone (closed, unpinned, scrolled off) mid-effect. */
+export interface IconTrack {
+  (): { x: number; y: number; w: number; h: number } | null;
+}
+
+/** A point in window space, as it falls on the canvas right now (the dock's own window can move or resize
+ *  between a click and a later frame, so this is called again every frame rather than cached). */
+export interface ToCanvas {
+  (xWindow: number, yWindow: number): { x: number; y: number };
+}
+
+/** The icon's own drawn content, read fresh each frame — the actual `<img>` DockIcon.tsx renders, not a
+ *  shape of our own. `null` for a stack mosaic or the no-icon-found glyph, neither of which is a plain image,
+ *  and for a real icon's `<img>` before it has finished loading. */
+export interface IconSource {
+  (): CanvasImageSource | null;
+}
+
+/** A canvas shared by every icon-surface effect, large enough for whichever one is using it this frame, kept
+ *  around rather than made fresh each time — a canvas element is not cheap to create, and at most one or two of
+ *  these effects are ever drawing at once. */
+let maskCanvas: HTMLCanvasElement | null = null;
+let maskCtx: CanvasRenderingContext2D | null = null;
+
+/**
+ * Paint `paint` (in the icon's own local 0,0..w,h, same as `iconClip` callers already draw in) masked to exactly
+ * the icon's own drawn pixels — not its rounded-square tile, which usually has empty padding around the actual
+ * glyph (`normalize_icon` centres a small source on a square canvas; most real icons have some margin). Falls
+ * back to the plain rounded-rect clip when `source` has nothing usable yet (not loaded, or a stack/fallback tile,
+ * which is not an image `drawImage` can read).
+ *
+ * How: `paint` is drawn onto a small offscreen canvas of its own, in whatever blend mode it chooses (unlike
+ * `iconClip`'s callers, which draw straight onto the shared effects canvas, `lighter` and all); then
+ * `destination-in` composited against the icon's own image, which keeps only the pixels where the icon itself
+ * is opaque, feathered exactly as the icon's own edge anti-aliasing is; then that result is drawn onto the real
+ * canvas with normal blending, since it is already the correctly-blended picture — forcing `lighter` here too
+ * would have been wrong for anything meant to darken (`PressDimple`'s press is a dark gradient, not a light
+ * one, and `lighter` cannot darken). No `getImageData`/pixel array anywhere: `drawImage` reads the `<img>`'s own
+ * bitmap directly, the same operation the browser already does to paint it on screen.
+ */
+function drawMaskedToIcon(
+  mainCtx: CanvasRenderingContext2D,
+  origin: { x: number; y: number },
+  w: number,
+  h: number,
+  source: CanvasImageSource | null,
+  paint: (ctx: CanvasRenderingContext2D) => void,
+): void {
+  if (!source || (source instanceof HTMLImageElement && !(source.complete && source.naturalWidth > 0))) {
+    mainCtx.save();
+    mainCtx.translate(origin.x, origin.y);
+    iconClip(mainCtx, w, h);
+    paint(mainCtx);
+    mainCtx.restore();
+    return;
+  }
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const pw = Math.max(1, Math.ceil(w * dpr));
+  const ph = Math.max(1, Math.ceil(h * dpr));
+  maskCanvas ??= document.createElement("canvas");
+  maskCtx ??= maskCanvas.getContext("2d");
+  const m = maskCtx;
+  if (!m) return;
+  if (maskCanvas.width !== pw || maskCanvas.height !== ph) {
+    maskCanvas.width = pw;
+    maskCanvas.height = ph;
+  } else {
+    m.clearRect(0, 0, pw, ph);
+  }
+  m.setTransform(dpr, 0, 0, dpr, 0, 0);
+  m.save();
+  paint(m);
+  m.restore();
+  m.globalCompositeOperation = "destination-in";
+  m.drawImage(source, 0, 0, w, h);
+  m.globalCompositeOperation = "source-over";
+  mainCtx.drawImage(maskCanvas, origin.x, origin.y, w, h);
+}
+
+/** The rounded-square every icon-surface effect clips itself to: 22% corner radius, the app's own convention for
+ *  a rounded icon tile (`.dock-icon-glyph`, `.dock-stack`, dock.css) applied to whatever the icon's live size is
+ *  this frame, not a radius read once and left stale as the icon grows or shrinks under the pointer. */
+function iconClip(ctx: CanvasRenderingContext2D, w: number, h: number): void {
+  const r = Math.min(w, h) * 0.22;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.arcTo(w, 0, w, h, r);
+  ctx.arcTo(w, h, 0, h, r);
+  ctx.arcTo(0, h, 0, 0, r);
+  ctx.arcTo(0, 0, w, 0, r);
+  ctx.closePath();
+  ctx.clip();
+}
+
+/**
+ * Light bloom: a soft flash under the icon, white at its centre fading through the theme's
+ * tint, with no ring. Picked over three other shapes (a single clean ring, a spray of
+ * droplets, radiating glass facets) and the old triple-ring water ripple it replaces, in a
+ * side-by-side comparison (an artifact made for that, October 2026) — the quietest of the
+ * five, and the one read as closest to "a light catching the glass" rather than water or
+ * impact. Still a floor-plane flash: flattened, like the ripple it replaces. Behind the icon,
+ * not on it — the one `animations.click` choice that is not clipped to the icon's own shape,
+ * since a glow spilling onto the glass under the icon is its whole character.
+ */
+export class LightBloom implements Effect {
   private t = 0;
-  private readonly life = 0.9;
+  private readonly life = 0.5;
 
   constructor(
     private x: number,
@@ -124,25 +229,210 @@ export class ClickRipple implements Effect {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
+    const lt = this.t / this.life;
+    if (lt >= 1) return;
+    const r = 10 + lt * 46;
+    const a = (1 - lt) ** 1.4;
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
     ctx.translate(this.x, this.y);
-    // rippling on a floor, not a wall: the circles are flattened
-    ctx.scale(1, 0.35);
-    for (let i = 0; i < 3; i++) {
-      const lt = (this.t - i * 0.12) / this.life;
-      if (lt <= 0 || lt >= 1) continue;
-      ctx.beginPath();
-      ctx.arc(0, 0, 6 + lt * 46, 0, TAU);
-      ctx.lineWidth = Math.max(1, 3.5 * (1 - lt));
-      ctx.strokeStyle = rgba(this.tint, (1 - lt) ** 1.6 * 0.85);
+    ctx.scale(1, 0.55);
+    const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+    glow.addColorStop(0, `rgba(255,255,255,${0.8 * a})`);
+    glow.addColorStop(0.4, rgba(this.tint, 0.5 * a));
+    glow.addColorStop(1, rgba(this.tint, 0));
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, TAU);
+    ctx.fillStyle = glow;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  done(): boolean {
+    return this.t >= this.life;
+  }
+}
+
+/**
+ * Press dimple: the icon's glass looks pressed in at the click point, a dark dimple that grows for the first
+ * fifth of its life, then releases into a bright ring springing outward. The winner of a second side-by-side
+ * comparison (October 2026), this one of effects clipped to the icon's own surface rather than drawn behind it —
+ * picked as the most tactile, the one where the click itself seems to do something physical to the glass.
+ *
+ * Tracks the icon live, every frame (`track`), rather than the rect at the moment of the click: the user asked
+ * for this specifically, to see whether a dock icon still swollen from magnification — or shrinking back as the
+ * pointer leaves — should visibly carry the effect with it. `fx`/`fy` are the click point as a fraction of the
+ * icon's own width/height (0..1), not a pixel offset, so the dimple stays at the same place on the icon's face
+ * no matter how much the icon resizes while this plays. Masked to the icon's own drawn pixels (`source`,
+ * `drawMaskedToIcon`), not its tile: asked for after seeing the first version press a visible dent into the
+ * empty padding around a real icon's glyph, which read as pressing the tile, not the icon.
+ */
+export class PressDimple implements Effect {
+  private t = 0;
+  private readonly life = 0.5;
+
+  constructor(
+    private track: IconTrack,
+    private toCanvas: ToCanvas,
+    private source: IconSource,
+    private fx: number,
+    private fy: number,
+  ) {}
+
+  update(dt: number): void {
+    this.t += dt;
+  }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    const lt = this.t / this.life;
+    if (lt >= 1) return;
+    const r = this.track();
+    if (!r) {
+      this.t = this.life;
+      return;
+    }
+    const press = Math.min(1, lt / 0.22);
+    const release = lt < 0.22 ? 0 : (lt - 0.22) / 0.78;
+    const origin = this.toCanvas(r.x, r.y);
+    drawMaskedToIcon(ctx, origin, r.w, r.h, this.source(), (c) => {
+      c.translate(this.fx * r.w, this.fy * r.h);
+      const dimR = r.w * 0.12 + press * r.w * 0.32;
+      const dim = c.createRadialGradient(0, 0, 0, 0, 0, dimR);
+      dim.addColorStop(0, `rgba(0,10,25,${0.4 * (1 - release)})`);
+      dim.addColorStop(1, "rgba(0,10,25,0)");
+      c.beginPath();
+      c.arc(0, 0, dimR, 0, TAU);
+      c.fillStyle = dim;
+      c.fill();
+      if (release > 0) {
+        c.globalCompositeOperation = "lighter";
+        const ringR = release * Math.max(r.w, r.h) * 0.8;
+        c.beginPath();
+        c.arc(0, 0, ringR, 0, TAU);
+        c.lineWidth = Math.max(0.6, r.w * 0.03);
+        c.strokeStyle = `rgba(255,255,255,${(1 - release) ** 1.6 * 0.75})`;
+        c.stroke();
+      }
+    });
+  }
+
+  done(): boolean {
+    return this.t >= this.life;
+  }
+}
+
+/**
+ * Edge halo: a bright trace races once around the icon's own rounded-square outline, then fades. The cheapest
+ * of the icon-surface effects to draw — one dashed stroke of a path already being built for the clip every
+ * other effect in this file uses. Tracks the icon live, same as `PressDimple`.
+ *
+ * Deliberately not masked to the icon's own drawn pixels the way `PressDimple`/`ShineSweep` are: masking a
+ * *stroke* this way does not trace the icon's real silhouette, it just keeps whatever part of the rounded-rect's
+ * border happens to cross opaque pixels — and since most icons have padding inset from the tile's edge, that is
+ * usually none of it, so the halo would vanish. Tracing the icon's actual outline needs finding its silhouette
+ * (something like marching squares over its alpha), a materially bigger feature than masking a fill or a band
+ * is, and not built here. This effect is about the tile's edge on purpose, not the icon's.
+ */
+export class EdgeHalo implements Effect {
+  private t = 0;
+  private readonly life = 0.65;
+
+  constructor(
+    private track: IconTrack,
+    private toCanvas: ToCanvas,
+  ) {}
+
+  update(dt: number): void {
+    this.t += dt;
+  }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    const lt = this.t / this.life;
+    if (lt >= 1) return;
+    const r = this.track();
+    if (!r) {
+      this.t = this.life;
+      return;
+    }
+    const origin = this.toCanvas(r.x, r.y);
+    ctx.save();
+    ctx.translate(origin.x, origin.y);
+    ctx.globalCompositeOperation = "lighter";
+    const radius = Math.min(r.w, r.h) * 0.22;
+    ctx.beginPath();
+    ctx.moveTo(radius, 0);
+    ctx.arcTo(r.w, 0, r.w, r.h, radius);
+    ctx.arcTo(r.w, r.h, 0, r.h, radius);
+    ctx.arcTo(0, r.h, 0, 0, radius);
+    ctx.arcTo(0, 0, r.w, 0, radius);
+    ctx.closePath();
+    const perim = 2 * (r.w + r.h);
+    const sweep = Math.min(1, lt / 0.45) * perim;
+    const fade = lt < 0.45 ? 1 : 1 - (lt - 0.45) / 0.55;
+    ctx.setLineDash([sweep, perim]);
+    ctx.lineDashOffset = 0;
+    ctx.lineWidth = Math.max(1, r.w * 0.04);
+    ctx.strokeStyle = `rgba(255,255,255,${0.95 * fade})`;
+    ctx.stroke();
+    if (lt > 0.45) {
+      ctx.setLineDash([]);
+      ctx.lineWidth = Math.max(0.6, r.w * 0.024);
+      ctx.strokeStyle = `rgba(255,255,255,${0.35 * fade})`;
       ctx.stroke();
     }
     ctx.restore();
   }
 
   done(): boolean {
-    return this.t >= this.life + 0.3;
+    return this.t >= this.life;
+  }
+}
+
+/** Shine sweep: a bright diagonal band crosses the icon's surface once, like light catching polished glass.
+ *  Tracked the same way as `PressDimple`, and masked to the icon's own drawn pixels the same way too — a sweep
+ *  that lit up the empty padding around a real icon's glyph looked like it was polishing the tile, not the icon. */
+export class ShineSweep implements Effect {
+  private t = 0;
+  private readonly life = 0.55;
+
+  constructor(
+    private track: IconTrack,
+    private toCanvas: ToCanvas,
+    private source: IconSource,
+  ) {}
+
+  update(dt: number): void {
+    this.t += dt;
+  }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    const lt = this.t / this.life;
+    if (lt >= 1) return;
+    const r = this.track();
+    if (!r) {
+      this.t = this.life;
+      return;
+    }
+    const origin = this.toCanvas(r.x, r.y);
+    drawMaskedToIcon(ctx, origin, r.w, r.h, this.source(), (c) => {
+      c.globalCompositeOperation = "lighter";
+      const span = r.w * 1.6;
+      const cx = -span * 0.3 + lt * span;
+      c.translate(cx, r.h / 2);
+      c.rotate(-0.4);
+      const a = Math.sin(Math.PI * Math.min(1, lt * 1.15)) * 0.9;
+      const bandW = Math.max(10, r.w * 0.26);
+      const g = c.createLinearGradient(-bandW, 0, bandW, 0);
+      g.addColorStop(0, "rgba(255,255,255,0)");
+      g.addColorStop(0.5, `rgba(255,255,255,${a})`);
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      c.fillStyle = g;
+      c.fillRect(-bandW, -r.h, bandW * 2, r.h * 2);
+    });
+  }
+
+  done(): boolean {
+    return this.t >= this.life;
   }
 }
 

@@ -3,14 +3,19 @@
  * that end, then pulls back in when it leaves. It sits outside the glass,
  * beside the bar, so appearing never moves the icons.
  *
- * The motion is a squash and stretch: it starts as a flat sliver stuck to
- * the dock's edge, overshoots wide and short, rebounds tall and narrow, and
- * settles. Scaling from the edge it grows out of is what reads as a droplet
- * pulling away from the dock instead of a button fading in.
+ * It arrives the way every other flyout in the dock does: `springs.bloom`
+ * (the settle spring, a breath of overshoot so it lands rather than stops),
+ * scaling up from 0.86 to 1, from the edge it grows out of. This used to be
+ * a bespoke three-phase squash-and-stretch of its own; the motion language
+ * (`engine/motion/tokens.ts`) is explicit that a new surface uses one of the
+ * four named springs and does not invent a fifth, which the old version did.
+ * The look is still under review (it may stop being a reveal-on-approach
+ * control at all); this is the shape it should take meanwhile.
  */
 
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
+import { springs } from "../../engine/animation/springs";
 
 interface DockSatelliteProps {
   /** Which end of the dock it hangs off. */
@@ -29,23 +34,9 @@ export function DockSatellite({ side, onHover, children }: DockSatelliteProps) {
       className="dock-satellite"
       data-side={side}
       style={{ transformOrigin: origin }}
-      initial={{ scaleX: 0.15, scaleY: 0.15, opacity: 0 }}
-      animate={{
-        scaleX: [0.15, 1.28, 0.9, 1],
-        scaleY: [0.15, 0.8, 1.1, 1],
-        opacity: 1,
-        transition: {
-          scaleX: { duration: 0.55, times: [0, 0.45, 0.75, 1], ease: "easeOut" },
-          scaleY: { duration: 0.55, times: [0, 0.45, 0.75, 1], ease: "easeOut" },
-          opacity: { duration: 0.14 },
-        },
-      }}
-      exit={{
-        scaleX: 0.15,
-        scaleY: 0.15,
-        opacity: 0,
-        transition: { duration: 0.18, ease: "easeIn" },
-      }}
+      initial={{ scale: 0.86, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1, transition: springs.bloom }}
+      exit={{ scale: 0.93, opacity: 0, transition: { duration: 0.15 } }}
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
     >

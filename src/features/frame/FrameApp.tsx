@@ -33,12 +33,15 @@ export function useWindowSize() {
   return size;
 }
 
-/** The glass border's light: lit from above, so the top edge of the bevel catches the light, the middle lets go of
- *  it, and the bottom takes a little back as light from the glass itself. Across the whole window, so the corner
- *  window, which is the same size and place, draws the same light where it continues the border round the curve. */
-export function BevelGradient({ h }: { h: number }) {
+/** The glass border's light: the same one every other surface in the app is lit by (`--rim`, tokens.css) — high on
+ *  the upper left, not from directly above — so the top-left corner of the bevel catches it brightest, the middle
+ *  lets go of it, and the bottom-right takes a little back as light from the glass itself. Across the whole
+ *  window, so the corner window, which is the same size and place, draws the same light where it continues the
+ *  border round the curve. Kept in step with `corners::BEVEL`/`bevel_alpha` in corners.rs (picked apart from a
+ *  plain top-to-bottom gradient, which disagreed with the menu bar's own border, October 2026). */
+export function BevelGradient({ w, h }: { w: number; h: number }) {
   return (
-    <linearGradient id="frame-bevel" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={h}>
+    <linearGradient id="frame-bevel" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={w} y2={h}>
       <stop offset="0" stopColor="#fff" stopOpacity="0.78" />
       <stop offset="0.2" stopColor="#fff" stopOpacity="0.3" />
       <stop offset="0.55" stopColor="#fff" stopOpacity="0.1" />
@@ -89,7 +92,7 @@ export function FrameApp() {
         {edge > 0 && (
           <>
             <defs>
-              <BevelGradient h={h} />
+              <BevelGradient w={w} h={h} />
             </defs>
             {/* the bevel itself: a band of the margin along the opening */}
             <path

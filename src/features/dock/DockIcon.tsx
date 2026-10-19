@@ -111,6 +111,9 @@ export function DockIcon({
 }: DockIconProps) {
   const dockGlass = useGlass("dock");
   const ref = useRef<HTMLButtonElement>(null);
+  // the real icon's own <img>, when there is one (not a stack or the no-icon-found glyph) — read by the click
+  // effects that mask themselves to the icon's actual drawn pixels rather than its rounded-square tile
+  const glyphImgRef = useRef<HTMLImageElement | null>(null);
   const [hovered, setHovered] = useState(false);
   // a flyout already names what you're pointing at, and the pill would
   // otherwise float over its bottom edge
@@ -257,7 +260,28 @@ export function DockIcon({
       const r = e.currentTarget.getBoundingClientRect();
       const cx = r.left + r.width / 2;
       const win = { winW: window.innerWidth, winH: window.innerHeight };
-      effectsBus.emit("ripple", { x: cx, y: r.bottom - 4, ...win });
+      // the click effect: Settings > Animations > Click. Three of its four looks clip themselves to the icon's own
+      // glass rather than drawing behind it, and the user asked for those to track the icon live, frame by frame —
+      // magnification can still be swelling or shrinking it while the effect plays. `.dock-icon-mag` is the element
+      // that is actually scaled (the button's own layout box never grows: magnifyField.ts moves it, nothing resizes
+      // it), so that is what `track` has to read; a dead icon (closed, unpinned) makes `isConnected` false and the
+      // effect retires itself rather than reading a stale rect.
+      const magEl = e.currentTarget.querySelector<HTMLElement>(".dock-icon-mag");
+      const track = magEl
+        ? () => {
+            if (!magEl.isConnected) return null;
+            const live = magEl.getBoundingClientRect();
+            return { x: live.left, y: live.top, w: live.width, h: live.height };
+          }
+        : () => null;
+      const clickX = r.width > 0 ? (e.clientX - r.left) / r.width : 0.5;
+      const clickY = r.height > 0 ? (e.clientY - r.top) / r.height : 0.5;
+      // masked-to-icon effects clip to this image's own alpha, not the tile — null for a stack or the
+      // no-icon-found glyph (see glyphImgRef), neither of which `drawImage` can read, and before a real icon
+      // has finished loading; the effect falls back to the tile's own rounded-rect in either case
+      const iconImg = glyphImgRef.current;
+      const iconSource = () => (iconImg?.isConnected ? iconImg : null);
+      effectsBus.emit("ripple", { x: cx, y: r.bottom - 4, track, iconSource, clickX, clickY, ...win });
       if (item.windows.length === 0 && item.kind !== "folder") {
         effectsBus.emit("burst", { x: cx, y: r.top + r.height / 2, ...win });
       }
@@ -446,7 +470,7 @@ export function DockIcon({
             )}
           </span>
         ) : item.iconSrc ? (
-          <img src={item.iconSrc} alt="" draggable={false} />
+          <img ref={glyphImgRef} src={item.iconSrc} alt="" draggable={false} />
         ) : (
           <span className="dock-icon-glyph">{initial}</span>
         )}

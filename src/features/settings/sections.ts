@@ -50,7 +50,7 @@ export const GROUPS: GroupDef[] = [
         title: "Animations",
         blurb: "How things open, close and answer the pointer",
         keywords:
-          "animation animations speed hover effect magnify lift glow menu items sections hardware acceleration gpu graphics card software rendering restart frame timings smoothness fps stutter refresh rate hz overlay performance menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close media pill island peek gloop jelly drop unfurl bloom spring",
+          "animation animations speed hover effect magnify lift glow menu items sections hardware acceleration gpu graphics card software rendering restart frame timings smoothness fps stutter refresh rate hz overlay performance menu bar menus dock appears reveal flyouts launching bounce magnification feel start menu open close media pill island peek gloop jelly drop unfurl bloom spring click ripple press dimple edge halo shine sweep glass glow",
         hue: 320,
       },
     ],
@@ -64,7 +64,7 @@ export const GROUPS: GroupDef[] = [
         title: "Dock",
         blurb: "Where it sits, its icons, how it marks running apps",
         keywords:
-          "dock position edge bottom top left right monitor screen every monitor auto hide automatically hide delay floating edge gap reserve screen space icon size spacing padding magnification amount lift reach running applications running apps marks dot focus mark pill ghost glowing dot glide bounce snap float fade faint marks halo dimmed stretch with speed velocity corner radius tint tinted theme color plain glass middle click end task close windows minimise effect genie scale attention bounce",
+          "dock position edge bottom top left right monitor screen every monitor auto hide automatically hide delay floating edge gap reserve screen space icon size spacing padding magnification amount lift reach running applications running apps marks dot focus mark pill ghost glowing dot glide bounce snap float fade faint marks halo dimmed stretch with speed velocity corner radius tint tinted theme color plain glass middle click end task close windows minimise effect genie scale attention bounce mark color custom running app color",
         hue: 215,
       },
       {

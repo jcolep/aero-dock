@@ -11,6 +11,18 @@ export interface RippleEvent {
    * flyouts, so the layer re-anchors coordinates to the dock edge */
   winW: number;
   winH: number;
+  /** The icon's own live bounds (window space), read fresh every frame by whichever click effect clips itself to
+   *  the icon rather than drawing behind it — so a still-swollen or shrinking magnified icon carries the effect
+   *  with it. `null` once the icon is gone. */
+  track: () => { x: number; y: number; w: number; h: number } | null;
+  /** The icon's own drawn image, read fresh each frame, for an effect that masks itself to the icon's actual
+   *  pixels rather than its rounded-square tile. `null` for a stack or the no-icon-found glyph (neither is a
+   *  plain image) or before a real icon has finished loading. */
+  iconSource: () => CanvasImageSource | null;
+  /** Where inside the icon the click landed, as a fraction of its width/height (0..1), not a pixel offset — so
+   *  an icon-surface effect anchored to the click point stays there as the icon's live size changes. */
+  clickX: number;
+  clickY: number;
 }
 
 export interface BurstEvent {

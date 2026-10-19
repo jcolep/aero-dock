@@ -60,11 +60,13 @@ export const useSettingsUi = create<UiState>((set, get) => ({
   setSidebarOut: (sidebarOut) => (get().sidebarOut === sidebarOut ? undefined : set({ sidebarOut })),
 }));
 
-/** Show a section: leaves the search, puts a sliding sidebar away, and starts the page at its top. */
+/** Show a section: leaves the search and starts the page at its top. A sliding sidebar is left exactly as it
+ *  was — choosing a section used to put it away at once, which read as the sidebar closing on you mid-click;
+ *  now it goes the same way it always does otherwise (the pointer leaving it, for one that came out at the edge;
+ *  the header button, for one brought out by hand), whether or not a click on it was what you were doing. */
 export function goToSection(id: string) {
   const ui = useSettingsUi.getState();
   if (ui.query) ui.setQuery("");
   ui.setActive(id);
-  ui.setSidebarOut(null);
   document.querySelector(".settings-scroll")?.scrollTo({ top: 0 });
 }

@@ -68,6 +68,13 @@ export const LAUNCH_ANIMS: PresetInfo[] = [
   { id: "none", label: "None", hint: "Stays still" },
 ];
 
+export const CLICK_ANIMS: PresetInfo[] = [
+  { id: "dimple", label: "Press Dimple", hint: "The glass dents at the click, then springs back with a ring" },
+  { id: "halo", label: "Edge Halo", hint: "A bright trace races once around the icon's own outline" },
+  { id: "shine", label: "Shine Sweep", hint: "A bright band crosses the icon once, like light on glass" },
+  { id: "bloom", label: "Light Bloom", hint: "A soft glow behind the icon, not on it" },
+];
+
 export const START_ANIMS: PresetInfo[] = [
   { id: "rise", label: "Rise", hint: "Floats up from the dock and settles; sinks away again" },
   { id: "bloom", label: "Bloom", hint: "Swells open from the bottom with a soft overshoot" },
@@ -790,6 +797,7 @@ export function animationsOf(settings: { animations?: Partial<AnimationSettings>
     menu: a.menu ?? "goo",
     flyout: a.flyout ?? "bloom",
     dockReveal: a.dockReveal ?? "slide",
+    click: a.click ?? "dimple",
     launch: a.launch ?? "bounce",
     magnify: a.magnify ?? "soft",
     start: a.start ?? "rise",

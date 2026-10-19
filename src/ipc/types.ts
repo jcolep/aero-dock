@@ -37,6 +37,9 @@ export interface DockSettings {
   runningOrder: string[];
   /** Search and Settings appear only when the pointer nears their end. */
   revealControls: boolean;
+  /** How close to the dock's end the pointer must get for that end's button to
+   *  bud out, in logical px. Smaller means further to travel before it appears. */
+  revealZone: number;
   /** Reserve screen space so maximised windows stop at the dock. */
   reserveSpace: boolean;
   showRunningApps: boolean;
@@ -60,6 +63,9 @@ export interface DockSettings {
   indicatorStyle: "dots" | "focus";
   /** The focus mark's shape. */
   indicatorShape: "pill" | "dot";
+  /** The running-app mark's own color, `#rrggbb`, or "" to follow the theme's accent. The ghost stays white
+   *  regardless. */
+  markColor: string;
   /** How the focus mark moves to the app that comes to the front. */
   focusMotion: MarkMotion;
   /** How its ghost follows the pointer. */
@@ -371,6 +377,8 @@ export interface AnimationSettings {
   dockReveal: string;
   /** What an icon does when an app is launched from it. */
   launch: string;
+  /** What plays on the icon's own glass, or behind it, on every click. */
+  click: string;
   /** How icons swell as the pointer passes over them. */
   magnify: string;
   /** The Start menu, opening and closing. */

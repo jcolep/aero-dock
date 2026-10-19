@@ -70,8 +70,12 @@ pub struct Piece {
     /// The opening on the screen: the rounded rectangle the pieces are outside of.
     pub opening: Rect,
     pub radius: i32,
-    /// The frame's own top and height on the screen, which the border's light runs down.
+    /// The frame's own box on the screen, which the border's light runs across: one light, high on the upper
+    /// left, the same `--rim` every other surface in the app is lit by (tokens.css), not light from directly
+    /// above — the two used to disagree (picked apart from the menu bar's own border, October 2026).
+    pub frame_left: i32,
     pub frame_top: i32,
+    pub frame_width: i32,
     pub frame_height: i32,
 }
 
@@ -105,9 +109,11 @@ fn rounded_distance(px: f32, py: f32, x: f32, y: f32, w: f32, h: f32, r: f32) ->
     outside + qx.max(qy).min(0.0) - r
 }
 
-/// The border's light at a height on the screen.
-fn bevel_alpha(y: f32, top: f32, height: f32) -> f32 {
-    let t = ((y - top) / height.max(1.0)).clamp(0.0, 1.0);
+/// The border's light at a point on the screen: projected onto the diagonal from the frame's top left to its
+/// bottom right, the same direction `--rim` lights every other surface from, not straight down from the top.
+fn bevel_alpha(px: f32, py: f32, left: f32, top: f32, width: f32, height: f32) -> f32 {
+    let (dx, dy) = (width.max(1.0), height.max(1.0));
+    let t = (((px - left) * dx + (py - top) * dy) / (dx * dx + dy * dy)).clamp(0.0, 1.0);
     for pair in BEVEL.windows(2) {
         let ((t0, a0), (t1, a1)) = (pair[0], pair[1]);
         if t <= t1 {
@@ -158,7 +164,11 @@ pub fn render(piece: &Piece, ground: &Ground, look: &Look) -> Vec<u8> {
                 let outer = rounded_distance(px, py, x - b, y - b, w + 2.0 * b, h + 2.0 * b, r + b);
                 // the band between the opening's curve and the border's outer one, lit from above
                 let band = (0.5 - outer).clamp(0.0, 1.0) * shape;
-                c = over(c, [1.0, 1.0, 1.0], band * bevel_alpha(py, piece.frame_top as f32, piece.frame_height as f32));
+                c = over(
+                    c,
+                    [1.0, 1.0, 1.0],
+                    band * bevel_alpha(px, py, piece.frame_left as f32, piece.frame_top as f32, piece.frame_width as f32, piece.frame_height as f32),
+                );
                 // a bright hairline along the outer curve, and a dark one along the opening's (the half of a two pixel
                 // line that is outside the curve)
                 c = over(c, LIT.0, LIT.1 * (1.0 - outer.abs()).clamp(0.0, 1.0));
@@ -346,7 +356,15 @@ mod tests {
 
     /// The primary monitor's opening on the owner's machine, with its 10px corners.
     fn piece(corner: usize) -> Piece {
-        Piece { corner, opening: Rect { x: 10, y: 44, width: 1900, height: 1026 }, radius: 10, frame_top: 34, frame_height: 1046 }
+        Piece {
+            corner,
+            opening: Rect { x: 10, y: 44, width: 1900, height: 1026 },
+            radius: 10,
+            frame_left: 0,
+            frame_top: 34,
+            frame_width: 1920,
+            frame_height: 1046,
+        }
     }
     const DARK: Ground = Ground::Flat([20, 24, 40]);
     const PLAIN: Look = Look { glass: Some([0.2, 0.3, 0.5, 0.25]), border: 0.0 };

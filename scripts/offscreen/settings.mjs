@@ -101,10 +101,53 @@ const settings = (s) => {
     await h.move(700, 300);
     await h.sleep(700);
     check((await sb()).right > 200, "out by the button, it stays when the pointer goes elsewhere");
-    const item = await q("(() => { const e = [...document.querySelectorAll('.sb-item')].find((x) => x.textContent === 'Animations'); const b = e.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; })()");
-    await h.click(item.x, item.y);
+    const item = () => q("(() => { const e = [...document.querySelectorAll('.sb-item')].find((x) => x.textContent === 'Animations'); const b = e.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; })()");
+    const i1 = await item();
+    await h.click(i1.x, i1.y);
     await h.sleep(700);
-    check((await sb()).right <= 0 && (await q("document.querySelector('[data-section]').dataset.section")) === "animations", "and goes once a section is chosen");
+    // choosing a section used to close the sidebar at once, which read as it closing on you mid-click; it must not
+    // anymore — it leaves by whatever already puts it away. Out by the button ("click" mode), that is the button
+    // or the scrim, same as before a section was ever chosen (confirmed already, above: "out by the button, it
+    // stays when the pointer goes elsewhere") — a click-opened sidebar was never meant to close on the pointer
+    // merely leaving it, so it should not suddenly start doing that just because a section was also picked.
+    check((await sb()).right > 200 && (await q("document.querySelector('[data-section]').dataset.section")) === "animations", "choosing a section switches to it and does not close the sidebar");
+    await h.move(700, 300);
+    await h.sleep(700);
+    check((await sb()).right > 200, "out by the button: still stays open after a section was chosen and the pointer left it");
+
+    // the same, for a sidebar that came out at the edge (not the button): choosing a section while the pointer is
+    // still over it must not close it either — only the pointer actually leaving does, as it always did. The leave
+    // uses a swept move, not a single jump: a pointer teleporting straight from inside the sidebar to far outside
+    // it, with no intermediate position, does not reliably fire the real pointerleave this closing depends on —
+    // not a concern for a real mouse, but worth getting right in the test itself.
+    //
+    // close the "click"-mode sidebar the button opened above via the scrim (a click on the page beside it, not the
+    // header button: the button sits at the sidebar's own position, left:10px inside its 236px width, so once the
+    // sidebar is out and overlaying that spot, a click there hits the sidebar's own overlay, not the button under
+    // it), then reload fresh rather than keep building on this window's state: a reload is what the very first
+    // "edge" test in this file already does, and is cheap insurance against exactly the kind of state leftover
+    // this block is testing around in the first place.
+    await h.click(700, 300);
+    await h.sleep(700);
+    check((await sb()).right <= 0, "a click on the page closes the sidebar the button opened");
+    await h.eval(`localStorage.setItem("liquidock.settings.sidebar", "edge")`);
+    await h.open(".settings-root");
+    await h.sleep(400);
+    await h.move(700, 300);
+    await h.move(3, 300);
+    await h.sleep(600);
+    check((await sb()).right > 200, "edge-hover: out again");
+    const i2 = await item();
+    await h.click(i2.x, i2.y);
+    await h.sleep(300);
+    check((await sb()).right > 200, "edge-hover: choosing a section while still over the sidebar leaves it open");
+    await h.move(i2.x, i2.y); // still over the sidebar, not actually leaving
+    await h.sleep(600);
+    check((await sb()).right > 200, "edge-hover: still open a while after the click, pointer never left it");
+    await h.sweep(i2, { x: 700, y: 300 }, 10);
+    await h.sleep(700);
+    check((await sb()).right <= 0, "edge-hover: goes once the pointer actually leaves it");
+
     await h.eval(`localStorage.setItem("liquidock.settings.sidebar", "always")`);
     check((await h.errors()).length === 0, "no errors in the page");
   } finally {

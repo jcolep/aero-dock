@@ -18,7 +18,8 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { EdgeHalo, Fx2D, LightBloom, PressDimple, ShineSweep } from "../../engine/effects/fx2d";
 import {
   islandExitMs,
   islandMotion,
@@ -349,6 +350,116 @@ export function LaunchPreview({ preset, run }: { preset: string; run: number }) 
             )}
           </span>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/** A packed-int tint for the preview, in `fx2d.ts`'s own `rgba(color, alpha)` form (not a CSS string): close to
+ *  the app's default accent, not read from the live theme — this stage uses its own fixed `DOT_COLORS` too. */
+const PREVIEW_TINT = 0x4db2f0;
+
+/** A stand-in for a real extracted icon: a filled rounded square well inside its own canvas, with real
+ *  transparent padding round it — a flat CSS-colored tile has no padding to speak of, so it could not show
+ *  `dimple`/`shine` actually staying off that empty margin instead of pressed into it. */
+function paddedIconSrc(hex: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="22" y="22" width="56" height="56" rx="14" fill="${hex}"/></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * The click-effect preview: the real `Fx2D` engine and the real effect classes (`engine/effects/fx2d.ts`), spawned
+ * on a small canvas held over the hero icon, exactly as `EffectsLayer` does in the dock itself — so, as with every
+ * other preview here, this cannot drift from what actually plays. `dimple`/`halo`/`shine` track the hero icon's
+ * live rect every frame, same as the real dock does for a magnified icon; this icon does not magnify, so the
+ * preview mostly proves the shape is right, not the live-tracking (that needs the dock itself, or an off-screen
+ * scenario that sweeps the pointer across a real icon).
+ */
+export function ClickPreview({ preset, run }: { preset: string; run: number }) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const iconRef = useRef<HTMLImageElement>(null);
+  const engineRef = useRef<Fx2D | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const stage = stageRef.current;
+    if (!canvas || !stage) return;
+    const engine = new Fx2D(canvas);
+    engineRef.current = engine;
+    const sizeIt = () => {
+      const r = stage.getBoundingClientRect();
+      engine.resize(r.width, r.height);
+    };
+    sizeIt();
+    const observer = new ResizeObserver(sizeIt);
+    observer.observe(stage);
+    return () => {
+      observer.disconnect();
+      engine.dispose();
+      engineRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const engine = engineRef.current;
+    const icon = iconRef.current;
+    const stage = stageRef.current;
+    if (!engine || !icon || !stage) return;
+    // the icon's live bounds in window space — called fresh every frame by dimple/halo/shine, the same contract
+    // `DockIcon.tsx` gives the real engine. `toCanvas` is the one place that subtracts the stage's own position;
+    // `track` returning stage-relative coordinates too would subtract it twice over, pushing everything off the
+    // canvas without an error anywhere to say so (found off screen: draws were happening, with a sensible rect,
+    // every frame for the effect's whole life — just invisible, because `origin` landed far outside the canvas).
+    const track = () => {
+      if (!icon.isConnected) return null;
+      const r = icon.getBoundingClientRect();
+      return { x: r.left, y: r.top, w: r.width, h: r.height };
+    };
+    const toCanvas = (x: number, y: number) => {
+      const s = stage.getBoundingClientRect();
+      return { x: x - s.left, y: y - s.top };
+    };
+    // the same contract DockIcon.tsx's handler builds for the real engine
+    const iconSource = () => (icon.isConnected ? icon : null);
+    // a short beat first, so the replay is seen starting (same as LaunchPreview)
+    const t = setTimeout(() => {
+      switch (preset) {
+        case "halo":
+          engine.spawn(new EdgeHalo(track, toCanvas));
+          return;
+        case "shine":
+          engine.spawn(new ShineSweep(track, toCanvas, iconSource));
+          return;
+        case "bloom": {
+          const r = icon.getBoundingClientRect();
+          const p = toCanvas(r.left + r.width / 2, r.bottom - 2);
+          engine.spawn(new LightBloom(p.x, p.y, PREVIEW_TINT));
+          return;
+        }
+        case "dimple":
+        default:
+          engine.spawn(new PressDimple(track, toCanvas, iconSource, 0.5, 0.5));
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [preset, run]);
+
+  return (
+    <div className="anim-launch-stage">
+      <div ref={stageRef} className="glass anim-mini-dock" style={{ position: "relative" }}>
+        <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, pointerEvents: "none" }} aria-hidden />
+        {DOT_COLORS.slice(0, 5).map((c, i) =>
+          i === 2 ? (
+            <span key={c} className="anim-slot">
+              <img ref={iconRef} className="anim-icon" src={paddedIconSrc(c)} alt="" draggable={false} />
+            </span>
+          ) : (
+            <span key={c} className="anim-slot">
+              <span className="anim-icon" style={{ background: c }} />
+            </span>
+          ),
+        )}
       </div>
     </div>
   );
