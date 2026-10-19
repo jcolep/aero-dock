@@ -195,8 +195,13 @@ html[data-window="settings"],
 }
 /* no :hover background of its own — the gliding lens (useGlideHighlight, SettingsNav.tsx) is the hover feedback,
    same as the Start menu's rows and the widget cluster's clock/status buttons */
-.sb-item[data-lensed="true"] {
-  transform: scale(var(--lens-scale, 1.07));
+/* what the lens magnifies is the icon, not the row: a whole wide row grown from its middle threw its icon several px
+   left and poked out past the lens (and the selected row's tint with it) */
+.sb-item .section-icon {
+  transition: transform var(--m-quick) var(--e-out);
+}
+.sb-item[data-lensed="true"] .section-icon {
+  transform: scale(calc(1 + (var(--lens-scale, 1.07) - 1) * 1.6));
 }
 .sb-item[data-active="true"] {
   background: color-mix(in srgb, var(--aero-accent, #4aa8ff) 34%, rgba(255, 255, 255, 0.08));

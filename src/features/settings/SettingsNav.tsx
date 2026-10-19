@@ -33,15 +33,19 @@ export function SettingsNav({ sliding }: { sliding: boolean }) {
   const sbRef = useRef<HTMLDivElement>(null);
   useEffect(() => () => window.clearTimeout(leaving.current), []);
 
-  // the same gliding glass every other list in the app uses, on the one list here: the sidebar's own sections.
-  // menuBar.lensGrow/lensMagnify/lensWarp, not settings of its own — "one set of sliders sets both lenses" already
-  // meant the menu bar and the widget cluster; this keeps the settings window's own sidebar on the same one.
+  // the same gliding glass every other list in the app uses, on the one list here: the sidebar's own sections. Its
+  // bend and the icon's magnification follow the menu bar's lens sliders (one set of sliders); its size does not.
+  // The menu bar's reach (4 px all round) made it taller than the rows' own pitch, so it overlapped the rows above
+  // and below, and the menu bar's drop-like squeeze made it narrow and slide off sideways as it went down the list.
+  // Here it is the row, and it only travels and stretches along the list.
   const reduced = useReduced();
   const mb = useSettings((s) => s.settings?.menuBar);
   const lens = useGlideHighlight({
     items: ".sb-item",
     clips: ".sb-list",
-    grow: mb?.lensGrow ?? 3,
+    grow: 0,
+    axis: "y",
+    stretch: 14,
     warp: mb?.lensWarp ?? 1,
     still: reduced.motion,
   });

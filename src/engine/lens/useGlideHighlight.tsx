@@ -51,6 +51,11 @@ export interface GlideOptions {
   still?: boolean;
   /** How strongly it bends what is under it; 0 is not at all. */
   warp?: number;
+  /** `y` for a list of full-width rows (the settings sidebar): it keeps the rows' width and only glides and stretches
+   *  along the list, without narrowing as it stretches, which on a wide row read as it sliding off sideways. */
+  axis?: "both" | "y";
+  /** The most it stretches beyond the item it is heading for, in px. */
+  stretch?: number;
 }
 
 /** The first corner radius of an element, in px (a percentage is of the smaller side). */
@@ -62,7 +67,7 @@ function radiusOf(el: HTMLElement, width: number, height: number): number {
   return Math.min(px, Math.min(width, height) / 2);
 }
 
-export function useGlideHighlight({ items, clips, grow = 3, still = false, warp = 1 }: GlideOptions) {
+export function useGlideHighlight({ items, clips, grow = 3, still = false, warp = 1, axis = "both", stretch = MAX_STRETCH }: GlideOptions) {
   const rootRef = useRef<HTMLDivElement>(null);
   const lensEl = useRef<HTMLSpanElement>(null);
   const backdrop = useMemo(() => refraction(warp), [warp]);
@@ -75,31 +80,34 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
   const current = useRef<HTMLElement | null>(null);
   const placed = useRef(false);
   const running = useRef<{ stop: () => void }[]>([]);
-  const optionsRef = useRef({ items, clips, grow, still });
-  optionsRef.current = { items, clips, grow, still };
+  const optionsRef = useRef({ items, clips, grow, still, axis, stretch });
+  optionsRef.current = { items, clips, grow, still, axis, stretch };
 
   // the size of what it is heading for, and which way it is going on each axis
   const target = useRef({ w: 1, h: 1 });
   const heading = useRef({ x: 1, y: 1 });
   // what is drawn: the edges as they spring, with the trailing ones held within
   // MAX_STRETCH of the leading ones, so a long hop is a blob and not a bar
+  const reach = () => optionsRef.current.stretch;
   const shownLeft = useTransform([left, right], ([l, r]: number[]) =>
-    heading.current.x > 0 ? Math.max(l, r - (target.current.w + MAX_STRETCH)) : l,
+    heading.current.x > 0 ? Math.max(l, r - (target.current.w + reach())) : l,
   );
   const shownRight = useTransform([left, right], ([l, r]: number[]) =>
-    heading.current.x > 0 ? r : Math.min(r, l + (target.current.w + MAX_STRETCH)),
+    heading.current.x > 0 ? r : Math.min(r, l + (target.current.w + reach())),
   );
   const shownTop = useTransform([top, bottom], ([t, b]: number[]) =>
-    heading.current.y > 0 ? Math.max(t, b - (target.current.h + MAX_STRETCH)) : t,
+    heading.current.y > 0 ? Math.max(t, b - (target.current.h + reach())) : t,
   );
   const shownBottom = useTransform([top, bottom], ([t, b]: number[]) =>
-    heading.current.y > 0 ? b : Math.min(b, t + (target.current.h + MAX_STRETCH)),
+    heading.current.y > 0 ? b : Math.min(b, t + (target.current.h + reach())),
   );
   const width = useTransform([shownLeft, shownRight], ([l, r]: number[]) => Math.max(0, r - l));
   const height = useTransform([shownTop, shownBottom], ([t, b]: number[]) => Math.max(0, b - t));
-  // stretched one way it grows thinner the other, as a drop does
+  // stretched one way it grows thinner the other, as a drop does (not in a list of rows: there it keeps their width)
   const squashY = useTransform([width], ([w]: number[]) => 1 / Math.max(1, w / Math.max(1, target.current.w)) ** 0.3);
-  const squashX = useTransform([height], ([h]: number[]) => 1 / Math.max(1, h / Math.max(1, target.current.h)) ** 0.3);
+  const squashX = useTransform([height], ([h]: number[]) =>
+    optionsRef.current.axis === "y" ? 1 : 1 / Math.max(1, h / Math.max(1, target.current.h)) ** 0.3,
+  );
   // pressing draws it in a little, about its own middle
   const press = usePress();
   const pressedX = useTransform(() => squashX.get() * press.amount.get());
@@ -172,9 +180,10 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
         const forwardX = box.left + box.right > left.get() + right.get();
         const forwardY = box.top + box.bottom > top.get() + bottom.get();
         heading.current = { x: forwardX ? 1 : -1, y: forwardY ? 1 : -1 };
+        const alongOnly = optionsRef.current.axis === "y";
         running.current.push(
-          animate(left, box.left, forwardX ? TRAIL : LEAD),
-          animate(right, box.right, forwardX ? LEAD : TRAIL),
+          animate(left, box.left, alongOnly ? SETTLE : forwardX ? TRAIL : LEAD),
+          animate(right, box.right, alongOnly ? SETTLE : forwardX ? LEAD : TRAIL),
           animate(top, box.top, forwardY ? TRAIL : LEAD),
           animate(bottom, box.bottom, forwardY ? LEAD : TRAIL),
           animate(radius, box.radius, SETTLE),
