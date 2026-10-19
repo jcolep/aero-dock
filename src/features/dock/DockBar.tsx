@@ -24,7 +24,7 @@ import { WidgetCluster } from "../widgets/WidgetCluster";
 import { ContextMenu } from "./ContextMenu";
 import { DockMenu } from "./DockMenu";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
-import { SearchButton, SettingsButton } from "./DockControls";
+import { LiquidockButton, SettingsButton } from "./DockControls";
 import { GlyphFilters } from "./GlyphFilters";
 import { playCue } from "../../engine/sound/ui";
 import { usePointerLight } from "../../engine/light/usePointerLight";
@@ -431,7 +431,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     () =>
       Array.from(
         viewportRef.current?.querySelectorAll<HTMLElement>(
-          "button.dock-icon, button.dock-control-btn, button.widget-chip-button, button.widget-clock-button",
+          "button.dock-icon, button.dock-control-btn, button.dock-drop-btn, button.widget-chip-button, button.widget-clock-button",
         ) ?? [],
       ),
     [],
@@ -979,7 +979,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         </div>
         <ModeSwitcher settings={settings} edge={edge} />
         {!revealMode && settings.dock.showSearchButton && (
-          <SearchButton onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
+          <LiquidockButton shine={settings.dock.startShine} onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
         )}
         <Reorder.Group
           as="div"
@@ -1038,7 +1038,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
                 side="left"
                 onHover={(over) => (over ? cancelRevealHide() : scheduleRevealHide())}
               >
-                <SearchButton onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
+                <LiquidockButton shine={settings.dock.startShine} onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))} />
               </DockSatellite>
             )}
           </AnimatePresence>

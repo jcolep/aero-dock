@@ -96,6 +96,10 @@ pub struct DockSettings {
     pub show_running_apps: bool,
     /// Built-in dock controls, each independently hideable.
     pub show_search_button: bool,
+    /// How the Liquidock button (the drop that opens Start, where the search button was) shines under the pointer:
+    /// `sweep` (a glint crosses it), `caustic` (the light at its foot swells, with a glow behind) or `rim` (a bright
+    /// line runs once round its outline).
+    pub start_shine: String,
     pub show_settings_button: bool,
     pub show_clock: bool,
     /// Battery, network, volume and Recycle Bin glyphs.
@@ -164,6 +168,7 @@ impl Default for DockSettings {
             reserve_space: true,
             show_running_apps: true,
             show_search_button: true,
+            start_shine: "sweep".into(),
             show_settings_button: true,
             show_clock: true,
             show_system_status: true,
@@ -855,6 +860,7 @@ impl Settings {
         keep_known(&mut self.dock.focus_motion, MARK_MOTIONS, "glide");
         keep_known(&mut self.dock.ghost_motion, MARK_MOTIONS, "glide");
         keep_known(&mut self.dock.running_cue, &["dots", "halo", "dim", "none"], "dots");
+        keep_known(&mut self.dock.start_shine, &["sweep", "caustic", "rim"], "sweep");
         self.dock.mark_color = normalize_hex(&self.dock.mark_color);
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");
         keep_known(&mut self.appearance.hover_effect, &["magnify", "lift", "glow", "none"], "magnify");

@@ -706,7 +706,19 @@ export function SettingsApp() {
             </SettingsSection>
 
             <SettingsSection id="dock-items">
-              <AeroToggle label="Search button" checked={dock.showSearchButton} onChange={(v) => set((d) => void (d.dock.showSearchButton = v))} />
+              <AeroToggle label="Liquidock button" checked={dock.showSearchButton} hint="The drop at the left end of the dock, which opens Start" onChange={(v) => set((d) => void (d.dock.showSearchButton = v))} />
+              {dock.showSearchButton && (
+                <AeroSegmented<"sweep" | "caustic" | "rim">
+                  label="It shines with"
+                  value={dock.startShine}
+                  options={[
+                    { value: "sweep", label: "A glint" },
+                    { value: "caustic", label: "A swell" },
+                    { value: "rim", label: "A rim trace" },
+                  ]}
+                  onChange={(v) => set((d) => void (d.dock.startShine = v))}
+                />
+              )}
               <AeroToggle label="Settings button" checked={dock.showSettingsButton} onChange={(v) => set((d) => void (d.dock.showSettingsButton = v))} />
               <AeroToggle
                 label="Reveal them on hover"

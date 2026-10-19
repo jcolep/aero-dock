@@ -1,15 +1,17 @@
 /**
- * The dock's own controls: search and settings.
+ * The dock's own controls: the Liquidock button (Start) and settings.
  *
- * Round glass buttons with a single clean symbol on them, after Apple's:
- * a magnifying glass and a gear, drawn in one weight with round ends. The
+ * Settings is a round glass button with a single clean symbol on it, after
+ * Apple's: a gear, drawn in one weight with round ends. The
  * symbol is the light one the menu bar's icons use, on glass tinted with the
  * theme's color, with a soft shadow that lifts it off the glass.
  */
 
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
+import { Droplet } from "../../engine/brand/droplet";
+import { DROP_PATH } from "../../engine/brand/dropletSvg";
 
 function ControlButton({
   label,
@@ -29,14 +31,56 @@ function ControlButton({
   );
 }
 
-export function SearchButton({ onClick }: { onClick: () => void }) {
+/**
+ * The Liquidock button, where the search button was: Liquidock's drop on its own, no glass circle behind it, opening
+ * Start the way the Windows button does on the taskbar. Under the pointer light plays over it, laid on top of the drop
+ * and clipped to its shape (dock.css, `.dock-drop-btn`): a glint sweeping across (`sweep`, the default), the light at
+ * its foot swelling with a glow behind (`caustic`), or a bright line tracing its outline (`rim`). All three are
+ * transitions on `:hover`, so leaving part way turns them back.
+ */
+export function LiquidockButton({ onClick, shine }: { onClick: () => void; shine: "sweep" | "caustic" | "rim" }) {
+  const id = `ldb${useId().replace(/:/g, "")}`;
   return (
-    <ControlButton label="Search apps and files" onClick={onClick}>
-      <g fill="none" stroke="currentColor" strokeLinecap="round">
-        <circle cx="10.4" cy="10.4" r="6.1" strokeWidth="2.3" />
-        <path d="M15.1 15.1 L20 20" strokeWidth="2.6" />
-      </g>
-    </ControlButton>
+    <button className="dock-drop-btn" data-shine={shine} title="Start" aria-label="Start" onClick={onClick}>
+      <Droplet size={100} className="dock-drop-mark" />
+      <svg className="dock-drop-shine" viewBox="0 0 100 100" aria-hidden>
+        <defs>
+          <clipPath id={`${id}-clip`}>
+            <path d={DROP_PATH} />
+          </clipPath>
+          <linearGradient id={`${id}-band`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="white" stopOpacity="0" />
+            <stop offset="0.5" stopColor="white" stopOpacity="0.85" />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
+          </linearGradient>
+          <radialGradient id={`${id}-hot`} cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stopColor="white" stopOpacity="1" />
+            <stop offset="0.5" style={{ stopColor: "color-mix(in srgb, var(--aero-accent) 30%, white)", stopOpacity: 0.7 }} />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id={`${id}-halo`} cx="0.5" cy="0.6" r="0.5">
+            <stop offset="0" style={{ stopColor: "color-mix(in srgb, var(--aero-accent) 60%, white)", stopOpacity: 0.65 }} />
+            <stop offset="1" style={{ stopColor: "var(--aero-accent)", stopOpacity: 0 }} />
+          </radialGradient>
+        </defs>
+        {shine === "sweep" && (
+          <g clipPath={`url(#${id}-clip)`}>
+            <rect className="dock-drop-band" x="-30" y="-20" width="34" height="160" fill={`url(#${id}-band)`} />
+          </g>
+        )}
+        {shine === "caustic" && (
+          <>
+            <ellipse className="dock-drop-halo" cx="50" cy="60" rx="56" ry="54" fill={`url(#${id}-halo)`} />
+            <g clipPath={`url(#${id}-clip)`}>
+              <ellipse className="dock-drop-pool" cx="51" cy="80" rx="26" ry="13" fill={`url(#${id}-hot)`} />
+            </g>
+          </>
+        )}
+        {shine === "rim" && (
+          <path className="dock-drop-trace" d={DROP_PATH} pathLength={100} fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round" />
+        )}
+      </svg>
+    </button>
   );
 }
 

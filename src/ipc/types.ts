@@ -45,6 +45,8 @@ export interface DockSettings {
   showRunningApps: boolean;
   /** Built-in dock controls, each independently hideable. */
   showSearchButton: boolean;
+  /** How the Liquidock button shines under the pointer: a glint sweeps across, the light at its foot swells, or a line traces its rim. */
+  startShine: "sweep" | "caustic" | "rim";
   showSettingsButton: boolean;
   showClock: boolean;
   /** Battery, network, volume and Recycle Bin glyphs. */

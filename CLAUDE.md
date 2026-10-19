@@ -679,6 +679,15 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   `node --experimental-websocket scripts/brand/make-icons.mjs` renders `src-tauri/icons/source.png` (1024,
   transparent; the page must have no scrollbars or they are captured) and runs `pnpm tauri icon` (don't pipe its
   output through `Select-Object -First`: that kills it part way).
+- **New icon files only reach the exe because `build.rs` says `cargo:rerun-if-changed=icons`.** tauri_build lists the
+  files it watches, which turns off cargo's rerun-on-any-change, so without that line `resource.lib` (the exe's
+  embedded icon, `target/release/build/aero-dock-*/out/`) kept the old orb for days. Check an exe's icon with
+  System.Drawing `ExtractAssociatedIcon`.
+- **The Liquidock button** (`LiquidockButton`, DockControls; was the search button, still `dock.showSearchButton`):
+  `.dock-drop-btn`, deliberately not `.dock-control-btn` (no glass circle, no icon-look filter); a `Droplet` plus an
+  overlay svg clipped to `DROP_PATH` with the shine `dock.startShine` (`sweep` | `caustic` | `rim`). The shines are
+  `:hover` transitions on the `--m-*`/`--e-*` tokens, not keyframes, so they turn back; the sweep's band starts and
+  ends outside the drop, fading before its 0 s jump home. `scripts/offscreen/dropbutton.mjs`.
 - **The dock's own menu** (`DockMenu.tsx`, right-click on the viewport where `inDockZone` holds and the target is not
   a `.dock-icon` or a flyout): `useMenu.open("dock", null, anchor)` — a flyout may now have no item, so **"is a
   flyout open" is `menu.anchor !== null`, never `menu.item !== null`** (DockBar's `menuOpen` and window height,

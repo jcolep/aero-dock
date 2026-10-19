@@ -70,8 +70,8 @@ export const GROUPS: GroupDef[] = [
       {
         id: "dock-items",
         title: "Dock items",
-        blurb: "Search, Settings, the clock and the status icons",
-        keywords: "search button reveal settings button clock date battery network volume recycle bin status icon size",
+        blurb: "The Liquidock button, Settings, the clock and the status icons",
+        keywords: "liquidock button start search button shine glint swell rim drop reveal settings button clock date battery network volume recycle bin status icon size",
         hue: 200,
       },
       {

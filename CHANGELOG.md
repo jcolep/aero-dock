@@ -50,6 +50,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The Liquidock button (October 19)
+
+- **The dock's search button is now the Liquidock button**: Liquidock's frosted drop on its own, with no glass circle
+  behind it, in the theme's color, opening Start the way the Windows button does on the taskbar. Under the pointer a
+  glint sweeps across it; Settings › Dock items › "It shines with" offers a swell of light at its foot or a line
+  tracing its rim instead.
+- **The app's own icon is the drop now** (the Settings window in the dock and taskbar, the exe in Explorer). New icon
+  files never reached the exe before: the build didn't notice they had changed.
+
 ### The dock's own menu (October 19)
 
 - **Right-click the dock's empty space for its menu**, as on the Windows taskbar: Liquidock Settings, switches for
