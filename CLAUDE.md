@@ -702,9 +702,18 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   the icon made solid first (`solidShape`: an SVG filter, `fx-solid-shape`, alpha ≥ 0.25 → white, applied through
   `ctx.filter`; **no `getImageData`**, the icons are cross-origin and reading one back throws). Every click effect
   takes a `Tune` (`animations.clickTune.<effect>`: speed, opacity, size, color; Rust `ClickTune`, clamped).
-- **Lens in a scrolling root** (`useGlideHighlight`): boxes add `root.scrollTop/Left` (the settings sidebar's list
-  scrolls and holds the lens); `settingslens.mjs` checks a scrolled list. The menu bar's lens (`menubar/Lens.tsx`)
-  fades `IDLE_MS` after resting on empty bar, and on any document leave/hide (a no-activate window can miss leaves).
+- **Lens in a scrolling or scaled root** (`useGlideHighlight`): boxes are in the root's own unscaled content (divided
+  by `rect/offset` size, plus `scrollTop/Left`): the settings sidebar's list scrolls, and the Start panel is scaled
+  while it opens (a tile hovered then left the lens floating). `reset()` hides it at once; Start calls it on open.
+  The menu bar's lens (`menubar/Lens.tsx`) is back to its first behaviour by the owner's choice: between buttons it
+  waits on the last one (no `floatTo`, removed October 19; `lensglide.mjs` checks it waits), and it fades on any
+  document leave/hide (a no-activate window can miss leaves).
+- **App names**: `runningStore.appName(exe)` looks up `app_display_name` (FileDescription) once per exe and caches it
+  ("Microsoft Teams", not "Ms-teams"); draw with `useAppNames` subscribed. Menu bar, Mission Control, dock tooltips.
+- **Spawning through cmd needs `raw_arg`** (`restart_app`): `arg` escapes inner quotes as `\"`, which cmd reads
+  literally (`start \"\"` → "Windows cannot find '\\'"). Same lesson as Explorer's `/select,`.
+- **Editing files from PowerShell 5.1**: `Set-Content -Encoding utf8` adds a BOM; strip it (or edit with the Edit
+  tool). The dock's right-click menu skips anything interactive (`OWN` in DockBar: buttons, `.widget-cluster`, menus).
 - **The menu bar steps aside for full screen** (`platform/windows/fullscreen.rs`, `menubar.rs::step_aside`,
   `menuBar.hideForFullscreen`): `position_menubar` points the watcher at the bar's monitor; it looks (WinEvents:
   foreground, minimise, show/hide/destroy, location; and every 1 s) at the window on top at the monitor's top middle,

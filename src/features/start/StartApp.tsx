@@ -438,6 +438,8 @@ export function StartApp() {
       setMenu(null);
       setPop(null);
       setFiles([]);
+      // nothing lit from the last time it was open (the window was hidden under a pointer that never left it)
+      lens.reset();
       turn.current += 1;
       turning.current?.release();
       turning.current = null;

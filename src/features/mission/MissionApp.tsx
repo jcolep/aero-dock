@@ -21,7 +21,7 @@ import { spring } from "../../engine/motion/tokens";
 import { playCue } from "../../engine/sound/ui";
 import { applyAppearance } from "../../engine/themes/applyTheme";
 import { ipc } from "../../ipc/commands";
-import { exeDisplayName, useRunning } from "../../state/runningStore";
+import { appName, useRunning } from "../../state/runningStore";
 import { useDockIcons } from "../../state/dockStore";
 import { useSettings } from "../../state/settingsStore";
 import { LABEL_HEIGHT, layoutGrid, type Box } from "./layout";
@@ -79,7 +79,7 @@ export function MissionApp() {
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return mine;
-    return mine.filter((w) => w.title.toLowerCase().includes(q) || exeDisplayName(w.exe).toLowerCase().includes(q));
+    return mine.filter((w) => w.title.toLowerCase().includes(q) || appName(w.exe).toLowerCase().includes(q));
   }, [mine, query]);
 
   useEffect(() => {
@@ -262,7 +262,7 @@ export function MissionApp() {
               className="mc-card"
               role="option"
               aria-selected={i === selected}
-              aria-label={`${w.title || exeDisplayName(w.exe)}, ${exeDisplayName(w.exe)}`}
+              aria-label={`${w.title || appName(w.exe)}, ${appName(w.exe)}`}
               data-selected={i === selected}
               initial={
                 !reduced.motion && from
@@ -288,18 +288,18 @@ export function MissionApp() {
               </div>
               <div className="mc-title">
                 {icon && <img src={icon} alt="" draggable={false} />}
-                <span>{w.title || exeDisplayName(w.exe)}</span>
+                <span>{w.title || appName(w.exe)}</span>
                 <button
                   className="mc-close"
                   title="Close window"
-                  aria-label={`Close ${w.title || exeDisplayName(w.exe)}`}
+                  aria-label={`Close ${w.title || appName(w.exe)}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     ipc.closeWindow(w.hwnd).catch(() => undefined);
                     setGone((g) => new Set(g).add(w.hwnd));
                   }}
                 >
-                  ×
+                  Ã—
                 </button>
               </div>
             </motion.div>
@@ -307,7 +307,7 @@ export function MissionApp() {
         })}
       </div>
       <div className="mc-hint">
-        {shown.length} window{shown.length === 1 ? "" : "s"} · Enter to go · Esc to close
+        {shown.length} window{shown.length === 1 ? "" : "s"} Â· Enter to go Â· Esc to close
       </div>
     </div>
   );

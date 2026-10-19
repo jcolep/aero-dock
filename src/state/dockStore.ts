@@ -10,7 +10,7 @@ import { create } from "zustand";
 import { accentForTheme, normalizeHex } from "../engine/themes/accent";
 import { ipc } from "../ipc/commands";
 import type { PinnedItem, StackView, WindowInfo } from "../ipc/types";
-import { exeDisplayName, targetKey, windowsByExe } from "./runningStore";
+import { appName, targetKey, windowsByExe } from "./runningStore";
 import { useSettings } from "./settingsStore";
 
 /** The look icons are asked for in, and the color of the tinted one. */
@@ -136,7 +136,7 @@ export function buildDockItems(
       const target = first.aumid ? `shell:AppsFolder\\${first.aumid}` : first.exe;
       running.push({
         id: `run-${key}`,
-        name: windows.length === 1 ? first.title : exeDisplayName(first.exe),
+        name: windows.length === 1 ? first.title : appName(first.exe),
         target,
         kind: "app",
         iconSrc: iconUrls[target] ?? null,

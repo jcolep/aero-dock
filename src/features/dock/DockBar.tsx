@@ -923,7 +923,10 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       onContextMenu={(e) => {
         e.preventDefault();
         const target = e.target as HTMLElement;
-        if (draggingRef.current || target.closest(".dock-icon, .aero-menu, .windows-flyout, .folder-flyout, .stack-flyout")) return;
+        // only the dock's empty glass: nothing that is a thing of its own (an app, the Recycle Bin, the clock, the
+        // status icons, a button, a menu or flyout), each of which has its own right-click or none
+        const OWN = "button, a, input, [role='button'], [role='menu'], [role='dialog'], .dock-icon, .widget-cluster, .aero-menu, .windows-flyout, .folder-flyout, .stack-flyout";
+        if (draggingRef.current || target.closest(OWN)) return;
         if (!inDockZone(e)) return;
         const glass = (bodyRef.current ?? barRef.current)?.getBoundingClientRect();
         if (!glass) return;

@@ -77,3 +77,37 @@ export function exeDisplayName(exe: string): string {
   const stem = base.replace(/\.exe$/i, "");
   return stem.charAt(0).toUpperCase() + stem.slice(1);
 }
+
+/** Names programs call themselves by that read worse than what Windows shows. */
+const RENAMED: Record<string, string> = { "Windows Explorer": "File Explorer" };
+
+/** Official names looked up so far (`app_display_name`: a program's own description), by exe path lowercased. */
+const officialNames = new Map<string, string>();
+const asked = new Set<string>();
+
+/** Bumped whenever an official name arrives, for components that show `appName` to draw again. */
+export const useAppNames = create<{ epoch: number }>(() => ({ epoch: 0 }));
+
+/**
+ * A running app's proper name: the one its program gives itself ("Microsoft Teams", "Microsoft Outlook"), not its exe
+ * ("Ms-teams", "Olk"). Looked up once per program and kept; until it arrives (or if it has none), the exe's name.
+ * Draw with `useAppNames` subscribed so the proper name replaces the stand-in when it comes.
+ */
+export function appName(exe: string): string {
+  const key = exe.toLowerCase();
+  const known = officialNames.get(key);
+  if (known) return known;
+  if (!asked.has(key) && exe.includes("\\")) {
+    asked.add(key);
+    ipc
+      .appDisplayName(exe)
+      .then((name) => {
+        const clean = name?.replace(/[®™]/g, "").replace(/\s+/g, " ").trim();
+        if (!clean) return;
+        officialNames.set(key, RENAMED[clean] ?? clean);
+        useAppNames.setState((s) => ({ epoch: s.epoch + 1 }));
+      })
+      .catch(() => undefined);
+  }
+  return exeDisplayName(exe);
+}

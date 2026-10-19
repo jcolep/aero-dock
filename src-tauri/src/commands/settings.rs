@@ -325,8 +325,16 @@ pub fn restart_app(app: AppHandle) -> AeroResult<()> {
     {
         use std::os::windows::process::CommandExt;
         let exe = std::env::current_exe()?;
-        let command = format!("ping -n 3 127.0.0.1 >nul & start \"\" \"{}\"", exe.display());
-        std::process::Command::new("cmd").args(["/C", &command]).creation_flags(0x0800_0000).spawn()?;
+        // Handed to cmd exactly as written (`raw_arg`). Through `arg`, Rust escaped the quotes inside the line with
+        // backslashes, which cmd does not understand: `start` was given `\"\"` for the window title and then tried to
+        // open `\\` ("Windows cannot find '\\'"), and the app never came back.
+        let command = format!("/C ping -n 3 127.0.0.1 >nul & start \"\" \"{}\"", exe.display());
+        let mut cmd = std::process::Command::new("cmd");
+        cmd.raw_arg(&command).creation_flags(0x0800_0000);
+        if let Some(dir) = exe.parent() {
+            cmd.current_dir(dir);
+        }
+        cmd.spawn()?;
     }
     app.exit(0);
     Ok(())

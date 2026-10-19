@@ -50,6 +50,19 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Fixes (October 19)
+
+- **Restart Liquidock works**: it showed "Windows cannot find '\\'" and did not come back.
+- **The dock's menu opens only on the dock's empty glass**, not on an app, the Recycle Bin (whose right-click empties
+  it), the clock or the status icons.
+- **The menu bar names the app in front properly**: "Microsoft Teams" and "Microsoft Outlook", not "Ms-teams" and
+  "Olk" (each program's own name for itself; File Explorer for Explorer). The same names in Mission Control and the
+  dock's tooltips.
+- **The menu bar's lens is as it first was**: between buttons it stays on the one it was on until the pointer reaches
+  another or leaves the bar, instead of floating over empty bar in the last button's shape.
+- **The Start menu's lens is never left floating** on nothing as it opens: a tile met while the menu was still rising
+  put the lens where the tile was in the shrunken panel.
+
 ### Click effects, tuned (October 19)
 
 - **Each click effect can be tuned** under its picker in Settings › Animations: speed, opacity, size (the halo's line,

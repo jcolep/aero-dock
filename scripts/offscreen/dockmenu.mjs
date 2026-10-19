@@ -95,6 +95,18 @@ try {
   // the empty room above the dock is not the dock
   await rightAt((bar.l + bar.r) / 2, bar.t - 140);
   check(!(await q("!!document.querySelector('.dock-menu')")), "a right-click in the empty room above the dock opens nothing");
+
+  // nor on the dock's own things: the Recycle Bin (which empties on a right-click, its own) and the clock
+  for (const [what, sel] of [["the Recycle Bin", ".widget-chip-button:last-of-type"], ["the clock", ".widget-clock-button"]]) {
+    const r = await q(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e) return null; const b = e.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; })()`);
+    if (!r) {
+      console.log(`     (no ${what} in this dock)`);
+      continue;
+    }
+    await rightAt(r.x, r.y);
+    check(!(await q("!!document.querySelector('.dock-menu')")), `a right-click on ${what} does not open the dock's menu`);
+    await awayClick();
+  }
   check((await h.errors()).length === 0, "no errors in the page");
   console.log("sheet:", await h.sheet(shots, "dockmenu", 600));
 } finally {

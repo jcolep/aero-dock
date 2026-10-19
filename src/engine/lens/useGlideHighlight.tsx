@@ -140,16 +140,21 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
       b = Math.min(b, c.bottom);
     }
     if (rr - l < 4 || b - t < 4) return null;
-    // the highlight is placed in the root's own content, so a root that scrolls (the settings sidebar's list) has
-    // its scroll added back: without it, once the list was scrolled the lens sat that far below the row it was on
+    // The highlight is placed in the root's own content, unscaled and unscrolled. A root that scrolls (the settings
+    // sidebar's list) has its scroll added back: without it, once the list was scrolled the lens sat that far below
+    // the row it was on. A root that is scaled (the Start menu while it rises or blooms open) is measured back into
+    // its own size: a tile hovered mid-animation put the lens where the tile was in the shrunken panel, and with the
+    // pointer then still, nothing moved it, so it was left floating over nothing.
+    const kx = root.offsetWidth > 0 ? rootRect.width / root.offsetWidth : 1;
+    const ky = root.offsetHeight > 0 ? rootRect.height / root.offsetHeight : 1;
     const sx = root.scrollLeft;
     const sy = root.scrollTop;
     return {
-      left: l - rootRect.left + sx - o.grow,
-      right: rr - rootRect.left + sx + o.grow,
-      top: t - rootRect.top + sy - o.grow,
-      bottom: b - rootRect.top + sy + o.grow,
-      radius: radiusOf(item, rr - l, b - t) + o.grow,
+      left: (l - rootRect.left) / kx + sx - o.grow,
+      right: (rr - rootRect.left) / kx + sx + o.grow,
+      top: (t - rootRect.top) / ky + sy - o.grow,
+      bottom: (b - rootRect.top) / ky + sy + o.grow,
+      radius: radiusOf(item, (rr - l) / kx, (b - t) / ky) + o.grow,
     };
   };
 
@@ -206,6 +211,17 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
     setLensed(null);
   }, [opacity]);
 
+  /** Gone at once, and nothing lensed: for a panel that opens again (the Start menu), so nothing of the last time it
+   *  was open is left lit. */
+  const reset = useCallback(() => {
+    running.current.forEach((c) => c.stop());
+    running.current = [];
+    opacity.jump(0);
+    placed.current = false;
+    setLensed(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opacity]);
+
   // a list scrolling moves what is under the pointer away from the highlight
   useEffect(() => {
     const root = rootRef.current;
@@ -239,5 +255,5 @@ export function useGlideHighlight({ items, clips, grow = 3, still = false, warp 
     />
   );
 
-  return { rootRef, Highlight, handlers, goTo, fade };
+  return { rootRef, Highlight, handlers, goTo, fade, reset };
 }

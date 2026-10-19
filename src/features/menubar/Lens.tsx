@@ -53,9 +53,6 @@ const TRAIL = lens.trail;
 const MAX_STRETCH = 84;
 /** For a button that is not a hop away (the same one resizing). */
 const SETTLE = lens.settle;
-/** How long the lens follows the pointer over the bar's empty space before it goes, in ms: long enough to carry it
- *  across a gap to the next button, short enough that it does not sit lit on nothing in the old button's shape. */
-const IDLE_MS = 260;
 
 interface Box {
   left: number;
@@ -207,42 +204,11 @@ export function useLens(activeKey: string | null, look: LensLook) {
     [left, right, top, height, opacity],
   );
 
-  /** The pointer between buttons (the open middle of the bar, the gaps between buttons): the lens goes along under
-   *  it, the size of the button it was last on, instead of waiting where it was. A long way across the bar is then a
-   *  glide with the hand, and the button it comes to is a short hop away. It does not while a menu is open (it stays
-   *  on that menu's button), nor once it has faded (it next appears on a button, in place). */
-  const floatTo = (clientX: number) => {
-    const bar = barRef.current;
-    if (!bar || !placed.current || lookRef.current.still || activeRef.current || opacity.get() < 0.05) return;
-    const b = bar.getBoundingClientRect();
-    const x = clientX - b.left;
-    const w = target.current;
-    setLensed(null);
-    observer.current?.disconnect();
-    observed.current = null;
-    controls.current.forEach((c) => c.stop());
-    controls.current = [];
-    travel({ left: x - w / 2, right: x + w / 2 }, false);
-  };
-
-  // resting on the bar's empty space it goes, a moment after (so a short way across a gap to the next button is
-  // still a glide); a button reached first keeps it
-  const idle = useRef<number | undefined>(undefined);
-  const fadeSoon = () => {
-    if (idle.current !== undefined || activeRef.current) return;
-    idle.current = window.setTimeout(() => {
-      idle.current = undefined;
-      if (!activeRef.current && !current.current) fade();
-    }, IDLE_MS);
-  };
-  const keep = () => {
-    window.clearTimeout(idle.current);
-    idle.current = undefined;
-  };
+  // Between buttons it stays on the one it was last on, as it first did, until the pointer reaches another or leaves
+  // the bar. (For a while it glided under the pointer across empty bar in the last button's shape, and then faded a
+  // moment later, which read as a lens left floating on nothing; the owner preferred the first behaviour.)
 
   const fade = useCallback(() => {
-    window.clearTimeout(idle.current);
-    idle.current = undefined;
     controls.current.push(animate(opacity, 0, { duration: 0.22, delay: 0.05 }));
     // the next time it appears it appears in place
     placed.current = false;
@@ -288,7 +254,6 @@ export function useLens(activeKey: string | null, look: LensLook) {
       document.documentElement.removeEventListener("mouseleave", away);
       document.removeEventListener("visibilitychange", hidden);
       window.removeEventListener("blur", away);
-      window.clearTimeout(idle.current);
     };
   }, [fade]);
 
@@ -297,21 +262,15 @@ export function useLens(activeKey: string | null, look: LensLook) {
       const item = (e.target as HTMLElement).closest<HTMLElement>(ITEM);
       if (!item) return;
       hovering.current = true;
-      keep();
       // with a menu open the lens stays on its button until another is chosen
       goTo(item);
     },
-    // between buttons, the lens goes along under the pointer; over the media pill when it is out, it steps aside
+    // over the media pill when it is out, it steps aside
     onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
       const el = e.target as HTMLElement;
       if (el.closest(ITEM)) return;
-      if (el.closest(".mb-island-zone[data-out] .mb-island")) {
-        if (placed.current) fade();
-        return;
-      }
       hovering.current = true;
-      floatTo(e.clientX);
-      fadeSoon();
+      if (el.closest(".mb-island-zone[data-out] .mb-island") && placed.current) fade();
     },
     onPointerLeave: () => {
       hovering.current = false;

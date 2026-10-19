@@ -30,7 +30,7 @@ import { reverseEntrance } from "./interrupt";
 import { playCue } from "../../engine/sound/ui";
 import { usePointerLight } from "../../engine/light/usePointerLight";
 import { useUserIdle } from "../../state/idleStore";
-import { exeDisplayName, useRunning } from "../../state/runningStore";
+import { appName as officialAppName, useAppNames, useRunning } from "../../state/runningStore";
 import { useSettings } from "../../state/settingsStore";
 import { useSystem } from "../../state/systemStore";
 import { notify } from "../feedback/toastStore";
@@ -424,7 +424,9 @@ export function MenuBarApp() {
   useEffect(() => closeMenu(false), [focused, closeMenu]);
 
   const front = windows.find((w) => w.hwnd === focused) ?? null;
-  const appName = front ? exeDisplayName(front.exe) : "Desktop";
+  // the app's own name ("Microsoft Teams"), drawn again when it has been looked up
+  useAppNames((s) => s.epoch);
+  const appName = front ? officialAppName(front.exe) : "Desktop";
 
   const act = (item: MenuItem) => {
     closeMenu(!item.movesFocus);

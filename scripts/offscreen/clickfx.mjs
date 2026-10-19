@@ -1,4 +1,4 @@
-﻿// The click effects' preview in Settings > Animations, off screen: each of the four played on the middle (yellow)
+// The click effects' preview in Settings > Animations, off screen: each of the four played on the middle (yellow)
 // icon, captured through its life, so the halo can be seen running round the icon's own square (not its padded box)
 // and the bloom can be seen at all. Writes clickfx.png (rows: effects; columns: moments).
 //

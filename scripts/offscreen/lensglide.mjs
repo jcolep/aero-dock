@@ -50,13 +50,15 @@ for (const pill of [false, true]) {
     const late = tail.length ? Math.max(...tail.map(off)) : 0;
     console.log(`     ${name}: on the app's name, to a pixel, ${settleMs.toFixed(0)}ms after reaching it`);
     check(settleMs < 650, `${name}: the lens sits on the app's name within 650 ms of reaching it (${settleMs.toFixed(0)}ms)`);
-    check(late < 1, `${name}: and is not still off it half a second later (${late.toFixed(1)}px)`);
-    // on the way: from the right-hand buttons to the left-hand ones (or, with the pill, to the pill), along with the
-    // pointer rather than waiting at the last button
+    // one long hop now (it waits at the last button), so it may still be settling by a hair
+    check(late < 2, `${name}: and is not visibly off it half a second later (${late.toFixed(1)}px)`);
+    // on the way: across the open bar it stays on the button it was last on (as it first did), not gliding under the
+    // pointer in that button's shape, which read as a lens floating on nothing (the owner's call, October 19)
     const until = pill && zone ? zone.r : app.r + 40;
-    const crossing = frames.filter((f) => f.px < stats.l - 40 && f.px > until && f.op > 0.5);
-    const behind = crossing.length ? Math.max(...crossing.map((f) => Math.abs((f.l + f.r) / 2 - f.px))) : Infinity;
-    check(crossing.length > 5 && behind < 120, `${name}: across the open bar it keeps up with the pointer (at most ${behind.toFixed(0)}px behind, ${crossing.length} frames)`);
+    const crossing = frames.filter((f) => f.px < stats.l - 120 && f.px > until && f.op > 0.5);
+    const startCentre = crossing.length ? (crossing[0].l + crossing[0].r) / 2 : 0;
+    const drift = crossing.length ? Math.max(...crossing.map((f) => Math.abs((f.l + f.r) / 2 - startCentre))) : 0;
+    check(drift < 4, `${name}: across the open bar it waits on its last button, not under the pointer (moved ${drift.toFixed(0)}px)`);
     // the trailing edge is never left far behind: the lens is a blob, not a bar
     const widest = Math.max(...frames.map((f) => f.r - f.l));
     check(widest < 260, `${name}: never stretched into a bar across the menu bar (${widest.toFixed(0)}px at most)`);
