@@ -211,6 +211,7 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "list_apps": return ${JSON.stringify(apps)};
         case "list_recent_files": return ${JSON.stringify(recent)};
         case "search_files": return ${JSON.stringify(files)}.filter((f) => f.name.toLowerCase().includes(String(args.query || "").toLowerCase()));
+        case "windows_search": return null;
         case "blur_report": return "";
         case "report_frame_stats": return null;
         case "frame_stats": return window.__frameRows || [];
@@ -318,6 +319,8 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
       await api.move(x, y);
       await send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", buttons: 1, clickCount: 1 });
     },
+    /** Move the pointer with the left button held (between `down` and `up`: a drag). */
+    held: (x, y) => send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y, button: "left", buttons: 1 }),
     async up(x, y) {
       await send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y, button: "left", buttons: 1 });
       await send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", buttons: 0, clickCount: 1 });

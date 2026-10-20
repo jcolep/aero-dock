@@ -544,6 +544,12 @@ export interface StartSettings {
   windowsKey: boolean;
   /** The dock while the menu is open: reachable and clickable, or kept out of sight. */
   dockWhileOpen: "usable" | "hidden";
+  /** Search learns what is opened for what was typed and puts it first next time. */
+  searchLearn: boolean;
+  /** Search forgives a slip of a key or two. */
+  searchTypos: boolean;
+  /** The last result hands what was typed to Windows' own search. */
+  searchWindowsRow: boolean;
 }
 
 /** How frosted one surface's glass is. */

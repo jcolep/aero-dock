@@ -50,6 +50,20 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Start: drag to arrange pins; search that finds apps the way Windows' does (October 20)
+
+- **Drag pinned apps** in Start to move them; the others slide aside to make room. Drag one out of the grid to unpin it
+  (a red minus shows it will go). Drag an app from All apps and Pinned comes up so it can be put down among the pins.
+  A click still opens. "Move left" and "Move right" in a pin's right-click menu do the same from the keyboard.
+- **Search finds apps as Windows' Start search does**: by initials ("vsc" for Visual Studio Code, "rdc" for Remote
+  Desktop Connection), the starts of words ("stu co"), the program's own name ("code", "msedge", "winword", "mstsc"),
+  and with a slip of a key ("vsiual", "termnal"); better kinds of match come first.
+- **It learns**: what you open after typing some letters comes first for them the next time (and for the shorter
+  starts you typed on the way). Settings › Start menu › Search: Learn what I open, Forgive typos, "Search Windows" at
+  the end, and Forget.
+- **"Search Windows for …"** is the last result: it opens Windows' own search with what you typed (there is no public
+  way to hand it a query, so Win+S is pressed and the text typed once its box is in front).
+
 ### Scroll arrows in Jump Lists; the dock's ends even (October 19)
 
 - **A Jump List that scrolls shows a small chevron in its fade**: down while there is more below, up once it has been

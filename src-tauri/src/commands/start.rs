@@ -463,6 +463,23 @@ pub async fn search_files(query: String) -> Vec<Found> {
         .unwrap_or_default()
 }
 
+/// Hand what was typed to Windows' own search (the Start menu's "Search Windows" row): Win+S, then the text typed
+/// into its box once it is in front. Waits a moment first, for our menu to be put away and give up the keyboard.
+#[tauri::command]
+pub async fn windows_search(query: String) -> AeroResult<()> {
+    let opened = tauri::async_runtime::spawn_blocking(move || {
+        std::thread::sleep(Duration::from_millis(260));
+        crate::platform::windows::winkey::open_windows_search(&query)
+    })
+    .await
+    .unwrap_or(false);
+    if opened {
+        Ok(())
+    } else {
+        Err(AeroError::Other("Windows search did not open".into()))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

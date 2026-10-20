@@ -370,7 +370,9 @@ fn start_menu_ids(exe: &str) -> Vec<String> {
     use std::collections::HashMap;
     use std::time::{Duration, Instant};
     use windows::Win32::UI::Shell::{BHID_EnumItems, BHID_PropertyStore, FOLDERID_AppsFolder, IEnumShellItems, SHGetKnownFolderItem, SIGDN_PARENTRELATIVEPARSING};
-    static MAP: parking_lot::Mutex<Option<(Instant, HashMap<String, Vec<String>>)>> = parking_lot::Mutex::new(None);
+    /// When it was read, and the IDs by exe.
+    type Kept = Option<(Instant, HashMap<String, Vec<String>>)>;
+    static MAP: parking_lot::Mutex<Kept> = parking_lot::Mutex::new(None);
     let mut map = MAP.lock();
     if map.as_ref().is_none_or(|(at, m)| m.is_empty() || at.elapsed() > Duration::from_secs(600)) {
         let _com = crate::platform::ComApartment::new();

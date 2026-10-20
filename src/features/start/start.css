@@ -374,6 +374,74 @@
     transform var(--m-settle) var(--e-overshoot);
 }
 
+/* dragging a pin (usePinDrag): the gap it leaves, and the copy carried under the pointer */
+.st-tile[data-gap] {
+  visibility: hidden;
+}
+.st-pinned[data-dragging] .st-tile {
+  transition: none;
+}
+.st-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 4px 6px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  font-size: 12px;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: var(--elev-3), var(--rim);
+}
+.st-ghost span {
+  max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-align: center;
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+/* outside the grid: let go here and it is unpinned, which the minus says */
+.st-ghost-minus {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(230, 72, 64, 0.92);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity var(--m-quick) var(--e-out),
+    scale var(--m-standard) var(--e-overshoot);
+}
+.st-ghost-minus::before {
+  content: "";
+  position: absolute;
+  left: 4.5px;
+  right: 4.5px;
+  top: 8px;
+  height: 2px;
+  border-radius: 1px;
+  background: #fff;
+}
+.st-ghost[data-unpin] .st-ghost-minus {
+  opacity: 1;
+  scale: 1;
+}
+.st-panel[data-dragging] {
+  cursor: grabbing;
+}
+
 .st-tile span {
   max-width: 100%;
   overflow: hidden;
@@ -779,7 +847,7 @@
 }
 
 /* everything in the panel but the gliding highlight, the popups and the glass's own layers lies above the highlight */
-.st-panel > :not(.glide-highlight):not(.st-pop):not(.st-menu):not(.bd-layer):not(.st-veil) {
+.st-panel > :not(.glide-highlight):not(.st-pop):not(.st-menu):not(.bd-layer):not(.st-veil):not(.st-ghost) {
   position: relative;
   z-index: 1;
 }

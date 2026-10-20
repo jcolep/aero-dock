@@ -247,6 +247,7 @@ pub fn run() {
             commands::perf::frame_stats,
             commands::perf::frame_report,
             commands::start::search_files,
+            commands::start::windows_search,
             commands::insight::get_privacy_use,
             commands::insight::get_stats,
             commands::insight::get_top_processes,

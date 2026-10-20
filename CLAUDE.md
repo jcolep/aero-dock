@@ -755,6 +755,19 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   the slot (on the slot × `--open`, the drop drifted in from the end as it shut). Empty
   `.dock-section` is `display: none` (its gap added 6 px). Jump List scroll arrows: `.aero-menu-jump-arrow` in
   `.aero-menu-jump-wrap`, outside the masked scroller, on `edges.more` / `edges.scrolled`.
+- **Start search** (`features/start/searchMatch.ts`, pure): `scoreApp` bands (1000 name, 900 name start, 800 word-start
+  `pieces` — the query cut into word starts in order, which covers initials, 760/700 program name from `programName`
+  (exe base, or a package's name after the publisher), 600/500 substring, 400s slips via `distance` (OSA, 1 slip from 4
+  letters, 2 from 8)). Learning is `learned.ts` in **localStorage** (`liquidock.start.searchMemory`, shared with the
+  Settings window, which clears it), every typed prefix recorded on launch, `boost` 110–260 with a 30-day half-life;
+  an app picked for exactly these letters shows even if they no longer match. Windows' own search can't be called:
+  `winkey::open_windows_search` sends tagged Win+S, waits (≤2 s) for SearchHost/SearchApp in front, then types
+  `KEYEVENTF_UNICODE`. **Not yet seen natively.** `startsearch.mjs`.
+- **Start pin drag** (`usePinDrag.ts`): press → drag after 6 px; the panel captures the pointer (so no click lands on
+  a tile); a ghost (`.st-ghost`, excluded from the `.st-panel > :not(...)` lift) follows; `order` = pins without it plus
+  a `gap` at `insert`, tiles are `motion.button layout="position"` only while dragging. Cells come from the grid's
+  computed style, not tiles' boxes (they move). From All apps: `onBegin` shows Pinned; outside the grid: unpin (pinned)
+  or back to All apps at its scroll. The harness's `held(x, y)` moves with the button down.
 - **Lenses sit BEHIND their items** (`.glide-highlight` z 0, `.mb-lens` z 2 under `.mb-item` z 3; each user lifts
   its items: start.css panel children, `.sb-item`, widget buttons). Over them, the backdrop filter (`SOLID_ONLY`
   alpha^4, brightness/saturate, displacement) thinned and recoloured text. `data-lensed` scales only icons/svg, never

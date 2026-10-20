@@ -4,6 +4,8 @@
  * address, which Windows itself answers.
  */
 
+import { wordsStart, type MatchOptions } from "./searchMatch";
+
 export interface SettingsPage {
   name: string;
   uri: string;
@@ -57,16 +59,15 @@ export const SETTINGS_PAGES: SettingsPage[] = [
   { name: "Windows Security", uri: "windowsdefender:", keywords: "antivirus defender virus firewall protection" },
 ];
 
-/** The pages that match what was typed: every word of it is in the name or the keywords. */
-export function matchSettings(query: string, limit = 4): SettingsPage[] {
+/** The pages that match what was typed: every word of it begins a word of the name or the keywords ("wor" is not
+ *  "networks"), or, with `typos`, is a slip from one. */
+export function matchSettings(query: string, limit = 4, options: MatchOptions = {}): SettingsPage[] {
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (words.length === 0) return [];
   const scored: { page: SettingsPage; score: number }[] = [];
   for (const page of SETTINGS_PAGES) {
     const name = page.name.toLowerCase();
-    // each word typed has to begin a word of the name or the keywords ("wor" is not "networks")
-    const hay = `${name} ${page.keywords}`.split(/[^a-z0-9]+/).filter(Boolean);
-    if (!words.every((w) => hay.some((h) => h.startsWith(w)) || name.replace(/[^a-z0-9]/g, "").startsWith(w))) continue;
+    if (!wordsStart(query, `${page.name} ${page.keywords}`, options)) continue;
     // a name that starts with the first word comes before one that only mentions it
     scored.push({ page, score: name.startsWith(words[0]) ? 0 : name.includes(words[0]) ? 1 : 2 });
   }

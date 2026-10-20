@@ -33,9 +33,14 @@ import { notify } from "../feedback/toastStore";
 import { calculate, formatResult } from "./calc";
 import { sizeText, timeAgo } from "./format";
 import { matchSettings } from "./settingsPages";
+import { scoreApp } from "./searchMatch";
+import { boost, reload as reloadLearned, remember } from "./learned";
+import { usePinDrag } from "./usePinDrag";
+import { motion } from "motion/react";
+import { spring } from "../../engine/motion/tokens";
 import "./start.css";
 
-type Kind = "app" | "file" | "folder" | "setting" | "calc";
+type Kind = "app" | "file" | "folder" | "setting" | "calc" | "windows";
 
 /** Anything the menu can show and open. */
 interface Item {
@@ -241,6 +246,13 @@ function ItemIcon({ item, big }: { item: Item; big?: boolean }) {
       </span>
     );
   }
+  if (item.kind === "windows") {
+    return (
+      <span className="st-icon st-icon-glyph">
+        <Glyph name="search" />
+      </span>
+    );
+  }
   if (item.kind === "folder") {
     return (
       <span className="st-icon st-icon-glyph">
@@ -439,6 +451,8 @@ export function StartApp() {
       setMenu(null);
       setPop(null);
       setFiles([]);
+      // what search has learned, read again (Settings may have cleared it)
+      reloadLearned();
       // nothing lit from the last time it was open (the window was hidden under a pointer that never left it)
       lens.reset();
       turn.current += 1;
@@ -489,6 +503,48 @@ export function StartApp() {
   }, [apps]);
 
   const pinned = useMemo(() => (pins ?? []).map(fromPin), [pins]);
+
+  // ---- dragging pins (usePinDrag): reorder, drag out to unpin, drag in from All apps to pin ----
+  const pinnedGrid = useRef<HTMLDivElement>(null);
+  // where All apps was scrolled to, for a drag from it that is let go outside the grid (All apps comes back as it was)
+  const allScroll = useRef(0);
+  const savePins = (order: Item[]) =>
+    void useSettings.getState().apply((d) => {
+      d.start.pinned = order.map((i) => ({ name: i.name, target: i.target, args: i.args ?? "" }));
+    });
+  const pinDrag = usePinDrag<Item>({
+    panel: () => document.querySelector<HTMLElement>(".st-panel"),
+    grid: () => pinnedGrid.current,
+    pinned,
+    same: sameApp,
+    still: reduced.motion,
+    onBegin: (from) => {
+      lens.fade();
+      setMenu(null);
+      setPop(null);
+      if (from === "all") {
+        allScroll.current = allList.current?.scrollTop ?? 0;
+        setView("home");
+      }
+    },
+    onDrop: (order) => {
+      playCue("tick");
+      savePins(order);
+    },
+    onUnpin: (item) => {
+      playCue("tick");
+      void useSettings.getState().apply((d) => {
+        d.start.pinned = d.start.pinned.filter((p) => !sameApp(p, item));
+      });
+    },
+    onCancel: () => {
+      setView("all");
+      requestAnimationFrame(() => {
+        if (allList.current) allList.current.scrollTop = allScroll.current;
+      });
+    },
+  });
+  const dragging = pinDrag.drag !== null;
   // Recommended, as Windows has it: what was installed lately and what was opened lately, together,
   // newest first. An app counts as new for two weeks.
   const recommendedAll = useMemo(() => {
@@ -508,6 +564,9 @@ export function StartApp() {
   const downloaded = useMemo(() => downloads.slice(0, 4).map(fromDownload), [downloads])
 
   const q = query.trim();
+  const searchLearn = settings?.start.searchLearn ?? true;
+  const searchTypos = settings?.start.searchTypos ?? true;
+  const searchWindowsRow = settings?.start.searchWindowsRow ?? true;
   // files: asked of Windows' index a moment after typing stops
   useEffect(() => {
     if (q.length < 2) {
@@ -537,24 +596,48 @@ export function StartApp() {
         items: [{ key: "calc", kind: "calc", name: formatResult(sum), detail: `${q} =  ·  Enter copies the answer`, target: "", value: sum }],
       });
     }
-    const lower = q.toLowerCase();
-    const found = uniqueApps.filter((a) => a.name.toLowerCase().includes(lower));
-    // names that start with it come first
-    found.sort((a, b) => Number(!a.name.toLowerCase().startsWith(lower)) - Number(!b.name.toLowerCase().startsWith(lower)));
-    if (found.length) out.push({ title: "Apps", items: found.slice(0, 7).map(fromApp) });
-    const pages = matchSettings(q);
+    // Apps, the way Windows' search finds them (searchMatch.ts: initials, word starts, the program's name, slips),
+    // with what was opened before for these letters lifted (learned.ts); one picked before for exactly these letters
+    // is offered even if they no longer match it
+    const typos = searchTypos;
+    const scoreOf = (s: number | null, target: string) => {
+      const lift = searchLearn ? boost(q, target) : 0;
+      if (s === null) return lift > 0 ? 300 + lift : null;
+      return s + lift;
+    };
+    const found = uniqueApps
+      .map((a) => ({ a, s: scoreOf(scoreApp(q, { name: a.name, target: a.targetPath }, { typos }), a.targetPath) }))
+      .filter((x): x is { a: AppEntry; s: number } => x.s !== null)
+      .sort((x, y) => y.s - x.s || x.a.name.localeCompare(y.a.name));
+    if (found.length) out.push({ title: "Apps", items: found.slice(0, 7).map((x) => fromApp(x.a)) });
+    const pages = matchSettings(q, 4, { typos })
+      .map((p, i) => ({ p, s: (searchLearn ? boost(q, p.uri) : 0) - i }))
+      .sort((a, b) => b.s - a.s)
+      .map((x) => x.p);
     if (pages.length) {
       out.push({
         title: "Settings",
         items: pages.map((p) => ({ key: `set:${p.uri}`, kind: "setting" as const, name: p.name, detail: "Settings", target: p.uri })),
       });
     }
-    const named = files.filter((f) => f.name.toLowerCase().includes(lower));
+    // files whose names match come first, best first; the rest Windows' index found by their contents
+    const named = files
+      .map((f) => ({ f, s: scoreApp(q, { name: f.name, target: "" }, { typos }) }))
+      .filter((x): x is { f: FoundFile; s: number } => x.s !== null)
+      .sort((a, b) => b.s - a.s)
+      .map((x) => x.f);
     const rest = files.filter((f) => !named.includes(f));
     const fileItems = [...named, ...rest].map(fromFound);
     if (fileItems.length) out.push({ title: "Files and folders", items: fileItems });
+    // and last, the same letters in Windows' own search, for anything this does not find
+    if (searchWindowsRow) {
+      out.push({
+        title: "Windows",
+        items: [{ key: "windows-search", kind: "windows", name: `Search Windows for “${q}”`, detail: "Opens Windows' own search with this", target: "" }],
+      });
+    }
     return out;
-  }, [q, uniqueApps, files]);
+  }, [q, uniqueApps, files, searchLearn, searchTypos, searchWindowsRow]);
   const flat = useMemo(() => sections.flatMap((s) => s.items), [sections]);
   useEffect(() => setSelected(0), [q]);
   useEffect(() => setSelected((i) => Math.min(i, Math.max(0, flat.length - 1))), [flat.length]);
@@ -595,10 +678,18 @@ export function StartApp() {
         void navigator.clipboard?.writeText(String(item.value ?? "")).catch(() => undefined);
         return;
       }
+      if (item.kind === "windows") {
+        // ours goes first, so that Windows' search has the keyboard to itself
+        close(false);
+        ipc.windowsSearch(q).catch(notify.on("Windows search did not open"));
+        return;
+      }
+      // what was opened for these letters comes first next time
+      if (q && searchLearn) remember(q, item.target);
       ipc.launch(item.target, item.args || undefined).catch(notify.on(`Could not open ${item.name}`));
       close(false);
     },
-    [close],
+    [close, q, searchLearn],
   );
 
   const apply = (mutate: (s: NonNullable<typeof settings>) => void) => void useSettings.getState().apply(mutate);
@@ -616,6 +707,15 @@ export function StartApp() {
       const at = d.start.pinned.findIndex((p) => sameApp(p, item));
       if (at > 0) d.start.pinned.unshift(...d.start.pinned.splice(at, 1));
     });
+  /** One place left or right among the pins (the keyboard's way to reorder; dragging is the pointer's). */
+  const nudge = (item: Item, by: -1 | 1) =>
+    apply((d) => {
+      const at = d.start.pinned.findIndex((p) => sameApp(p, item));
+      const to = at + by;
+      if (at < 0 || to < 0 || to >= d.start.pinned.length) return;
+      const [moved] = d.start.pinned.splice(at, 1);
+      d.start.pinned.splice(to, 0, moved);
+    });
 
   const menuItems = (item: Item): { label: string; run: () => void; danger?: boolean }[] => {
     const out: { label: string; run: () => void }[] = [{ label: "Open", run: () => launch(item) }];
@@ -623,6 +723,8 @@ export function StartApp() {
       const at = (pins ?? []).findIndex((p) => sameApp(p, item));
       out.push(isPinned(item) ? { label: "Unpin from Start", run: () => unpin(item) } : { label: "Pin to Start", run: () => pin(item) });
       if (at > 0) out.push({ label: "Move to front", run: () => toFront(item) });
+      if (at > 0) out.push({ label: "Move left", run: () => nudge(item, -1) });
+      if (at >= 0 && at < (pins ?? []).length - 1) out.push({ label: "Move right", run: () => nudge(item, 1) });
       out.push({
         label: "Pin to dock",
         run: () =>
@@ -649,7 +751,7 @@ export function StartApp() {
   };
 
   const onContext = (e: React.MouseEvent, item: Item) => {
-    if (item.kind === "calc" || item.kind === "setting") return;
+    if (item.kind === "calc" || item.kind === "setting" || item.kind === "windows") return;
     e.preventDefault();
     const panel = (e.currentTarget as HTMLElement).closest(".st-panel")?.getBoundingClientRect();
     const x = Math.min(e.clientX, (panel?.right ?? window.innerWidth) - 190);
@@ -758,6 +860,9 @@ export function StartApp() {
         data-veiled={veil ? "" : undefined}
         style={veil ? ({ ["--st-shadow" as string]: veil.shadow.toFixed(3) } as React.CSSProperties) : undefined}
         {...lens.handlers}
+        // the lens rests while something is carried (it would chase every tile passed over)
+        onPointerOver={(e) => !dragging && lens.handlers.onPointerOver(e)}
+        data-dragging={dragging || undefined}
         onMouseDown={(e) => {
           // a press that is not on a popup closes it
           if (!(e.target as HTMLElement).closest(".st-menu, .st-pop, .st-user, .st-power")) {
@@ -827,13 +932,26 @@ export function StartApp() {
                 <Glyph name="chevron" />
               </button>
             </div>
-            <div className="st-pinned" data-lens-clip>
-              {pinned.length === 0 && <div className="st-none">Nothing pinned yet. Right-click an app in All apps to pin it.</div>}
-              {pinned.map((item) => (
-                <button key={item.key} type="button" className="st-tile" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
+            <div ref={pinnedGrid} className="st-pinned" data-lens-clip data-dragging={dragging || undefined}>
+              {pinDrag.order.length === 0 && !dragging && (
+                <div className="st-none">Nothing pinned yet. Drag an app here from All apps, or right-click it and pin it.</div>
+              )}
+              {/* tiles slide to their places as a dragged one moves among them (layout); the one carried leaves a gap */}
+              {pinDrag.order.map((item) => (
+                <motion.button
+                  key={item.key}
+                  layout={dragging ? "position" : false}
+                  transition={spring.standard}
+                  type="button"
+                  className="st-tile"
+                  data-gap={item.gap || undefined}
+                  onPointerDown={(e) => pinDrag.press(e, item, "pinned")}
+                  onClick={() => launch(item)}
+                  onContextMenu={(e) => onContext(e, item)}
+                >
                   <ItemIcon item={item} big />
                   <span>{item.name}</span>
-                </button>
+                </motion.button>
               ))}
             </div>
             {showRecommended && (
@@ -917,7 +1035,15 @@ export function StartApp() {
                   <div key={letter} data-letter={letter}>
                     <div className="st-letter">{letter}</div>
                     {items.map((item) => (
-                      <button key={item.key} type="button" className="st-row" onClick={() => launch(item)} onContextMenu={(e) => onContext(e, item)}>
+                      <button
+                        key={item.key}
+                        type="button"
+                        className="st-row"
+                        // dragged, it is carried back to Pinned to be put down among the pins (as the pin's own key)
+                        onPointerDown={(e) => pinDrag.press(e, { ...item, key: `pin:${item.target}|${item.args ?? ""}` }, "all")}
+                        onClick={() => launch(item)}
+                        onContextMenu={(e) => onContext(e, item)}
+                      >
                         <ItemIcon item={item} />
                         <span className="st-row-text">
                           <strong>{item.name}</strong>
@@ -987,6 +1113,30 @@ export function StartApp() {
               Restart
             </button>
           </div>
+        )}
+
+        {/* what is being carried: a tile that follows the pointer, lifted; faded, with a minus, where letting go unpins */}
+        {pinDrag.drag && (
+          <motion.div
+            className="st-ghost"
+            aria-hidden
+            data-out={(pinDrag.drag.insert === null && !pinDrag.drag.landing) || undefined}
+            data-unpin={(pinDrag.drag.insert === null && pinDrag.drag.from === "pinned") || undefined}
+            style={{ x: pinDrag.x, y: pinDrag.y, width: pinDrag.drag.width, height: pinDrag.drag.height }}
+            initial={{ scale: 1 }}
+            animate={
+              pinDrag.drag.landing
+                ? pinDrag.drag.insert === null
+                  ? { scale: 0.7, opacity: 0 }
+                  : { scale: 1, opacity: 1 }
+                : { scale: 1.08, opacity: pinDrag.drag.insert === null ? 0.6 : 1 }
+            }
+            transition={spring.quick}
+          >
+            <ItemIcon item={pinDrag.drag.item} big />
+            <span>{pinDrag.drag.item.name}</span>
+            <i className="st-ghost-minus" />
+          </motion.div>
         )}
 
         {menu && (

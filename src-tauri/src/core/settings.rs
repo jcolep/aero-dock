@@ -816,6 +816,13 @@ pub struct StartSettings {
     /// The dock while the menu is open: `usable` (it can be reached and clicked; a click there closes the menu and does
     /// what it was for, as the taskbar does) or `hidden` (it stays out of sight until the menu closes).
     pub dock_while_open: String,
+    /// Search learns what is opened for what was typed and puts it first the next time, as Windows' does (what it
+    /// learns is kept in the pages' web storage, not here: `features/start/learned.ts`).
+    pub search_learn: bool,
+    /// Search forgives a slip of a key or two ("vsiual").
+    pub search_typos: bool,
+    /// The last result hands what was typed to Windows' own search (`commands::start::windows_search`).
+    pub search_windows_row: bool,
 }
 
 impl Default for StartSettings {
@@ -828,6 +835,9 @@ impl Default for StartSettings {
             adaptive_tint_strength: 1.0,
             windows_key: false,
             dock_while_open: "usable".into(),
+            search_learn: true,
+            search_typos: true,
+            search_windows_row: true,
         }
     }
 }

@@ -34,6 +34,7 @@ import { SectionIcon } from "./SectionIcon";
 import { Droplet } from "../../engine/brand/droplet";
 import { ALL_SECTIONS, matches, sectionById } from "./sections";
 import { useSettingsUi, type SidebarMode } from "./useSettingsUi";
+import { forget as forgetLearned } from "../start/learned";
 import "./settings.css";
 
 const pctFmt = (v: number) => `${Math.round(v * 100)}%`;
@@ -1063,6 +1064,44 @@ export function SettingsApp() {
                   </button>
                 </div>
               </div>
+              <p className="settings-note">Drag a pinned app to move it, drag it out of the grid to unpin it, or drag an app from All apps onto the grid to pin it there.</p>
+
+              <SettingsSub>Search</SettingsSub>
+              <AeroToggle
+                label="Learn what I open"
+                checked={settings.start.searchLearn ?? true}
+                hint="What you open after typing a few letters comes first the next time you type them, as in Windows' own search"
+                onChange={(v) => set((d) => void (d.start.searchLearn = v))}
+              />
+              <AeroToggle
+                label="Forgive typos"
+                checked={settings.start.searchTypos ?? true}
+                hint="A slip of a key or two still finds it: “vsiual” finds Visual Studio"
+                onChange={(v) => set((d) => void (d.start.searchTypos = v))}
+              />
+              <AeroToggle
+                label="“Search Windows” at the end"
+                checked={settings.start.searchWindowsRow ?? true}
+                hint="The last result hands what you typed to Windows' own search, for anything this one does not find"
+                onChange={(v) => set((d) => void (d.start.searchWindowsRow = v))}
+              />
+              <div className="ctl-row">
+                <span className="ctl-label">What search has learned</span>
+                <div className="ctl-actions">
+                  <button
+                    className="aero-button"
+                    onClick={() => {
+                      forgetLearned();
+                      setStatus({ tone: "ok", text: "Search has forgotten what it learned." });
+                    }}
+                  >
+                    Forget
+                  </button>
+                </div>
+              </div>
+              <p className="settings-note">
+                Apps are found by their initials (“vsc”), the starts of their words (“stu co”) and their program’s name (“code”), as well as their name.
+              </p>
             </SettingsSection>
 
             <SettingsSection id="frame">

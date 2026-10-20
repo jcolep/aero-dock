@@ -29,7 +29,7 @@ use windows::Win32::Foundation::{LPARAM, LRESULT, WPARAM};
 use windows::Win32::System::Threading::GetCurrentThreadId;
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_EXTENDEDKEY, KEYEVENTF_KEYUP,
-    VIRTUAL_KEY, VK_LWIN,
+    KEYEVENTF_UNICODE, VIRTUAL_KEY, VK_LWIN,
 };
 use windows::Win32::UI::WindowsAndMessaging::{
     CallNextHookEx, GetMessageW, PostThreadMessageW, SetWindowsHookExW, UnhookWindowsHookEx, HHOOK, KBDLLHOOKSTRUCT,
@@ -181,6 +181,68 @@ fn send(inputs: &[INPUT]) -> bool {
     unsafe { SendInput(inputs, std::mem::size_of::<INPUT>() as i32) as usize == inputs.len() }
 }
 
+/// Text as typed characters (`KEYEVENTF_UNICODE`, a press and a release per UTF-16 unit), tagged like the rest.
+fn text_inputs(text: &str) -> Vec<INPUT> {
+    text.encode_utf16()
+        .flat_map(|unit| {
+            [false, true].map(|up| INPUT {
+                r#type: INPUT_KEYBOARD,
+                Anonymous: INPUT_0 {
+                    ki: KEYBDINPUT {
+                        wVk: VIRTUAL_KEY(0),
+                        wScan: unit,
+                        dwFlags: if up { KEYEVENTF_UNICODE | KEYEVENTF_KEYUP } else { KEYEVENTF_UNICODE },
+                        time: 0,
+                        dwExtraInfo: TAG,
+                    },
+                },
+            })
+        })
+        .collect()
+}
+
+/// Whether the window in front belongs to Windows' search (Windows 11's SearchHost, Windows 10's SearchApp).
+fn search_in_front() -> bool {
+    use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowThreadProcessId};
+    let mut pid = 0u32;
+    unsafe {
+        let hwnd = GetForegroundWindow();
+        if hwnd.0.is_null() {
+            return false;
+        }
+        GetWindowThreadProcessId(hwnd, Some(&mut pid));
+    }
+    crate::platform::windows::running::process_path(pid)
+        .map(|p| {
+            let p = p.to_ascii_lowercase();
+            p.ends_with("\\searchhost.exe") || p.ends_with("\\searchapp.exe")
+        })
+        .unwrap_or(false)
+}
+
+/// Open Windows' own search (Win+S, as if pressed) and type `text` into it, for the Start menu's "Search Windows"
+/// row. There is no public way to hand Windows' search a query, so it is typed, but only once its box is in front
+/// (waited for up to 2 s): typed sooner, the letters would go to whatever window had the keyboard. Blocks; call it
+/// off the main thread. False if the search did not come up.
+pub fn open_windows_search(text: &str) -> bool {
+    const S: u16 = 0x53;
+    let lwin = VK_LWIN.0;
+    if !send(&[key_input(lwin, false, true), key_input(S, false, false), key_input(S, true, false), key_input(lwin, true, true)]) {
+        return false;
+    }
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    while !search_in_front() {
+        if std::time::Instant::now() > deadline {
+            return false;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(40));
+    }
+    // its box takes the keyboard a moment after the window comes to the front
+    std::thread::sleep(std::time::Duration::from_millis(150));
+    let typed = text_inputs(text);
+    typed.is_empty() || send(&typed)
+}
+
 unsafe extern "system" fn key_proc(code: i32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
     if code >= 0 {
         let info = unsafe { &*(lparam.0 as *const KBDLLHOOKSTRUCT) };
@@ -317,6 +379,19 @@ mod tests {
     fn run(keys: &[(u32, bool)]) -> Vec<Verdict> {
         let mut t = Tracker::default();
         keys.iter().map(|&(vk, down)| t.key(vk, down)).collect()
+    }
+
+    #[test]
+    fn text_is_typed_as_a_press_and_release_per_unit_all_tagged() {
+        // "vsc" and an emoji (two UTF-16 units): 5 units, 10 events
+        let typed = text_inputs("vsc\u{1F600}");
+        assert_eq!(typed.len(), 10);
+        let ki: Vec<_> = typed.iter().map(|i| unsafe { i.Anonymous.ki }).collect();
+        assert_eq!(ki[0].wScan, 'v' as u16);
+        assert!(ki[0].dwFlags.contains(KEYEVENTF_UNICODE) && !ki[0].dwFlags.contains(KEYEVENTF_KEYUP));
+        assert!(ki[1].dwFlags.contains(KEYEVENTF_KEYUP));
+        assert!(ki.iter().all(|k| k.dwExtraInfo == TAG && k.wVk.0 == 0));
+        assert!(text_inputs("").is_empty());
     }
 
     #[test]

@@ -267,6 +267,8 @@ export const ipc = {
   closeStart: (restore: boolean) => invoke<void>("close_start", { restore }),
   userProfile: () => invoke<Profile>("user_profile"),
   searchFiles: (query: string) => invoke<FoundFile[]>("search_files", { query }),
+  /** Hand what was typed to Windows' own search (Win+S, then typed into its box). */
+  windowsSearch: (query: string) => invoke<void>("windows_search", { query }),
   /** Look at each screen (a window of stripes shows on each for a second) to see whether the frosted glass keeps its shape. */
   /** Where each blur pane is now, written to blur-report.txt as well. */
   /** How this window's frames went, for the table of frame timings. */
