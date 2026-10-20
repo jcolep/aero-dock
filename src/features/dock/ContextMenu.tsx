@@ -326,6 +326,15 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
           {jump && jump.sections.length > 0 && (
             // the app's own list first, as on the taskbar; held to a height of its own so the menu's items below it
             // are always in view
+            // the arrows sit in the fades, outside what scrolls (its mask would fade them too): down while there is
+            // more below, up once it has been scrolled
+            <div className="aero-menu-jump-wrap">
+            <span className="aero-menu-jump-arrow" data-dir="up" data-on={edges.scrolled || undefined} aria-hidden>
+              <svg viewBox="0 0 12 8"><path d="M2.5 6 6 2.5 9.5 6" /></svg>
+            </span>
+            <span className="aero-menu-jump-arrow" data-dir="down" data-on={edges.more || undefined} aria-hidden>
+              <svg viewBox="0 0 12 8"><path d="M2.5 2 6 5.5 9.5 2" /></svg>
+            </span>
             <div ref={jumpRef} className="aero-menu-jump" data-more={edges.more || undefined} data-scrolled={edges.scrolled || undefined} onScroll={readEdges}>
               {jump.sections.map((section) => (
                 <div key={section.title} className="aero-menu-jump-section">
@@ -345,6 +354,7 @@ export function ContextMenu({ settings, edge }: ContextMenuProps) {
                   ))}
                 </div>
               ))}
+            </div>
             </div>
           )}
           {/* the line under the list stays put, outside what scrolls */}

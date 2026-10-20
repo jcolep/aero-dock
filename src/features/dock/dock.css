@@ -113,6 +113,8 @@
   align-items: center;
   gap: var(--icon-gap);
   padding: var(--dock-pad-y) var(--dock-pad-x);
+  /* the start as wide as the empty glass after the last thing drawn (--end-pad, measured in DockBar) */
+  padding-left: var(--end-pad, var(--dock-pad-x));
   opacity: var(--dock-opacity);
 }
 
@@ -134,6 +136,7 @@
   flex-direction: column;
   align-items: center;
   padding: var(--dock-pad-x) var(--dock-pad-y);
+  padding-top: var(--end-pad, var(--dock-pad-x));
 }
 .dock-bar[data-vertical="true"] > .dock-body.glass {
   inset: calc(-1 * var(--grow-extra, 0px)) 0;
@@ -146,6 +149,10 @@
   align-items: center;
   gap: var(--icon-gap);
   list-style: none;
+}
+/* an empty section (no pinned apps) takes no gap, so it adds nothing to the start */
+.dock-section:empty {
+  display: none;
 }
 
 .dock-section > div {
@@ -927,6 +934,9 @@
   align-self: stretch;
   /* shut, the bar's gap after it is taken back too, so nothing of it is left */
   margin-inline-end: calc(var(--icon-gap, 6px) * (var(--open, 1) - 1));
+  /* the drop is drawn inset in its box: open, that inset is taken back, so the drop itself starts where an app's icon
+     would (the bar's start matches its end, DockBar --end-pad) */
+  margin-inline-start: calc(var(--drop-inset, 0px) * var(--open, 1) * -1);
 }
 .dock-start-slot > .dock-start-inner {
   flex: none;
@@ -938,7 +948,9 @@
 .dock-bar[data-vertical="true"] .dock-start-slot {
   flex-direction: column;
   margin-inline-end: 0;
+  margin-inline-start: 0;
   margin-block-end: calc(var(--icon-gap, 6px) * (var(--open, 1) - 1));
+  margin-block-start: calc(var(--drop-inset-y, 0px) * var(--open, 1) * -1);
 }
 .dock-bar[data-vertical="true"] .dock-start-slot > .dock-start-inner {
   flex-direction: column;

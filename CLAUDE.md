@@ -748,6 +748,11 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   (shading for ~30 px: one soft top catch, a faint foot glow, `rimSoft`; the large marks keep the full drawing).
   `dock.startSize` (0.6–1.6 → `--drop-scale` on `--control-size`; DockBar adds the room) and `dock.startColor`
   (Droplet `tint`, "" = theme).
+- **The dock's ends match** (`dockends.mjs`): DockBar measures the empty glass after the last drawn thing (svg/img/
+  `.widget-clock` of the bar's last child, on bar resize) into `--end-pad`, the bar's start padding; StartSlot takes
+  back the drop's inset in its box (`--drop-inset` = 0.19 × button size, 0 for a well) × `--open`. Empty
+  `.dock-section` is `display: none` (its gap added 6 px). Jump List scroll arrows: `.aero-menu-jump-arrow` in
+  `.aero-menu-jump-wrap`, outside the masked scroller, on `edges.more` / `edges.scrolled`.
 - **Lenses sit BEHIND their items** (`.glide-highlight` z 0, `.mb-lens` z 2 under `.mb-item` z 3; each user lifts
   its items: start.css panel children, `.sb-item`, widget buttons). Over them, the backdrop filter (`SOLID_ONLY`
   alpha^4, brightness/saturate, displacement) thinned and recoloured text. `data-lensed` scales only icons/svg, never

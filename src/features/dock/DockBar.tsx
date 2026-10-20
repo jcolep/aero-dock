@@ -390,6 +390,46 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     return () => observer.disconnect();
   }, [vertical]);
 
+  // How far the drop is drawn in from its box (DROP_PATH spans x 19..81 and starts at its tip, y 5): the button's size
+  // (dock.css --control-size) times that; a well's edge is its box's.
+  const dropInset = useMemo(() => {
+    if (settings.dock.startStyle === "well") return { x: 0, y: 0 };
+    const box = Math.min(34, Math.max(20, iconSize + 6)) * (settings.dock.startSize ?? 1);
+    return { x: box * 0.19, y: box * 0.05 };
+  }, [settings.dock.startStyle, settings.dock.startSize, iconSize]);
+
+  // The two ends look alike. What ends the bar (the Recycle Bin, the clock, the gear) is drawn inset in its own box
+  // and the cluster it sits in has padding of its own, so the empty glass after it is wider than the bar's padding;
+  // an app's icon fills its box, so with nothing before it the start was the narrower end (the drop is inset in its box
+  // too, which is why the two looked alike with it showing). So the space after the last thing drawn is measured, and
+  // the start is given exactly that (`--end-pad`); the drop's own inset is taken back as its slot opens (StartSlot).
+  // Sizes, not where things are drawn, are what change it, so it is measured when the bar's size changes. It cannot
+  // feed back: the start's padding moves nothing at the far end.
+  useLayoutEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const measure = () => {
+      const kids = [...bar.children].filter(
+        (e): e is HTMLElement => e instanceof HTMLElement && !e.classList.contains("dock-body") && e.offsetWidth > 0 && e.offsetHeight > 0,
+      );
+      const last = kids[kids.length - 1];
+      if (!last) return;
+      const marks = [...last.querySelectorAll("svg, img, .widget-clock")].map((m) => m.getBoundingClientRect()).filter((r) => r.width > 0);
+      const rects = marks.length ? marks : [last.getBoundingClientRect()];
+      const b = bar.getBoundingClientRect();
+      // measured in the bar's own size: it may be scaled as it arrives
+      const k = vertical ? b.height / Math.max(1, bar.offsetHeight) : b.width / Math.max(1, bar.offsetWidth);
+      const gap = vertical ? (b.bottom - Math.max(...rects.map((r) => r.bottom))) / k : (b.right - Math.max(...rects.map((r) => r.right))) / k;
+      if (!Number.isFinite(gap) || gap < 0) return;
+      const now = parseFloat(bar.style.getPropertyValue("--end-pad")) || 0;
+      if (Math.abs(now - gap) > 0.25) bar.style.setProperty("--end-pad", `${gap.toFixed(2)}px`);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, [vertical]);
+
   // Where the bar is within the window (the bar alone, not the room the window keeps for flyouts), for Rust: the
   // Start menu rests above it. It is there once the dock has arrived and goes the moment it starts to leave. (The
   // frosted glass under the bar follows it by itself: see BackdropLayer.)
@@ -571,7 +611,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     // a button sized up (startSize) takes that much more: up to 34px wide, 1.2 times that in a well
     const startGrow = Math.max(0, (settings.dock.startSize ?? 1) - 1) * 42;
     const startRoom = settings.dock.showSearchButton ? (revealMode ? START_SLOT_ROOM : START_DIVIDER_ROOM) + startGrow : 0;
-    const controls = (revealMode ? 2 * SATELLITE_ROOM : CONTROLS_SPACE) + startRoom;
+    // (and a little for the start matching the far end, --end-pad, which can be a few px more than the padding)
+    const controls = (revealMode ? 2 * SATELLITE_ROOM : CONTROLS_SPACE) + startRoom + 10;
     const main =
       mainBase +
       mainGrowth +
@@ -1070,7 +1111,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         <ModeSwitcher settings={settings} edge={edge} />
         {settings.dock.showSearchButton && (
           // always in the bar now, with its divider: open, or opening as the pointer nears the start (startExpands)
-          <StartSlot open={!startExpands || startNear} vertical={vertical} still={reducedMotion}>
+          <StartSlot open={!startExpands || startNear} vertical={vertical} still={reducedMotion} inset={dropInset}>
             <LiquidockButton
               effect={settings.dock.startShine}
               tune={settings.dock.startShineTune}

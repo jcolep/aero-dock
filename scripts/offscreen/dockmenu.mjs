@@ -140,6 +140,17 @@ try {
   check(whole.more, "and fades at its foot, where there is more");
   check(!fit.labels.includes("Dock settings…") && !fit.labels.some((l) => l.startsWith("Audio output")), "no \"Dock settings…\", and no \"Audio output\" unless it is switched on");
   shots["long jump list"] = await h.shot(Math.max(0, icon.x - 160), 0, 320, Math.min(560, fit.bottom + 20));
+  // the arrows in its fades: down while there is more below, up once scrolled, each gone at its own end
+  const arrows = () => q("(() => { const o = (d) => +getComputedStyle(document.querySelector(`.aero-menu-jump-arrow[data-dir=${d}]`)).opacity; return { up: o('up'), down: o('down') }; })()");
+  const atTop = await arrows();
+  await q("(() => { const j = document.querySelector('.aero-menu-jump'); j.scrollTop = 40; j.dispatchEvent(new Event('scroll')); })()");
+  await h.sleep(300);
+  const midway = await arrows();
+  await q("(() => { const j = document.querySelector('.aero-menu-jump'); j.scrollTop = j.scrollHeight; j.dispatchEvent(new Event('scroll')); })()");
+  await h.sleep(300);
+  const atEnd = await arrows();
+  check(atTop.down > 0.5 && atTop.up === 0 && midway.down > 0.5 && midway.up > 0.5 && atEnd.down === 0 && atEnd.up > 0.5, `a down arrow while there is more below, an up arrow once scrolled, neither past its end (top ${JSON.stringify(atTop)}, midway ${JSON.stringify(midway)}, end ${JSON.stringify(atEnd)})`);
+  shots["long jump list, scrolled to its end"] = await h.shot(Math.max(0, icon.x - 160), 0, 320, Math.min(560, fit.bottom + 20));
   await awayClick();
 
   // read ahead: with Windows slow to answer (0.8 s), an app whose icon the pointer has rested on opens its menu with

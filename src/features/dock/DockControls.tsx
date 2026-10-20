@@ -60,7 +60,20 @@ type Tune = { speed?: number; opacity?: number; size?: number; color?: string } 
  * bar's gap after it taken back (`--open`), so the dock looks as if it had no button at all. It hides what does not
  * fit only while it moves, so the drop's shadow is not cut off at rest.
  */
-export function StartSlot({ open, vertical, still, children }: { open: boolean; vertical: boolean; still: boolean; children: ReactNode }) {
+export function StartSlot({
+  open,
+  vertical,
+  still,
+  inset = { x: 0, y: 0 },
+  children,
+}: {
+  open: boolean;
+  vertical: boolean;
+  still: boolean;
+  /** How far the drop is drawn in from its box's start (px, across and down): taken back as it opens (dock.css). */
+  inset?: { x: number; y: number };
+  children: ReactNode;
+}) {
   const inner = useRef<HTMLDivElement>(null);
   const natural = useRef(0);
   const progress = useMotionValue(open ? 1 : 0);
@@ -117,6 +130,8 @@ export function StartSlot({ open, vertical, still, children }: { open: boolean; 
         overflow: settled ? (held(progress.get()) > 0.5 ? "visible" : "hidden") : "hidden",
         opacity,
         ["--open" as string]: openness,
+        ["--drop-inset" as string]: `${inset.x.toFixed(2)}px`,
+        ["--drop-inset-y" as string]: `${inset.y.toFixed(2)}px`,
       }}
     >
       <div ref={inner} className="dock-start-inner">

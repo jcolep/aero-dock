@@ -84,13 +84,52 @@
 .aero-menu-app > * {
   flex-shrink: 0;
 }
-.aero-menu-app > .aero-menu-jump {
+.aero-menu-app > .aero-menu-jump-wrap {
   flex: 0 1 auto;
   min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 3;
+}
+.aero-menu-jump-wrap > .aero-menu-jump {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+/* a small chevron in each fade, there only while there is more that way */
+.aero-menu-jump-arrow {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  width: 12px;
+  height: 8px;
+  translate: -50% 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--m-quick) var(--e-out);
+}
+.aero-menu-jump-arrow[data-dir="up"] {
+  top: 3px;
+}
+.aero-menu-jump-arrow[data-dir="down"] {
+  bottom: 5px;
+}
+.aero-menu-jump-arrow[data-on] {
+  opacity: 0.7;
+}
+.aero-menu-jump-arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
 }
 .aero-menu-jump {
   position: relative;
-  z-index: 3;
   overflow-y: auto;
   scrollbar-width: none;
   overscroll-behavior: contain;

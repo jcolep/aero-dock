@@ -50,6 +50,14 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Scroll arrows in Jump Lists; the dock's ends even (October 19)
+
+- **A Jump List that scrolls shows a small chevron in its fade**: down while there is more below, up once it has been
+  scrolled, each gone at its own end.
+- **The dock's two ends are always even**: the empty glass before the first thing in the bar now matches the space
+  after the last (the Recycle Bin, the clock or the gear), whether the Liquidock button is showing, out of sight, off,
+  in a well or resized. It was about 6 px narrower at the start when the button was hidden.
+
 ### The drop's size and colour; text left alone under the lens (October 19)
 
 - **Settings › Dock items › The Liquidock button**: a **Size** slider (60–160%) and a **Drop colour** that overrides
