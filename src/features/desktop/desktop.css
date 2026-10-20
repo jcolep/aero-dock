@@ -855,3 +855,20 @@ button.w-icon-btn:hover {
   position: absolute;
   inset: 0;
 }
+/* ---- snapping: the grid shown while a widget is held, and the lines it lined up to ---- */
+.aero-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+}
+.aero-guide {
+  position: absolute;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--aero-accent, #2f9de3) 85%, white);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--aero-accent, #2f9de3) 80%, transparent);
+}
+.aero-guide-v { top: 0; bottom: 0; width: 1px; }
+.aero-guide-h { left: 0; right: 0; height: 1px; }

@@ -16,6 +16,7 @@ import { ipc } from "../../ipc/commands";
 import type { HitRect, WidgetInstance } from "../../ipc/types";
 import { useSettings } from "../../state/settingsStore";
 import { opt } from "./kit";
+import type { Guides, SnapConfig } from "./snap";
 import { WIDGET_RADIUS, WidgetFrame } from "./WidgetFrame";
 import "./desktop.css";
 
@@ -29,6 +30,9 @@ export function DesktopWidgets() {
   const { settings, hydrate } = useSettings();
   const [hover, setHover] = useHover();
   const dragging = useRef(false);
+  // whether one is held (for the grid) and the lines it has lined up to
+  const [holding, setHolding] = useState(false);
+  const [guides, setGuides] = useState<Guides | null>(null);
 
   useEffect(() => {
     hydrate();
@@ -95,6 +99,8 @@ export function DesktopWidgets() {
     const release = () => {
       if (!dragging.current) return;
       dragging.current = false;
+      setHolding(false);
+      setGuides(null);
       syncRegion(latest.current);
     };
     window.addEventListener("pointerup", release);
@@ -135,6 +141,7 @@ export function DesktopWidgets() {
   const onDragState = useCallback(
     (isDragging: boolean) => {
       dragging.current = isDragging;
+      setHolding(isDragging);
       if (isDragging) {
         // open the whole window up so the pointer cannot escape the region
         ipc.setWidgetDragMode(true).catch(() => undefined);
@@ -145,6 +152,14 @@ export function DesktopWidgets() {
     [widgets, syncRegion],
   );
 
+  const w = settings?.widgets;
+  const snap: SnapConfig = useMemo(
+    () => ({ enabled: w?.snapEnabled ?? false, grid: w?.snapGrid ?? true, size: w?.snapSize ?? 40, align: w?.snapAlign ?? true, threshold: w?.snapThreshold ?? 10, margin: w?.snapMargin ?? 20, resize: w?.snapResize ?? true }),
+    [w?.snapEnabled, w?.snapGrid, w?.snapSize, w?.snapAlign, w?.snapThreshold, w?.snapMargin, w?.snapResize],
+  );
+  // the others, as they are now (read when a move is made, not when this was rendered)
+  const others = useCallback((id: string) => latest.current.filter((x) => x.id !== id).map((x) => ({ x: x.x, y: x.y, w: x.width, h: x.height })), []);
+
   if (!settings) return null;
 
   return (
@@ -153,6 +168,11 @@ export function DesktopWidgets() {
       onPointerOver={() => setHover(true)}
       onPointerLeave={() => setHover(false)}
     >
+      {holding && snap.enabled && snap.grid && w?.snapShowGrid && (
+        <div className="aero-grid" style={{ backgroundSize: `${snap.size}px ${snap.size}px` }} aria-hidden />
+      )}
+      {holding && guides?.v.map((x) => <i key={`v${x}`} className="aero-guide aero-guide-v" style={{ left: x }} aria-hidden />)}
+      {holding && guides?.h.map((y) => <i key={`h${y}`} className="aero-guide aero-guide-h" style={{ top: y }} aria-hidden />)}
       {widgets.map((widget) => (
         <WidgetFrame
           key={widget.id}
@@ -161,6 +181,9 @@ export function DesktopWidgets() {
           editing={hover}
           onGeometry={onGeometry}
           onDragState={onDragState}
+          snap={snap}
+          others={others}
+          onGuides={setGuides}
         />
       ))}
     </div>

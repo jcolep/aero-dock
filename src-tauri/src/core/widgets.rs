@@ -226,7 +226,7 @@ impl WidgetInstance {
 }
 
 /// The widget layer as a whole.
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct WidgetsSettings {
     /// Off until asked for, so upgrading puts nothing on the desktop.
@@ -235,6 +235,41 @@ pub struct WidgetsSettings {
     /// Weather is the only widget that makes a network request, so it
     /// carries its own switch on top of being added at all.
     pub allow_weather_network: bool,
+    /// Snapping, when a widget is moved or resized (Alt held does the opposite for that one move). Off until asked for:
+    /// widgets go where they are put.
+    pub snap_enabled: bool,
+    /// Move to the grid (the widget's top left on a line, its bottom right on one when resized).
+    pub snap_grid: bool,
+    /// The grid's squares, in pixels.
+    pub snap_size: u32,
+    /// Line up with the edges and middles of the other widgets and of the screen.
+    pub snap_align: bool,
+    /// How near an edge must be to be pulled to it, in pixels.
+    pub snap_threshold: u32,
+    /// How far in from the screen's edges that alignment holds them.
+    pub snap_margin: u32,
+    /// Resizing snaps too (the bottom right corner).
+    pub snap_resize: bool,
+    /// Show the grid and the guides while one is moved.
+    pub snap_show_grid: bool,
+}
+
+impl Default for WidgetsSettings {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            widgets: Vec::new(),
+            allow_weather_network: false,
+            snap_enabled: false,
+            snap_grid: true,
+            snap_size: 40,
+            snap_align: true,
+            snap_threshold: 10,
+            snap_margin: 20,
+            snap_resize: true,
+            snap_show_grid: true,
+        }
+    }
 }
 
 impl WidgetsSettings {
@@ -242,6 +277,9 @@ impl WidgetsSettings {
     /// sane length. Called from the settings sanitizer, so a hand-edited
     /// file cannot produce a widget nobody can see or reach.
     pub fn sanitize(&mut self) {
+        self.snap_size = self.snap_size.clamp(8, 200);
+        self.snap_threshold = self.snap_threshold.clamp(3, 30);
+        self.snap_margin = self.snap_margin.min(120);
         self.widgets.truncate(MAX_WIDGETS);
 
         let mut seen: Vec<String> = Vec::with_capacity(self.widgets.len());
@@ -377,6 +415,7 @@ mod tests {
                 ..widget("w")
             }],
             allow_weather_network: false,
+            ..Default::default()
         };
         s.sanitize();
         assert_eq!(s.widgets[0].options.latitude, None, "999 is not a latitude");
@@ -412,6 +451,7 @@ mod tests {
             enabled: true,
             widgets: vec![WidgetInstance::new("w".into(), WidgetKind::Weather, 0, 0)],
             allow_weather_network: false,
+            ..Default::default()
         };
         assert!(!s.wants_network(), "present but not permitted");
         s.allow_weather_network = true;
@@ -424,6 +464,7 @@ mod tests {
             enabled: true,
             widgets: vec![widget("clock")],
             allow_weather_network: true,
+            ..Default::default()
         };
         assert!(!s.wants_network(), "no weather widget means no request");
     }
@@ -439,6 +480,7 @@ mod tests {
                 ..widget("a")
             }],
             allow_weather_network: false,
+            ..Default::default()
         };
         s.sanitize();
         assert_eq!(s.widgets[0].width, MIN_SIZE);
@@ -456,6 +498,7 @@ mod tests {
                 ..widget("a")
             }],
             allow_weather_network: false,
+            ..Default::default()
         };
         s.sanitize();
         assert_eq!(s.widgets[0].x, -1400);
@@ -471,6 +514,7 @@ mod tests {
                 ..widget("a")
             }],
             allow_weather_network: false,
+            ..Default::default()
         };
         s.sanitize();
         assert!(s.widgets[0].x <= POSITION_LIMIT);
@@ -482,6 +526,7 @@ mod tests {
             enabled: true,
             widgets: vec![widget("dup"), widget("dup"), widget("")],
             allow_weather_network: false,
+            ..Default::default()
         };
         s.sanitize();
         let ids: Vec<&str> = s.widgets.iter().map(|w| w.id.as_str()).collect();
@@ -499,6 +544,7 @@ mod tests {
                 WidgetInstance { accent: Some("red; content: evil".into()), ..widget("bad") },
             ],
             allow_weather_network: false,
+            ..Default::default()
         };
         s.sanitize();
         assert_eq!(s.widgets[0].accent.as_deref(), Some("#12ab34"));
@@ -511,6 +557,7 @@ mod tests {
             enabled: true,
             widgets: Vec::new(),
             allow_weather_network: false,
+            ..Default::default()
         };
         s.sanitize();
         assert!(!s.enabled);
@@ -522,6 +569,7 @@ mod tests {
             enabled: true,
             widgets: (0..200).map(|i| widget(&format!("w{i}"))).collect(),
             allow_weather_network: false,
+            ..Default::default()
         };
         s.sanitize();
         assert_eq!(s.widgets.len(), MAX_WIDGETS);
@@ -533,6 +581,7 @@ mod tests {
             enabled: true,
             widgets: vec![WidgetInstance { x: 5, y: 6, width: 100, height: 120, ..widget("a") }],
             allow_weather_network: false,
+            ..Default::default()
         };
         assert_eq!(s.rects(), vec![(5, 6, 100, 120)]);
     }
@@ -555,6 +604,17 @@ mod tests {
         assert!(many.len() <= MAX_EXTRA_KEYS);
         let total: usize = many.iter().map(|(k, v)| k.len() + serde_json::to_string(v).unwrap().len()).sum();
         assert!(total <= MAX_EXTRA_BYTES, "{total}");
+    }
+
+    #[test]
+    fn snapping_is_off_by_default_and_its_numbers_are_kept_sane() {
+        let s = WidgetsSettings::default();
+        assert!(!s.snap_enabled, "widgets go where they are put until it is asked for");
+        let mut wild = WidgetsSettings { snap_size: 0, snap_threshold: 9999, snap_margin: 99999, ..Default::default() };
+        wild.sanitize();
+        assert_eq!((wild.snap_size, wild.snap_threshold, wild.snap_margin), (8, 30, 120));
+        let old: WidgetsSettings = serde_json::from_str("{\"enabled\":true}").unwrap();
+        assert_eq!((old.snap_enabled, old.snap_size, old.snap_grid), (false, 40, true), "a file from before snapping loads");
     }
 
     #[test]

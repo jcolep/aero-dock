@@ -50,6 +50,20 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Snapping for desktop widgets (October 20)
+
+- **Optional snapping** while a widget is moved or resized (Settings › Widgets, off until asked for). To a **grid** (its top
+  left on a line; resizing lands the bottom right corner on one), and to **the other widgets and the screen**: the
+  edges and middles of the others, and the screen's edges, pull a widget to them. Alignment comes before the grid, so a
+  widget set beside another is not pushed off its edge by a grid that disagrees.
+- Settings: snap on or off, grid on or off and its size (8-200 px), line up on or off, how near is near (3-30 px), the
+  room from the screen's edge (0-120 px), snap resizing too, show the grid while moving, and **Put every widget on the
+  grid** to tidy what is already there. **Alt** held does the opposite for one move (free where it snaps, snapping
+  where it does not).
+- The grid is drawn over the desktop while a widget is held (and only then), and a line is drawn where something lines
+  up. Only the overlay's own edges are the screen's: on more than one monitor the edge between two is not one.
+- `snap.ts` is plain number-in, number-out; `widgetsnap.mjs` checks the grid, alignment with its guide, the margin,
+  Alt both ways, resizing and the grid showing only while held.
 ### Sixteen new desktop widgets, with a Picture / GIF one (October 20)
 
 - **Picture / GIF**: your own picture or GIF in a pane of glass, chosen in Settings (kept in the data folder, so it

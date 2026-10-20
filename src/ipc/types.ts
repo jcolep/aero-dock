@@ -280,6 +280,15 @@ export interface WidgetsSettings {
   widgets: WidgetInstance[];
   /** Weather is the only widget that leaves the machine. */
   allowWeatherNetwork: boolean;
+  /** Snapping while a widget is moved or resized (Alt held does the opposite for one move). */
+  snapEnabled: boolean;
+  snapGrid: boolean;
+  snapSize: number;
+  snapAlign: boolean;
+  snapThreshold: number;
+  snapMargin: number;
+  snapResize: boolean;
+  snapShowGrid: boolean;
 }
 
 /** Appearance changes, all optional so the UI sends only what changed. */

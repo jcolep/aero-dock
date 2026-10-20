@@ -12,6 +12,8 @@ import { useRef, useState } from "react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { WIDGETS, SHARED_FIELDS, type Field, type WidgetGroup } from "../desktop/registry";
 import { opt, saveExtra } from "../desktop/kit";
+import { snapMove, snapResize, type SnapConfig } from "../desktop/snap";
+import { useSettings } from "../../state/settingsStore";
 import { ipc } from "../../ipc/commands";
 import type { Settings, SurfaceStyle, WidgetInstance, WidgetKind } from "../../ipc/types";
 import { AeroSegmented, AeroSlider, AeroToggle } from "./controls";
@@ -100,7 +102,70 @@ function PictureChooser({ widget, onStatus }: { widget: WidgetInstance; onStatus
   );
 }
 
-const GROUPS: WidgetGroup[] = ["Pictures", "Time", "Notes", "Fun", "System", "Desktop"];
+/** Snapping: while a widget is moved or resized, to a grid and to the other widgets and the screen's edges. */
+function SnapSettings({ settings, onStatus }: Props) {
+  const w = settings.widgets;
+  const set = (fn: (d: Settings) => void) => void useSettings.getState().apply(fn);
+  const cfg: SnapConfig = { enabled: true, grid: w.snapGrid, size: w.snapSize, align: false, threshold: 0, margin: 0, resize: true };
+  // every widget onto the grid at once: its corner and its size to whole squares
+  const tidy = async () => {
+    try {
+      for (const x of w.widgets) {
+        const at = snapMove({ x: x.x, y: x.y, w: x.width, h: x.height }, [], { w: 0, h: 0 }, cfg);
+        const to = snapResize({ x: at.x, y: at.y, w: x.width, h: x.height }, [], { w: 0, h: 0 }, cfg);
+        await ipc.placeWidget(x.id, at.x, at.y, Math.max(MIN_SNAP_SIZE, to.w), Math.max(MIN_SNAP_SIZE, to.h));
+      }
+      onStatus("ok", "The widgets are on the grid.");
+    } catch (e) {
+      onStatus("error", `Could not tidy the widgets: ${humane(e)}`);
+    }
+  };
+  return (
+    <>
+      <p className="settings-note">Snapping</p>
+      <AeroToggle
+        label="Snap widgets"
+        checked={w.snapEnabled}
+        hint="Widgets jump to a grid and line up with each other as they are moved and resized. Hold Alt to do the opposite for one move"
+        onChange={(v) => set((d) => void (d.widgets.snapEnabled = v))}
+      />
+      {w.snapEnabled && (
+        <>
+          <AeroToggle label="Snap to a grid" checked={w.snapGrid} onChange={(v) => set((d) => void (d.widgets.snapGrid = v))} />
+          {w.snapGrid && (
+            <AeroSlider label="Grid size" value={w.snapSize} min={8} max={200} step={4} format={(v) => `${v}px`} onChange={(v) => set((d) => void (d.widgets.snapSize = v))} />
+          )}
+          <AeroToggle
+            label="Line up with the others"
+            checked={w.snapAlign}
+            hint="The edges and middles of the other widgets, and the screen's edges, pull a widget to them"
+            onChange={(v) => set((d) => void (d.widgets.snapAlign = v))}
+          />
+          {w.snapAlign && (
+            <>
+              <AeroSlider label="How near is near" value={w.snapThreshold} min={3} max={30} step={1} format={(v) => `${v}px`} hint="How close an edge has to be to be pulled to it" onChange={(v) => set((d) => void (d.widgets.snapThreshold = v))} />
+              <AeroSlider label="Room from the screen's edge" value={w.snapMargin} min={0} max={120} step={2} format={(v) => `${v}px`} hint="Where a widget settles against the edge of the desktop" onChange={(v) => set((d) => void (d.widgets.snapMargin = v))} />
+            </>
+          )}
+          <AeroToggle label="Snap resizing too" checked={w.snapResize} onChange={(v) => set((d) => void (d.widgets.snapResize = v))} />
+          <AeroToggle label="Show the grid while moving" checked={w.snapShowGrid} hint="The grid, and a line where something lines up" onChange={(v) => set((d) => void (d.widgets.snapShowGrid = v))} />
+          <div className="ctl-row">
+            <span className="ctl-label">Tidy up</span>
+            <div className="ctl-actions">
+              <button className="aero-button" disabled={w.widgets.length === 0} onClick={() => void tidy()}>
+                Put every widget on the grid
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+const MIN_SNAP_SIZE = 90;
+
+const GROUPS: WidgetGroup[] =["Pictures", "Time", "Notes", "Fun", "System", "Desktop"];
 
 function WidgetRow({
   widget,
@@ -359,6 +424,8 @@ export function WidgetsCard({ settings, onStatus }: Props) {
               ))}
             </div>
           </div>
+          <SnapSettings settings={settings} onStatus={onStatus} />
+
           <AeroToggle
             label="Let the weather widget use the network"
             checked={w.allowWeatherNetwork}

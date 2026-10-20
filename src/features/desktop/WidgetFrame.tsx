@@ -20,6 +20,7 @@ import { glassBackdrop } from "../../engine/glass/displacement";
 import { ipc } from "../../ipc/commands";
 import type { WidgetInstance } from "../../ipc/types";
 import { opt } from "./kit";
+import { snapMove, snapResize, type Box, type Guides, type SnapConfig } from "./snap";
 import { definitionFor } from "./registry";
 
 /** Corner radius of a widget, shared with the hit region so the clickable
@@ -46,13 +47,17 @@ interface Props {
   onGeometry: (id: string, x: number, y: number, w: number, h: number) => void;
   onDragState: (dragging: boolean) => void;
   editing: boolean;
+  /** Snapping, the others to line up with, and where to draw the lines it lined up to. */
+  snap: SnapConfig;
+  others: (id: string) => Box[];
+  onGuides: (guides: Guides | null) => void;
 }
 
 type Mode = { kind: "move" | "resize"; startX: number; startY: number; ox: number; oy: number; ow: number; oh: number };
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
 
-export function WidgetFrame({ widget, allowNetwork, onGeometry, onDragState, editing }: Props) {
+export function WidgetFrame({ widget, allowNetwork, onGeometry, onDragState, editing, snap, others, onGuides }: Props) {
   const def = definitionFor(widget.kind);
   const mode = useRef<Mode | null>(null);
   // how round this widget's glass is (a setting of its own; the clickable part follows it, see DesktopWidgets)
@@ -109,34 +114,35 @@ export function WidgetFrame({ widget, allowNetwork, onGeometry, onDragState, edi
       if (!m) return;
       const dx = e.screenX - m.startX;
       const dy = e.screenY - m.startY;
+      // Alt does the opposite of the setting for this one move (free where it snaps, snapping where it does not)
+      const cfg: SnapConfig = e.altKey ? { ...snap, enabled: !snap.enabled } : snap;
+      const bounds = { w: window.innerWidth, h: window.innerHeight };
       if (m.kind === "move") {
         // Stop a drag at the edge rather than letting the widget leave the
         // desktop, which would leave nothing to grab it by. Rust clamps the
         // saved value too; this is what makes it feel deliberate.
         const keepX = Math.min(KEEP_REACHABLE, m.ow);
         const keepY = Math.min(KEEP_REACHABLE, m.oh);
-        const x = clamp(m.ox + dx, keepX - m.ow, window.innerWidth - keepX);
-        const y = clamp(m.oy + dy, keepY - m.oh, window.innerHeight - keepY);
-        onGeometry(widget.id, x, y, m.ow, m.oh);
+        const raw = { x: clamp(m.ox + dx, keepX - m.ow, window.innerWidth - keepX), y: clamp(m.oy + dy, keepY - m.oh, window.innerHeight - keepY) };
+        const at = snapMove({ ...raw, w: m.ow, h: m.oh }, others(widget.id), bounds, cfg);
+        onGuides(at.guides);
+        onGeometry(widget.id, clamp(at.x, keepX - m.ow, window.innerWidth - keepX), clamp(at.y, keepY - m.oh, window.innerHeight - keepY), m.ow, m.oh);
       } else {
         const minW = def?.minWidth ?? 120;
         const minH = def?.minHeight ?? 120;
-        onGeometry(
-          widget.id,
-          m.ox,
-          m.oy,
-          clamp(m.ow + dx, minW, MAX_SIZE),
-          clamp(m.oh + dy, minH, MAX_SIZE),
-        );
+        const to = snapResize({ x: m.ox, y: m.oy, w: clamp(m.ow + dx, minW, MAX_SIZE), h: clamp(m.oh + dy, minH, MAX_SIZE) }, others(widget.id), bounds, cfg);
+        onGuides(to.guides);
+        onGeometry(widget.id, m.ox, m.oy, clamp(to.w, minW, MAX_SIZE), clamp(to.h, minH, MAX_SIZE));
       }
     },
-    [widget.id, def, onGeometry],
+    [widget.id, def, onGeometry, snap, others, onGuides],
   );
 
   const end = useCallback(
     (e: React.PointerEvent) => {
       if (!mode.current) return;
       mode.current = null;
+      onGuides(null);
       (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
       onDragState(false);
       ipc
