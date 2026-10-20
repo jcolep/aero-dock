@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Minden jog fenntartva"
+   },
+   "assistant_another_element": {
+      "message": "Másik elem kiválasztása"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Alkalmazza ezt az összes weboldalon"
+   },
+   "assistant_block": {
+      "message": "Blokk"
+   },
+   "assistant_block_by_reference": {
+      "message": "Elem blokkolása cím alapján"
+   },
+   "assistant_block_element": {
+      "message": "Elem blokkolása"
+   },
+   "assistant_block_element_explain": {
+      "message": "Szabály beállítása elemek blokkolására"
+   },
+   "assistant_block_similar": {
+      "message": "Hasonló elemek blokkolása"
+   },
+   "assistant_extended_settings": {
+      "message": "Haladó beállítások..."
+   },
+   "assistant_preview_end": {
+      "message": "Előnézet befejezése"
+   },
+   "assistant_preview_start": {
+      "message": "Előnézet"
+   },
+   "assistant_select_element": {
+      "message": "Blokkolni kívánt elem kiválasztása"
+   },
+   "assistant_select_element_cancel": {
+      "message": "kiválasztás elvetése"
+   },
+   "assistant_select_element_ext": {
+      "message": "Kattintson bármely elemre az oldalon vagy "
+   },
+   "assistant_slider_explain": {
+      "message": "Állítsa be a csúszkát a keret átméretezéséhez"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Elem blokkolása"
+   },
+   "close": {
+      "message": "Bezár"
+   },
+   "contact_us": {
+      "message": "Kapcsolat"
+   },
+   "context_block_site_ads": {
+      "message": "Reklám blokkolása ezen az oldalon..."
+   },
+   "context_complaint_site": {
+      "message": "Probléma a blokkolással ezen az oldalon..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "Az AdBlocker Ultimate nem futtatható ezen a weboldalon"
+   },
+   "context_site_filtering_off": {
+      "message": "Szűrés tiltása ezen a weboldalon"
+   },
+   "context_site_filtering_on": {
+      "message": "Szűrés engedélyezése ezen a weboldalon"
+   },
+   "context_update_filters": {
+      "message": "Frissítések keresése"
+   },
+   "description": {
+      "message": "A végső hirdetésblokkoló eszköz. Ingyenesen blokkolja a hirdetéseket a YouTube-on, a Facebookon és minden más webhelyen!"
+   },
+   "desktop_app_info": {
+      "message": "Reklám blokkolást az \u003Cstrong> AdBlocker Ultimate for Windows \u003C/strong> kezeli. Bár ezt a menüt arra is tudja használni, hogy kezelje az elfogadott weboldal listáját vagy manuálisan blokkoljon bizonyos reklámokat."
+   },
+   "desktop_app_is_running": {
+      "message": "Fut az asztali alkalmazás"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "A(z) \"$filter$\" mostantól engedélyezve van",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Egyéni szűrők"
+   },
+   "follow_us": {
+      "message": "Kövessen minket"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Nem"
+   },
+   "official_website": {
+      "message": "Hivatalos Weboldal"
+   },
+   "options_about": {
+      "message": "Rólunk"
+   },
+   "options_about_heading": {
+      "message": "Összes bosszantó hirdetés eltűnik!"
+   },
+   "options_add_custom_filter": {
+      "message": "Egyéni szűrő hozzáadás"
+   },
+   "options_allow_user_scripts": {
+      "message": "Az egyéni szűrők engedélyezéséhez be kell kapcsolnia az \u003Csetting-name>Felhasználói szkriptek engedélyezése\u003C/setting-name> opciót a kiterjesztés részletei oldalon. \u003Clearn-link>További információ\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Engedélyezett oldalak listája"
+   },
+   "options_allowlist_desc": {
+      "message": "Az engedélyezett weboldalakon lévő reklámok nincsenek blokkolva."
+   },
+   "options_android_callout": {
+      "message": "Android alkalmazásunk több funkciót kínál, mint a böngészőbővítmény. Nézze meg, miről marad le."
+   },
+   "options_android_upgrade": {
+      "message": "Alkalmazás letöltése"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Egy nyelven néhány weboldal megnyitása után erre a nyelvre a szűrők automatikusan hozzáadásra, és aktiválásra kerülnek."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Automatikusan aktiválni a nyelv-specifikus szűrőket"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Szűrőszabályok száma: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Biztosan törölni akarja ezt a szűrőt?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Az egyéni szűrők scriptlet és JavaScript szabályaihoz engedélyezni kell a User Scripts API jogosultságot. Ez lehetővé teszi a kiterjesztés számára, hogy szkripteket futtasson egyéni szűrő előfizetésekből."
+   },
+   "options_custom_rules": {
+      "message": "Egyéni szabályok"
+   },
+   "options_custom_rules_export": {
+      "message": "Exportálás"
+   },
+   "options_custom_rules_import": {
+      "message": "Importálás"
+   },
+   "options_desktop_callout": {
+      "message": "Asztali alkalmazásunk több funkciót kínál, mint a böngészőbővítmény. Nézze meg, miről marad le."
+   },
+   "options_desktop_upgrade": {
+      "message": "Összehasonlítás"
+   },
+   "options_do_you_like_abu": {
+      "message": "Szereti az AdBlocker Ultimate-t?"
+   },
+   "options_editor_desc": {
+      "message": "Ebben a listában a saját egyedi szabályait tudja bővíteni. Készítse el a saját reklám szűrőit, és itt tud hozzáadni."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Engedélyez egy műveleti menüt, amely jobb kattintáskor jelenik meg a weboldalon."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Kontekstusmenü engedélyezése"
+   },
+   "options_enable_developer_mode": {
+      "message": "Az egyéni szűrők engedélyezéséhez be kell kapcsolnia a \u003Csetting-name>Fejlesztői módot\u003C/setting-name> a Chrome bővítménybeállításainál. \u003Clearn-link>További információ\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Érvényes URL vagy file útvonal megadása"
+   },
+   "options_err": {
+      "message": "Valami hiba történt!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Csak .txt file-ok engedélyezettek!"
+   },
+   "options_filter_categories": {
+      "message": "Kategóriák"
+   },
+   "options_filter_status_all": {
+      "message": "Összes"
+   },
+   "options_filter_status_disabled": {
+      "message": "Letiltva"
+   },
+   "options_filter_status_enabled": {
+      "message": "Engedélyezve"
+   },
+   "options_filter_update_date": {
+      "message": "Utolsó frissítés: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Szűrők"
+   },
+   "options_filters_enabled": {
+      "message": "Engedélyezve:"
+   },
+   "options_filters_update_error": {
+      "message": "A szűrők frissítése nem sikerült. Próbálja újra."
+   },
+   "options_filters_update_success": {
+      "message": "$count$ szűrő frissítve",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$ szűrő frissítve",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Minden szűrő naprakész"
+   },
+   "options_general": {
+      "message": "Általános"
+   },
+   "options_help_translate": {
+      "message": "Segítsen a fordításban!"
+   },
+   "options_limits": {
+      "message": "Korlátok"
+   },
+   "options_limits_active_filters": {
+      "message": "Jelenleg aktív"
+   },
+   "options_limits_bar_warning": {
+      "message": "Néhány szűrő le lett tiltva, mert a böngésző elérte a szabályok korlátját. \u003Climits-link>Nézd meg, mi érintett\u003C/limits-link> vagy \u003Cupgrade-link>szerezz korlátlan védelmet\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Csak \u003Ctext-strong>$active$ a(z) $expected$\u003C/text-strong> szűrőből fut – a böngészőben elfogyott a hely a szűrési szabályoknak. \u003Ctext-strong>Asztali alkalmazásunknál nincs szabálykorlát\u003C/text-strong>, és az egész eszközön blokkolja a hirdetéseket és követőket. Ha továbbra is a böngészőbővítményt szeretné használni, szabadítson fel helyet más bővítmények kikapcsolásával vagy alacsony prioritású szűrők letiltásával.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "A böngészőben elfogyott a hely a szűrési szabályoknak, ezért néhány szűrőt kikapcsolt. \u003Ctext-strong>Asztali alkalmazásunknál nincs szabálykorlát\u003C/text-strong>, és az egész eszközön blokkolja a hirdetéseket és követőket. Ha továbbra is a böngészőbővítményt szeretné használni, szabadítson fel helyet más bővítmények kikapcsolásával vagy alacsony prioritású szűrők letiltásával."
+   },
+   "options_limits_callout_title": {
+      "message": "Néhány szűrő le lett tiltva"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Ideiglenesen letiltva"
+   },
+   "options_limits_dismiss": {
+      "message": "Bezárás"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dinamikus regex szabályok"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dinamikus szabályok"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Nem biztonságos dinamikus szabályok"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Engedélyezett szűrők"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Néhány szűrőt nem lehetett engedélyezni, mert a böngésző korlátai túllépésre kerültek"
+   },
+   "options_limits_get_desktop": {
+      "message": "Asztali alkalmazás letöltése"
+   },
+   "options_limits_intro": {
+      "message": "korlátozza, hogy egyszerre hány szűrő és szabály lehet aktív. Ezek a korlátok minden böngészőbővítmény között megoszlanak."
+   },
+   "options_limits_none": {
+      "message": "Nincs"
+   },
+   "options_limits_promo_body": {
+      "message": "A szabálykorlátokat a többi bővítménnyel is megosztja a böngésző. Ha túllépi ezt, néhány szűrő ideiglenesen le lesz tiltva. \u003Ctext-strong>Asztali alkalmazásunknál nincs szabálykorlát\u003C/text-strong>, és az egész eszközön blokkolja a hirdetéseket és követőket. Hogy a böngésző korlátain belül maradjon, tartsa minimálisra a többi bővítményt, és kerülje az alacsony prioritású szűrőket."
+   },
+   "options_limits_promo_title": {
+      "message": "Szűrés korlátok nélkül"
+   },
+   "options_limits_reenable": {
+      "message": "Újra engedélyezés"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Nincs elég szabad kvóta. Kapcsold ki a többi bővítményt vagy a nem használt szűrőket, majd próbáld újra"
+   },
+   "options_limits_reenable_success": {
+      "message": "A szűrők újra engedélyezve lettek"
+   },
+   "options_limits_related": {
+      "message": "Kapcsolódó beállítások"
+   },
+   "options_limits_static_regex": {
+      "message": "Statikus regex szabályok"
+   },
+   "options_limits_static_rules": {
+      "message": "Statikus szabályok"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "A beépített szűrők a böngésző statikus szabálykészletét és kvótáit használják."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Beépített szűrők"
+   },
+   "options_limits_usage": {
+      "message": "$current$ / $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Részletek megtekintése"
+   },
+   "options_limits_warning": {
+      "message": "Néhány szűrő le lett tiltva böngészőkorlátok miatt."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Az egyéni szabályok és a fehérlista bejegyzések a böngésző dinamikus szabálykvótáját osztják meg."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Saját szabályok"
+   },
+   "options_menu": {
+      "message": "Menü"
+   },
+   "options_new_filter": {
+      "message": "Új szűrő"
+   },
+   "options_no_filters_enabled": {
+      "message": "Szűrők nem engedélyezve"
+   },
+   "options_number_icon_desc": {
+      "message": "Minden weboldalon blokkolt reklámok száma megjelenik a beállítások fő menü ikonjában."
+   },
+   "options_number_icon_title": {
+      "message": "Szám megjelenítése"
+   },
+   "options_open_extension_details": {
+      "message": "Bővítmény részleteinek megnyitása"
+   },
+   "options_page_title": {
+      "message": "Opciók"
+   },
+   "options_rate_us": {
+      "message": "Értékeljen minket"
+   },
+   "options_search": {
+      "message": "Keresés"
+   },
+   "options_search_results": {
+      "message": "Találatok"
+   },
+   "options_submit": {
+      "message": "Küldés"
+   },
+   "options_theme_dark": {
+      "message": "Sötét"
+   },
+   "options_theme_desc": {
+      "message": "Válassza ki a beállítások oldal színsémáját."
+   },
+   "options_theme_light": {
+      "message": "Világos"
+   },
+   "options_theme_system": {
+      "message": "Rendszer"
+   },
+   "options_theme_title": {
+      "message": "Téma"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Saját nyelvén akarja látni az AdBlocker Ultimate-t?"
+   },
+   "page_blocked_go_back": {
+      "message": "Vissza"
+   },
+   "page_blocked_heading": {
+      "message": "Ez az oldal blokkolva lett"
+   },
+   "page_blocked_note": {
+      "message": "Ideiglenes hozzáférés engedélyezve lesz."
+   },
+   "page_blocked_proceed": {
+      "message": "Mégis folytatom"
+   },
+   "page_blocked_reason": {
+      "message": "Blokkolva a szűrőszabály által:"
+   },
+   "page_blocked_title": {
+      "message": "Oldal blokkolva"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate Androidra"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate iOS-re"
+   },
+   "popup_enabled_on_site": {
+      "message": "Engedélyezve ezen az oldalon"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate $platform$-ra",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Néhány szűrő le lett tiltva, mert a böngésző korlátai túllépésre kerültek"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Hirdetések blokkolása mobilon"
+   },
+   "popup_protection_disabled": {
+      "message": "Védelem: felfüggesztve"
+   },
+   "popup_protection_enabled": {
+      "message": "Védelem: engedélyezve"
+   },
+   "popup_secure_page": {
+      "message": "Biztonságos oldal"
+   },
+   "popup_settings": {
+      "message": "Beállítások"
+   },
+   "popup_tab_blocked": {
+      "message": "Blokkolva: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Összesen: $1"
+   },
+   "privacy_policy": {
+      "message": "Adatvédelmi szabályzat"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Reklámmentes böngészés elérve!"
+   },
+   "rate_us_button": {
+      "message": "Értékelj minket"
+   },
+   "rate_us_email": {
+      "message": "E-mail"
+   },
+   "rate_us_hooray": {
+      "message": "Hurrá!"
+   },
+   "rate_us_message": {
+      "message": "Üzenet"
+   },
+   "rate_us_no_thanks": {
+      "message": "Köszönöm, nem"
+   },
+   "rate_us_prompt": {
+      "message": "Élvezi a reklám blokkolást? Segítsen másoknak, hogy ránk találjanak."
+   },
+   "rate_us_send_feedback": {
+      "message": "Visszajelzés küldése"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Kérjük mondja el, hogy tudnánk javítani a programon"
+   },
+   "rate_us_thank_you": {
+      "message": "Köszönjük!"
+   },
+   "report_bug": {
+      "message": "Hiba jelentése"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Szűrők automatizáltra aktiválva"
+   },
+   "toast_filters_update_error": {
+      "message": "Frissítés nem lehetséges. Kérjük próbálja meg később."
+   },
+   "toast_filters_update_filter": {
+      "message": "a szűrő frissítve lett"
+   },
+   "toast_filters_update_filters": {
+      "message": "a szűrők frissítve lettek"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Frissítés nem elérhető"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Nem sikerült frissítéseket keresni"
+   },
+   "version": {
+      "message": "Verzió"
+   },
+   "yes": {
+      "message": "Igen"
+   }
+}

@@ -1,0 +1,1 @@
+import{$p as n}from"./vendor-underscore-Bz5YeRR3.js";var e=new n("apexCompletionProvider");async function g(i,r,s,t){const o=[];return e.isTrace()&&e.trace("monacoSuggestions",o),{incomplete:!1,suggestions:o}}export{g as provideApexCompletion};

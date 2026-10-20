@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Alle rechten voorbehouden"
+   },
+   "assistant_another_element": {
+      "message": "Ander element selecteren"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Deze regel op alle websites toepassen"
+   },
+   "assistant_block": {
+      "message": "Blokkeren"
+   },
+   "assistant_block_by_reference": {
+      "message": "Element blokkeren via URL"
+   },
+   "assistant_block_element": {
+      "message": "Element blokkeren"
+   },
+   "assistant_block_element_explain": {
+      "message": "Elementblokkerende regel instellen"
+   },
+   "assistant_block_similar": {
+      "message": "Soortgelijke elementen blokkeren"
+   },
+   "assistant_extended_settings": {
+      "message": "Geavanceerde instellingen..."
+   },
+   "assistant_preview_end": {
+      "message": "Voorbeeld sluiten"
+   },
+   "assistant_preview_start": {
+      "message": "Voorbeeld"
+   },
+   "assistant_select_element": {
+      "message": "Selectiemodus"
+   },
+   "assistant_select_element_cancel": {
+      "message": "annuleer de selectiemodus"
+   },
+   "assistant_select_element_ext": {
+      "message": "Klik op een element op de pagina of "
+   },
+   "assistant_slider_explain": {
+      "message": "Pas de schuifregelaar aan om het frame te vergroten of te verkleinen"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Element blokkeren"
+   },
+   "close": {
+      "message": "Sluiten"
+   },
+   "contact_us": {
+      "message": "Contact"
+   },
+   "context_block_site_ads": {
+      "message": "Advertentie op deze website blokkeren..."
+   },
+   "context_complaint_site": {
+      "message": "Een klacht over deze website indienen..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate kan niet op dit domein worden uitgevoerd"
+   },
+   "context_site_filtering_off": {
+      "message": "Filteren op deze website uitschakelen"
+   },
+   "context_site_filtering_on": {
+      "message": "Filteren op deze website inschakelen"
+   },
+   "context_update_filters": {
+      "message": "Controleren op filterupdates"
+   },
+   "description": {
+      "message": "De ultieme adblock-tool. Blokkeer gratis advertenties op YouTube, Facebook en alle andere websites!"
+   },
+   "desktop_app_info": {
+      "message": "Advertentieblokkering wordt afgehandeld door Adblocker Ultimate voor Windows. U kunt dit menu echter nog steeds gebruiken om uw witte lijst te beheren of om bepaalde advertenties handmatig te blokkeren."
+   },
+   "desktop_app_is_running": {
+      "message": "De desktopapp werkt nog."
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" is nu ingeschakeld",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Aangepaste Filters"
+   },
+   "follow_us": {
+      "message": "Volg ons op"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Nee"
+   },
+   "official_website": {
+      "message": "Officiële website"
+   },
+   "options_about": {
+      "message": "Over"
+   },
+   "options_about_heading": {
+      "message": "En alle vervelende advertenties zijn verdwenen!"
+   },
+   "options_add_custom_filter": {
+      "message": "Aangepast filter toevoegen"
+   },
+   "options_allow_user_scripts": {
+      "message": "Om aangepaste filters in te schakelen, moet je \u003Csetting-name>User scripts toestaan\u003C/setting-name> op de detailpagina van de extensie inschakelen. \u003Clearn-link>Meer informatie\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Witte lijst"
+   },
+   "options_allowlist_desc": {
+      "message": "De advertenties op de websites die aan deze witte lijst zijn toegevoegd, worden niet geblokkeerd."
+   },
+   "options_android_callout": {
+      "message": "Onze Android-app biedt meer functies dan de browserextensie. Ontdek wat je mist."
+   },
+   "options_android_upgrade": {
+      "message": "App downloaden"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Na het openen van een paar pagina's in een taal, worden de filters voor deze taal automatisch toegevoegd en geactiveerd."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Activeer automatisch taalspecifieke filters"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Aantal filterregels: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Weet je zeker dat je dit filter wilt verwijderen?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Aangepaste filters met scriptlet- en JavaScript-regels vereisen dat de User Scripts API-machtiging is ingeschakeld. Hiermee kan de extensie scripts uitvoeren uit aangepaste filterabonnementen."
+   },
+   "options_custom_rules": {
+      "message": "Aangepaste Regels"
+   },
+   "options_custom_rules_export": {
+      "message": "Exporteren"
+   },
+   "options_custom_rules_import": {
+      "message": "Importeren"
+   },
+   "options_desktop_callout": {
+      "message": "Onze desktop-app biedt meer functies dan de browserextensie. Ontdek wat je mist."
+   },
+   "options_desktop_upgrade": {
+      "message": "Vergelijken"
+   },
+   "options_do_you_like_abu": {
+      "message": "Vind je AdBlocker Ultimate leuk?"
+   },
+   "options_editor_desc": {
+      "message": "In deze lijst kan je jouw eigen aangepaste regels toevoegen. Maak jouw eigen advertentiefilters en voeg ze hier toe."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Schakelt een actiemenu in dat beschikbaar is wanneer je met de rechtermuisknop op een webpagina klikt."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Contextmenu inschakelen"
+   },
+   "options_enable_developer_mode": {
+      "message": "Om aangepaste filters in te schakelen, moet je de \u003Csetting-name>Ontwikkelaarsmodus\u003C/setting-name> inschakelen in de extensie-instellingen van Chrome. \u003Clearn-link>Meer informatie\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Vul een geldige URL of bestandspad in"
+   },
+   "options_err": {
+      "message": "Er is iets misgegaan!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Alleen .txt-bestanden toegestaan!"
+   },
+   "options_filter_categories": {
+      "message": "Categorieën"
+   },
+   "options_filter_status_all": {
+      "message": "Alle"
+   },
+   "options_filter_status_disabled": {
+      "message": "Uitgeschakeld"
+   },
+   "options_filter_status_enabled": {
+      "message": "Ingeschakeld"
+   },
+   "options_filter_update_date": {
+      "message": "Laatste update: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filters"
+   },
+   "options_filters_enabled": {
+      "message": "Ingeschakeld:"
+   },
+   "options_filters_update_error": {
+      "message": "Kon filters niet bijwerken. Probeer het opnieuw."
+   },
+   "options_filters_update_success": {
+      "message": "$count$ filters bijgewerkt",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$ filter bijgewerkt",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Alle filters zijn up-to-date"
+   },
+   "options_general": {
+      "message": "Algemeen"
+   },
+   "options_help_translate": {
+      "message": "Help ons met de vertaling!"
+   },
+   "options_limits": {
+      "message": "Limieten"
+   },
+   "options_limits_active_filters": {
+      "message": "Momenteel actief"
+   },
+   "options_limits_bar_warning": {
+      "message": "Sommige filters zijn uitgeschakeld omdat je browser het regellimiet heeft bereikt. \u003Climits-link>Bekijk wat is beïnvloed\u003C/limits-link> of \u003Cupgrade-link>krijg onbeperkte bescherming\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Slechts \u003Ctext-strong>$active$ van je $expected$\u003C/text-strong> filters zijn actief – je browser heeft geen ruimte meer voor filterregels. \u003Ctext-strong>Onze desktop-app heeft geen limiet voor regels\u003C/text-strong> en blokkeert advertenties en trackers op je hele apparaat. Wil je de browserextensie blijven gebruiken? Maak ruimte vrij door andere extensies uit te schakelen of filters met lage prioriteit te deactiveren.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Je browser heeft geen ruimte meer voor filterregels en heeft daarom enkele filters uitgeschakeld. \u003Ctext-strong>Onze desktop-app heeft geen limiet voor regels\u003C/text-strong> en blokkeert advertenties en trackers op je hele apparaat. Wil je de browserextensie blijven gebruiken? Maak ruimte vrij door andere extensies uit te schakelen of filters met lage prioriteit te deactiveren."
+   },
+   "options_limits_callout_title": {
+      "message": "Sommige filters zijn uitgeschakeld"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Tijdelijk uitgeschakeld"
+   },
+   "options_limits_dismiss": {
+      "message": "Sluiten"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dynamische regex-regels"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dynamische regels"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Onveilige dynamische regels"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Ingeschakelde filters"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Sommige filters konden niet worden ingeschakeld omdat de browserlimieten zijn overschreden"
+   },
+   "options_limits_get_desktop": {
+      "message": "Desktop-app downloaden"
+   },
+   "options_limits_intro": {
+      "message": "beperkt hoeveel filters en regels er tegelijk actief kunnen zijn. De limieten worden gedeeld door al je browserextensies."
+   },
+   "options_limits_none": {
+      "message": "Geen"
+   },
+   "options_limits_promo_body": {
+      "message": "Regellimieten worden gedeeld met je andere extensies. Als je deze overschrijdt, worden sommige filters tijdelijk uitgeschakeld. \u003Ctext-strong>Onze desktop-app heeft geen limiet voor regels\u003C/text-strong> en blokkeert advertenties en trackers op je hele apparaat. Blijf binnen de limieten van de browser door andere extensies tot een minimum te beperken en filters met lage prioriteit te vermijden."
+   },
+   "options_limits_promo_title": {
+      "message": "Onbeperkt filteren"
+   },
+   "options_limits_reenable": {
+      "message": "Opnieuw inschakelen"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Niet genoeg vrije quota. Schakel andere extensies of ongebruikte filters uit en probeer het opnieuw"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filters zijn opnieuw ingeschakeld"
+   },
+   "options_limits_related": {
+      "message": "Gerelateerde instellingen"
+   },
+   "options_limits_static_regex": {
+      "message": "Statische regex-regels"
+   },
+   "options_limits_static_rules": {
+      "message": "Statische regels"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Ingebouwde filters gebruiken het statische regelsysteem en de statische quotumlimieten van de browser."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Ingebouwde filters"
+   },
+   "options_limits_usage": {
+      "message": "$current$ van $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Details bekijken"
+   },
+   "options_limits_warning": {
+      "message": "Sommige filters zijn uitgeschakeld vanwege browserlimieten."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Aangepaste regels en whitelist-items delen het dynamische quotum van de browser."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Jouw regels"
+   },
+   "options_menu": {
+      "message": "Menu"
+   },
+   "options_new_filter": {
+      "message": "Nieuw filter"
+   },
+   "options_no_filters_enabled": {
+      "message": "Geen filters ingeschakeld"
+   },
+   "options_number_icon_desc": {
+      "message": "Het aantal geblokkeerde advertenties op elke pagina wordt weergegeven in het extensiepictogram."
+   },
+   "options_number_icon_title": {
+      "message": "Aantal in pictogram tonen"
+   },
+   "options_open_extension_details": {
+      "message": "Extensiedetails openen"
+   },
+   "options_page_title": {
+      "message": "Opties"
+   },
+   "options_rate_us": {
+      "message": "Beoordeel Ons"
+   },
+   "options_search": {
+      "message": "Zoeken"
+   },
+   "options_search_results": {
+      "message": "Resultaten"
+   },
+   "options_submit": {
+      "message": "Verzenden"
+   },
+   "options_theme_dark": {
+      "message": "Donker"
+   },
+   "options_theme_desc": {
+      "message": "Kies het kleurenschema voor de instellingenpagina."
+   },
+   "options_theme_light": {
+      "message": "Licht"
+   },
+   "options_theme_system": {
+      "message": "Systeem"
+   },
+   "options_theme_title": {
+      "message": "Thema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Wil je AdBlocker Ultimate in jouw taal?"
+   },
+   "page_blocked_go_back": {
+      "message": "Terug"
+   },
+   "page_blocked_heading": {
+      "message": "Deze pagina is geblokkeerd"
+   },
+   "page_blocked_note": {
+      "message": "Tijdelijke toegang wordt verleend."
+   },
+   "page_blocked_proceed": {
+      "message": "Toch doorgaan"
+   },
+   "page_blocked_reason": {
+      "message": "Geblokkeerd door filterregel:"
+   },
+   "page_blocked_title": {
+      "message": "Pagina geblokkeerd"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate voor Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate voor iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Ingeschakeld op deze pagina"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate voor $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Sommige filters zijn uitgeschakeld omdat de browserlimieten zijn overschreden"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blokkeer advertenties op mobiel"
+   },
+   "popup_protection_disabled": {
+      "message": "Bescherming: Uitgeschakeld"
+   },
+   "popup_protection_enabled": {
+      "message": "Bescherming: Ingeschakeld"
+   },
+   "popup_secure_page": {
+      "message": "Beveiligde pagina"
+   },
+   "popup_settings": {
+      "message": "Instellingen"
+   },
+   "popup_tab_blocked": {
+      "message": "Geblokkeerd: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Totaal: $1"
+   },
+   "privacy_policy": {
+      "message": "Privacy"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Advertentievrij browsen bereikt!"
+   },
+   "rate_us_button": {
+      "message": "Beoordelen"
+   },
+   "rate_us_email": {
+      "message": "E-mail"
+   },
+   "rate_us_hooray": {
+      "message": "Hoera!"
+   },
+   "rate_us_message": {
+      "message": "Bericht"
+   },
+   "rate_us_no_thanks": {
+      "message": "Nee, bedankt"
+   },
+   "rate_us_prompt": {
+      "message": "Geniet je van het blokkeren van advertenties? Help anderen ons te vinden."
+   },
+   "rate_us_send_feedback": {
+      "message": "Feedback verzenden"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Vertel ons hoe we kunnen verbeteren"
+   },
+   "rate_us_thank_you": {
+      "message": "Bedankt!"
+   },
+   "report_bug": {
+      "message": "Stuur een bugrapport"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filters automatisch geactiveerd"
+   },
+   "toast_filters_update_error": {
+      "message": "Ophalen van updates is mislukt. Probeer het later opnieuw."
+   },
+   "toast_filters_update_filter": {
+      "message": "filter is bijgewerkt"
+   },
+   "toast_filters_update_filters": {
+      "message": "filters zijn bijgewerkt"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Geen updates gevonden"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Controleren op updates mislukt"
+   },
+   "version": {
+      "message": "Versie"
+   },
+   "yes": {
+      "message": "Ja"
+   }
+}

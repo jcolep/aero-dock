@@ -1,0 +1,1 @@
+import{$p as s,Kl as d}from"./vendor-underscore-Bz5YeRR3.js";var l=new s("timerUtils"),a=0,n={};function c(e,r,i){a++;const t={id:a+"",name:e,createdAt:d(),handle:setInterval(i,r)};return n[t.id]=t,t}function g(e){if(!e)return;const r=n[e.id];r?(clearInterval(r.handle),delete n[r.id]):l.warn(`Timer [${e.id}/${e.name}] not found!`)}export{c as n,g as t};

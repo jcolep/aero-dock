@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Všetky práva vyhradené"
+   },
+   "assistant_another_element": {
+      "message": "Vyberte ďalší prvok"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Použiť toto pravidlo na každú stránku"
+   },
+   "assistant_block": {
+      "message": "Blokovať"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blokovať prvok podľa url"
+   },
+   "assistant_block_element": {
+      "message": "Blokovať prvok"
+   },
+   "assistant_block_element_explain": {
+      "message": "Nastavenie pravidla blokovania prvkov"
+   },
+   "assistant_block_similar": {
+      "message": "Blokovať podobné prvky"
+   },
+   "assistant_extended_settings": {
+      "message": "Pokročilé nastavenie..."
+   },
+   "assistant_preview_end": {
+      "message": "Ukončiť náhľad"
+   },
+   "assistant_preview_start": {
+      "message": "Náhľad"
+   },
+   "assistant_select_element": {
+      "message": "Režim výberu"
+   },
+   "assistant_select_element_cancel": {
+      "message": "zrušte režim výberu"
+   },
+   "assistant_select_element_ext": {
+      "message": "Kliknite na akýkoľvek prvok na stránke alebo "
+   },
+   "assistant_slider_explain": {
+      "message": "Upravte posúvač na zmenu veľkosti rámu"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blokovať prvok"
+   },
+   "close": {
+      "message": "Zavrieť"
+   },
+   "contact_us": {
+      "message": "Kontaktujte nás"
+   },
+   "context_block_site_ads": {
+      "message": "Blokovať reklamy na tejto stránke..."
+   },
+   "context_complaint_site": {
+      "message": "Podať sťažnosť o tejto webovej stránky..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate sa nedá spustiť na tejto doméne"
+   },
+   "context_site_filtering_off": {
+      "message": "Vypnúť filtrovanie na tejto webovej stránke"
+   },
+   "context_site_filtering_on": {
+      "message": "Zapnúť filtrovanie na tejto webovej stránke"
+   },
+   "context_update_filters": {
+      "message": "Vyhľadať aktualizácie filtra"
+   },
+   "description": {
+      "message": "Najlepší nástroj na blokovanie reklám. Blokujte reklamy na YouTube, Facebooku a všetkých ostatných webových stránkach zadarmo!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Desktopová aplikácia je spustená"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" je teraz povolený",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Vlastné filtre"
+   },
+   "follow_us": {
+      "message": "Sledujte nás na"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Nie"
+   },
+   "official_website": {
+      "message": "Oficiálna webstránka"
+   },
+   "options_about": {
+      "message": "O aplikácii"
+   },
+   "options_about_heading": {
+      "message": "A všetky otravné reklamy sú preč!"
+   },
+   "options_add_custom_filter": {
+      "message": "Pridať vlastný filter"
+   },
+   "options_allow_user_scripts": {
+      "message": "Ak chcete povoliť vlastné filtre, musíte povoliť \u003Csetting-name>Povoliť používateľské skripty\u003C/setting-name> na stránke s podrobnosťami o rozšírení. \u003Clearn-link>Viac informácií\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Biela listina"
+   },
+   "options_allowlist_desc": {
+      "message": "Reklamy na stránkach pridaných do tohto zoznamu povolených stránok nebudú blokované."
+   },
+   "options_android_callout": {
+      "message": "Naša Android aplikácia má viac funkcií ako rozšírenie do prehliadača. Zistite, o čo prichádzate."
+   },
+   "options_android_upgrade": {
+      "message": "Stiahnuť aplikáciu"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Po otvorení niekoľkých stránok v danom jazyku budú filtre pre tento jazyk automaticky pridané a aktivované."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Automaticky aktivovať jazykovo špecifické filtre"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Počet filtrovacích pravidiel: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Naozaj chcete odstrániť tento filter?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Vlastné filtre so skriptovými a JavaScript pravidlami vyžadujú povolenie User Scripts API. Toto umožňuje rozšíreniu spúšťať skripty z vlastných filtrovacích odberov."
+   },
+   "options_custom_rules": {
+      "message": "Vlastné pravidlá"
+   },
+   "options_custom_rules_export": {
+      "message": "Exportovať"
+   },
+   "options_custom_rules_import": {
+      "message": "Importovať"
+   },
+   "options_desktop_callout": {
+      "message": "Naša desktopová aplikácia má viac funkcií ako rozšírenie do prehliadača. Zistite, o čo prichádzate."
+   },
+   "options_desktop_upgrade": {
+      "message": "Porovnať"
+   },
+   "options_do_you_like_abu": {
+      "message": "Páči sa vám AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Do tohto zoznamu môžete pridať vlastné pravidlá. Vytvorte si vlastné filtre reklám a pridajte ich sem."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Umožňuje zobraziť menu akcií po kliknutí pravým tlačidlom na webovej stránke."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Povoliť kontextové menu"
+   },
+   "options_enable_developer_mode": {
+      "message": "Ak chcete povoliť vlastné filtre, musíte povoliť \u003Csetting-name>Režim vývojára\u003C/setting-name> v nastaveniach rozšírení Chrome. \u003Clearn-link>Viac informácií\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Zadajte platnú URL alebo cestu k súboru"
+   },
+   "options_err": {
+      "message": "Niečo sa pokazilo!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Povolené sú iba .txt súbory!"
+   },
+   "options_filter_categories": {
+      "message": "Kategórie"
+   },
+   "options_filter_status_all": {
+      "message": "Všetko"
+   },
+   "options_filter_status_disabled": {
+      "message": "Zakázané"
+   },
+   "options_filter_status_enabled": {
+      "message": "Povolené"
+   },
+   "options_filter_update_date": {
+      "message": "Posledná aktualizácia: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtre"
+   },
+   "options_filters_enabled": {
+      "message": "Povolené:"
+   },
+   "options_filters_update_error": {
+      "message": "Nepodarilo sa aktualizovať filtre. Skúste to znova."
+   },
+   "options_filters_update_success": {
+      "message": "Aktualizovaných $count$ filtrov",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Aktualizovaný $count$ filter",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Všetky filtre sú aktuálne"
+   },
+   "options_general": {
+      "message": "Všeobecné"
+   },
+   "options_help_translate": {
+      "message": "Pomôžte nám s prekladom!"
+   },
+   "options_limits": {
+      "message": "Limity"
+   },
+   "options_limits_active_filters": {
+      "message": "Aktuálne aktívne"
+   },
+   "options_limits_bar_warning": {
+      "message": "Niektoré filtre boli deaktivované, pretože váš prehliadač dosiahol limit pravidiel. \u003Climits-link>Zisti, čo je ovplyvnené\u003C/limits-link> alebo \u003Cupgrade-link>získaj neobmedzenú ochranu\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Beží iba \u003Ctext-strong>$active$ z $expected$\u003C/text-strong> vašich filtrov – váš prehliadač už nemá miesto pre ďalšie pravidlá filtrovania. \u003Ctext-strong>Naša desktopová aplikácia nemá žiadne limity pravidiel\u003C/text-strong> a blokuje reklamy a trackery v celom zariadení. Ak chcete naďalej používať rozšírenie, uvoľnite miesto vypnutím iných rozšírení alebo deaktivovaním filtrov s nízkou prioritou.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Váš prehliadač už nemá miesto pre ďalšie pravidlá filtrovania, preto niektoré filtre vypol. \u003Ctext-strong>Naša desktopová aplikácia nemá žiadne limity pravidiel\u003C/text-strong> a blokuje reklamy a trackery v celom zariadení. Ak chcete naďalej používať rozšírenie, uvoľnite miesto vypnutím iných rozšírení alebo deaktivovaním filtrov s nízkou prioritou."
+   },
+   "options_limits_callout_title": {
+      "message": "Niektoré filtre boli deaktivované"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Dočasne deaktivované"
+   },
+   "options_limits_dismiss": {
+      "message": "Zavrieť"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dynamické regex pravidlá"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dynamické pravidlá"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Nezabezpečené dynamické pravidlá"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Povolené filtre"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Niektoré filtre sa nepodarilo povoliť, pretože boli prekročené limity prehliadača"
+   },
+   "options_limits_get_desktop": {
+      "message": "Získať desktopovú aplikáciu"
+   },
+   "options_limits_intro": {
+      "message": "obmedzuje, koľko filtrov a pravidiel môže byť aktívnych naraz. Limity sú zdieľané medzi všetkými rozšíreniami v prehliadači."
+   },
+   "options_limits_none": {
+      "message": "Žiadne"
+   },
+   "options_limits_promo_body": {
+      "message": "Limity pravidiel sa zdieľajú s vašimi ďalšími rozšíreniami. Ak ich prekročíte, niektoré filtre budú dočasne vypnuté. \u003Ctext-strong>Naša desktopová aplikácia nemá žiadne limity pravidiel\u003C/text-strong> a blokuje reklamy a trackery v celom zariadení. Ak chcete zostať v rámci limitov prehliadača, minimalizujte počet ďalších rozšírení a vyhýbajte sa filtrom s nízkou prioritou."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtrovanie bez obmedzení"
+   },
+   "options_limits_reenable": {
+      "message": "Znova povoliť"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Nedostatok voľnej kapacity. Vypnite iné rozšírenia alebo nepoužívané filtre a skúste to znova"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtre boli opäť povolené"
+   },
+   "options_limits_related": {
+      "message": "Súvisiace nastavenia"
+   },
+   "options_limits_static_regex": {
+      "message": "Statické regex pravidlá"
+   },
+   "options_limits_static_rules": {
+      "message": "Statické pravidlá"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Vstavané filtre využívajú statickú sadu pravidiel a kvóty statických pravidiel prehliadača."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Vstavané filtre"
+   },
+   "options_limits_usage": {
+      "message": "$current$ z $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Zobraziť podrobnosti"
+   },
+   "options_limits_warning": {
+      "message": "Niektoré filtre boli deaktivované kvôli obmedzeniam prehliadača."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Vlastné pravidlá a položky whitelistu zdieľajú dynamické kvóty pravidiel prehliadača."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Vaše pravidlá"
+   },
+   "options_menu": {
+      "message": "Menu"
+   },
+   "options_new_filter": {
+      "message": "Nový filter"
+   },
+   "options_no_filters_enabled": {
+      "message": "Žiadne filtre nie sú povolené"
+   },
+   "options_number_icon_desc": {
+      "message": "Počet zablokovaných reklám na každej stránke sa zobrazí na ikone rozšírenia."
+   },
+   "options_number_icon_title": {
+      "message": "Zobraziť číslo v ikone"
+   },
+   "options_open_extension_details": {
+      "message": "Otvoriť podrobnosti rozšírenia"
+   },
+   "options_page_title": {
+      "message": "Možnosti"
+   },
+   "options_rate_us": {
+      "message": "Ohodnoťte nás"
+   },
+   "options_search": {
+      "message": "Hľadať"
+   },
+   "options_search_results": {
+      "message": "Výsledky"
+   },
+   "options_submit": {
+      "message": "Odoslať"
+   },
+   "options_theme_dark": {
+      "message": "Tmavá"
+   },
+   "options_theme_desc": {
+      "message": "Vyberte farebnú schému pre stránku nastavení."
+   },
+   "options_theme_light": {
+      "message": "Svetlá"
+   },
+   "options_theme_system": {
+      "message": "Systémová"
+   },
+   "options_theme_title": {
+      "message": "Téma"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Chcete AdBlocker Ultimate vo svojom jazyku?"
+   },
+   "page_blocked_go_back": {
+      "message": "Späť"
+   },
+   "page_blocked_heading": {
+      "message": "Táto stránka bola zablokovaná"
+   },
+   "page_blocked_note": {
+      "message": "Dočasný prístup bude udelený."
+   },
+   "page_blocked_proceed": {
+      "message": "Pokračovať aj tak"
+   },
+   "page_blocked_reason": {
+      "message": "Blokované podľa filtrovacieho pravidla:"
+   },
+   "page_blocked_title": {
+      "message": "Stránka zablokovaná"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate pre Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate pre iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Povolené na tejto stránke"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Získaj AdBlocker Ultimate pre $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Niektoré filtre boli deaktivované, pretože boli prekročené limity prehliadača"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blokujte reklamy v mobile"
+   },
+   "popup_protection_disabled": {
+      "message": "Ochrana: Vypnutá"
+   },
+   "popup_protection_enabled": {
+      "message": "Ochrana: Zapnutá"
+   },
+   "popup_secure_page": {
+      "message": "Zabezpečená stránka"
+   },
+   "popup_settings": {
+      "message": "Nastavenia"
+   },
+   "popup_tab_blocked": {
+      "message": "Blokované: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Celkom: $1"
+   },
+   "privacy_policy": {
+      "message": "Zásady ochrany osobných údajov"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Prehliadanie bez reklám dosiahnuté!"
+   },
+   "rate_us_button": {
+      "message": "Ohodnoťte nás"
+   },
+   "rate_us_email": {
+      "message": "E-mail"
+   },
+   "rate_us_hooray": {
+      "message": "Hurá!"
+   },
+   "rate_us_message": {
+      "message": "Správa"
+   },
+   "rate_us_no_thanks": {
+      "message": "Nie, ďakujem"
+   },
+   "rate_us_prompt": {
+      "message": "Páči sa vám blokovanie reklám? Pomôžte ostatným dozvedieť sa o nás."
+   },
+   "rate_us_send_feedback": {
+      "message": "Odoslať spätnú väzbu"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Povedzte nám, ako sa môžeme zlepšiť"
+   },
+   "rate_us_thank_you": {
+      "message": "Ďakujeme!"
+   },
+   "report_bug": {
+      "message": "Nahlásiť chybu"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Auto-Aktivácia filtrov"
+   },
+   "toast_filters_update_error": {
+      "message": "Nepodarilo sa získať aktualizácie. Skúste to neskôr, prosím."
+   },
+   "toast_filters_update_filter": {
+      "message": "filter bol aktualizovaný"
+   },
+   "toast_filters_update_filters": {
+      "message": "filtre boli aktualizované"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Žiadne aktualizácie neboli nájdené"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Nepodarilo sa skontrolovať aktualizácie"
+   },
+   "version": {
+      "message": "Verzia"
+   },
+   "yes": {
+      "message": "Áno"
+   }
+}

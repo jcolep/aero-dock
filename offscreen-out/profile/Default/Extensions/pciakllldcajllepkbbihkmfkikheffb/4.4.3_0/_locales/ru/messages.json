@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Все права защищены"
+   },
+   "assistant_another_element": {
+      "message": "Выбрать другой элемент"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Применить это правило для каждого веб-сайта"
+   },
+   "assistant_block": {
+      "message": "Блокировка"
+   },
+   "assistant_block_by_reference": {
+      "message": "Блокировка элемента по URL"
+   },
+   "assistant_block_element": {
+      "message": "Заблокировать элемент"
+   },
+   "assistant_block_element_explain": {
+      "message": "Элемент блокирования настройки правил"
+   },
+   "assistant_block_similar": {
+      "message": "Блокировка подобных элементов"
+   },
+   "assistant_extended_settings": {
+      "message": "Расширенные настройки..."
+   },
+   "assistant_preview_end": {
+      "message": "Завершить предварительный просмотр"
+   },
+   "assistant_preview_start": {
+      "message": "Предварительный просмотр"
+   },
+   "assistant_select_element": {
+      "message": "Режим выбора"
+   },
+   "assistant_select_element_cancel": {
+      "message": "отмените режим выбора"
+   },
+   "assistant_select_element_ext": {
+      "message": "Нажмите на любой элемент на странице или "
+   },
+   "assistant_slider_explain": {
+      "message": "Используйте ползунок, чтобы изменить размер рамки"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Заблокировать элемент"
+   },
+   "close": {
+      "message": "Закрыть"
+   },
+   "contact_us": {
+      "message": "Связаться с нами"
+   },
+   "context_block_site_ads": {
+      "message": "Блокировать рекламные объявления на этом веб-сайте..."
+   },
+   "context_complaint_site": {
+      "message": "Подать жалобу на этот веб-сайт..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate не может быть использован на этом домене"
+   },
+   "context_site_filtering_off": {
+      "message": "Отключить фильтрацию на этом веб-сайте"
+   },
+   "context_site_filtering_on": {
+      "message": "Включить фильтрацию на этом веб-сайте"
+   },
+   "context_update_filters": {
+      "message": "Проверить наличие обновлений фильтров"
+   },
+   "description": {
+      "message": "Лучший инструмент для блокировки рекламы. Заблокируйте рекламу на YouTube, Facebook и всех других сайтах бесплатно!"
+   },
+   "desktop_app_info": {
+      "message": "За блокировку рекламы отвечает Adblocker Ultimate for Windows. Однако вы все еще можете использовать это меню для управления белым списком или для ручной блокировки определенной рекламы."
+   },
+   "desktop_app_is_running": {
+      "message": "Приложение для рабочего стола запущено"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" теперь включён",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Пользовательские фильтры"
+   },
+   "follow_us": {
+      "message": "Подпишитесь на нас в"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Нет"
+   },
+   "official_website": {
+      "message": "Официальный веб-сайт"
+   },
+   "options_about": {
+      "message": "О программе"
+   },
+   "options_about_heading": {
+      "message": "И вся раздражающая реклама отсутствует!"
+   },
+   "options_add_custom_filter": {
+      "message": "Добавить пользовательский фильтр"
+   },
+   "options_allow_user_scripts": {
+      "message": "Чтобы включить пользовательские фильтры, активируйте \u003Csetting-name>Разрешить пользовательские скрипты\u003C/setting-name> на странице сведений о расширении. \u003Clearn-link>Подробнее\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Белый список"
+   },
+   "options_allowlist_desc": {
+      "message": "Реклама на веб-сайтах, добавленных в этот Белый список, не будет заблокирована."
+   },
+   "options_android_callout": {
+      "message": "Наше приложение для Android предлагает больше функций, чем расширение для браузера. Узнайте, что вы упускаете."
+   },
+   "options_android_upgrade": {
+      "message": "Скачать приложение"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "После открытия нескольких страниц на определённом языке, фильтры для этого языка будут автоматически добавлены в \"Языковые фильтры\" и активированы."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Автоматически включать Языковые фильтры"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Количество правил фильтра: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Вы уверены, что хотите удалить этот фильтр?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Пользовательские фильтры с правилами scriptlet и JavaScript требуют разрешения User Scripts API. Это позволяет расширению выполнять скрипты из пользовательских подписок фильтров."
+   },
+   "options_custom_rules": {
+      "message": "Пользовательские правила"
+   },
+   "options_custom_rules_export": {
+      "message": "Экспорт"
+   },
+   "options_custom_rules_import": {
+      "message": "Импорт"
+   },
+   "options_desktop_callout": {
+      "message": "Наше десктопное приложение предлагает больше функций, чем расширение для браузера. Узнайте, что вы упускаете."
+   },
+   "options_desktop_upgrade": {
+      "message": "Сравнить"
+   },
+   "options_do_you_like_abu": {
+      "message": "Вам нравится AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "В этом списке вы можете добавить свои собственные пользовательские правила. Создайте свои рекламные фильтры и добавьте их здесь."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Включает меню действий, доступных при щелчке правой кнопкой мыши на веб-странице."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Включить контекстное меню"
+   },
+   "options_enable_developer_mode": {
+      "message": "Чтобы включить пользовательские фильтры, активируйте \u003Csetting-name>Режим разработчика\u003C/setting-name> в настройках расширений Chrome. \u003Clearn-link>Подробнее\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Введите правильный URL или путь к файлу"
+   },
+   "options_err": {
+      "message": "Что-то пошло не так!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Разрешены только файлы .txt!"
+   },
+   "options_filter_categories": {
+      "message": "Категории"
+   },
+   "options_filter_status_all": {
+      "message": "Все"
+   },
+   "options_filter_status_disabled": {
+      "message": "Отключено"
+   },
+   "options_filter_status_enabled": {
+      "message": "Включено"
+   },
+   "options_filter_update_date": {
+      "message": "Последнее обновление: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Фильтры"
+   },
+   "options_filters_enabled": {
+      "message": "Включено"
+   },
+   "options_filters_update_error": {
+      "message": "Не удалось обновить фильтры. Пожалуйста, попробуйте ещё раз."
+   },
+   "options_filters_update_success": {
+      "message": "Обновлено фильтров: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Обновлён фильтр: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Все фильтры актуальны"
+   },
+   "options_general": {
+      "message": "Общие"
+   },
+   "options_help_translate": {
+      "message": "Помогите нам с переводом!"
+   },
+   "options_limits": {
+      "message": "Лимиты"
+   },
+   "options_limits_active_filters": {
+      "message": "Сейчас активно"
+   },
+   "options_limits_bar_warning": {
+      "message": "Некоторые фильтры были отключены, потому что ваш браузер достиг лимита правил. \u003Climits-link>Посмотреть, что затронуто\u003C/limits-link> или \u003Cupgrade-link>получить неограниченную защиту\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Активны только \u003Ctext-strong>$active$ из $expected$\u003C/text-strong> ваших фильтров — в браузере закончился лимит правил фильтрации. \u003Ctext-strong>В нашем десктопном приложении нет ограничений на количество правил\u003C/text-strong>, и оно блокирует рекламу и трекеры на всём устройстве. Чтобы продолжить использовать расширение, освободите место, отключив другие расширения или фильтры с низким приоритетом.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "В браузере закончился лимит правил фильтрации, поэтому некоторые фильтры были отключены. \u003Ctext-strong>В нашем десктопном приложении нет ограничений на количество правил\u003C/text-strong>, и оно блокирует рекламу и трекеры на всём устройстве. Чтобы продолжить использовать расширение, освободите место, отключив другие расширения или фильтры с низким приоритетом."
+   },
+   "options_limits_callout_title": {
+      "message": "Некоторые фильтры были отключены"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Временно отключено"
+   },
+   "options_limits_dismiss": {
+      "message": "Закрыть"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Динамические regex-правила"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Динамические правила"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Небезопасные динамические правила"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Включённые фильтры"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Некоторые фильтры не удалось включить, так как были превышены лимиты браузера"
+   },
+   "options_limits_get_desktop": {
+      "message": "Скачать десктопное приложение"
+   },
+   "options_limits_intro": {
+      "message": "ограничивает количество фильтров и правил, которые могут быть активны одновременно. Лимиты делятся между всеми вашими расширениями браузера."
+   },
+   "options_limits_none": {
+      "message": "Нет"
+   },
+   "options_limits_promo_body": {
+      "message": "Лимиты правил делятся между вашими расширениями. При превышении лимита некоторые фильтры будут временно отключены. \u003Ctext-strong>В нашем десктопном приложении нет ограничений на количество правил\u003C/text-strong>, и оно блокирует рекламу и трекеры на всём устройстве. Чтобы не превышать лимиты браузера, минимизируйте количество других расширений и избегайте фильтров с низким приоритетом."
+   },
+   "options_limits_promo_title": {
+      "message": "Фильтрация без ограничений"
+   },
+   "options_limits_reenable": {
+      "message": "Включить снова"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Недостаточно свободной квоты. Отключите другие расширения или неиспользуемые фильтры и попробуйте снова"
+   },
+   "options_limits_reenable_success": {
+      "message": "Фильтры были повторно включены"
+   },
+   "options_limits_related": {
+      "message": "Связанные настройки"
+   },
+   "options_limits_static_regex": {
+      "message": "Статические regex-правила"
+   },
+   "options_limits_static_rules": {
+      "message": "Статические правила"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Встроенные фильтры используют статический набор правил и квоты статических правил браузера."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Встроенные фильтры"
+   },
+   "options_limits_usage": {
+      "message": "$current$ из $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Подробнее"
+   },
+   "options_limits_warning": {
+      "message": "Некоторые фильтры были отключены из-за ограничений браузера."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Пользовательские правила и записи в белом списке используют динамические квоты правил браузера."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Ваши правила"
+   },
+   "options_menu": {
+      "message": "Меню"
+   },
+   "options_new_filter": {
+      "message": "Новый фильтр"
+   },
+   "options_no_filters_enabled": {
+      "message": "Фильтры не включены"
+   },
+   "options_number_icon_desc": {
+      "message": "Количество заблокированных элементов на каждой странице будет отображаться в значке расширения."
+   },
+   "options_number_icon_title": {
+      "message": "Количество в изображении"
+   },
+   "options_open_extension_details": {
+      "message": "Открыть сведения о расширении"
+   },
+   "options_page_title": {
+      "message": "Настройки"
+   },
+   "options_rate_us": {
+      "message": "Оценить нас"
+   },
+   "options_search": {
+      "message": "Поиск"
+   },
+   "options_search_results": {
+      "message": "Результаты"
+   },
+   "options_submit": {
+      "message": "Принять"
+   },
+   "options_theme_dark": {
+      "message": "Тёмная"
+   },
+   "options_theme_desc": {
+      "message": "Выберите цветовую схему для страницы настроек."
+   },
+   "options_theme_light": {
+      "message": "Светлая"
+   },
+   "options_theme_system": {
+      "message": "Системная"
+   },
+   "options_theme_title": {
+      "message": "Тема"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Хотите AdBlocker Ultimate на вашем языке?"
+   },
+   "page_blocked_go_back": {
+      "message": "Назад"
+   },
+   "page_blocked_heading": {
+      "message": "Эта страница заблокирована"
+   },
+   "page_blocked_note": {
+      "message": "Временный доступ будет предоставлен."
+   },
+   "page_blocked_proceed": {
+      "message": "Продолжить всё равно"
+   },
+   "page_blocked_reason": {
+      "message": "Заблокировано фильтром:"
+   },
+   "page_blocked_title": {
+      "message": "Страница заблокирована"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate для Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate для iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Включено на этом сайте"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate для $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Некоторые фильтры были отключены, так как были превышены лимиты браузера"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Блокировка на мобильных"
+   },
+   "popup_protection_disabled": {
+      "message": "Защита: Отключена"
+   },
+   "popup_protection_enabled": {
+      "message": "Защита: Включена"
+   },
+   "popup_secure_page": {
+      "message": "Безопасная страница"
+   },
+   "popup_settings": {
+      "message": "Настройки"
+   },
+   "popup_tab_blocked": {
+      "message": "Заблокировано: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Итого: $1"
+   },
+   "privacy_policy": {
+      "message": "Политика конфиденциальности"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Просмотр без рекламы достигнут!"
+   },
+   "rate_us_button": {
+      "message": "Оцените нас"
+   },
+   "rate_us_email": {
+      "message": "Адрес электронной почты"
+   },
+   "rate_us_hooray": {
+      "message": "Ура!"
+   },
+   "rate_us_message": {
+      "message": "Сообщение"
+   },
+   "rate_us_no_thanks": {
+      "message": "Нет, спасибо"
+   },
+   "rate_us_prompt": {
+      "message": "Наслаждайтесь блокировкой рекламы? Помогите другим узнать о нас."
+   },
+   "rate_us_send_feedback": {
+      "message": "Отправить отзыв"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Расскажите нам, как мы можем стать лучше"
+   },
+   "rate_us_thank_you": {
+      "message": "Благодарим вас!"
+   },
+   "report_bug": {
+      "message": "Сообщить об ошибке"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Фильтры автоматически активированы"
+   },
+   "toast_filters_update_error": {
+      "message": "Не удалось получить обновления. Пожалуйста, попробуйте ещё раз позже."
+   },
+   "toast_filters_update_filter": {
+      "message": "фильтр был обновлён"
+   },
+   "toast_filters_update_filters": {
+      "message": "фильтры были обновлены"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Не найдено обновлений"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Не удалось проверить обновления"
+   },
+   "version": {
+      "message": "Версия"
+   },
+   "yes": {
+      "message": "Да"
+   }
+}

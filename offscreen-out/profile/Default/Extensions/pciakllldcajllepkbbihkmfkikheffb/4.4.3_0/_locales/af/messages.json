@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Alle regte voorbehou"
+   },
+   "assistant_another_element": {
+      "message": "Kies 'n ander element"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Hierdie reël is van toepassing op elke webwerf"
+   },
+   "assistant_block": {
+      "message": "Blokkeer"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blokeer element deur url"
+   },
+   "assistant_block_element": {
+      "message": "Blokeer element"
+   },
+   "assistant_block_element_explain": {
+      "message": "Element reël opstelling"
+   },
+   "assistant_block_similar": {
+      "message": "Blok soortgelyke elemente"
+   },
+   "assistant_extended_settings": {
+      "message": "Gevorderde instellings..."
+   },
+   "assistant_preview_end": {
+      "message": "Eindig voorskou"
+   },
+   "assistant_preview_start": {
+      "message": "Voorskou"
+   },
+   "assistant_select_element": {
+      "message": "Seleksie modes"
+   },
+   "assistant_select_element_cancel": {
+      "message": "Kanselleer seleksie modes"
+   },
+   "assistant_select_element_ext": {
+      "message": "Klik op enige element op die bladsy of"
+   },
+   "assistant_slider_explain": {
+      "message": "Stel die skuifbalk om die raamgrootte aan te pas"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blokeer element"
+   },
+   "close": {
+      "message": "Maak toe"
+   },
+   "contact_us": {
+      "message": "Kontak ons"
+   },
+   "context_block_site_ads": {
+      "message": "Blokeer advertensies op hierdie webwerf..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate kan nie op hierdie domein werk nie"
+   },
+   "context_site_filtering_off": {
+      "message": "Deaktiveer filtering op hierdie webwerf"
+   },
+   "context_site_filtering_on": {
+      "message": "Aktiveer filtering op hierdie webwerf"
+   },
+   "context_update_filters": {
+      "message": "Kyk vir filter-opdaterings"
+   },
+   "description": {
+      "message": "Die uiteindelike adblock-instrument. Blokkeer advertensies op YouTube, Facebook en alle ander webwerwe gratis!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by AdBlocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Desktop-toepassing is aan die gang"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" is nou geaktiveer",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Pasmaakte Filters"
+   },
+   "follow_us": {
+      "message": "Volg ons op"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Nee"
+   },
+   "official_website": {
+      "message": "Amptelike webwerf"
+   },
+   "options_about": {
+      "message": "Oor"
+   },
+   "options_about_heading": {
+      "message": "En al die irriterende advertensies is weg!"
+   },
+   "options_add_custom_filter": {
+      "message": "Voeg pasgemaakte filter by"
+   },
+   "options_allow_user_scripts": {
+      "message": "Om pasgemaakte filters te aktiveer, moet jy \u003Csetting-name>Laat gebruikerskripte toe\u003C/setting-name> op die uitbreiding se detailbladsy aktiveer. \u003Clearn-link>Lees meer\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Witlys"
+   },
+   "options_allowlist_desc": {
+      "message": "Die advertensies op die webwerwe wat by hierdie Whitelist gevoeg is, sal nie geblokkeer word nie."
+   },
+   "options_android_callout": {
+      "message": "Ons Android-toepassing het meer funksies as die blaaieruitbreiding. Sien wat jy alles mis."
+   },
+   "options_android_upgrade": {
+      "message": "Kry die app"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Nadat jy 'n paar bladsye in 'n taal oopgemaak het, sal die filters vir daardie taal outomaties bygevoeg en geaktiveer word."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Aktiveer taalspesifieke filters outomaties"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Filterreëls: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Is jy seker jy wil hierdie filter verwyder?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Pasgemaakte filters met scriptlet- en JavaScript-reëls vereis dat die User Scripts API-toestemming geaktiveer is. Dit laat die uitbreiding toe om skripte van pasgemaakte filtersubskripsies uit te voer."
+   },
+   "options_custom_rules": {
+      "message": "Pasmaatreëls"
+   },
+   "options_custom_rules_export": {
+      "message": "Voer uit"
+   },
+   "options_custom_rules_import": {
+      "message": "Voer in"
+   },
+   "options_desktop_callout": {
+      "message": "Ons desktop-toepassing het meer funksies as die blaaieruitbreiding. Sien wat jy alles mis."
+   },
+   "options_desktop_upgrade": {
+      "message": "Vergelyk"
+   },
+   "options_do_you_like_abu": {
+      "message": "Hou jy van AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "In hierdie lys kan jy jou eie Pasmaatreëls byvoeg. Skep jou eie advertensie-filters en voeg dit hier by."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Aktiveer 'n kieslys van aksies wanneer jy regs-kliek op 'n webblad."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Aktiveer kontekskieslys"
+   },
+   "options_enable_developer_mode": {
+      "message": "Om pasgemaakte filters te aktiveer, moet jy \u003Csetting-name>Ontwikkelaarmodus\u003C/setting-name> in Chrome se uitbreiding-instellings aktiveer. \u003Clearn-link>Lees meer\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Voer geldige URL of lêerpad in"
+   },
+   "options_err": {
+      "message": "Iets het verkeerd geloop!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Slegs .txt-lêers word toegelaat!"
+   },
+   "options_filter_categories": {
+      "message": "Kategorieë"
+   },
+   "options_filter_status_all": {
+      "message": "Alle"
+   },
+   "options_filter_status_disabled": {
+      "message": "Gedeaktiveer"
+   },
+   "options_filter_status_enabled": {
+      "message": "Geaktiveer"
+   },
+   "options_filter_update_date": {
+      "message": "Laaste opdatering: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filters"
+   },
+   "options_filters_enabled": {
+      "message": "Geaktiveer:"
+   },
+   "options_filters_update_error": {
+      "message": "Kon nie filters opdateer nie. Probeer asseblief weer."
+   },
+   "options_filters_update_success": {
+      "message": "$count$ filters opgedateer",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$ filter opgedateer",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Alle filters is op datum"
+   },
+   "options_general": {
+      "message": "Algemeen"
+   },
+   "options_help_translate": {
+      "message": "Help ons met die vertaling!"
+   },
+   "options_limits": {
+      "message": "Limiete"
+   },
+   "options_limits_active_filters": {
+      "message": "Tans aktief"
+   },
+   "options_limits_bar_warning": {
+      "message": "Sommige filters is gedeaktiveer omdat jou blaaier sy reëllimiete bereik het. \u003Climits-link>Kyk wat is geraak\u003C/limits-link> of \u003Cupgrade-link>kry onbeperkte beskerming\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Slegs \u003Ctext-strong>$active$ van jou $expected$\u003C/text-strong> filters is aktief – jou blaaier het nie meer plek vir filterreëls nie. \u003Ctext-strong>Ons desktop-toepassing het geen reëlbeperkings nie\u003C/text-strong> en blokkeer advertensies en naspoorders op jou hele toestel. Om die blaaieruitbreiding te bly gebruik, maak plek deur ander uitbreidings of lae-prioriteit filters af te skakel.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Jou blaaier het nie meer plek vir filterreëls nie, daarom is sommige filters afgeskakel. \u003Ctext-strong>Ons desktop-toepassing het geen reëlbeperkings nie\u003C/text-strong> en blokkeer advertensies en naspoorders op jou hele toestel. Om die blaaieruitbreiding te bly gebruik, maak plek deur ander uitbreidings of lae-prioriteit filters af te skakel."
+   },
+   "options_limits_callout_title": {
+      "message": "Sommige filters is gedeaktiveer"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Tydelik gedeaktiveer"
+   },
+   "options_limits_dismiss": {
+      "message": "Verwyder"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dinamiese regex-reëls"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dinamiese reëls"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Onveilige dinamiese reëls"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Geaktiveerde filters"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Sommige filters kon nie geaktiveer word nie omdat die blaaier se limiete oorskry is"
+   },
+   "options_limits_get_desktop": {
+      "message": "Kry desktop-app"
+   },
+   "options_limits_intro": {
+      "message": "beperk hoeveel filters en reëls gelyktydig aktief kan wees. Die limiete word tussen al jou blaaieruitbreidings gedeel."
+   },
+   "options_limits_none": {
+      "message": "Geen"
+   },
+   "options_limits_promo_body": {
+      "message": "Reëlbeperkings word gedeel met jou ander uitbreidings. As jy dit oorskry, sal sommige filters tydelik gedeaktiveer word. \u003Ctext-strong>Ons desktop-toepassing het geen reëlbeperkings nie\u003C/text-strong> en blokkeer advertensies en naspoorders op jou hele toestel. Om binne die blaaier se beperkings te bly, hou ander uitbreidings tot die minimum en vermy lae-prioriteit filters."
+   },
+   "options_limits_promo_title": {
+      "message": "Kry onbeperkte filtering"
+   },
+   "options_limits_reenable": {
+      "message": "Heraktiveer"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Nie genoeg vry kwota nie. Skakel ander uitbreidings of ongebruikte filters af en probeer weer"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filters is weer geaktiveer"
+   },
+   "options_limits_related": {
+      "message": "Verwante instellings"
+   },
+   "options_limits_static_regex": {
+      "message": "Statiese regex-reëls"
+   },
+   "options_limits_static_rules": {
+      "message": "Statiese reëls"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Ingeboude filters gebruik die blaaier se statiese reëls en statiese reëlkwotas."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Ingeboude filters"
+   },
+   "options_limits_usage": {
+      "message": "$current$ van $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Sien besonderhede"
+   },
+   "options_limits_warning": {
+      "message": "Sommige filters is gedeaktiveer weens blaaierbeperkings."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Pasmaakreëls en whitelist-inskrywings deel die blaaier se dinamiese reëlkwotas."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Jou reëls"
+   },
+   "options_menu": {
+      "message": "Kieslys"
+   },
+   "options_new_filter": {
+      "message": "Nuwe filter"
+   },
+   "options_no_filters_enabled": {
+      "message": "Geen filters geaktiveer nie"
+   },
+   "options_number_icon_desc": {
+      "message": "Die aantal geblokkeerde advertensies op elke bladsy sal in die uitbreiding se ikoon vertoon word."
+   },
+   "options_number_icon_title": {
+      "message": "Wys nommer in ikoon"
+   },
+   "options_open_extension_details": {
+      "message": "Maak Uitbreidingbesonderhede oop"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "Gee Gradering"
+   },
+   "options_search": {
+      "message": "Soek"
+   },
+   "options_search_results": {
+      "message": "Resultate"
+   },
+   "options_submit": {
+      "message": "Indien"
+   },
+   "options_theme_dark": {
+      "message": "Donker"
+   },
+   "options_theme_desc": {
+      "message": "Kies die kleurtema vir die instellingsbladsy."
+   },
+   "options_theme_light": {
+      "message": "Lig"
+   },
+   "options_theme_system": {
+      "message": "Stelsel"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Wil jy AdBlocker Ultimate in jou taal hê?"
+   },
+   "page_blocked_go_back": {
+      "message": "Gaan Terug"
+   },
+   "page_blocked_heading": {
+      "message": "Hierdie bladsy is geblokkeer"
+   },
+   "page_blocked_note": {
+      "message": "Tydelike toegang sal verleen word."
+   },
+   "page_blocked_proceed": {
+      "message": "Gaan steeds voort"
+   },
+   "page_blocked_reason": {
+      "message": "Geblokkeer deur filterreël:"
+   },
+   "page_blocked_title": {
+      "message": "Bladsy Geblokkeer"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate vir Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate vir iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Geaktiveer op hierdie webwerf"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Kry AdBlocker Ultimate vir $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Sommige filters is gedeaktiveer omdat die blaaier se limiete oorskry is"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blokkeer advertensies op mobiel"
+   },
+   "popup_protection_disabled": {
+      "message": "Beskerming: Gedeaktiveer"
+   },
+   "popup_protection_enabled": {
+      "message": "Beskerming: Geaktiveer"
+   },
+   "popup_secure_page": {
+      "message": "Veilige bladsy"
+   },
+   "popup_settings": {
+      "message": "Instellings"
+   },
+   "popup_tab_blocked": {
+      "message": "Geblokkeer: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Totaal: $1"
+   },
+   "privacy_policy": {
+      "message": "Privaatheidsbeleid"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Advertensievrye blaai bereik!"
+   },
+   "rate_us_button": {
+      "message": "Gee ons 'n gradering"
+   },
+   "rate_us_email": {
+      "message": "E-pos"
+   },
+   "rate_us_hooray": {
+      "message": "Hoera!"
+   },
+   "rate_us_message": {
+      "message": "Boodskap"
+   },
+   "rate_us_no_thanks": {
+      "message": "Nee dankie"
+   },
+   "rate_us_prompt": {
+      "message": "Geniet jy dit om advertensies te blokkeer? Help ander om van ons te hoor."
+   },
+   "rate_us_send_feedback": {
+      "message": "Stuur Terugvoer"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Vertel ons asseblief hoe ons kan verbeter"
+   },
+   "rate_us_thank_you": {
+      "message": "Dankie!"
+   },
+   "report_bug": {
+      "message": "Rapporteer 'n fout"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filters outomaties geaktiveer"
+   },
+   "toast_filters_update_error": {
+      "message": "Opdateering onsuksesvol. Probeer asseblief weer later."
+   },
+   "toast_filters_update_filter": {
+      "message": "filter is opgedateer"
+   },
+   "toast_filters_update_filters": {
+      "message": "filters is opgedateer"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Geen nuwe weergawe is gevind nie"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Kon nie vir opdaterings kyk nie"
+   },
+   "version": {
+      "message": "Weergawe"
+   },
+   "yes": {
+      "message": "Ja"
+   }
+}

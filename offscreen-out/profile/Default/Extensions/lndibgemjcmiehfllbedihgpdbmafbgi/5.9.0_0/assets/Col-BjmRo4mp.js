@@ -1,0 +1,1 @@
+import{C as l,U as o,Ut as a,h as r,q as s}from"./vendor-charts-BA6mrMsB.js";var u=l({__name:"Col",props:{cols:{}},setup(e){return(t,_)=>(o(),r("div",{class:a({"bb-col":!0,["col"+e.cols]:!0})},[s(t.$slots,"default")],2))}}),n=u;export{n as t};

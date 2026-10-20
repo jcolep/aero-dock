@@ -1,0 +1,44 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "icons/icon128.png",
+         "16": "icons/icon16.png",
+         "300": "icons/icon300.png",
+         "48": "icons/icon48.png"
+      },
+      "default_popup": "html/popup.html",
+      "default_title": "__MSG_badgeAvailable__"
+   },
+   "author": "Snap color picker",
+   "background": {
+      "service_worker": "js/background.js"
+   },
+   "commands": {
+      "activate": {
+         "description": "__MSG_shortcutCommand__",
+         "suggested_key": {
+            "default": "Alt+P"
+         }
+      }
+   },
+   "default_locale": "en",
+   "description": "__MSG_extShortDesc__",
+   "host_permissions": [ "\u003Call_urls>" ],
+   "icons": {
+      "128": "icons/icon128.png",
+      "16": "icons/icon16.png",
+      "300": "icons/icon300.png",
+      "48": "icons/icon48.png"
+   },
+   "incognito": "split",
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0O04yYNAm+smZFt/LTIpOEvRajZp4tHFjgp1Qo7UmovVJApXmAg+S1kPPZw3mADH2sl0xnwY/yO+zDJ/X9qVfKDz3R9yAkhoJhVs3/ZIV3TRWMlCzcfmgfqbUjeBBBxWBc2TLy5ttHoJxFzB5e/mqGnVHIdXKSGuo6jjqpwN0q3B6mHLGk3+hPkSMpHjg8ZPsK6BPeGmi9CGFU0XV5leoIfhBG/3FTSTwzxUQd54ZBaw5W3jvqSyiUs7Jqt6nAq6fIrmQ5OE36cffEcCX6TdE029o29SQBvd0ZSFhyBFALAZ67agSDBsmUWsFhJv1ZL/0pLOKxow074Byb6PUTmh+QIDAQAB",
+   "manifest_version": 3,
+   "name": "__MSG_extName__",
+   "permissions": [ "alarms", "commands", "declarativeNetRequest", "scripting", "storage" ],
+   "update_url": "https://edge.microsoft.com/extensionwebstorebase/v1/crx",
+   "version": "1.1.0",
+   "web_accessible_resources": [ {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "/web_accessible_resources/*" ]
+   } ]
+}

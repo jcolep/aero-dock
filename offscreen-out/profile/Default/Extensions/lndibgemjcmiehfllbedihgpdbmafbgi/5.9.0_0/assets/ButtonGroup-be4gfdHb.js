@@ -1,0 +1,1 @@
+import{C as r,Et as s,U as a,ct as o,p as u,q as p}from"./vendor-charts-BA6mrMsB.js";import{x as n}from"./vendor-primevue-D7pJ7riD.js";var _=r({__name:"ButtonGroup",props:{size:{}},setup(t){return(e,l)=>(a(),u(s(n),{size:t.size,class:"text-nowrap flex"},{default:o(()=>[p(e.$slots,"default")]),_:3},8,["size"]))}}),f=_;export{f as t};

@@ -1,0 +1,1 @@
+import{C as t,U as r,h as a,q as u}from"./vendor-charts-BA6mrMsB.js";var l={class:"bb-outfield-group flex gap-1 flex-wrap align-items-start"},o=t({__name:"OutFieldGroup",setup(p){return(e,s)=>(r(),a("div",l,[u(e.$slots,"default")]))}}),d=o;export{d as t};

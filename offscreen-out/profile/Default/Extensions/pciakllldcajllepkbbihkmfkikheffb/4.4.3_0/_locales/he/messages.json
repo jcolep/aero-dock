@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "כל הזכויות שמורות"
+   },
+   "assistant_another_element": {
+      "message": "בחר רכיב אחר"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "החל הגדרה זו על כל אתר"
+   },
+   "assistant_block": {
+      "message": "חסום"
+   },
+   "assistant_block_by_reference": {
+      "message": "חסימת רכיב לפי כתובת url"
+   },
+   "assistant_block_element": {
+      "message": "חסום רכיב"
+   },
+   "assistant_block_element_explain": {
+      "message": "הגדרת חוקי חסימת אלמנטים"
+   },
+   "assistant_block_similar": {
+      "message": "חסום רכיבים דומים"
+   },
+   "assistant_extended_settings": {
+      "message": "הגדרות מתקדמות..."
+   },
+   "assistant_preview_end": {
+      "message": "סיום תצוגה מקדימה"
+   },
+   "assistant_preview_start": {
+      "message": "תצוגה מקדימה"
+   },
+   "assistant_select_element": {
+      "message": "מצב בחירה"
+   },
+   "assistant_select_element_cancel": {
+      "message": "בטל את מצב הבחירה"
+   },
+   "assistant_select_element_ext": {
+      "message": "לחץ על כל רכיב בעמוד או "
+   },
+   "assistant_slider_explain": {
+      "message": "התאם את הסליידר כדי לשנות את גודל המסגרת"
+   },
+   "browser_action_popup_block_element": {
+      "message": "חסום רכיב"
+   },
+   "close": {
+      "message": "סגור"
+   },
+   "contact_us": {
+      "message": "צור קשר"
+   },
+   "context_block_site_ads": {
+      "message": "חסום פרסומות באתר זה..."
+   },
+   "context_complaint_site": {
+      "message": "להגיש תלונה על אתר זה..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "חוסם הפרסומות האולטימטיבי לא יכול לרוץ על דומיין זה"
+   },
+   "context_site_filtering_off": {
+      "message": "חסום פילטר על אתר זה"
+   },
+   "context_site_filtering_on": {
+      "message": "אפשר פילטר על אתר זה"
+   },
+   "context_update_filters": {
+      "message": "חיפוש עדכוני פילטר"
+   },
+   "description": {
+      "message": "כלי הפרסום האולטימטיבי. חסום מודעות ב-YouTube, בפייסבוק ובכל האתרים האחרים בחינם!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "האפליקציה לשולחן העבודה פועלת"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" הופעל כעת",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "מסננים מותאמים אישית"
+   },
+   "follow_us": {
+      "message": "עקבו אחרינו ב"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "לא"
+   },
+   "official_website": {
+      "message": "אתר רשמי"
+   },
+   "options_about": {
+      "message": "אודות"
+   },
+   "options_about_heading": {
+      "message": "וכל הפרסומות המטרידות בחוץ!"
+   },
+   "options_add_custom_filter": {
+      "message": "הוסף מסנן מותאם אישית"
+   },
+   "options_allow_user_scripts": {
+      "message": "כדי להפעיל מסננים מותאמים אישית, יש להפעיל את \u003Csetting-name>אפשר סקריפטים של משתמש\u003C/setting-name> בדף פרטי ההרחבה. \u003Clearn-link>למידע נוסף\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "רשימה לבנה"
+   },
+   "options_allowlist_desc": {
+      "message": "הפרסומות באתרים שנוספו לרשימת ההיתרים לא ייחסמו."
+   },
+   "options_android_callout": {
+      "message": "לאפליקציית האנדרואיד שלנו יש יותר אפשרויות מההרחבה לדפדפן. גלו מה אתם מפספסים."
+   },
+   "options_android_upgrade": {
+      "message": "הורדת האפליקציה"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "לאחר פתיחת מספר עמודים בשפה מסוימת, המסננים לאותה שפה יתווספו ויופעלו אוטומטית."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "הפעל אוטומטית מסננים לפי שפה"
+   },
+   "options_built_in_rules_limit": {
+      "message": "מספר כללי המסנן: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "האם אתה בטוח שברצונך למחוק את המסנן הזה?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "מסננים מותאמים אישית עם כללי Scriptlet ו-JavaScript דורשים הרשאת User Scripts API. זה מאפשר להרחבה להריץ סקריפטים ממנויי מסננים מותאמים."
+   },
+   "options_custom_rules": {
+      "message": "כללים מותאמים אישית"
+   },
+   "options_custom_rules_export": {
+      "message": "ייצוא"
+   },
+   "options_custom_rules_import": {
+      "message": "ייבוא"
+   },
+   "options_desktop_callout": {
+      "message": "לאפליקציית הדסקטופ שלנו יש יותר אפשרויות מההרחבה לדפדפן. גלו מה אתם מפספסים."
+   },
+   "options_desktop_upgrade": {
+      "message": "השוואה"
+   },
+   "options_do_you_like_abu": {
+      "message": "האם אתה אוהב את AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "ברשימה זו תוכל להוסיף כללים מותאמים אישית משלך. צור מסנני פרסומות משלך והוסף אותם כאן."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "מפעיל תפריט פעולות שנגיש בלחיצה ימנית על דף אינטרנט."
+   },
+   "options_enable_context_menu_title": {
+      "message": "הפעל תפריט הקשר"
+   },
+   "options_enable_developer_mode": {
+      "message": "כדי להפעיל מסננים מותאמים אישית, יש להפעיל את \u003Csetting-name>מצב מפתח\u003C/setting-name> בהגדרות ההרחבות של Chrome. \u003Clearn-link>למידע נוסף\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "הזן כתובת URL או נתיב קובץ חוקיים"
+   },
+   "options_err": {
+      "message": "משהו השתבש!"
+   },
+   "options_err_no_txt_file": {
+      "message": "רק קבצי ‎.txt מותרים!"
+   },
+   "options_filter_categories": {
+      "message": "קטגוריות"
+   },
+   "options_filter_status_all": {
+      "message": "הכל"
+   },
+   "options_filter_status_disabled": {
+      "message": "מושבת"
+   },
+   "options_filter_status_enabled": {
+      "message": "מופעל"
+   },
+   "options_filter_update_date": {
+      "message": "עודכן לאחרונה: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "מסננים"
+   },
+   "options_filters_enabled": {
+      "message": "מופעלים:"
+   },
+   "options_filters_update_error": {
+      "message": "לא ניתן לעדכן מסננים. נסה שוב."
+   },
+   "options_filters_update_success": {
+      "message": "עודכנו $count$ מסננים",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "עודכן מסנן אחד ($count$)",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "כל המסננים מעודכנים"
+   },
+   "options_general": {
+      "message": "כללי"
+   },
+   "options_help_translate": {
+      "message": "עזור לנו בתרגום!"
+   },
+   "options_limits": {
+      "message": "מגבלות"
+   },
+   "options_limits_active_filters": {
+      "message": "פעילים כרגע"
+   },
+   "options_limits_bar_warning": {
+      "message": "חלק מהמסננים הושבתו כי הדפדפן הגיע למגבלת הכללים שלו. \u003Climits-link>ראה מה הושפע\u003C/limits-link> או \u003Cupgrade-link>קבל הגנה ללא הגבלה\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "רק \u003Ctext-strong>$active$ מתוך $expected$\u003C/text-strong> המסננים שלכם פועלים – לדפדפן אזל המקום לכללי סינון. \u003Ctext-strong>לאפליקציית הדסקטופ שלנו אין הגבלה על כללים\u003C/text-strong> והיא חוסמת פרסומות ועוקבים בכל המכשיר. כדי להמשיך להשתמש בהרחבה, פנו מקום על ידי כיבוי הרחבות אחרות או השבתת מסננים בעדיפות נמוכה.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "לדפדפן אזל המקום לכללי סינון, ולכן חלק מהמסננים כובו. \u003Ctext-strong>לאפליקציית הדסקטופ שלנו אין הגבלה על כללים\u003C/text-strong> והיא חוסמת פרסומות ועוקבים בכל המכשיר. כדי להמשיך להשתמש בהרחבה, פנו מקום על ידי כיבוי הרחבות אחרות או השבתת מסננים בעדיפות נמוכה."
+   },
+   "options_limits_callout_title": {
+      "message": "חלק מהמסננים הושבתו"
+   },
+   "options_limits_disabled_filters": {
+      "message": "מושבתים זמנית"
+   },
+   "options_limits_dismiss": {
+      "message": "סגור"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "כללי רג'קס דינמיים"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "כללים דינמיים"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "כללים דינמיים לא בטוחים"
+   },
+   "options_limits_enabled_lists": {
+      "message": "מסננים פעילים"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "לא ניתן היה להפעיל חלק מהמסננים כי חרגת מהמגבלות של הדפדפן"
+   },
+   "options_limits_get_desktop": {
+      "message": "קבל אפליקציית דסקטופ"
+   },
+   "options_limits_intro": {
+      "message": "מגביל כמה מסננים וכללים יכולים להיות פעילים בו-זמנית. המגבלות משותפות לכל התוספים בדפדפן שלך."
+   },
+   "options_limits_none": {
+      "message": "אין"
+   },
+   "options_limits_promo_body": {
+      "message": "הגבלות כללים משותפות עם הרחבות אחרות שלכם. חריגה מהן תגרום להשבתה זמנית של חלק מהמסננים. \u003Ctext-strong>לאפליקציית הדסקטופ שלנו אין הגבלה על כללים\u003C/text-strong> והיא חוסמת פרסומות ועוקבים בכל המכשיר. כדי להישאר בגבולות הדפדפן, צמצמו הרחבות אחרות והימנעו ממסננים בעדיפות נמוכה."
+   },
+   "options_limits_promo_title": {
+      "message": "סינון ללא הגבלות"
+   },
+   "options_limits_reenable": {
+      "message": "הפעל מחדש"
+   },
+   "options_limits_reenable_failed": {
+      "message": "אין מספיק מכסה פנויה. כבה תוספים אחרים או מסננים לא בשימוש ונסה שוב"
+   },
+   "options_limits_reenable_success": {
+      "message": "המסננים הופעלו מחדש"
+   },
+   "options_limits_related": {
+      "message": "הגדרות קשורות"
+   },
+   "options_limits_static_regex": {
+      "message": "כללי רג'קס סטטיים"
+   },
+   "options_limits_static_rules": {
+      "message": "כללים סטטיים"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "מסננים מובנים משתמשים בערכת הכללים הסטטית ובמכסת הכללים הסטטיים של הדפדפן."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "מסננים מובנים"
+   },
+   "options_limits_usage": {
+      "message": "$current$ מתוך $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "הצג פרטים"
+   },
+   "options_limits_warning": {
+      "message": "חלק מהמסננים הושבתו עקב מגבלות הדפדפן."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "כללים מותאמים אישית ורשומות ברשימת ההיתרים חולקים את מכסת הכללים הדינמיים של הדפדפן."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "הכללים שלך"
+   },
+   "options_menu": {
+      "message": "תפריט"
+   },
+   "options_new_filter": {
+      "message": "מסנן חדש"
+   },
+   "options_no_filters_enabled": {
+      "message": "אין מסננים מופעלים"
+   },
+   "options_number_icon_desc": {
+      "message": "מספר הפרסומות שנחסמו בכל עמוד יוצג בסמל ההרחבה."
+   },
+   "options_number_icon_title": {
+      "message": "הצגת מספר בצלמית"
+   },
+   "options_open_extension_details": {
+      "message": "פתח פרטי ההרחבה"
+   },
+   "options_page_title": {
+      "message": "אפשרויות"
+   },
+   "options_rate_us": {
+      "message": "דרג אותנו"
+   },
+   "options_search": {
+      "message": "חיפוש"
+   },
+   "options_search_results": {
+      "message": "תוצאות"
+   },
+   "options_submit": {
+      "message": "שלח"
+   },
+   "options_theme_dark": {
+      "message": "כהה"
+   },
+   "options_theme_desc": {
+      "message": "בחר ערכת צבעים לדף ההגדרות."
+   },
+   "options_theme_light": {
+      "message": "בהיר"
+   },
+   "options_theme_system": {
+      "message": "מערכת"
+   },
+   "options_theme_title": {
+      "message": "ערכת נושא"
+   },
+   "options_want_abu_in_lang": {
+      "message": "רוצה את AdBlocker Ultimate בשפה שלך?"
+   },
+   "page_blocked_go_back": {
+      "message": "חזור אחורה"
+   },
+   "page_blocked_heading": {
+      "message": "דף זה נחסם"
+   },
+   "page_blocked_note": {
+      "message": "גישה זמנית תינתן."
+   },
+   "page_blocked_proceed": {
+      "message": "המשך בכל זאת"
+   },
+   "page_blocked_reason": {
+      "message": "נחסם לפי כלל סינון:"
+   },
+   "page_blocked_title": {
+      "message": "הדף נחסם"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate לאנדרואיד"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate ל-iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "פעיל באתר זה"
+   },
+   "popup_get_abu_desktop": {
+      "message": "קבל AdBlocker Ultimate ל-$platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "חלק מהמסננים הושבתו כי חרגת מהמגבלות של הדפדפן"
+   },
+   "popup_mobile_apps_title": {
+      "message": "חסום פרסומות בנייד"
+   },
+   "popup_protection_disabled": {
+      "message": "הגנה: לא פעילה"
+   },
+   "popup_protection_enabled": {
+      "message": "הגנה: פעילה"
+   },
+   "popup_secure_page": {
+      "message": "דף מאובטח"
+   },
+   "popup_settings": {
+      "message": "הגדרות"
+   },
+   "popup_tab_blocked": {
+      "message": "חסומים: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "סה\"כ: $1"
+   },
+   "privacy_policy": {
+      "message": "מדיניות פרטיות"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "גלישה ללא פרסומות הושגה!"
+   },
+   "rate_us_button": {
+      "message": "דרג אותנו"
+   },
+   "rate_us_email": {
+      "message": "אימייל"
+   },
+   "rate_us_hooray": {
+      "message": "יש!"
+   },
+   "rate_us_message": {
+      "message": "הודעה"
+   },
+   "rate_us_no_thanks": {
+      "message": "לא, תודה"
+   },
+   "rate_us_prompt": {
+      "message": "נהנה מחסימת פרסומות? עזור לאחרים לגלות אותנו."
+   },
+   "rate_us_send_feedback": {
+      "message": "שלח משוב"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "ספר לנו איך נוכל להשתפר"
+   },
+   "rate_us_thank_you": {
+      "message": "תודה!"
+   },
+   "report_bug": {
+      "message": "דווח על באג"
+   },
+   "toast_filter_enabled_title": {
+      "message": "הפעלה אוטומאטית של הפילטרים"
+   },
+   "toast_filters_update_error": {
+      "message": "קבלת עדכונים נכשלה. נא לנסות שוב מאוחר יותר."
+   },
+   "toast_filters_update_filter": {
+      "message": "המסנן עודכן"
+   },
+   "toast_filters_update_filters": {
+      "message": "המסננים עודכנו"
+   },
+   "toast_filters_update_not_found": {
+      "message": "לא נמצאו עדכונים"
+   },
+   "toast_filters_update_title_error": {
+      "message": "נכשל בבדיקת עדכונים"
+   },
+   "version": {
+      "message": "גרסה"
+   },
+   "yes": {
+      "message": "כן"
+   }
+}

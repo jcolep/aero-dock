@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Alle rettigheter forbeholdt"
+   },
+   "assistant_another_element": {
+      "message": "Velg et annet element"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Bruk denne regelen på alle nettsteder"
+   },
+   "assistant_block": {
+      "message": "Blokker"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blokker element etter url"
+   },
+   "assistant_block_element": {
+      "message": "Blokker element"
+   },
+   "assistant_block_element_explain": {
+      "message": "Oppsett for blokkering av element"
+   },
+   "assistant_block_similar": {
+      "message": "Blokker lignende elementer"
+   },
+   "assistant_extended_settings": {
+      "message": "Advanced settings..."
+   },
+   "assistant_preview_end": {
+      "message": "Avslutt forhåndsvisning"
+   },
+   "assistant_preview_start": {
+      "message": "Forhåndsvisning"
+   },
+   "assistant_select_element": {
+      "message": "Utvalgmodus"
+   },
+   "assistant_select_element_cancel": {
+      "message": "avbryt utvalgmodus"
+   },
+   "assistant_select_element_ext": {
+      "message": "Klikk på et element på siden eller"
+   },
+   "assistant_slider_explain": {
+      "message": "Juster glidebryteren for å endre størrelsen på rammen"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blokker element"
+   },
+   "close": {
+      "message": "Lukk"
+   },
+   "contact_us": {
+      "message": "Kontakt oss"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate kan ikke kjøres på dette domenet"
+   },
+   "context_site_filtering_off": {
+      "message": "Deaktiver filtrering på dette nettstedet"
+   },
+   "context_site_filtering_on": {
+      "message": "Aktiver filtrering på dette nettstedet"
+   },
+   "context_update_filters": {
+      "message": "Se etter filteroppdateringer"
+   },
+   "description": {
+      "message": "Det ultimate annonseblokkeringsverktøyet. Blokker annonser på YouTube, Facebook og alle andre nettsteder gratis!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Skrivebordsappen kjører"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" er nå aktivert",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Egendefinerte filtre"
+   },
+   "follow_us": {
+      "message": "Følg oss på"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Nei"
+   },
+   "official_website": {
+      "message": "Offisielt nettsted"
+   },
+   "options_about": {
+      "message": "Om"
+   },
+   "options_about_heading": {
+      "message": "Og alle irriterende annonser er borte!"
+   },
+   "options_add_custom_filter": {
+      "message": "Legg til egendefinert filter"
+   },
+   "options_allow_user_scripts": {
+      "message": "For å aktivere egendefinerte filtre må du aktivere \u003Csetting-name>Tillat brukerskript\u003C/setting-name> på utvidelsens detaljside. \u003Clearn-link>Les mer\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Tillatelsesliste"
+   },
+   "options_allowlist_desc": {
+      "message": "Annonsene på nettsteder lagt til i denne Whitelist vil ikke bli blokkert."
+   },
+   "options_android_callout": {
+      "message": "Vår Android-app har flere funksjoner enn nettleserutvidelsen. Se hva du går glipp av."
+   },
+   "options_android_upgrade": {
+      "message": "Last ned appen"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Etter å ha åpnet noen sider på et språk, vil filtrene for dette språket automatisk bli lagt til og aktivert."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Aktiver språkspesifikke filtre automatisk"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Antall filterregler: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Er du sikker på at du vil slette dette filteret?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Egendefinerte filtre med scriptlet- og JavaScript-regler krever at User Scripts API-tillatelsen er aktivert. Dette lar utvidelsen kjøre skript fra egendefinerte filterabonnementer."
+   },
+   "options_custom_rules": {
+      "message": "Egendefinerte regler"
+   },
+   "options_custom_rules_export": {
+      "message": "Eksporter"
+   },
+   "options_custom_rules_import": {
+      "message": "Importer"
+   },
+   "options_desktop_callout": {
+      "message": "Vårt skrivebordsprogram har flere funksjoner enn nettleserutvidelsen. Se hva du går glipp av."
+   },
+   "options_desktop_upgrade": {
+      "message": "Sammenlign"
+   },
+   "options_do_you_like_abu": {
+      "message": "Liker du AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "I denne listen kan du legge til dine egne egendefinerte regler. Lag dine egne annonsefiltre og legg dem til her."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Aktiverer en handlingsmeny når du høyreklikker på en nettside."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Aktiver kontekstmeny"
+   },
+   "options_enable_developer_mode": {
+      "message": "For å aktivere egendefinerte filtre må du aktivere \u003Csetting-name>Utviklermodus\u003C/setting-name> i Chromes utvidelsesinnstillinger. \u003Clearn-link>Les mer\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Skriv inn gyldig URL eller filsti"
+   },
+   "options_err": {
+      "message": "Noe gikk galt!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Kun .txt-filer er tillatt!"
+   },
+   "options_filter_categories": {
+      "message": "Kategorier"
+   },
+   "options_filter_status_all": {
+      "message": "Alle"
+   },
+   "options_filter_status_disabled": {
+      "message": "Deaktivert"
+   },
+   "options_filter_status_enabled": {
+      "message": "Aktivert"
+   },
+   "options_filter_update_date": {
+      "message": "Sist oppdatert: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtre"
+   },
+   "options_filters_enabled": {
+      "message": "Aktivert:"
+   },
+   "options_filters_update_error": {
+      "message": "Kunne ikke oppdatere filtre. Prøv igjen."
+   },
+   "options_filters_update_success": {
+      "message": "Oppdaterte $count$ filtre",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Oppdaterte $count$ filter",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Alle filtre er oppdatert"
+   },
+   "options_general": {
+      "message": "Generelt"
+   },
+   "options_help_translate": {
+      "message": "Hjelp oss med oversettelsen!"
+   },
+   "options_limits": {
+      "message": "Grenser"
+   },
+   "options_limits_active_filters": {
+      "message": "Aktive nå"
+   },
+   "options_limits_bar_warning": {
+      "message": "Noen filtre ble deaktivert fordi nettleseren din har nådd regelgrensen. \u003Climits-link>Se hva som er påvirket\u003C/limits-link> eller \u003Cupgrade-link>få ubegrenset beskyttelse\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Bare \u003Ctext-strong>$active$ av $expected$\u003C/text-strong> filtre er aktive – nettleseren din har ikke mer plass til filtreringsregler. \u003Ctext-strong>Vårt skrivebordsprogram har ingen regelbegrensninger\u003C/text-strong> og blokkerer annonser og sporere på hele enheten din. For å fortsette å bruke nettleserutvidelsen, frigjør plass ved å slå av andre utvidelser eller deaktivere filtre med lav prioritet.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Nettleseren din har ikke mer plass til filtreringsregler, så noen filtre er deaktivert. \u003Ctext-strong>Vårt skrivebordsprogram har ingen regelbegrensninger\u003C/text-strong> og blokkerer annonser og sporere på hele enheten din. For å fortsette å bruke nettleserutvidelsen, frigjør plass ved å slå av andre utvidelser eller deaktivere filtre med lav prioritet."
+   },
+   "options_limits_callout_title": {
+      "message": "Noen filtre ble deaktivert"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Midlertidig deaktivert"
+   },
+   "options_limits_dismiss": {
+      "message": "Lukk"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dynamiske regex-regler"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dynamiske regler"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Usikre dynamiske regler"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Aktiverte filtre"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Noen filtre kunne ikke aktiveres fordi nettleserens grenser ble overskredet"
+   },
+   "options_limits_get_desktop": {
+      "message": "Få skrivebordsapp"
+   },
+   "options_limits_intro": {
+      "message": "begrenset hvor mange filtre og regler som kan være aktive samtidig. Grensene deles mellom alle nettleserutvidelsene dine."
+   },
+   "options_limits_none": {
+      "message": "Ingen"
+   },
+   "options_limits_promo_body": {
+      "message": "Regelbegrensninger deles med andre utvidelser. Hvis du overskrider dem, blir noen filtre midlertidig deaktivert. \u003Ctext-strong>Vårt skrivebordsprogram har ingen regelbegrensninger\u003C/text-strong> og blokkerer annonser og sporere på hele enheten din. For å holde deg innenfor nettleserens grenser, hold andre utvidelser til et minimum og unngå filtre med lav prioritet."
+   },
+   "options_limits_promo_title": {
+      "message": "Få filtrering uten begrensninger"
+   },
+   "options_limits_reenable": {
+      "message": "Aktiver på nytt"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Ikke nok ledig kvote. Slå av andre utvidelser eller ubrukte filtre, og prøv igjen"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtre ble aktivert på nytt"
+   },
+   "options_limits_related": {
+      "message": "Relaterte innstillinger"
+   },
+   "options_limits_static_regex": {
+      "message": "Statiske regex-regler"
+   },
+   "options_limits_static_rules": {
+      "message": "Statiske regler"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Innebygde filtre bruker nettleserens statiske regelsett og statiske regelkvoter."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Innebygde filtre"
+   },
+   "options_limits_usage": {
+      "message": "$current$ av $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Vis detaljer"
+   },
+   "options_limits_warning": {
+      "message": "Noen filtre ble deaktivert på grunn av nettleserbegrensninger."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Egendefinerte regler og hvitelisteoppføringer deler nettleserens dynamiske regelkvoter."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Dine regler"
+   },
+   "options_menu": {
+      "message": "Meny"
+   },
+   "options_new_filter": {
+      "message": "Nytt filter"
+   },
+   "options_no_filters_enabled": {
+      "message": "Ingen filtre aktivert"
+   },
+   "options_number_icon_desc": {
+      "message": "Antall blokkerte annonser på hver side vises i utvidelsesikonet."
+   },
+   "options_number_icon_title": {
+      "message": "Vis antall i ikon"
+   },
+   "options_open_extension_details": {
+      "message": "Åpne utvidelsesdetaljer"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "Vurder oss"
+   },
+   "options_search": {
+      "message": "Søk"
+   },
+   "options_search_results": {
+      "message": "Resultater"
+   },
+   "options_submit": {
+      "message": "Send inn"
+   },
+   "options_theme_dark": {
+      "message": "Mørk"
+   },
+   "options_theme_desc": {
+      "message": "Velg fargetema for innstillingssiden."
+   },
+   "options_theme_light": {
+      "message": "Lys"
+   },
+   "options_theme_system": {
+      "message": "System"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Vil du ha AdBlocker Ultimate på ditt språk?"
+   },
+   "page_blocked_go_back": {
+      "message": "Gå tilbake"
+   },
+   "page_blocked_heading": {
+      "message": "Denne siden er blokkert"
+   },
+   "page_blocked_note": {
+      "message": "Midlertidig tilgang vil bli gitt."
+   },
+   "page_blocked_proceed": {
+      "message": "Fortsett likevel"
+   },
+   "page_blocked_reason": {
+      "message": "Blokkert av filterregel:"
+   },
+   "page_blocked_title": {
+      "message": "Side blokkert"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate for Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate for iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Aktivert på dette nettstedet"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Få AdBlocker Ultimate for $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Noen filtre ble deaktivert fordi nettleserens grenser ble overskredet"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blokker annonser på mobil"
+   },
+   "popup_protection_disabled": {
+      "message": "Beskyttelse: Deaktivert"
+   },
+   "popup_protection_enabled": {
+      "message": "Beskyttelse: Aktivert"
+   },
+   "popup_secure_page": {
+      "message": "Sikker side"
+   },
+   "popup_settings": {
+      "message": "Innstillinger"
+   },
+   "popup_tab_blocked": {
+      "message": "Blokkert: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Totalt: $1"
+   },
+   "privacy_policy": {
+      "message": "Personvern"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Annonsfri surfing oppnådd!"
+   },
+   "rate_us_button": {
+      "message": "Vurder oss"
+   },
+   "rate_us_email": {
+      "message": "E-post"
+   },
+   "rate_us_hooray": {
+      "message": "Hurra!"
+   },
+   "rate_us_message": {
+      "message": "Melding"
+   },
+   "rate_us_no_thanks": {
+      "message": "Nei takk"
+   },
+   "rate_us_prompt": {
+      "message": "Liker du å blokkere annonser? Hjelp andre å finne oss."
+   },
+   "rate_us_send_feedback": {
+      "message": "Send tilbakemelding"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Fortell oss hvordan vi kan bli bedre"
+   },
+   "rate_us_thank_you": {
+      "message": "Takk!"
+   },
+   "report_bug": {
+      "message": "Rapporter en feil"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filter automatisk aktivert"
+   },
+   "toast_filters_update_error": {
+      "message": "Kunne ikke hente oppdateringer. Prøv igjen senere."
+   },
+   "toast_filters_update_filter": {
+      "message": "filter har blitt oppdatert"
+   },
+   "toast_filters_update_filters": {
+      "message": "filtre har blitt oppdatert"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Ingen oppdateringer funnet"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Kunne ikke sjekke etter oppdateringer"
+   },
+   "version": {
+      "message": "Versjon"
+   },
+   "yes": {
+      "message": "Ja"
+   }
+}

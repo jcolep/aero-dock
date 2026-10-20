@@ -1,0 +1,1 @@
+import{C as r,U as l,h as s,q as a}from"./vendor-charts-BA6mrMsB.js";var n=r({__name:"Row",emits:["dblclick"],setup(_){return(e,t)=>(l(),s("div",{class:"form-row",onDblclick:t[0]||(t[0]=o=>e.$emit("dblclick",o))},[a(e.$slots,"default")],32))}}),u=n;export{u as t};

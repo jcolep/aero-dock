@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "सर्वाधिकार सुरक्षित"
+   },
+   "assistant_another_element": {
+      "message": "दूसरा तत्व चुनें"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "यह नियम हर वेबसाइट पर लागू करें"
+   },
+   "assistant_block": {
+      "message": "ब्लॉक करें"
+   },
+   "assistant_block_by_reference": {
+      "message": "URL द्वारा तत्व ब्लॉक करें"
+   },
+   "assistant_block_element": {
+      "message": "तत्व ब्लॉक करें"
+   },
+   "assistant_block_element_explain": {
+      "message": "तत्व ब्लॉकिंग नियम सेटअप"
+   },
+   "assistant_block_similar": {
+      "message": "समान तत्व ब्लॉक करें"
+   },
+   "assistant_extended_settings": {
+      "message": "Advanced settings..."
+   },
+   "assistant_preview_end": {
+      "message": "पूर्वावलोकन समाप्त करें"
+   },
+   "assistant_preview_start": {
+      "message": "पूर्वावलोकन"
+   },
+   "assistant_select_element": {
+      "message": "चयन मोड"
+   },
+   "assistant_select_element_cancel": {
+      "message": "चयन मोड रद्द करें"
+   },
+   "assistant_select_element_ext": {
+      "message": "पृष्ठ पर किसी भी तत्व पर क्लिक करें या"
+   },
+   "assistant_slider_explain": {
+      "message": "फ्रेम का आकार बदलने के लिए स्लाइडर समायोजित करें"
+   },
+   "browser_action_popup_block_element": {
+      "message": "तत्व ब्लॉक करें"
+   },
+   "close": {
+      "message": "बंद करें"
+   },
+   "contact_us": {
+      "message": "संपर्क करें"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate इस डोमेन पर नहीं चल सकता"
+   },
+   "context_site_filtering_off": {
+      "message": "इस वेबसाइट पर फ़िल्टरिंग अक्षम करें"
+   },
+   "context_site_filtering_on": {
+      "message": "इस वेबसाइट पर फ़िल्टरिंग सक्षम करें"
+   },
+   "context_update_filters": {
+      "message": "फिल्टर अपडेट के लिए जांचें"
+   },
+   "description": {
+      "message": "परम एडब्लॉक टूल। यूट्यूब, फेसबुक और अन्य सभी वेबसाइटों पर विज्ञापनों को निःशुल्क ब्लॉक करें!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "डेस्कटॉप ऐप चल रहा है"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" अब सक्षम है",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "कस्टम फ़िल्टर"
+   },
+   "follow_us": {
+      "message": "हमें फॉलो करें"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "नहीं"
+   },
+   "official_website": {
+      "message": "आधिकारिक वेबसाइट"
+   },
+   "options_about": {
+      "message": "परिचय"
+   },
+   "options_about_heading": {
+      "message": "और सभी परेशान करने वाले विज्ञापन बाहर हैं!"
+   },
+   "options_add_custom_filter": {
+      "message": "कस्टम फ़िल्टर जोड़ें"
+   },
+   "options_allow_user_scripts": {
+      "message": "कस्टम फ़िल्टर सक्षम करने के लिए, आपको एक्सटेंशन डिटेल्स पेज में \u003Csetting-name>यूज़र स्क्रिप्ट्स की अनुमति दें\u003C/setting-name> चालू करना होगा। \u003Clearn-link>और जानें\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "श्वेतसूची"
+   },
+   "options_allowlist_desc": {
+      "message": "इस Whitelist में जोड़ी गई वेबसाइट्स पर विज्ञापन ब्लॉक नहीं किए जाएंगे।"
+   },
+   "options_android_callout": {
+      "message": "हमारा Android ऐप ब्राउज़र एक्सटेंशन से अधिक फीचर्स देता है। देखें, आप क्या मिस कर रहे हैं।"
+   },
+   "options_android_upgrade": {
+      "message": "ऐप प्राप्त करें"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "किसी भाषा में कुछ पेज खोलने के बाद, उस भाषा के फ़िल्टर अपने आप जोड़ दिए जाएंगे और सक्रिय हो जाएंगे।"
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "भाषा-विशिष्ट फ़िल्टर अपने आप सक्रिय करें"
+   },
+   "options_built_in_rules_limit": {
+      "message": "फ़िल्टर नियमों की संख्या: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "क्या आप वाकई इस फ़िल्टर को हटाना चाहते हैं?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "स्क्रिप्टलेट और JavaScript नियमों वाले कस्टम फ़िल्टर के लिए User Scripts API अनुमति सक्षम करना आवश्यक है। इससे एक्सटेंशन को कस्टम फ़िल्टर सब्सक्रिप्शन से स्क्रिप्ट चलाने की अनुमति मिलती है।"
+   },
+   "options_custom_rules": {
+      "message": "कस्टम नियम"
+   },
+   "options_custom_rules_export": {
+      "message": "निर्यात करें"
+   },
+   "options_custom_rules_import": {
+      "message": "आयात करें"
+   },
+   "options_desktop_callout": {
+      "message": "हमारा डेस्कटॉप ऐप ब्राउज़र एक्सटेंशन से अधिक फीचर्स देता है। देखें, आप क्या मिस कर रहे हैं।"
+   },
+   "options_desktop_upgrade": {
+      "message": "तुलना करें"
+   },
+   "options_do_you_like_abu": {
+      "message": "क्या आपको AdBlocker Ultimate पसंद है?"
+   },
+   "options_editor_desc": {
+      "message": "इस सूची में आप अपने खुद के कस्टम नियम जोड़ सकते हैं। अपने खुद के विज्ञापन फ़िल्टर बनाएं और यहाँ जोड़ें।"
+   },
+   "options_enable_context_menu_desc": {
+      "message": "जब आप वेब पेज पर राइट-क्लिक करते हैं तो उपलब्ध क्रियाओं का मेनू सक्षम करता है।"
+   },
+   "options_enable_context_menu_title": {
+      "message": "संदर्भ मेनू सक्षम करें"
+   },
+   "options_enable_developer_mode": {
+      "message": "कस्टम फ़िल्टर सक्षम करने के लिए, आपको Chrome की एक्सटेंशन सेटिंग्स में \u003Csetting-name>डेवलपर मोड\u003C/setting-name> चालू करना होगा। \u003Clearn-link>और जानें\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "मान्य URL या फाइल पथ दर्ज करें"
+   },
+   "options_err": {
+      "message": "कुछ गलत हो गया!"
+   },
+   "options_err_no_txt_file": {
+      "message": "केवल .txt फाइलें स्वीकार्य हैं!"
+   },
+   "options_filter_categories": {
+      "message": "श्रेणियाँ"
+   },
+   "options_filter_status_all": {
+      "message": "सभी"
+   },
+   "options_filter_status_disabled": {
+      "message": "निष्क्रिय"
+   },
+   "options_filter_status_enabled": {
+      "message": "सक्रिय"
+   },
+   "options_filter_update_date": {
+      "message": "अंतिम अपडेट: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "फ़िल्टर"
+   },
+   "options_filters_enabled": {
+      "message": "सक्रिय:"
+   },
+   "options_filters_update_error": {
+      "message": "फ़िल्टर अपडेट नहीं हो सके। कृपया पुनः प्रयास करें।"
+   },
+   "options_filters_update_success": {
+      "message": "$count$ फ़िल्टर अपडेट किए गए",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$ फ़िल्टर अपडेट किया गया",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "सभी फ़िल्टर अपडेट हैं"
+   },
+   "options_general": {
+      "message": "सामान्य"
+   },
+   "options_help_translate": {
+      "message": "अनुवाद में हमारी मदद करें!"
+   },
+   "options_limits": {
+      "message": "सीमाएँ"
+   },
+   "options_limits_active_filters": {
+      "message": "वर्तमान में सक्रिय"
+   },
+   "options_limits_bar_warning": {
+      "message": "कुछ फ़िल्टर अक्षम कर दिए गए क्योंकि आपके ब्राउज़र ने नियमों की सीमा पूरी कर ली है। \u003Climits-link>देखें क्या प्रभावित हुआ है\u003C/limits-link> या \u003Cupgrade-link>अनलिमिटेड सुरक्षा पाएं\u003C/upgrade-link>।"
+   },
+   "options_limits_callout_body": {
+      "message": "केवल \u003Ctext-strong>$active$ में से $expected$\u003C/text-strong> फ़िल्टर चल रहे हैं - आपके ब्राउज़र में फ़िल्टरिंग नियमों के लिए जगह खत्म हो गई है। \u003Ctext-strong>हमारे डेस्कटॉप ऐप में कोई नियम सीमा नहीं है\u003C/text-strong> और यह आपके पूरे डिवाइस पर विज्ञापन और ट्रैकर्स को ब्लॉक करता है। ब्राउज़र एक्सटेंशन का उपयोग जारी रखने के लिए, अन्य एक्सटेंशन बंद करें या कम प्राथमिकता वाले फ़िल्टर अक्षम करें।",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "आपके ब्राउज़र में फ़िल्टरिंग नियमों के लिए जगह खत्म हो गई है, इसलिए कुछ फ़िल्टर बंद कर दिए गए हैं। \u003Ctext-strong>हमारे डेस्कटॉप ऐप में कोई नियम सीमा नहीं है\u003C/text-strong> और यह आपके पूरे डिवाइस पर विज्ञापन और ट्रैकर्स को ब्लॉक करता है। ब्राउज़र एक्सटेंशन का उपयोग जारी रखने के लिए, अन्य एक्सटेंशन बंद करें या कम प्राथमिकता वाले फ़िल्टर अक्षम करें।"
+   },
+   "options_limits_callout_title": {
+      "message": "कुछ फ़िल्टर अक्षम कर दिए गए"
+   },
+   "options_limits_disabled_filters": {
+      "message": "अस्थायी रूप से अक्षम"
+   },
+   "options_limits_dismiss": {
+      "message": "खारिज करें"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "डायनामिक regex नियम"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "डायनामिक नियम"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "असुरक्षित डायनामिक नियम"
+   },
+   "options_limits_enabled_lists": {
+      "message": "सक्रिय फ़िल्टर"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "कुछ फ़िल्टर सक्रिय नहीं किए जा सके क्योंकि ब्राउज़र की सीमा पार हो गई है"
+   },
+   "options_limits_get_desktop": {
+      "message": "डेस्कटॉप ऐप प्राप्त करें"
+   },
+   "options_limits_intro": {
+      "message": "यह सीमित करता है कि एक साथ कितने फ़िल्टर और नियम सक्रिय हो सकते हैं। ये सीमाएँ आपके सभी ब्राउज़र एक्सटेंशनों में साझा होती हैं।"
+   },
+   "options_limits_none": {
+      "message": "कोई नहीं"
+   },
+   "options_limits_promo_body": {
+      "message": "नियम सीमाएं आपके अन्य एक्सटेंशनों के साथ साझा होती हैं। इन्हें पार करने पर कुछ फ़िल्टर अस्थायी रूप से बंद हो जाएंगे। \u003Ctext-strong>हमारे डेस्कटॉप ऐप में कोई नियम सीमा नहीं है\u003C/text-strong> और यह आपके पूरे डिवाइस पर विज्ञापन और ट्रैकर्स को ब्लॉक करता है। ब्राउज़र की सीमा में रहने के लिए, अन्य एक्सटेंशन कम रखें और कम प्राथमिकता वाले फ़िल्टर से बचें।"
+   },
+   "options_limits_promo_title": {
+      "message": "बिना सीमा के फ़िल्टरिंग पाएं"
+   },
+   "options_limits_reenable": {
+      "message": "फिर से सक्षम करें"
+   },
+   "options_limits_reenable_failed": {
+      "message": "पर्याप्त खाली कोटा नहीं है। अन्य एक्सटेंशन या अप्रयुक्त फ़िल्टर बंद करें, फिर पुनः प्रयास करें"
+   },
+   "options_limits_reenable_success": {
+      "message": "फ़िल्टर फिर से सक्रिय कर दिए गए"
+   },
+   "options_limits_related": {
+      "message": "संबंधित सेटिंग्स"
+   },
+   "options_limits_static_regex": {
+      "message": "स्थिर regex नियम"
+   },
+   "options_limits_static_rules": {
+      "message": "स्थिर नियम"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "बिल्ट-इन फ़िल्टर ब्राउज़र के स्थिर नियम सेट और स्थिर नियम कोटा का उपयोग करते हैं।"
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "बिल्ट-इन फ़िल्टर"
+   },
+   "options_limits_usage": {
+      "message": "$current$ में से $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "विवरण देखें"
+   },
+   "options_limits_warning": {
+      "message": "कुछ फ़िल्टर ब्राउज़र की सीमा के कारण निष्क्रिय कर दिए गए हैं।"
+   },
+   "options_limits_your_rules_desc": {
+      "message": "कस्टम नियम और whitelist प्रविष्टियाँ ब्राउज़र के डायनामिक नियम कोटा साझा करते हैं।"
+   },
+   "options_limits_your_rules_heading": {
+      "message": "आपके नियम"
+   },
+   "options_menu": {
+      "message": "मेनू"
+   },
+   "options_new_filter": {
+      "message": "नया फ़िल्टर"
+   },
+   "options_no_filters_enabled": {
+      "message": "कोई फ़िल्टर सक्रिय नहीं"
+   },
+   "options_number_icon_desc": {
+      "message": "हर पेज पर ब्लॉक किए गए विज्ञापनों की संख्या एक्सटेंशन आइकन में दिखाई देगी।"
+   },
+   "options_number_icon_title": {
+      "message": "आइकन में संख्या दिखाएं"
+   },
+   "options_open_extension_details": {
+      "message": "एक्सटेंशन डिटेल्स खोलें"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "हमें रेट करें"
+   },
+   "options_search": {
+      "message": "खोजें"
+   },
+   "options_search_results": {
+      "message": "परिणाम"
+   },
+   "options_submit": {
+      "message": "सबमिट करें"
+   },
+   "options_theme_dark": {
+      "message": "डार्क"
+   },
+   "options_theme_desc": {
+      "message": "सेटिंग्स पेज के लिए रंग योजना चुनें।"
+   },
+   "options_theme_light": {
+      "message": "हल्का"
+   },
+   "options_theme_system": {
+      "message": "सिस्टम"
+   },
+   "options_theme_title": {
+      "message": "थीम"
+   },
+   "options_want_abu_in_lang": {
+      "message": "क्या आप अपनी भाषा में AdBlocker Ultimate चाहते हैं?"
+   },
+   "page_blocked_go_back": {
+      "message": "वापस जाएं"
+   },
+   "page_blocked_heading": {
+      "message": "यह पृष्ठ ब्लॉक कर दिया गया है"
+   },
+   "page_blocked_note": {
+      "message": "अस्थायी पहुंच प्रदान की जाएगी।"
+   },
+   "page_blocked_proceed": {
+      "message": "फिर भी आगे बढ़ें"
+   },
+   "page_blocked_reason": {
+      "message": "फिल्टर नियम द्वारा ब्लॉक किया गया:"
+   },
+   "page_blocked_title": {
+      "message": "पृष्ठ ब्लॉक किया गया"
+   },
+   "popup_abu_for_android": {
+      "message": "Android के लिए AdBlocker Ultimate"
+   },
+   "popup_abu_for_ios": {
+      "message": "iOS के लिए AdBlocker Ultimate"
+   },
+   "popup_enabled_on_site": {
+      "message": "इस साइट पर सक्षम"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate $platform$ के लिए",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "कुछ फ़िल्टर अक्षम कर दिए गए क्योंकि ब्राउज़र की सीमा पार हो गई है"
+   },
+   "popup_mobile_apps_title": {
+      "message": "मोबाइल पर विज्ञापन ब्लॉक करें"
+   },
+   "popup_protection_disabled": {
+      "message": "सुरक्षा: निष्क्रिय"
+   },
+   "popup_protection_enabled": {
+      "message": "सुरक्षा: सक्रिय"
+   },
+   "popup_secure_page": {
+      "message": "सुरक्षित पेज"
+   },
+   "popup_settings": {
+      "message": "सेटिंग्स"
+   },
+   "popup_tab_blocked": {
+      "message": "ब्लॉक किया गया: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "कुल: $1"
+   },
+   "privacy_policy": {
+      "message": "गोपनीयता नीति"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "विज्ञापन-मुक्त ब्राउज़िंग प्राप्त हुई!"
+   },
+   "rate_us_button": {
+      "message": "हमें रेट करें"
+   },
+   "rate_us_email": {
+      "message": "ईमेल"
+   },
+   "rate_us_hooray": {
+      "message": "वाह!"
+   },
+   "rate_us_message": {
+      "message": "संदेश"
+   },
+   "rate_us_no_thanks": {
+      "message": "नहीं, धन्यवाद"
+   },
+   "rate_us_prompt": {
+      "message": "क्या आपको विज्ञापन ब्लॉक करना पसंद है? दूसरों को हमारे बारे में बताने में मदद करें।"
+   },
+   "rate_us_send_feedback": {
+      "message": "फीडबैक भेजें"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "कृपया बताएं कि हम कैसे सुधार सकते हैं"
+   },
+   "rate_us_thank_you": {
+      "message": "धन्यवाद!"
+   },
+   "report_bug": {
+      "message": "बग रिपोर्ट करें"
+   },
+   "toast_filter_enabled_title": {
+      "message": "फ़िल्टर स्वतः सक्रिय"
+   },
+   "toast_filters_update_error": {
+      "message": "अपडेट प्राप्त करने में विफल। कृपया बाद में पुनः प्रयास करें।"
+   },
+   "toast_filters_update_filter": {
+      "message": "फ़िल्टर अपडेट किया गया है"
+   },
+   "toast_filters_update_filters": {
+      "message": "फ़िल्टर अपडेट किए गए हैं"
+   },
+   "toast_filters_update_not_found": {
+      "message": "कोई अपडेट नहीं मिला"
+   },
+   "toast_filters_update_title_error": {
+      "message": "अपडेट जांचने में विफल"
+   },
+   "version": {
+      "message": "संस्करण"
+   },
+   "yes": {
+      "message": "हाँ"
+   }
+}

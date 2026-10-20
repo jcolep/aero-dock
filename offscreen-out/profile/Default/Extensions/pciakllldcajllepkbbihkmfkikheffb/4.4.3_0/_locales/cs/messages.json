@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Všechna práva vyhrazena"
+   },
+   "assistant_another_element": {
+      "message": "Vyberte jiný prvek"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Použít toto pravidlo pro každý web"
+   },
+   "assistant_block": {
+      "message": "Blokujte"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blokuj prvek podle adresy url"
+   },
+   "assistant_block_element": {
+      "message": "Zablokovat prvek"
+   },
+   "assistant_block_element_explain": {
+      "message": "Nastavení pravidel blokování prvku"
+   },
+   "assistant_block_similar": {
+      "message": "Blokuj podobné prvky"
+   },
+   "assistant_extended_settings": {
+      "message": "Pokročilé nastavení..."
+   },
+   "assistant_preview_end": {
+      "message": "Dokončit náhled"
+   },
+   "assistant_preview_start": {
+      "message": "Náhled"
+   },
+   "assistant_select_element": {
+      "message": "Režim výběru"
+   },
+   "assistant_select_element_cancel": {
+      "message": "zrušte režim výběru"
+   },
+   "assistant_select_element_ext": {
+      "message": "Klikněte na libovolný prvek na stránce nebo "
+   },
+   "assistant_slider_explain": {
+      "message": "Upravte posuvník pro změnu velikosti rámce"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Zablokovat prvek"
+   },
+   "close": {
+      "message": "Zavřít"
+   },
+   "contact_us": {
+      "message": "Kontaktujte nás"
+   },
+   "context_block_site_ads": {
+      "message": "Blokovat reklamy na této stránce..."
+   },
+   "context_complaint_site": {
+      "message": "Odešli stížnost o této stránce..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate nemůže být spuštěný na této adrese"
+   },
+   "context_site_filtering_off": {
+      "message": "Vypnout filtrování na této stránce"
+   },
+   "context_site_filtering_on": {
+      "message": "Zapnout filtrování na této stránce"
+   },
+   "context_update_filters": {
+      "message": "Zkontrolovat aktualizace pro filtry"
+   },
+   "description": {
+      "message": "Nejlepší nástroj pro blokování reklam. Blokujte reklamy na YouTube, Facebooku a všech dalších webech zdarma!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Desktopová aplikace je spuštěná"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" je nyní povolen",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Vlastní filtry"
+   },
+   "follow_us": {
+      "message": "Sledujte nás na"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Ne"
+   },
+   "official_website": {
+      "message": "Oficiální web"
+   },
+   "options_about": {
+      "message": "O aplikaci"
+   },
+   "options_about_heading": {
+      "message": "A všechny otravné reklamy jsou pryč!"
+   },
+   "options_add_custom_filter": {
+      "message": "Přidat vlastní filtr"
+   },
+   "options_allow_user_scripts": {
+      "message": "Pro povolení vlastních filtrů musíte na stránce detailu rozšíření zapnout \u003Csetting-name>Povolit uživatelské skripty\u003C/setting-name>. \u003Clearn-link>Zjistit více\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Povolené domény"
+   },
+   "options_allowlist_desc": {
+      "message": "Reklamy na webech přidaných do tohoto seznamu povolených nebudou blokovány."
+   },
+   "options_android_callout": {
+      "message": "Naše Android aplikace nabízí více funkcí než rozšíření do prohlížeče. Podívejte se, o co přicházíte."
+   },
+   "options_android_upgrade": {
+      "message": "Získat aplikaci"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Po otevření několika stránek v určitém jazyce budou filtry pro tento jazyk automaticky přidány a aktivovány."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Automaticky aktivovat jazykové filtry"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Počet pravidel filtru: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Opravdu chcete tento filtr smazat?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Vlastní filtry se skriptovými a JavaScript pravidly vyžadují povolení User Scripts API. To umožňuje rozšíření spouštět skripty z vlastních filtrů."
+   },
+   "options_custom_rules": {
+      "message": "Vlastní pravidla"
+   },
+   "options_custom_rules_export": {
+      "message": "Exportovat"
+   },
+   "options_custom_rules_import": {
+      "message": "Importovat"
+   },
+   "options_desktop_callout": {
+      "message": "Naše desktopová aplikace nabízí více funkcí než rozšíření do prohlížeče. Podívejte se, o co přicházíte."
+   },
+   "options_desktop_upgrade": {
+      "message": "Porovnat"
+   },
+   "options_do_you_like_abu": {
+      "message": "Líbí se vám AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Do tohoto seznamu můžete přidat svá vlastní pravidla. Vytvořte si vlastní filtry reklam a přidejte je sem."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Umožní nabídku akcí dostupnou po kliknutí pravým tlačítkem na webové stránce."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Povolit kontextovou nabídku"
+   },
+   "options_enable_developer_mode": {
+      "message": "Pro povolení vlastních filtrů musíte zapnout \u003Csetting-name>Režim pro vývojáře\u003C/setting-name> v nastavení rozšíření Chrome. \u003Clearn-link>Zjistit více\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Zadejte platnou URL nebo cestu k souboru"
+   },
+   "options_err": {
+      "message": "Něco se pokazilo!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Povoleny jsou pouze .txt soubory!"
+   },
+   "options_filter_categories": {
+      "message": "Kategorie"
+   },
+   "options_filter_status_all": {
+      "message": "Vše"
+   },
+   "options_filter_status_disabled": {
+      "message": "Zakázáno"
+   },
+   "options_filter_status_enabled": {
+      "message": "Aktivovat"
+   },
+   "options_filter_update_date": {
+      "message": "Poslední aktualizace: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtry"
+   },
+   "options_filters_enabled": {
+      "message": "Povoleno:"
+   },
+   "options_filters_update_error": {
+      "message": "Nelze aktualizovat filtry. Zkuste to prosím znovu."
+   },
+   "options_filters_update_success": {
+      "message": "Aktualizováno $count$ filtrů",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Aktualizován $count$ filtr",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Všechny filtry jsou aktuální"
+   },
+   "options_general": {
+      "message": "Obecné"
+   },
+   "options_help_translate": {
+      "message": "Pomozte nám s překladem!"
+   },
+   "options_limits": {
+      "message": "Limity"
+   },
+   "options_limits_active_filters": {
+      "message": "Aktuálně aktivní"
+   },
+   "options_limits_bar_warning": {
+      "message": "Některé filtry byly zakázány, protože váš prohlížeč dosáhl limitu pravidel. \u003Climits-link>Zobrazit, co je ovlivněno\u003C/limits-link> nebo \u003Cupgrade-link>získat neomezenou ochranu\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Pouze \u003Ctext-strong>$active$ z vašich $expected$\u003C/text-strong> filtrů je aktivních – váš prohlížeč dosáhl limitu pro filtrační pravidla. \u003Ctext-strong>Naše desktopová aplikace nemá žádné limity pravidel\u003C/text-strong> a blokuje reklamy i trackery v celém zařízení. Pokud chcete dál používat rozšíření, uvolněte místo vypnutím jiných rozšíření nebo méně důležitých filtrů.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Váš prohlížeč dosáhl limitu pro filtrační pravidla, proto byly některé filtry vypnuty. \u003Ctext-strong>Naše desktopová aplikace nemá žádné limity pravidel\u003C/text-strong> a blokuje reklamy i trackery v celém zařízení. Pokud chcete dál používat rozšíření, uvolněte místo vypnutím jiných rozšíření nebo méně důležitých filtrů."
+   },
+   "options_limits_callout_title": {
+      "message": "Některé filtry byly zakázány"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Dočasně zakázáno"
+   },
+   "options_limits_dismiss": {
+      "message": "Zavřít"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dynamická regex pravidla"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dynamická pravidla"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Nezabezpečená dynamická pravidla"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Povolené filtry"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Některé filtry nebylo možné povolit, protože byly překročeny limity prohlížeče"
+   },
+   "options_limits_get_desktop": {
+      "message": "Získat desktopovou aplikaci"
+   },
+   "options_limits_intro": {
+      "message": "omezuje, kolik filtrů a pravidel může být aktivních najednou. Limity jsou sdílené mezi všemi rozšířeními v prohlížeči."
+   },
+   "options_limits_none": {
+      "message": "Žádné"
+   },
+   "options_limits_promo_body": {
+      "message": "Limity pravidel jsou sdílené s ostatními rozšířeními. Pokud je překročíte, některé filtry budou dočasně vypnuty. \u003Ctext-strong>Naše desktopová aplikace nemá žádné limity pravidel\u003C/text-strong> a blokuje reklamy i trackery v celém zařízení. Pro dodržení limitů prohlížeče mějte minimum rozšíření a vyhýbejte se méně důležitým filtrům."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtrování bez omezení"
+   },
+   "options_limits_reenable": {
+      "message": "Znovu povolit"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Nedostatek volné kvóty. Vypněte jiné rozšíření nebo nepoužívané filtry a zkuste to znovu"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtry byly znovu povoleny"
+   },
+   "options_limits_related": {
+      "message": "Související nastavení"
+   },
+   "options_limits_static_regex": {
+      "message": "Statická regex pravidla"
+   },
+   "options_limits_static_rules": {
+      "message": "Statická pravidla"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Vestavěné filtry využívají statickou sadu pravidel a kvóty statických pravidel prohlížeče."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Vestavěné filtry"
+   },
+   "options_limits_usage": {
+      "message": "$current$ z $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Zobrazit podrobnosti"
+   },
+   "options_limits_warning": {
+      "message": "Některé filtry byly kvůli omezením prohlížeče deaktivovány."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Vlastní pravidla a položky whitelistu sdílí kvóty dynamických pravidel prohlížeče."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Vaše pravidla"
+   },
+   "options_menu": {
+      "message": "Menu"
+   },
+   "options_new_filter": {
+      "message": "Nový filtr"
+   },
+   "options_no_filters_enabled": {
+      "message": "Žádné filtry nejsou povoleny"
+   },
+   "options_number_icon_desc": {
+      "message": "Počet zablokovaných reklam na každé stránce se zobrazí na ikoně rozšíření."
+   },
+   "options_number_icon_title": {
+      "message": "Zobrazit číslo v ikoně"
+   },
+   "options_open_extension_details": {
+      "message": "Otevřít podrobnosti rozšíření"
+   },
+   "options_page_title": {
+      "message": "Nastavení"
+   },
+   "options_rate_us": {
+      "message": "Ohodnoťte nás"
+   },
+   "options_search": {
+      "message": "Hledat"
+   },
+   "options_search_results": {
+      "message": "Výsledky"
+   },
+   "options_submit": {
+      "message": "Odeslat"
+   },
+   "options_theme_dark": {
+      "message": "Tmavý"
+   },
+   "options_theme_desc": {
+      "message": "Vyberte barevné schéma pro stránku nastavení."
+   },
+   "options_theme_light": {
+      "message": "Světlý"
+   },
+   "options_theme_system": {
+      "message": "Systémový"
+   },
+   "options_theme_title": {
+      "message": "Motiv"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Chcete AdBlocker Ultimate ve svém jazyce?"
+   },
+   "page_blocked_go_back": {
+      "message": "Zpět"
+   },
+   "page_blocked_heading": {
+      "message": "Tato stránka byla zablokována"
+   },
+   "page_blocked_note": {
+      "message": "Dočasný přístup bude povolen."
+   },
+   "page_blocked_proceed": {
+      "message": "Přesto pokračovat"
+   },
+   "page_blocked_reason": {
+      "message": "Zablokováno pravidlem filtru:"
+   },
+   "page_blocked_title": {
+      "message": "Stránka zablokována"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate pro Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate pro iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Povoleno na tomto webu"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Získat AdBlocker Ultimate pro $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Některé filtry byly zakázány, protože byly překročeny limity prohlížeče"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blokujte reklamy na mobilu"
+   },
+   "popup_protection_disabled": {
+      "message": "Ochrana: Vypnuto"
+   },
+   "popup_protection_enabled": {
+      "message": "Ochrana: Zapnuto"
+   },
+   "popup_secure_page": {
+      "message": "Zabezpečená stránka"
+   },
+   "popup_settings": {
+      "message": "Nastavení"
+   },
+   "popup_tab_blocked": {
+      "message": "Blokováno: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Celkem: $1"
+   },
+   "privacy_policy": {
+      "message": "Zásady ochrany osobních údajů"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Prohlížení bez reklam dosaženo!"
+   },
+   "rate_us_button": {
+      "message": "Ohodnoťte nás"
+   },
+   "rate_us_email": {
+      "message": "E-mail"
+   },
+   "rate_us_hooray": {
+      "message": "Hurá!"
+   },
+   "rate_us_message": {
+      "message": "Zpráva"
+   },
+   "rate_us_no_thanks": {
+      "message": "Ne, děkuji"
+   },
+   "rate_us_prompt": {
+      "message": "Baví vás blokování reklam? Pomozte ostatním nás objevit."
+   },
+   "rate_us_send_feedback": {
+      "message": "Odeslat zpětnou vazbu"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Napište nám, jak můžeme zlepšit"
+   },
+   "rate_us_thank_you": {
+      "message": "Děkujeme!"
+   },
+   "report_bug": {
+      "message": "Nahlásit chybu"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Auto aktivace filtrů"
+   },
+   "toast_filters_update_error": {
+      "message": "Chyba při načítání aktualizací. Zkuste to za okamžik znovu."
+   },
+   "toast_filters_update_filter": {
+      "message": "filtr byl aktualizován"
+   },
+   "toast_filters_update_filters": {
+      "message": "filtry byly aktualizovány"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Nebyly nalezeny žádné aktualizace"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Nepodařilo se zkontrolovat aktualizace"
+   },
+   "version": {
+      "message": "Verze"
+   },
+   "yes": {
+      "message": "Ano"
+   }
+}

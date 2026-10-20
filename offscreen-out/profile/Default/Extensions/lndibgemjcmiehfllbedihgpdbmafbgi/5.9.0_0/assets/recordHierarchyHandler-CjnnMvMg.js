@@ -1,0 +1,9 @@
+import{Cu as w,Dt as g,Ks as p,Lt as E,Ul as h,Xc as y,id as R,nt as S}from"./vendor-underscore-Bz5YeRR3.js";var m=50;function C(r,e){return`
+    (SELECT ${r.join(",")},
+        (SELECT ${r.join(",")},
+            (SELECT ${r.join(",")},
+                (SELECT ${r.join(",")} FROM ${e})
+            FROM ${e})
+        FROM ${e})
+    FROM ${e})
+  `}function $(r,e,o,n,s){for(const t of o)r[t.Id]=t,n===5&&s.push(t.Id),t[e]?.records?.length&&$(r,e,t[e].records,n+1,s)}async function T(r,e,o,n,s){const t={};let i=[o],l=0;for(;i.length;){if(l++,l>m)throw h("Error getting Date Tree as it reached max level of 15 or more");const d=await E(r,`select ${n.join(",")}, ${C(n,s)} from ${e.name} where Id in ${R(i)}`);i=[],$(t,s,d.records,1,i),i=i.filter(a=>!t[a])}return t}async function L(r,e,o,n,s){let t=o,i=o,l=[o],d=0;for(;t;){if(d++,d>m)throw h(`Error getting Date Tree as it reached max level of ${m}`);i=t;const a=[];for(let c=0;c<=5;c++)a.push(c===0?n:`${`${s}.`.repeat(c)}${n}`);const f=await g(r,`select ${a.join(", ")} from ${e.name} where Id = '${t}'`);t=void 0;const I=f.records[0];for(let c=0;c<=5;c++){const u=y(I,c===0?n:`${`${s}.`.repeat(c)}${n}`);u&&(i=u,l.push(u),c===5&&(t=u))}t&&l.includes(t)&&(t=void 0)}return i}async function M(r,e,o,n){const s=e.parentFields.find(a=>p(a.baseField,n)).name,t=e.childRelationships.find(a=>a.field===n&&p(a.childSObject,e.name))?.relationshipName,i=await S(r,e,["Id","Name",n,`${e.name}Number`,"Department","Title","RecordTypeId","RecordType.Name","OwnerId","Owner.Name"]),l=await L(r,e,o,n,s),d=await T(r,e,l,i,t);for(const a of Object.values(d))if(a[n]){const f=d[a[n]];f&&(f.children||=[],f.children.push(a))}return d[l]}var O=["CreatedById","LastModifiedById"];function x(r){return w(r.parentFields.filter(e=>e.name&&e.parentSobject===r.name&&r.childRelationships.find(o=>o.relationshipName&&o.field===e.baseField)&&!O.includes(e.baseField)).map(e=>e.baseField))}export{M as n,x as t};

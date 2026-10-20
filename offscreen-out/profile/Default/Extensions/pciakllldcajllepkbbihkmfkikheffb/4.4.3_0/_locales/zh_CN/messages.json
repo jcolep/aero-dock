@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "版权所有"
+   },
+   "assistant_another_element": {
+      "message": "选择另一个元素"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "对每个 web 站点使用此规则"
+   },
+   "assistant_block": {
+      "message": "屏蔽"
+   },
+   "assistant_block_by_reference": {
+      "message": "根据 URL 屏蔽元素"
+   },
+   "assistant_block_element": {
+      "message": "屏蔽元素"
+   },
+   "assistant_block_element_explain": {
+      "message": "设置元素屏蔽规则"
+   },
+   "assistant_block_similar": {
+      "message": "屏蔽类似元素"
+   },
+   "assistant_extended_settings": {
+      "message": "高级设置..."
+   },
+   "assistant_preview_end": {
+      "message": "结束预览"
+   },
+   "assistant_preview_start": {
+      "message": "预览"
+   },
+   "assistant_select_element": {
+      "message": "選擇模式："
+   },
+   "assistant_select_element_cancel": {
+      "message": "退出选择模式"
+   },
+   "assistant_select_element_ext": {
+      "message": "单击页面上的任何元素或"
+   },
+   "assistant_slider_explain": {
+      "message": "调整滑块以改变框架大小"
+   },
+   "browser_action_popup_block_element": {
+      "message": "屏蔽元素"
+   },
+   "close": {
+      "message": "关闭"
+   },
+   "contact_us": {
+      "message": "联系我们"
+   },
+   "context_block_site_ads": {
+      "message": "屏蔽此网站的广告..."
+   },
+   "context_complaint_site": {
+      "message": "为此网站提交一份投诉..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate 无法在此域上运行"
+   },
+   "context_site_filtering_off": {
+      "message": "在此网站上禁用过滤"
+   },
+   "context_site_filtering_on": {
+      "message": "对此网站启用筛选功能"
+   },
+   "context_update_filters": {
+      "message": "检查筛选器更新"
+   },
+   "description": {
+      "message": "终极广告拦截工具。免费拦截 YouTube、Facebook 和所有其他网站上的广告！"
+   },
+   "desktop_app_info": {
+      "message": "广告屏蔽已由 Adblocker Ultimate for Windows 处理。然而你还可以用这个菜单管理你的白名单，或手动屏蔽某些广告。"
+   },
+   "desktop_app_is_running": {
+      "message": "桌面应用程序正在运行"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "“$filter$”已启用",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "自定义过滤规则"
+   },
+   "follow_us": {
+      "message": "关注我们"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "否"
+   },
+   "official_website": {
+      "message": "官方网站"
+   },
+   "options_about": {
+      "message": "关于"
+   },
+   "options_about_heading": {
+      "message": "所有烦人的广告都没了！"
+   },
+   "options_add_custom_filter": {
+      "message": "添加自定义过滤规则"
+   },
+   "options_allow_user_scripts": {
+      "message": "要启用自定义过滤器，请在扩展详情页启用\u003Csetting-name>允许用户脚本\u003C/setting-name>。\u003Clearn-link>了解更多\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "白名单"
+   },
+   "options_allowlist_desc": {
+      "message": "添加到白名单的网站上的广告不会被屏蔽。"
+   },
+   "options_android_callout": {
+      "message": "我们的 Android 应用比浏览器扩展拥有更多功能。看看你错过了什么。"
+   },
+   "options_android_upgrade": {
+      "message": "获取应用"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "打开一种语言的少量页面之后，此语言的过滤规则会自动添加和激活。"
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "自动激活特定语言的过滤规则"
+   },
+   "options_built_in_rules_limit": {
+      "message": "过滤规则数量：$count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "您确定要删除这个过滤规则吗？"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "带有 scriptlet 和 JavaScript 规则的自定义过滤器需要启用 User Scripts API 权限。这允许扩展从自定义过滤器订阅中执行脚本。"
+   },
+   "options_custom_rules": {
+      "message": "自定义规则"
+   },
+   "options_custom_rules_export": {
+      "message": "导出"
+   },
+   "options_custom_rules_import": {
+      "message": "导入"
+   },
+   "options_desktop_callout": {
+      "message": "我们的桌面应用比浏览器扩展拥有更多功能。看看你错过了什么。"
+   },
+   "options_desktop_upgrade": {
+      "message": "对比"
+   },
+   "options_do_you_like_abu": {
+      "message": "您喜欢 AdBlocker Ultimate 吗？"
+   },
+   "options_editor_desc": {
+      "message": "您可以在这个列表添加自己的自定义规则。创建你自己的广告过滤规则并在这里添加它们。"
+   },
+   "options_enable_context_menu_desc": {
+      "message": "在网页上右键点击时启用操作菜单。"
+   },
+   "options_enable_context_menu_title": {
+      "message": "启用上下文菜单"
+   },
+   "options_enable_developer_mode": {
+      "message": "要启用自定义过滤器，请在 Chrome 扩展设置中启用\u003Csetting-name>开发者模式\u003C/setting-name>。\u003Clearn-link>了解更多\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "输入有效的 URL 或文件路径"
+   },
+   "options_err": {
+      "message": "出现错误！"
+   },
+   "options_err_no_txt_file": {
+      "message": "仅允许 .txt 文件！"
+   },
+   "options_filter_categories": {
+      "message": "分类"
+   },
+   "options_filter_status_all": {
+      "message": "所有"
+   },
+   "options_filter_status_disabled": {
+      "message": "已禁用"
+   },
+   "options_filter_status_enabled": {
+      "message": "已启用"
+   },
+   "options_filter_update_date": {
+      "message": "上次更新：$date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "过滤规则"
+   },
+   "options_filters_enabled": {
+      "message": "已启用："
+   },
+   "options_filters_update_error": {
+      "message": "无法更新过滤器，请重试。"
+   },
+   "options_filters_update_success": {
+      "message": "已更新$count$个过滤器",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "已更新$count$个过滤器",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "所有过滤器均为最新"
+   },
+   "options_general": {
+      "message": "一般设置"
+   },
+   "options_help_translate": {
+      "message": "帮助我们翻译！"
+   },
+   "options_limits": {
+      "message": "限制"
+   },
+   "options_limits_active_filters": {
+      "message": "当前启用"
+   },
+   "options_limits_bar_warning": {
+      "message": "由于浏览器已达到规则限制，部分过滤器已被禁用。\u003Climits-link>查看受影响内容\u003C/limits-link>或\u003Cupgrade-link>获取无限制保护\u003C/upgrade-link>。"
+   },
+   "options_limits_callout_body": {
+      "message": "只有\u003Ctext-strong>$active$ / $expected$\u003C/text-strong>个过滤器正在运行——你的浏览器已没有更多空间存放过滤规则。\u003Ctext-strong>我们的桌面应用没有规则限制\u003C/text-strong>，可在整个设备上屏蔽广告和跟踪器。若要继续使用浏览器扩展，请通过关闭其他扩展或禁用低优先级过滤器来释放空间。",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "你的浏览器已没有更多空间存放过滤规则，因此部分过滤器已被关闭。\u003Ctext-strong>我们的桌面应用没有规则限制\u003C/text-strong>，可在整个设备上屏蔽广告和跟踪器。若要继续使用浏览器扩展，请通过关闭其他扩展或禁用低优先级过滤器来释放空间。"
+   },
+   "options_limits_callout_title": {
+      "message": "部分过滤器已被禁用"
+   },
+   "options_limits_disabled_filters": {
+      "message": "已临时禁用"
+   },
+   "options_limits_dismiss": {
+      "message": "忽略"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "动态正则规则"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "动态规则"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "不安全动态规则"
+   },
+   "options_limits_enabled_lists": {
+      "message": "已启用过滤器"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "由于超出浏览器限制，部分过滤器无法启用"
+   },
+   "options_limits_get_desktop": {
+      "message": "获取桌面应用"
+   },
+   "options_limits_intro": {
+      "message": "限制可同时启用的过滤器和规则数量。该限制在所有浏览器扩展间共享。"
+   },
+   "options_limits_none": {
+      "message": "无"
+   },
+   "options_limits_promo_body": {
+      "message": "规则限制会与其他扩展共享。超出限制会导致部分过滤器被临时禁用。\u003Ctext-strong>我们的桌面应用没有规则限制\u003C/text-strong>，可在整个设备上屏蔽广告和跟踪器。为避免超出浏览器限制，请尽量减少其他扩展并避免使用低优先级过滤器。"
+   },
+   "options_limits_promo_title": {
+      "message": "畅享无限过滤"
+   },
+   "options_limits_reenable": {
+      "message": "重新启用"
+   },
+   "options_limits_reenable_failed": {
+      "message": "可用配额不足。请关闭其他扩展或未使用的过滤器后重试"
+   },
+   "options_limits_reenable_success": {
+      "message": "过滤器已重新启用"
+   },
+   "options_limits_related": {
+      "message": "相关设置"
+   },
+   "options_limits_static_regex": {
+      "message": "静态正则规则"
+   },
+   "options_limits_static_rules": {
+      "message": "静态规则"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "内置过滤器使用浏览器的静态规则集和静态规则配额。"
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "内置过滤器"
+   },
+   "options_limits_usage": {
+      "message": "$current$ / $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "查看详情"
+   },
+   "options_limits_warning": {
+      "message": "由于浏览器限制，部分过滤器已被禁用。"
+   },
+   "options_limits_your_rules_desc": {
+      "message": "自定义规则和白名单条目共用浏览器的动态规则配额。"
+   },
+   "options_limits_your_rules_heading": {
+      "message": "自定义规则"
+   },
+   "options_menu": {
+      "message": "菜单"
+   },
+   "options_new_filter": {
+      "message": "新过滤规则"
+   },
+   "options_no_filters_enabled": {
+      "message": "没有启用的过滤规则"
+   },
+   "options_number_icon_desc": {
+      "message": "每个页面上被屏蔽广告的数量会在扩展图标中显示。"
+   },
+   "options_number_icon_title": {
+      "message": "在图标上显示屏蔽数量"
+   },
+   "options_open_extension_details": {
+      "message": "打开扩展详情"
+   },
+   "options_page_title": {
+      "message": "选项"
+   },
+   "options_rate_us": {
+      "message": "给我们评分"
+   },
+   "options_search": {
+      "message": "搜索"
+   },
+   "options_search_results": {
+      "message": "结果"
+   },
+   "options_submit": {
+      "message": "提交"
+   },
+   "options_theme_dark": {
+      "message": "深色"
+   },
+   "options_theme_desc": {
+      "message": "选择设置页面的配色方案。"
+   },
+   "options_theme_light": {
+      "message": "浅色"
+   },
+   "options_theme_system": {
+      "message": "系统"
+   },
+   "options_theme_title": {
+      "message": "主题"
+   },
+   "options_want_abu_in_lang": {
+      "message": "想要 AdBlocker Ultimate 显示您的语言吗？"
+   },
+   "page_blocked_go_back": {
+      "message": "返回"
+   },
+   "page_blocked_heading": {
+      "message": "此页面已被拦截"
+   },
+   "page_blocked_note": {
+      "message": "已临时授予访问权限。"
+   },
+   "page_blocked_proceed": {
+      "message": "仍然继续"
+   },
+   "page_blocked_reason": {
+      "message": "被过滤规则拦截："
+   },
+   "page_blocked_title": {
+      "message": "页面已拦截"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate 安卓版"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate iOS版"
+   },
+   "popup_enabled_on_site": {
+      "message": "在此站点上启用"
+   },
+   "popup_get_abu_desktop": {
+      "message": "获取适用于$platform$的AdBlocker Ultimate",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "由于超出浏览器限制，部分过滤器已被禁用"
+   },
+   "popup_mobile_apps_title": {
+      "message": "在移动设备上屏蔽广告"
+   },
+   "popup_protection_disabled": {
+      "message": "保护：已禁用"
+   },
+   "popup_protection_enabled": {
+      "message": "保护：已启用"
+   },
+   "popup_secure_page": {
+      "message": "安全页面"
+   },
+   "popup_settings": {
+      "message": "设置"
+   },
+   "popup_tab_blocked": {
+      "message": "已屏蔽: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "总共: $1"
+   },
+   "privacy_policy": {
+      "message": "隐私政策"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "无广告浏览已实现！"
+   },
+   "rate_us_button": {
+      "message": "给我们评分"
+   },
+   "rate_us_email": {
+      "message": "邮件"
+   },
+   "rate_us_hooray": {
+      "message": "太棒了！"
+   },
+   "rate_us_message": {
+      "message": "消息"
+   },
+   "rate_us_no_thanks": {
+      "message": "不，谢谢"
+   },
+   "rate_us_prompt": {
+      "message": "喜欢屏蔽广告？帮助其他人了解我们"
+   },
+   "rate_us_send_feedback": {
+      "message": "发送反馈"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "请告诉我们该如何改进"
+   },
+   "rate_us_thank_you": {
+      "message": "谢谢！"
+   },
+   "report_bug": {
+      "message": "报告错误"
+   },
+   "toast_filter_enabled_title": {
+      "message": "过滤器已自动激活"
+   },
+   "toast_filters_update_error": {
+      "message": "无法获取更新。请稍后重试。"
+   },
+   "toast_filters_update_filter": {
+      "message": "过滤器已更新"
+   },
+   "toast_filters_update_filters": {
+      "message": "过滤器已更新"
+   },
+   "toast_filters_update_not_found": {
+      "message": "无可用更新"
+   },
+   "toast_filters_update_title_error": {
+      "message": "检查更新失败"
+   },
+   "version": {
+      "message": "版本"
+   },
+   "yes": {
+      "message": "是"
+   }
+}

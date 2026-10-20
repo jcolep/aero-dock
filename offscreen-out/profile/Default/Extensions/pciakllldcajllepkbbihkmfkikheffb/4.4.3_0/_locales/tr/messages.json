@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Tüm Hakları Saklıdır"
+   },
+   "assistant_another_element": {
+      "message": "Başka bir öğe seçin"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Bu kuralı her web sitesine uygula"
+   },
+   "assistant_block": {
+      "message": "Engelle"
+   },
+   "assistant_block_by_reference": {
+      "message": "Url'ye göre öğe engelle"
+   },
+   "assistant_block_element": {
+      "message": "Öğe engelle"
+   },
+   "assistant_block_element_explain": {
+      "message": "Öğe engelleme kuralı kurlumu"
+   },
+   "assistant_block_similar": {
+      "message": "Benzer öğeleri engelle"
+   },
+   "assistant_extended_settings": {
+      "message": "Gelişmiş ayarlar..."
+   },
+   "assistant_preview_end": {
+      "message": "Önizlemeyi bitir"
+   },
+   "assistant_preview_start": {
+      "message": "Önizleme"
+   },
+   "assistant_select_element": {
+      "message": "Seçim modu"
+   },
+   "assistant_select_element_cancel": {
+      "message": "seçim modunu iptal et"
+   },
+   "assistant_select_element_ext": {
+      "message": "Sayfadaki herhangi bir öğenin üzerine tıklayın ya da "
+   },
+   "assistant_slider_explain": {
+      "message": "Çerçeveyi yeniden boyutlandırmak için kaydırıcıyı ayarlayın"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Öğe engelle"
+   },
+   "close": {
+      "message": "Kapat"
+   },
+   "contact_us": {
+      "message": "Bize ulaşın"
+   },
+   "context_block_site_ads": {
+      "message": "Bu Web sitesinde reklam engelle..."
+   },
+   "context_complaint_site": {
+      "message": "Bu web sitesi hakkında bir şikayet gönderin..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate bu alan adında çalışamaz"
+   },
+   "context_site_filtering_off": {
+      "message": "Bu Web sitesinde filtrelemeyi devre dışı bırak"
+   },
+   "context_site_filtering_on": {
+      "message": "Bu Web sitesinde filtrelemeyi etkinleştir"
+   },
+   "context_update_filters": {
+      "message": "Filtre güncellemelerini denetle"
+   },
+   "description": {
+      "message": "Nihai reklam engelleme aracı. YouTube, Facebook ve diğer tüm web sitelerindeki reklamları ücretsiz olarak engelleyin!"
+   },
+   "desktop_app_info": {
+      "message": "Reklam Engelleme, Adblocker Ultimate for Windows tarafından gerçekleştirilir. Ancak, beyaz listenizi yönetmek veya belirli reklamları manuel olarak engellemek için bu menüyü kullanmaya devam edebilirsiniz."
+   },
+   "desktop_app_is_running": {
+      "message": "Masaüstü uygulaması çalışıyor."
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" artık etkin",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Özel Filtreler"
+   },
+   "follow_us": {
+      "message": "Bizi takip edin"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Hayır"
+   },
+   "official_website": {
+      "message": "Resmi İnternet Sitesi"
+   },
+   "options_about": {
+      "message": "Hakkında"
+   },
+   "options_about_heading": {
+      "message": "Bütün can sıkıcı reklamlara son!"
+   },
+   "options_add_custom_filter": {
+      "message": "Özel filtre ekle"
+   },
+   "options_allow_user_scripts": {
+      "message": "Özel filtreleri etkinleştirmek için uzantı detayları sayfasında \u003Csetting-name>Kullanıcı komut dosyalarına izin ver\u003C/setting-name> seçeneğini açmanız gerekir. \u003Clearn-link>Daha fazla bilgi\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Beyaz liste"
+   },
+   "options_allowlist_desc": {
+      "message": "Bu istisnalara eklenilen web sitelerindeki reklamlar engellenmeyecektir."
+   },
+   "options_android_callout": {
+      "message": "Android uygulamamız, tarayıcı uzantısından daha fazla özelliğe sahip. Neler kaçırdığınızı görün."
+   },
+   "options_android_upgrade": {
+      "message": "Uygulamayı edinin"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Bir dilde birkaç sayfa açıldıktan sonra bu dildeki filtreler kendiliğinden eklenip etkinleştirilecektir."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Kendiliğinden dile özgü filtreleri etkinleştir"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Filtre kuralı sayısı: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Bu filtreyi silmek istediğinizden emin misiniz?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Scriptlet ve JavaScript kuralları içeren özel filtreler için User Scripts API izninin etkinleştirilmesi gerekir. Bu, uzantının özel filtre aboneliklerinden gelen komut dosyalarını çalıştırmasına olanak tanır."
+   },
+   "options_custom_rules": {
+      "message": "Özel Kurallar"
+   },
+   "options_custom_rules_export": {
+      "message": "Dışa aktar"
+   },
+   "options_custom_rules_import": {
+      "message": "İçe aktar"
+   },
+   "options_desktop_callout": {
+      "message": "Masaüstü uygulamamız, tarayıcı uzantısından daha fazla özelliğe sahip. Neler kaçırdığınızı görün."
+   },
+   "options_desktop_upgrade": {
+      "message": "Karşılaştır"
+   },
+   "options_do_you_like_abu": {
+      "message": "AdBlocker Ultimate’i beğeniyor musunuz?"
+   },
+   "options_editor_desc": {
+      "message": "Bu listede kendi özel kurallarınızı ekleyebilirsiniz. Kendi reklam filtrelerinizi oluşturun ve onları buraya ekleyin."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Bir web sayfasına sağ tıkladığınızda kullanılabilen işlemler menüsünü etkinleştirir."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Sağ tık menüsünü etkinleştir"
+   },
+   "options_enable_developer_mode": {
+      "message": "Özel filtreleri etkinleştirmek için Chrome uzantı ayarlarında \u003Csetting-name>Geliştirici modunu\u003C/setting-name> açmanız gerekir. \u003Clearn-link>Daha fazla bilgi\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Geçerli URL ya da dosya yolu girin"
+   },
+   "options_err": {
+      "message": "Bir şeyler ters gitti!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Yalnızca .txt dosyaları izin verilmiştir."
+   },
+   "options_filter_categories": {
+      "message": "Kategoriler"
+   },
+   "options_filter_status_all": {
+      "message": "Tümü"
+   },
+   "options_filter_status_disabled": {
+      "message": "Devre Dışı"
+   },
+   "options_filter_status_enabled": {
+      "message": "Etkin"
+   },
+   "options_filter_update_date": {
+      "message": "Son güncelleme: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtreler"
+   },
+   "options_filters_enabled": {
+      "message": "Etkinleşen:"
+   },
+   "options_filters_update_error": {
+      "message": "Filtreler güncellenemedi. Lütfen tekrar deneyin."
+   },
+   "options_filters_update_success": {
+      "message": "$count$ filtre güncellendi",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$ filtre güncellendi",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Tüm filtreler güncel"
+   },
+   "options_general": {
+      "message": "Genel"
+   },
+   "options_help_translate": {
+      "message": "Çevirisinde bize yardım edin."
+   },
+   "options_limits": {
+      "message": "Limitler"
+   },
+   "options_limits_active_filters": {
+      "message": "Şu anda etkin"
+   },
+   "options_limits_bar_warning": {
+      "message": "Bazı filtreler devre dışı bırakıldı çünkü tarayıcınızın kural limiti aşıldı. \u003Climits-link>Hangi filtreler etkilendi?\u003C/limits-link> veya \u003Cupgrade-link>sınırsız koruma alın\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Yalnızca \u003Ctext-strong>$active$ / $expected$\u003C/text-strong> filtreniz çalışıyor – tarayıcınızda filtreleme kuralları için yer kalmadı. \u003Ctext-strong>Masaüstü uygulamamızda kural sınırı yok\u003C/text-strong> ve tüm cihazınızda reklamları ve izleyicileri engeller. Tarayıcı uzantısını kullanmaya devam etmek için, diğer uzantıları kapatın veya önemsiz filtreleri devre dışı bırakın.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Tarayıcınızda filtreleme kuralları için yer kalmadı, bu yüzden bazı filtreler kapatıldı. \u003Ctext-strong>Masaüstü uygulamamızda kural sınırı yok\u003C/text-strong> ve tüm cihazınızda reklamları ve izleyicileri engeller. Tarayıcı uzantısını kullanmaya devam etmek için, diğer uzantıları kapatın veya önemsiz filtreleri devre dışı bırakın."
+   },
+   "options_limits_callout_title": {
+      "message": "Bazı filtreler devre dışı bırakıldı"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Geçici olarak devre dışı"
+   },
+   "options_limits_dismiss": {
+      "message": "Kapat"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dinamik regex kuralları"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dinamik kurallar"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Güvensiz dinamik kurallar"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Etkin filtreler"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Bazı filtreler etkinleştirilemedi çünkü tarayıcı limitleri aşıldı"
+   },
+   "options_limits_get_desktop": {
+      "message": "Masaüstü uygulamasını edinin"
+   },
+   "options_limits_intro": {
+      "message": "Aynı anda kaç filtre ve kuralın etkin olabileceğini sınırlar. Limitler tüm tarayıcı uzantılarınız arasında paylaşılır."
+   },
+   "options_limits_none": {
+      "message": "Yok"
+   },
+   "options_limits_promo_body": {
+      "message": "Kural sınırları diğer uzantılarınızla paylaşılır. Sınırı aşarsanız bazı filtreler geçici olarak devre dışı bırakılır. \u003Ctext-strong>Masaüstü uygulamamızda kural sınırı yok\u003C/text-strong> ve tüm cihazınızda reklamları ve izleyicileri engeller. Tarayıcı sınırları içinde kalmak için diğer uzantıları minimumda tutun ve önemsiz filtrelerden kaçının."
+   },
+   "options_limits_promo_title": {
+      "message": "Sınırsız filtreleme edinin"
+   },
+   "options_limits_reenable": {
+      "message": "Yeniden etkinleştir"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Yeterli boş kota yok. Diğer uzantıları veya kullanılmayan filtreleri kapatıp tekrar deneyin"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtreler yeniden etkinleştirildi"
+   },
+   "options_limits_related": {
+      "message": "İlgili ayarlar"
+   },
+   "options_limits_static_regex": {
+      "message": "Statik regex kuralları"
+   },
+   "options_limits_static_rules": {
+      "message": "Statik kurallar"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Yerleşik filtreler tarayıcının statik kural setini ve statik kural kotasını kullanır."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Yerleşik filtreler"
+   },
+   "options_limits_usage": {
+      "message": "$current$ / $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Detayları görüntüle"
+   },
+   "options_limits_warning": {
+      "message": "Bazı filtreler tarayıcı sınırları nedeniyle devre dışı bırakıldı."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Özel kurallar ve beyaz liste girişleri tarayıcının dinamik kural kotasını paylaşır."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Kendi kurallarınız"
+   },
+   "options_menu": {
+      "message": "Menü"
+   },
+   "options_new_filter": {
+      "message": "Yeni filtre"
+   },
+   "options_no_filters_enabled": {
+      "message": "Etkinleştirilen filtre yok"
+   },
+   "options_number_icon_desc": {
+      "message": "Her sayfada engellenilen reklamların sayısı eklenti simgesinde gösterilecektir."
+   },
+   "options_number_icon_title": {
+      "message": "Simgede sayı göster"
+   },
+   "options_open_extension_details": {
+      "message": "Uzantı Detaylarını Aç"
+   },
+   "options_page_title": {
+      "message": "Seçenekler"
+   },
+   "options_rate_us": {
+      "message": "Bizi Değerlendirin"
+   },
+   "options_search": {
+      "message": "Ara"
+   },
+   "options_search_results": {
+      "message": "Sonuçlar"
+   },
+   "options_submit": {
+      "message": "Gönder"
+   },
+   "options_theme_dark": {
+      "message": "Koyu"
+   },
+   "options_theme_desc": {
+      "message": "Ayarlar sayfası için renk şemasını seçin."
+   },
+   "options_theme_light": {
+      "message": "Açık"
+   },
+   "options_theme_system": {
+      "message": "Sistem"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Kendi dilinizde Adblocker Ultimate’i istiyor musunuz?"
+   },
+   "page_blocked_go_back": {
+      "message": "Geri Dön"
+   },
+   "page_blocked_heading": {
+      "message": "Bu sayfa engellendi"
+   },
+   "page_blocked_note": {
+      "message": "Geçici erişim verilecek."
+   },
+   "page_blocked_proceed": {
+      "message": "Yine de devam et"
+   },
+   "page_blocked_reason": {
+      "message": "Filtre kuralı tarafından engellendi:"
+   },
+   "page_blocked_title": {
+      "message": "Sayfa Engellendi"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate Android için"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate iOS için"
+   },
+   "popup_enabled_on_site": {
+      "message": "Bu sitede etkin"
+   },
+   "popup_get_abu_desktop": {
+      "message": "$platform$ için AdBlocker Ultimate'i edinin",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Bazı filtreler devre dışı bırakıldı çünkü tarayıcı limitleri aşıldı"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Mobilde reklamları engelleyin"
+   },
+   "popup_protection_disabled": {
+      "message": "Koruma: Devre Dışı"
+   },
+   "popup_protection_enabled": {
+      "message": "Koruma: Etkin"
+   },
+   "popup_secure_page": {
+      "message": "Güvenli sayfa"
+   },
+   "popup_settings": {
+      "message": "Ayarlar"
+   },
+   "popup_tab_blocked": {
+      "message": "Engellendi: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Toplam: $1"
+   },
+   "privacy_policy": {
+      "message": "Gizlilik Politikası"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Reklamsız gezinme sağlandı!"
+   },
+   "rate_us_button": {
+      "message": "bizi değerlendir"
+   },
+   "rate_us_email": {
+      "message": "E-posta"
+   },
+   "rate_us_hooray": {
+      "message": "Yaşasın!"
+   },
+   "rate_us_message": {
+      "message": "Mesaj"
+   },
+   "rate_us_no_thanks": {
+      "message": "Hayır teşekkürler"
+   },
+   "rate_us_prompt": {
+      "message": "Reklamları engellemekten hoşlanıyor musunuz? Başkalarının hakkımızda bilgi edinmesine yardımcı olun."
+   },
+   "rate_us_send_feedback": {
+      "message": "Geri bildirim gönder"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Lütfen bize nasıl geliştirebileceğimizi söyleyin."
+   },
+   "rate_us_thank_you": {
+      "message": "Teşekkür ederim!"
+   },
+   "report_bug": {
+      "message": "Hata bildirin"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filtreleri otomatik etkinleştirme"
+   },
+   "toast_filters_update_error": {
+      "message": "Güncellemeleri almak başarısız oldu. Lütfen yeniden deneyin."
+   },
+   "toast_filters_update_filter": {
+      "message": "filtre güncellendi"
+   },
+   "toast_filters_update_filters": {
+      "message": "filtreler güncellendi"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Güncelleme bulunamadı"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Güncellemeler kontrol edilemedi"
+   },
+   "version": {
+      "message": "Sürüm"
+   },
+   "yes": {
+      "message": "Evet"
+   }
+}

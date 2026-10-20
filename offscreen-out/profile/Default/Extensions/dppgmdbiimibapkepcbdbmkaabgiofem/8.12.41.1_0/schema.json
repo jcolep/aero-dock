@@ -1,0 +1,32 @@
+{
+	"type": "object",
+	"properties": {
+		"CredentialIntelligence": {
+			"title": "Credential Intelligence settings.",
+			"description": "If configured, it turns on the Credential Intelligence feature of the 1Password extension.",
+			"type": "object",
+			"properties": {
+				"userEmail": { "type": "string" },
+				"accountDisplayName": { "type": "string" },
+				"accountUuid": { "type": "string" },
+				"signInDomain": { "type": "string" },
+				"publicKey": { "type": "string" },
+				"hmacKey": { "type": "string" },
+				"domains": { "type": "array", "items": { "type": "string" } },
+				"enrollmentToken": { "type": "string" },
+				"inviteToken": { "type": "string" }
+			},
+			"required": [
+				"userEmail",
+				"accountDisplayName",
+				"accountUuid",
+				"signInDomain",
+				"publicKey",
+				"hmacKey",
+				"domains",
+				"enrollmentToken",
+				"inviteToken"
+			]
+		}
+	}
+}

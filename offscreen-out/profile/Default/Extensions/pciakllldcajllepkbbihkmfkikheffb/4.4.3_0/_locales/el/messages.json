@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Με επιφύλαξη όλων των πνευματικών δικαιωμάτων"
+   },
+   "assistant_another_element": {
+      "message": "Νέα επιλογή στοιχείου"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Εφαρμογή αυτού του κανόνα για όλες τις ιστοσελίδες"
+   },
+   "assistant_block": {
+      "message": "Αποκλεισμός"
+   },
+   "assistant_block_by_reference": {
+      "message": "Αποκλεισμός στοιχείου βάση διεύθυνσης url"
+   },
+   "assistant_block_element": {
+      "message": "Αποκλεισμός του στοιχείου"
+   },
+   "assistant_block_element_explain": {
+      "message": "Δημιουργία κανόνα αποκλεισμού στοιχείου"
+   },
+   "assistant_block_similar": {
+      "message": "Αποκλεισμός παρόμοιων στοιχείων"
+   },
+   "assistant_extended_settings": {
+      "message": "Ρυθμίσεις για προχωρημένους..."
+   },
+   "assistant_preview_end": {
+      "message": "Έξοδος από προεπισκοπηση"
+   },
+   "assistant_preview_start": {
+      "message": "Προεπισκόπηση"
+   },
+   "assistant_select_element": {
+      "message": "Λειτουργία επιλογής"
+   },
+   "assistant_select_element_cancel": {
+      "message": "βγείτε απ' τη λειτουργία επιλογής"
+   },
+   "assistant_select_element_ext": {
+      "message": "Κάντε κλικ σε οποιοδήποτε στοιχείο της σελίδας, ή "
+   },
+   "assistant_slider_explain": {
+      "message": "Ρυθμίστε το ρυθμιστικό για να αλλάξετε το μέγεθος του πλαισίου"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Αποκλεισμός του στοιχείου"
+   },
+   "close": {
+      "message": "Κλείσιμο"
+   },
+   "contact_us": {
+      "message": "Επικοινωνήστε με εμάς"
+   },
+   "context_block_site_ads": {
+      "message": "Αποκλεισμός διαφημίσεων σε αυτήν την ιστοσελίδα..."
+   },
+   "context_complaint_site": {
+      "message": "Υποβάλλετε διαμαρτυρία γι' αυτήν την ιστοσελίδα..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "Το AdBlocker Ultimate δεν μπορεί να λειτουργήσει σε αυτόν το domain"
+   },
+   "context_site_filtering_off": {
+      "message": "Απενεργοποίηση φίλτρων σε αυτήν την ιστοσελίδα"
+   },
+   "context_site_filtering_on": {
+      "message": "Χρήση φίλτρων σε αυτήν την ιστοσελίδα"
+   },
+   "context_update_filters": {
+      "message": "Αναζήτηση για ενημερώσεις φίλτρων"
+   },
+   "description": {
+      "message": "Το απόλυτο εργαλείο adblock. Αποκλεισμός διαφημίσεων στο YouTube, στο Facebook και σε όλους τους άλλους ιστότοπους δωρεάν!"
+   },
+   "desktop_app_info": {
+      "message": "Το AdBlocking διαχειρίζεται το Adblocker Ultimate για Windows. Ωστόσο, μπορείτε να χρησιμοποιήσετε αυτό το μενού για να διαχειριστείτε την λευκή λίστα σας ή να μπλοκάρετε χειροκίνητα ορισμένες διαφημίσεις."
+   },
+   "desktop_app_is_running": {
+      "message": "Εκτελείται η εφαρμογή επιφάνειας εργασίας"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "Το \"$filter$\" είναι τώρα ενεργό",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Προσαρμοσμένα Φίλτρα"
+   },
+   "follow_us": {
+      "message": "Ακολουθήστε μας στο:"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Όχι"
+   },
+   "official_website": {
+      "message": "Επίσημη Ιστοσελίδα"
+   },
+   "options_about": {
+      "message": "Σχετικα"
+   },
+   "options_about_heading": {
+      "message": "και όλες οι ενοχλητικές διαφημίσεις έχουν εξαφανιστεί!"
+   },
+   "options_add_custom_filter": {
+      "message": "Προσθήκη προσαρμοσμένου φίλτρου"
+   },
+   "options_allow_user_scripts": {
+      "message": "Για να ενεργοποιήσετε προσαρμοσμένα φίλτρα, πρέπει να ενεργοποιήσετε το \u003Csetting-name>Να επιτρέπονται user scripts\u003C/setting-name> στη σελίδα λεπτομερειών της επέκτασης. \u003Clearn-link>Μάθετε περισσότερα\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Λίστα επιτρεπόμενων"
+   },
+   "options_allowlist_desc": {
+      "message": "Οι διαφημίσεις στις ιστοσελίδες που προστέθηκαν στη λίστα επιτρεπόμενων δεν θα μπλοκαριστούν."
+   },
+   "options_android_callout": {
+      "message": "Η εφαρμογή μας για Android προσφέρει περισσότερες λειτουργίες από την επέκταση του προγράμματος περιήγησης. Δείτε τι χάνετε."
+   },
+   "options_android_upgrade": {
+      "message": "Λήψη εφαρμογής"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Μετά το άνοιγμα μερικών σελίδων σε μια γλώσσα, τα φίλτρα για αυτή τη γλώσσα θα προστεθούν και θα ενεργοποιηθούν αυτόματα."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Αυτόματη ενεργοποίηση φίλτρων για συγκεκριμένες γλώσσες"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Αριθμός κανόνων φίλτρων: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτό το φίλτρο;"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Τα προσαρμοσμένα φίλτρα με κανόνες scriptlet και JavaScript απαιτούν ενεργοποίηση της άδειας User Scripts API. Αυτό επιτρέπει στην επέκταση να εκτελεί scripts από προσαρμοσμένες συνδρομές φίλτρων."
+   },
+   "options_custom_rules": {
+      "message": "Προσαρμοσμένοι Κανόνες"
+   },
+   "options_custom_rules_export": {
+      "message": "Εξαγωγή"
+   },
+   "options_custom_rules_import": {
+      "message": "Εισαγωγή"
+   },
+   "options_desktop_callout": {
+      "message": "Η εφαρμογή μας για υπολογιστή προσφέρει περισσότερες λειτουργίες από την επέκταση του προγράμματος περιήγησης. Δείτε τι χάνετε."
+   },
+   "options_desktop_upgrade": {
+      "message": "Σύγκριση"
+   },
+   "options_do_you_like_abu": {
+      "message": "Σας αρέσει το AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Σε αυτή τη λίστα μπορείτε να προσθέσετε τους δικούς σας προσαρμοσμένους κανόνες. Δημιουργήστε τα δικά σας φίλτρα διαφημίσεων και προσθέστε τα εδώ."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Ενεργοποιεί ένα μενού ενεργειών που εμφανίζεται όταν κάνετε δεξί κλικ σε μια ιστοσελίδα."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Ενεργοποίηση μενού περιβάλλοντος"
+   },
+   "options_enable_developer_mode": {
+      "message": "Για να ενεργοποιήσετε προσαρμοσμένα φίλτρα, πρέπει να ενεργοποιήσετε τη \u003Csetting-name>Λειτουργία προγραμματιστή\u003C/setting-name> στις ρυθμίσεις επεκτάσεων του Chrome. \u003Clearn-link>Μάθετε περισσότερα\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Εισάγετε έγκυρο URL ή διαδρομή αρχείου"
+   },
+   "options_err": {
+      "message": "Κάτι πήγε στραβά!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Μόνο αρχεία .txt επιτρέπονται!"
+   },
+   "options_filter_categories": {
+      "message": "Κατηγορίες"
+   },
+   "options_filter_status_all": {
+      "message": "Όλα"
+   },
+   "options_filter_status_disabled": {
+      "message": "Απενεργοποιημένο"
+   },
+   "options_filter_status_enabled": {
+      "message": "Ενεργοποιημένο"
+   },
+   "options_filter_update_date": {
+      "message": "Τελευταία ενημέρωση: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Φίλτρα"
+   },
+   "options_filters_enabled": {
+      "message": "Ενεργά:"
+   },
+   "options_filters_update_error": {
+      "message": "Αδυναμία ενημέρωσης των φίλτρων. Δοκιμάστε ξανά."
+   },
+   "options_filters_update_success": {
+      "message": "Ενημερώθηκαν $count$ φίλτρα",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Ενημερώθηκε $count$ φίλτρο",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Όλα τα φίλτρα είναι ενημερωμένα"
+   },
+   "options_general": {
+      "message": "Γενικά"
+   },
+   "options_help_translate": {
+      "message": "Βοηθήστε μας στην μετάφραση"
+   },
+   "options_limits": {
+      "message": "Όρια"
+   },
+   "options_limits_active_filters": {
+      "message": "Ενεργά αυτή τη στιγμή"
+   },
+   "options_limits_bar_warning": {
+      "message": "Ορισμένα φίλτρα απενεργοποιήθηκαν επειδή το πρόγραμμα περιήγησής σας έφτασε το όριο κανόνων. \u003Climits-link>Δείτε τι επηρεάζεται\u003C/limits-link> ή \u003Cupgrade-link>αποκτήστε απεριόριστη προστασία\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Μόνο \u003Ctext-strong>$active$ από $expected$\u003C/text-strong> φίλτρα είναι ενεργά – ο browser σας δεν έχει άλλο χώρο για κανόνες φιλτραρίσματος. \u003Ctext-strong>Η εφαρμογή μας για υπολογιστή δεν έχει όρια στους κανόνες\u003C/text-strong> και μπλοκάρει διαφημίσεις και ιχνηλάτες σε όλη τη συσκευή σας. Για να συνεχίσετε να χρησιμοποιείτε την επέκταση, ελευθερώστε χώρο απενεργοποιώντας άλλες επεκτάσεις ή φίλτρα χαμηλής προτεραιότητας.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Ο browser σας δεν έχει άλλο χώρο για κανόνες φιλτραρίσματος και απενεργοποίησε κάποια φίλτρα. \u003Ctext-strong>Η εφαρμογή μας για υπολογιστή δεν έχει όρια στους κανόνες\u003C/text-strong> και μπλοκάρει διαφημίσεις και ιχνηλάτες σε όλη τη συσκευή σας. Για να συνεχίσετε να χρησιμοποιείτε την επέκταση, ελευθερώστε χώρο απενεργοποιώντας άλλες επεκτάσεις ή φίλτρα χαμηλής προτεραιότητας."
+   },
+   "options_limits_callout_title": {
+      "message": "Ορισμένα φίλτρα απενεργοποιήθηκαν"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Προσωρινά απενεργοποιημένα"
+   },
+   "options_limits_dismiss": {
+      "message": "Απόρριψη"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Δυναμικοί κανόνες regex"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Δυναμικοί κανόνες"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Μη ασφαλείς δυναμικοί κανόνες"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Ενεργά φίλτρα"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Ορισμένα φίλτρα δεν ήταν δυνατό να ενεργοποιηθούν επειδή ξεπεράστηκαν τα όρια του προγράμματος περιήγησης"
+   },
+   "options_limits_get_desktop": {
+      "message": "Αποκτήστε την εφαρμογή για υπολογιστή"
+   },
+   "options_limits_intro": {
+      "message": "περιορίζει πόσα φίλτρα και κανόνες μπορούν να είναι ενεργά ταυτόχρονα. Τα όρια μοιράζονται μεταξύ όλων των επεκτάσεων του προγράμματος περιήγησής σας."
+   },
+   "options_limits_none": {
+      "message": "Κανένα"
+   },
+   "options_limits_promo_body": {
+      "message": "Τα όρια κανόνων μοιράζονται με τις άλλες επεκτάσεις σας. Αν τα ξεπεράσετε, κάποια φίλτρα θα απενεργοποιηθούν προσωρινά. \u003Ctext-strong>Η εφαρμογή μας για υπολογιστή δεν έχει όρια στους κανόνες\u003C/text-strong> και μπλοκάρει διαφημίσεις και ιχνηλάτες σε όλη τη συσκευή σας. Για να μείνετε εντός των ορίων του browser, κρατήστε τις άλλες επεκτάσεις στο ελάχιστο και αποφύγετε φίλτρα χαμηλής προτεραιότητας."
+   },
+   "options_limits_promo_title": {
+      "message": "Φιλτράρισμα χωρίς όρια"
+   },
+   "options_limits_reenable": {
+      "message": "Επανενεργοποίηση"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Δεν υπάρχει αρκετή διαθέσιμη χωρητικότητα. Απενεργοποιήστε άλλες επεκτάσεις ή αχρησιμοποίητα φίλτρα και δοκιμάστε ξανά"
+   },
+   "options_limits_reenable_success": {
+      "message": "Τα φίλτρα ενεργοποιήθηκαν ξανά"
+   },
+   "options_limits_related": {
+      "message": "Σχετικές ρυθμίσεις"
+   },
+   "options_limits_static_regex": {
+      "message": "Στατικοί κανόνες regex"
+   },
+   "options_limits_static_rules": {
+      "message": "Στατικοί κανόνες"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Τα ενσωματωμένα φίλτρα χρησιμοποιούν το στατικό σύνολο κανόνων και τα όρια στατικών κανόνων του προγράμματος περιήγησης."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Ενσωματωμένα φίλτρα"
+   },
+   "options_limits_usage": {
+      "message": "$current$ από $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Προβολή λεπτομερειών"
+   },
+   "options_limits_warning": {
+      "message": "Ορισμένα φίλτρα απενεργοποιήθηκαν λόγω περιορισμών του προγράμματος περιήγησης."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Οι προσαρμοσμένοι κανόνες και οι καταχωρήσεις whitelist μοιράζονται τα δυναμικά όρια κανόνων του προγράμματος περιήγησης."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Οι κανόνες σας"
+   },
+   "options_menu": {
+      "message": "Μενού"
+   },
+   "options_new_filter": {
+      "message": "Νέο φίλτρο"
+   },
+   "options_no_filters_enabled": {
+      "message": "Δεν υπάρχουν ενεργοποιημένα φίλτρα"
+   },
+   "options_number_icon_desc": {
+      "message": "Ο αριθμός των αποκλεισμένων διαφημίσεων σε κάθε σελίδα θα εμφανίζεται στο εικονίδιο της επέκτασης."
+   },
+   "options_number_icon_title": {
+      "message": "Εμφάνιση αριθμού στο εικονίδιο"
+   },
+   "options_open_extension_details": {
+      "message": "Άνοιγμα λεπτομερειών επέκτασης"
+   },
+   "options_page_title": {
+      "message": "Επιλογές"
+   },
+   "options_rate_us": {
+      "message": "Αξιολογήστε μας"
+   },
+   "options_search": {
+      "message": "Αναζήτηση"
+   },
+   "options_search_results": {
+      "message": "Αποτελέσματα"
+   },
+   "options_submit": {
+      "message": "Υποβολή"
+   },
+   "options_theme_dark": {
+      "message": "Σκούρο"
+   },
+   "options_theme_desc": {
+      "message": "Επιλέξτε το χρωματικό θέμα για τη σελίδα ρυθμίσεων."
+   },
+   "options_theme_light": {
+      "message": "Ανοιχτό"
+   },
+   "options_theme_system": {
+      "message": "Σύστημα"
+   },
+   "options_theme_title": {
+      "message": "Θέμα"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Θέλετε AdBlocker Ultimate στη γλώσσα σας?"
+   },
+   "page_blocked_go_back": {
+      "message": "Επιστροφή"
+   },
+   "page_blocked_heading": {
+      "message": "Αυτή η σελίδα έχει αποκλειστεί"
+   },
+   "page_blocked_note": {
+      "message": "Θα δοθεί προσωρινή πρόσβαση."
+   },
+   "page_blocked_proceed": {
+      "message": "Συνέχεια ούτως ή άλλως"
+   },
+   "page_blocked_reason": {
+      "message": "Αποκλείστηκε από κανόνα φίλτρου:"
+   },
+   "page_blocked_title": {
+      "message": "Σελίδα αποκλεισμένη"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate για Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate για iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Ενεργό στον ιστότοπο"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Λήψη AdBlocker Ultimate για $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Ορισμένα φίλτρα απενεργοποιήθηκαν επειδή ξεπεράστηκαν τα όρια του προγράμματος περιήγησης"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Φραγή διαφημίσεων στο κινητό"
+   },
+   "popup_protection_disabled": {
+      "message": "Προστασία: Απενεργοποιημένη"
+   },
+   "popup_protection_enabled": {
+      "message": "Προστασία: Ενεργοποιημένη"
+   },
+   "popup_secure_page": {
+      "message": "Ασφαλής σελίδα"
+   },
+   "popup_settings": {
+      "message": "Ρυθμίσεις"
+   },
+   "popup_tab_blocked": {
+      "message": "Αποκλεισμένα: $1 στοιχεία"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Σύνολο: $1 στοιχεία"
+   },
+   "privacy_policy": {
+      "message": "Πολιτική Απορρήτου"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Η περιήγηση χωρίς διαφημίσεις επιτεύχθηκε!"
+   },
+   "rate_us_button": {
+      "message": "Αξιολογήστε μας"
+   },
+   "rate_us_email": {
+      "message": "Email"
+   },
+   "rate_us_hooray": {
+      "message": "Τέλεια!"
+   },
+   "rate_us_message": {
+      "message": "Μήνυμα"
+   },
+   "rate_us_no_thanks": {
+      "message": "Όχι, ευχαριστώ"
+   },
+   "rate_us_prompt": {
+      "message": "Σας αρέσει να μπλοκάρετε τις διαφημίσεις; Βοηθήστε τους άλλους να μάθουν για εμάς."
+   },
+   "rate_us_send_feedback": {
+      "message": "Αποστολή σχολίων"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Πείτε μας πώς μπορούμε να βελτιωθούμε"
+   },
+   "rate_us_thank_you": {
+      "message": "Ευχαριστούμε!"
+   },
+   "report_bug": {
+      "message": "Ανέφερε ένα bug"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Αυτόματη ενεργοποίηση φίλτρων"
+   },
+   "toast_filters_update_error": {
+      "message": "Αποτυχία λήψης ενημέρψσης. Παρακαλώ δοκιμάστε αργότερα."
+   },
+   "toast_filters_update_filter": {
+      "message": "το φίλτρο ενημερώθηκε"
+   },
+   "toast_filters_update_filters": {
+      "message": "τα φίλτρα ενημερώθηκαν"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Δεν βρέθηκαν ενημερώσεις"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Αποτυχία ελέγχου για ενημερώσεις"
+   },
+   "version": {
+      "message": "Έκδοση"
+   },
+   "yes": {
+      "message": "Ναι"
+   }
+}

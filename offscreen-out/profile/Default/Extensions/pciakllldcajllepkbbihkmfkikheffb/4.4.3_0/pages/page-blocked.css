@@ -1,0 +1,352 @@
+* {
+  box-sizing: border-box;
+}
+
+img {
+  width: 100%;
+}
+
+body,
+p,
+h1,
+h2,
+h3,
+h4,
+ul {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+textarea {
+  resize: none;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+html .hidden {
+  display: none;
+}
+
+/* ------------ LOADING SPINNER ------------ */
+body.loading::before {
+    content: '';
+    position: absolute;
+    position: var(--loader-position, absolute);
+    inset: 0;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--loader-overlay, rgba(0, 0, 0, 0.2));
+  }
+body.loading::after {
+    content: '';
+    position: absolute;
+    position: var(--loader-position, absolute);
+    inset: 0;
+    z-index: 2;
+    background-color: #fff;
+    background-color: var(--loader-color, #fff);
+    -webkit-mask-image: url('/assets/images/loader.svg');
+            mask-image: url('/assets/images/loader.svg');
+    -webkit-mask-size: 40px;
+            mask-size: 40px;
+    -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+            mask-position: center;
+  }
+
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  fill: currentColor;
+}
+
+/* lucide-preact stroke icons must not be filled by the shared .icon rule */
+.icon.lucide {
+  fill: none;
+}
+
+/* Optical compensation: the circular Facebook badge looks smaller than
+   full-bleed glyphs (e.g. the X logo) at the same bounding size. */
+.icon--facebook {
+  transform: scale(1.15);
+}
+
+/* ------------ TOGGLE ------------ */
+/* Shared on/off toggle (options settings + popup menu). See components/Toggle.jsx. */
+.toggle {
+  width: 40px;
+  height: 22px;
+  position: relative;
+  flex-shrink: 0;
+}
+.toggle__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+.toggle__label:before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-pill);
+      background-color: #cbd2dc;
+      transition: background-color 0.2s ease;
+    }
+.toggle__label:after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      inset-inline-start: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: inset-inline-start 0.2s ease;
+    }
+.toggle--checked .toggle__label:before {
+    background-color: var(--accent);
+  }
+.toggle--checked .toggle__label:after {
+    inset-inline-start: calc(100% - 20px);
+  }
+
+/**
+ * Design tokens — the single source of truth for the extension's design
+ * language (light + dark). Imported by the options page, popup, page-blocked,
+ * assistant, and the injected overlay CSS (alert/rate-us/rules-limits toasts).
+ *
+ * Theme resolution: pages and content-script injectors add `abu-theme-light`
+ * or `abu-theme-dark` to the root element (resolving `system` via matchMedia,
+ * see src/common/theme.js). The `abu-theme-system` + media-query rule is a
+ * fallback when no explicit class is set.
+ */
+
+:root,
+.abu-theme-light {
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --mono-font: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Source Code Pro', monospace;
+
+  --bg: #f7f9fc;
+  --surface: #fff;
+  --surface-hover: #f1f5fa;
+  --border: #e8ecf2;
+  --border-strong: #d5dced;
+
+  --text: #1e2a3b;
+  --text-muted: #6b7789;
+
+  --accent: #2d79e6;
+  --accent-hover: #2264c9;
+  --accent-soft: rgba(45, 121, 230, 0.1);
+
+  --success: #22a06b;
+  --warning: #f2c94c;
+  --warning-strong: #b25a00;
+  --warning-surface: #fff8e6;
+  --warning-border: #f2c94c;
+  --warning-text: #7a5b00;
+  --danger: #e5484d;
+
+  --radius: 10px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+}
+
+.abu-theme-dark {
+  --bg: #161d26;
+  --surface: #202834;
+  --surface-hover: #28323f;
+  --border: #333e4c;
+  --border-strong: #45525f;
+
+  --text: #e6eaf0;
+  --text-muted: #a9b4c3;
+
+  --accent: #4b90ed;
+  --accent-hover: #6aa5f2;
+  --accent-soft: rgba(75, 144, 237, 0.18);
+
+  --success: #3fbf87;
+  --warning: #f0b429;
+  --warning-strong: #f0b429;
+  --warning-surface: rgba(242, 201, 76, 0.1);
+  --warning-border: rgba(242, 201, 76, 0.4);
+  --warning-text: #e0c377;
+  --danger: #f06a6f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root.abu-theme-system,
+  .abu-theme-system {
+    --bg: #161d26;
+    --surface: #202834;
+    --surface-hover: #28323f;
+    --border: #333e4c;
+    --border-strong: #45525f;
+
+    --text: #e6eaf0;
+    --text-muted: #a9b4c3;
+
+    --accent: #4b90ed;
+    --accent-hover: #6aa5f2;
+    --accent-soft: rgba(75, 144, 237, 0.18);
+
+    --success: #3fbf87;
+    --warning: #f0b429;
+    --warning-strong: #f0b429;
+    --warning-surface: rgba(242, 201, 76, 0.1);
+    --warning-border: rgba(242, 201, 76, 0.4);
+    --warning-text: #e0c377;
+    --danger: #f06a6f;
+  }
+}
+
+/* ------------ GENERAL ------------ */
+body {
+  color: var(--text);
+  background-color: var(--bg);
+  font-family: var(--font);
+}
+
+.shell {
+  max-width: 930px;
+  margin-inline: auto;
+  padding: 20px;
+}
+
+/* ------------ BUTTONS ------------ */
+.btn {
+  background-color: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  padding: 12px 35px;
+  min-height: 45px;
+  cursor: pointer;
+}
+.btn:hover {
+    background-color: var(--accent-hover);
+  }
+.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--border-blue {
+  background-color: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.btn--border-blue:hover {
+    background-color: var(--accent-soft);
+  }
+
+/* ------------ COPYRIGHT ------------ */
+.copyright {
+  color: var(--text-muted);
+  font-size: 15px;
+  text-align: center;
+  padding-block: 18px;
+  margin-bottom: 20px;
+}
+
+/* ------------ BLOCKED PAGE ------------ */
+.blocked-page {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 40px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.blocked-page__icon {
+  width: 70px;
+  height: 70px;
+  margin-inline: auto;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blocked-page__heading {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.blocked-page__url {
+  font-size: 14px;
+  color: var(--accent);
+  word-break: break-all;
+  margin-bottom: 24px;
+}
+
+.blocked-page__reason {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.blocked-page__rule {
+  display: block;
+  font-family: var(--mono-font);
+  font-size: 12px;
+  color: var(--text);
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 28px;
+  text-align: left;
+  direction: ltr;
+  word-break: break-all;
+}
+
+.blocked-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.blocked-page__note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+

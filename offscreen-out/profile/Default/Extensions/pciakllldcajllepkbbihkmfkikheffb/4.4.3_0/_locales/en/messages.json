@@ -1,0 +1,501 @@
+{
+   "all_rights_reserved": {
+      "message": "All Rights Reserved"
+   },
+   "assistant_another_element": {
+      "message": "Select another element"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Apply this rule to every website"
+   },
+   "assistant_block": {
+      "message": "Block"
+   },
+   "assistant_block_by_reference": {
+      "message": "Block element by url"
+   },
+   "assistant_block_element": {
+      "message": "Block element"
+   },
+   "assistant_block_element_explain": {
+      "message": "Element blocking rule setup"
+   },
+   "assistant_block_similar": {
+      "message": "Block similar elements"
+   },
+   "assistant_extended_settings": {
+      "message": "Detailed settings..."
+   },
+   "assistant_preview_end": {
+      "message": "Finish preview"
+   },
+   "assistant_preview_start": {
+      "message": "Preview"
+   },
+   "assistant_select_element": {
+      "message": "Selection mode"
+   },
+   "assistant_select_element_cancel": {
+      "message": "cancel selection mode"
+   },
+   "assistant_select_element_ext": {
+      "message": "Click on any element on the page or "
+   },
+   "assistant_slider_explain": {
+      "message": "Adjust the slider to resize the frame "
+   },
+   "browser_action_popup_block_element": {
+      "message": "Block element"
+   },
+   "close": {
+      "message": "Close"
+   },
+   "contact_us": {
+      "message": "Contact us"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website"
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website"
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate can not run on this domain"
+   },
+   "context_site_filtering_off": {
+      "message": "Disable filtering on this website"
+   },
+   "context_site_filtering_on": {
+      "message": "Enable filtering on this website"
+   },
+   "context_update_filters": {
+      "message": "Check for filter updates"
+   },
+   "description": {
+      "message": "The ultimate adblock tool. Block ads on YouTube, Facebook, and all other websites for free!"
+   },
+   "desktop_app_info": {
+      "message": "Ad blocking is handled by AdBlocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Desktop app is running"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" is now enabled",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Custom Filters"
+   },
+   "follow_us": {
+      "message": "Follow us on"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "No"
+   },
+   "official_website": {
+      "message": "Official Website"
+   },
+   "options_about": {
+      "message": "About"
+   },
+   "options_about_heading": {
+      "message": "And all annoying ads are out!"
+   },
+   "options_add_custom_filter": {
+      "message": "Add custom filter"
+   },
+   "options_allow_user_scripts": {
+      "message": "To enable custom filters, you need to enable \u003Csetting-name>Allow user scripts\u003C/setting-name> in the extension details page. \u003Clearn-link>Learn more\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Whitelist"
+   },
+   "options_allowlist_desc": {
+      "message": "The ads on the websites added to this Whitelist will not be blocked."
+   },
+   "options_android_callout": {
+      "message": "Our Android app has more features than the browser extension. See what you are missing out on."
+   },
+   "options_android_upgrade": {
+      "message": "Get the app"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "After opening a few pages in a language, the filters for this language will be automatically added and activated."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Automatically activate language-specific filters"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Filter rules count: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Are you sure you want to delete this filter?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Custom filters with scriptlet and JavaScript rules require the User Scripts API permission to be enabled. This allows the extension to execute scripts from custom filter subscriptions."
+   },
+   "options_custom_rules": {
+      "message": "Custom Rules"
+   },
+   "options_custom_rules_export": {
+      "message": "Export"
+   },
+   "options_custom_rules_import": {
+      "message": "Import"
+   },
+   "options_desktop_callout": {
+      "message": "Our desktop app has more features than the browser extension. See what you are missing out on."
+   },
+   "options_desktop_upgrade": {
+      "message": "Compare"
+   },
+   "options_do_you_like_abu": {
+      "message": "Do you like AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "In this list you can add your own Custom Rules. Create your own ad filters and add them here."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Enables a menu of actions available when you right-click on a web page."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Enable context menu"
+   },
+   "options_enable_developer_mode": {
+      "message": "To enable custom filters, you need to enable \u003Csetting-name>Developer mode\u003C/setting-name> in Chrome's extension settings. \u003Clearn-link>Learn more\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Enter valid URL or file path"
+   },
+   "options_err": {
+      "message": "Something went wrong!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Only .txt files allowed!"
+   },
+   "options_filter_categories": {
+      "message": "Categories"
+   },
+   "options_filter_status_all": {
+      "message": "All"
+   },
+   "options_filter_status_disabled": {
+      "message": "Disabled"
+   },
+   "options_filter_status_enabled": {
+      "message": "Enabled"
+   },
+   "options_filter_update_date": {
+      "message": "Last update: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filters"
+   },
+   "options_filters_enabled": {
+      "message": "Enabled:"
+   },
+   "options_filters_update_error": {
+      "message": "Couldn't update filters. Please try again."
+   },
+   "options_filters_update_success": {
+      "message": "Updated $count$ filters",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Updated $count$ filter",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "All filters are up to date"
+   },
+   "options_general": {
+      "message": "General"
+   },
+   "options_help_translate": {
+      "message": "Help us with the translation!"
+   },
+   "options_limits": {
+      "message": "Limits"
+   },
+   "options_limits_bar_warning": {
+      "message": "Some filters were disabled because your browser reached its rules limits. \u003Climits-link>See what's affected\u003C/limits-link> or \u003Cupgrade-link>get unlimited protection\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Only \u003Ctext-strong>$active$ of your $expected$\u003C/text-strong> filters are running - your browser ran out of room for filtering rules. \u003Ctext-strong>Our desktop app has no rule limits\u003C/text-strong> and blocks ads and trackers across your whole device. To keep using the browser extension, free up room by turning off other extensions or disabling low-priority filters.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Your browser ran out of room for filtering rules, so it turned some filters off. \u003Ctext-strong>Our desktop app has no rule limits\u003C/text-strong> and blocks ads and trackers across your whole device. To keep using the browser extension, free up room by turning off other extensions or disabling low-priority filters."
+   },
+   "options_limits_callout_title": {
+      "message": "Browser limits reached - some filters are off"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Temporarily disabled"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dynamic regex rules"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dynamic rules"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Unsafe dynamic rules"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Enabled filters"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Some filters could not be enabled because browser limits were exceeded"
+   },
+   "options_limits_intro": {
+      "message": "limits how many filters and rules can be active at once. The limits are shared between all of your browser extensions."
+   },
+   "options_limits_none": {
+      "message": "None"
+   },
+   "options_limits_promo_body": {
+      "message": "Rule limits are shared with your other extensions. Exceeding them will temporarily disable some filters. \u003Ctext-strong>Our desktop app has no rule limits\u003C/text-strong> and blocks ads and trackers across your whole device. To stay within the browser's limits, keep other extensions to a minimum and avoid low-priority filters."
+   },
+   "options_limits_promo_title": {
+      "message": "Get filtering without limits"
+   },
+   "options_limits_related": {
+      "message": "Related settings"
+   },
+   "options_limits_static_regex": {
+      "message": "Static regex rules"
+   },
+   "options_limits_static_rules": {
+      "message": "Static rules"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Built-in filters use the browser’s static ruleset and static rule quotas."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Built-in filters"
+   },
+   "options_limits_usage": {
+      "message": "$current$ of $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "View details"
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Custom rules and whitelist entries share the browser’s dynamic rule quotas."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Your rules"
+   },
+   "options_menu": {
+      "message": "Menu"
+   },
+   "options_new_filter": {
+      "message": "New filter"
+   },
+   "options_no_filters_enabled": {
+      "message": "No filters enabled"
+   },
+   "options_number_icon_desc": {
+      "message": "The number of blocked ads on each page will show in the extension icon."
+   },
+   "options_number_icon_title": {
+      "message": "Show number in icon"
+   },
+   "options_open_extension_details": {
+      "message": "Open Extension Details"
+   },
+   "options_page_title": {
+      "message": "Settings"
+   },
+   "options_rate_us": {
+      "message": "Rate Us"
+   },
+   "options_search": {
+      "message": "Search"
+   },
+   "options_search_results": {
+      "message": "Results"
+   },
+   "options_submit": {
+      "message": "Submit"
+   },
+   "options_theme_dark": {
+      "message": "Dark"
+   },
+   "options_theme_desc": {
+      "message": "Choose the color scheme for the settings page."
+   },
+   "options_theme_light": {
+      "message": "Light"
+   },
+   "options_theme_system": {
+      "message": "System"
+   },
+   "options_theme_title": {
+      "message": "Theme"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Want AdBlocker Ultimate in your language?"
+   },
+   "page_blocked_go_back": {
+      "message": "Go Back"
+   },
+   "page_blocked_heading": {
+      "message": "This page has been blocked"
+   },
+   "page_blocked_note": {
+      "message": "Temporary access will be granted."
+   },
+   "page_blocked_proceed": {
+      "message": "Proceed Anyway"
+   },
+   "page_blocked_reason": {
+      "message": "Blocked by filter rule:"
+   },
+   "page_blocked_title": {
+      "message": "Page Blocked"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate for Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate for iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Enabled on this site"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Get AdBlocker Ultimate for $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Some filters were disabled because browser limits were exceeded"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Block ads on mobile"
+   },
+   "popup_protection_disabled": {
+      "message": "Protection: Disabled"
+   },
+   "popup_protection_enabled": {
+      "message": "Protection: Enabled"
+   },
+   "popup_secure_page": {
+      "message": "Secure page"
+   },
+   "popup_settings": {
+      "message": "Settings"
+   },
+   "popup_tab_blocked": {
+      "message": "Blocked: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Total: $1"
+   },
+   "privacy_policy": {
+      "message": "Privacy Policy"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Ad-free browsing achieved!"
+   },
+   "rate_us_button": {
+      "message": "Rate us"
+   },
+   "rate_us_email": {
+      "message": "Email"
+   },
+   "rate_us_hooray": {
+      "message": "Hooray!"
+   },
+   "rate_us_message": {
+      "message": "Message"
+   },
+   "rate_us_no_thanks": {
+      "message": "No thanks"
+   },
+   "rate_us_prompt": {
+      "message": "Enjoy blocking ads? Help others find out about us."
+   },
+   "rate_us_send_feedback": {
+      "message": "Send Feedback"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Please tell us how we can improve"
+   },
+   "rate_us_thank_you": {
+      "message": "Thank you!"
+   },
+   "report_bug": {
+      "message": "Report a bug"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filters auto-activated"
+   },
+   "toast_filters_update_error": {
+      "message": "Failed to get updates. Please try again later."
+   },
+   "toast_filters_update_filter": {
+      "message": "filter has been updated"
+   },
+   "toast_filters_update_filters": {
+      "message": "filters have been updated"
+   },
+   "toast_filters_update_not_found": {
+      "message": "No updates found"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Failed to check for updates"
+   },
+   "version": {
+      "message": "Version"
+   },
+   "yes": {
+      "message": "Yes"
+   }
+}

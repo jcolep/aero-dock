@@ -1,0 +1,1 @@
+import{C as s,U as t,Ut as r,b as o,h as l,m as n,q as m,qt as u}from"./vendor-charts-BA6mrMsB.js";var d=s({__name:"Message",props:{type:{default:"error"},message:{}},setup(e){return(a,p)=>e.message?(t(),l("span",{key:0,class:r({"d-message":!0,"text-red-700":e.type=="error"})},[o(u(e.message),1),m(a.$slots,"default")],2)):n("",!0)}}),g=d;export{g as t};

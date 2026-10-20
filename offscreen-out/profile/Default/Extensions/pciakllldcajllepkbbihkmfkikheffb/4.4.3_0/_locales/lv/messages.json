@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Visas tiesības aizsargātas"
+   },
+   "assistant_another_element": {
+      "message": "Izvēlēties citu elementu"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Pielietot šo noteikumu visām vietnēm"
+   },
+   "assistant_block": {
+      "message": "Bloķēt"
+   },
+   "assistant_block_by_reference": {
+      "message": "Bloķēt elementu pēc URL"
+   },
+   "assistant_block_element": {
+      "message": "Bloķēt elementu"
+   },
+   "assistant_block_element_explain": {
+      "message": "Elementa bloķēšanas noteikuma iestatīšana"
+   },
+   "assistant_block_similar": {
+      "message": "Bloķēt līdzīgus elementus"
+   },
+   "assistant_extended_settings": {
+      "message": "Advanced settings..."
+   },
+   "assistant_preview_end": {
+      "message": "Pabeigt priekšskatījumu"
+   },
+   "assistant_preview_start": {
+      "message": "Priekšskatīt"
+   },
+   "assistant_select_element": {
+      "message": "Izvēles režīms"
+   },
+   "assistant_select_element_cancel": {
+      "message": "atcelt izvēles režīmu"
+   },
+   "assistant_select_element_ext": {
+      "message": "Noklikšķiniet uz jebkura elementa lapā vai"
+   },
+   "assistant_slider_explain": {
+      "message": "Pielāgojiet slīdni, lai mainītu rāmja izmēru"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Bloķēt elementu"
+   },
+   "close": {
+      "message": "Aizvērt"
+   },
+   "contact_us": {
+      "message": "Sazinieties ar mums"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate nevar darboties šajā domēnā"
+   },
+   "context_site_filtering_off": {
+      "message": "Izslēgt filtrēšanu šajā vietnē"
+   },
+   "context_site_filtering_on": {
+      "message": "Ieslēgt filtrēšanu šajā vietnē"
+   },
+   "context_update_filters": {
+      "message": "Pārbaudīt filtru atjauninājumus"
+   },
+   "description": {
+      "message": "Labākais reklāmu bloķēšanas rīks. Bloķējiet reklāmas vietnē YouTube, Facebook un visās citās vietnēs bez maksas!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Darbvirsmas lietotne darbojas"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" tagad ir ieslēgts",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Pielāgotie filtri"
+   },
+   "follow_us": {
+      "message": "Seko mums"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Nē"
+   },
+   "official_website": {
+      "message": "Oficiālā vietne"
+   },
+   "options_about": {
+      "message": "Par"
+   },
+   "options_about_heading": {
+      "message": "Un visas kaitinošās reklāmas ir prom!"
+   },
+   "options_add_custom_filter": {
+      "message": "Pievienot pielāgotu filtru"
+   },
+   "options_allow_user_scripts": {
+      "message": "Lai ieslēgtu pielāgotos filtrus, jums jāaktivizē \u003Csetting-name>Atļaut lietotāja skriptus\u003C/setting-name> paplašinājuma detaļu lapā. \u003Clearn-link>Uzzināt vairāk\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Baltā saraksta vietnes"
+   },
+   "options_allowlist_desc": {
+      "message": "Reklāmas vietnēs, kas pievienotas šim atļauto sarakstam, netiks bloķētas."
+   },
+   "options_android_callout": {
+      "message": "Mūsu Android lietotnei ir vairāk funkciju nekā pārlūka paplašinājumam. Uzziniet, ko vēl varat iegūt."
+   },
+   "options_android_upgrade": {
+      "message": "Lejupielādēt lietotni"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Pēc dažām lapām šajā valodā filtri šai valodai tiks automātiski pievienoti un aktivizēti."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Automātiski aktivizēt valodas filtrus"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Filtru noteikumu skaits: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Vai tiešām vēlaties dzēst šo filtru?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Pielāgotajiem filtriem ar scriptlet un JavaScript noteikumiem nepieciešama User Scripts API atļauja. Tas ļauj paplašinājumam izpildīt skriptus no pielāgotajām filtru abonēšanām."
+   },
+   "options_custom_rules": {
+      "message": "Pielāgoti noteikumi"
+   },
+   "options_custom_rules_export": {
+      "message": "Eksportēt"
+   },
+   "options_custom_rules_import": {
+      "message": "Importēt"
+   },
+   "options_desktop_callout": {
+      "message": "Mūsu darbvirsmas lietotnei ir vairāk funkciju nekā pārlūka paplašinājumam. Uzziniet, ko vēl varat iegūt."
+   },
+   "options_desktop_upgrade": {
+      "message": "Salīdzināt"
+   },
+   "options_do_you_like_abu": {
+      "message": "Vai jums patīk AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Šajā sarakstā varat pievienot savus pielāgotos noteikumus. Izveidojiet savus reklāmu filtrus un pievienojiet tos šeit."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Iespējo darbību izvēlni, kas pieejama, ar peles labo pogu noklikšķinot uz tīmekļa lapas."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Ieslēgt konteksta izvēlni"
+   },
+   "options_enable_developer_mode": {
+      "message": "Lai ieslēgtu pielāgotos filtrus, jums jāaktivizē \u003Csetting-name>Izstrādātāja režīms\u003C/setting-name> Chrome paplašinājumu iestatījumos. \u003Clearn-link>Uzzināt vairāk\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Ievadiet derīgu URL vai faila ceļu"
+   },
+   "options_err": {
+      "message": "Kaut kas nogāja greizi!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Atļauti tikai .txt faili!"
+   },
+   "options_filter_categories": {
+      "message": "Kategorijas"
+   },
+   "options_filter_status_all": {
+      "message": "Visi"
+   },
+   "options_filter_status_disabled": {
+      "message": "Izslēgts"
+   },
+   "options_filter_status_enabled": {
+      "message": "Ieslēgts"
+   },
+   "options_filter_update_date": {
+      "message": "Pēdējā atjaunināšana: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtri"
+   },
+   "options_filters_enabled": {
+      "message": "Ieslēgti:"
+   },
+   "options_filters_update_error": {
+      "message": "Neizdevās atjaunināt filtrus. Lūdzu, mēģiniet vēlreiz."
+   },
+   "options_filters_update_success": {
+      "message": "Atjaunināti $count$ filtri",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Atjaunināts $count$ filtrs",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Visi filtri ir atjaunināti"
+   },
+   "options_general": {
+      "message": "Vispārīgi"
+   },
+   "options_help_translate": {
+      "message": "Palīdziet mums ar tulkojumu!"
+   },
+   "options_limits": {
+      "message": "Limiti"
+   },
+   "options_limits_active_filters": {
+      "message": "Pašlaik aktīvi"
+   },
+   "options_limits_bar_warning": {
+      "message": "Daži filtri tika deaktivizēti, jo jūsu pārlūks sasniedza noteikumu limitu. \u003Climits-link>Skatīt, kas ietekmēts\u003C/limits-link> vai \u003Cupgrade-link>iegūstiet neierobežotu aizsardzību\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Tikai \u003Ctext-strong>$active$ no $expected$\u003C/text-strong> jūsu filtriem darbojas – pārlūkā vairs nav vietas filtrēšanas noteikumiem. \u003Ctext-strong>Mūsu darbvirsmas lietotnei nav noteikumu ierobežojumu\u003C/text-strong> un tā bloķē reklāmas un izsekotājus visā ierīcē. Lai turpinātu izmantot pārlūka paplašinājumu, atbrīvojiet vietu, izslēdzot citus paplašinājumus vai atspējojot mazsvarīgus filtrus.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Pārlūkā vairs nav vietas filtrēšanas noteikumiem, tāpēc daži filtri tika izslēgti. \u003Ctext-strong>Mūsu darbvirsmas lietotnei nav noteikumu ierobežojumu\u003C/text-strong> un tā bloķē reklāmas un izsekotājus visā ierīcē. Lai turpinātu izmantot pārlūka paplašinājumu, atbrīvojiet vietu, izslēdzot citus paplašinājumus vai atspējojot mazsvarīgus filtrus."
+   },
+   "options_limits_callout_title": {
+      "message": "Daži filtri tika deaktivizēti"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Pagaidām deaktivizēti"
+   },
+   "options_limits_dismiss": {
+      "message": "Nerādīt"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dinamiskie regex noteikumi"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dinamiskie noteikumi"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Nedrošie dinamiskie noteikumi"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Aktivizētie filtri"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Daži filtri nevarēja tikt aktivizēti, jo tika pārsniegti pārlūka limiti"
+   },
+   "options_limits_get_desktop": {
+      "message": "Lejupielādēt darbvirsmas lietotni"
+   },
+   "options_limits_intro": {
+      "message": "ierobežo, cik daudz filtru un noteikumu var būt aktīvi vienlaikus. Limiti tiek dalīti starp visiem jūsu pārlūka paplašinājumiem."
+   },
+   "options_limits_none": {
+      "message": "Nav"
+   },
+   "options_limits_promo_body": {
+      "message": "Noteikumu ierobežojumi tiek dalīti ar citiem paplašinājumiem. Ja tie tiek pārsniegti, daži filtri tiks īslaicīgi atspējoti. \u003Ctext-strong>Mūsu darbvirsmas lietotnei nav noteikumu ierobežojumu\u003C/text-strong> un tā bloķē reklāmas un izsekotājus visā ierīcē. Lai ievērotu pārlūka ierobežojumus, samaziniet citu paplašinājumu skaitu un izvairieties no mazsvarīgiem filtriem."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtrēšana bez ierobežojumiem"
+   },
+   "options_limits_reenable": {
+      "message": "Ieslēgt atkārtoti"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Nepietiek brīvas kvotas. Izslēdziet citas paplašinājumus vai neizmantotos filtrus un mēģiniet vēlreiz"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtri tika atkārtoti aktivizēti"
+   },
+   "options_limits_related": {
+      "message": "Saistītie iestatījumi"
+   },
+   "options_limits_static_regex": {
+      "message": "Statiskie regex noteikumi"
+   },
+   "options_limits_static_rules": {
+      "message": "Statiskie noteikumi"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Iebūvētie filtri izmanto pārlūka statisko noteikumu kopu un statisko noteikumu kvotas."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Iebūvētie filtri"
+   },
+   "options_limits_usage": {
+      "message": "$current$ no $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Skatīt detaļas"
+   },
+   "options_limits_warning": {
+      "message": "Daži filtri tika atspējoti pārlūkprogrammas ierobežojumu dēļ."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Pielāgotie noteikumi un baltā saraksta ieraksti izmanto pārlūka dinamisko noteikumu kvotas."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Jūsu noteikumi"
+   },
+   "options_menu": {
+      "message": "Izvēlne"
+   },
+   "options_new_filter": {
+      "message": "Jauns filtrs"
+   },
+   "options_no_filters_enabled": {
+      "message": "Nav ieslēgtu filtru"
+   },
+   "options_number_icon_desc": {
+      "message": "Bloķēto reklāmu skaits katrā lapā tiks rādīts paplašinājuma ikonā."
+   },
+   "options_number_icon_title": {
+      "message": "Rādīt skaitli ikonā"
+   },
+   "options_open_extension_details": {
+      "message": "Atvērt paplašinājuma detaļas"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "Novērtējiet mūs"
+   },
+   "options_search": {
+      "message": "Meklēt"
+   },
+   "options_search_results": {
+      "message": "Rezultāti"
+   },
+   "options_submit": {
+      "message": "Iesniegt"
+   },
+   "options_theme_dark": {
+      "message": "Tumšs"
+   },
+   "options_theme_desc": {
+      "message": "Izvēlieties iestatījumu lapas krāsu shēmu."
+   },
+   "options_theme_light": {
+      "message": "Gaišs"
+   },
+   "options_theme_system": {
+      "message": "Sistēma"
+   },
+   "options_theme_title": {
+      "message": "Tēma"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Vēlaties AdBlocker Ultimate savā valodā?"
+   },
+   "page_blocked_go_back": {
+      "message": "Atgriezties"
+   },
+   "page_blocked_heading": {
+      "message": "Šī lapa ir bloķēta"
+   },
+   "page_blocked_note": {
+      "message": "Tiks piešķirta pagaidu piekļuve."
+   },
+   "page_blocked_proceed": {
+      "message": "Turpināt tāpat"
+   },
+   "page_blocked_reason": {
+      "message": "Bloķēts pēc filtra noteikuma:"
+   },
+   "page_blocked_title": {
+      "message": "Lapa bloķēta"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate Android ierīcēm"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate iOS ierīcēm"
+   },
+   "popup_enabled_on_site": {
+      "message": "Ieslēgts šajā vietnē"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate priekš $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Daži filtri tika deaktivizēti, jo tika pārsniegti pārlūka limiti"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Bloķēt reklāmas telefonā"
+   },
+   "popup_protection_disabled": {
+      "message": "Aizsardzība: izslēgta"
+   },
+   "popup_protection_enabled": {
+      "message": "Aizsardzība: ieslēgta"
+   },
+   "popup_secure_page": {
+      "message": "Droša lapa"
+   },
+   "popup_settings": {
+      "message": "Iestatījumi"
+   },
+   "popup_tab_blocked": {
+      "message": "Bloķēts: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Kopā: $1"
+   },
+   "privacy_policy": {
+      "message": "Privātuma politika"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Pārlūkošana bez reklāmām sasniegta!"
+   },
+   "rate_us_button": {
+      "message": "Novērtējiet mūs"
+   },
+   "rate_us_email": {
+      "message": "E-pasts"
+   },
+   "rate_us_hooray": {
+      "message": "Urrā!"
+   },
+   "rate_us_message": {
+      "message": "Ziņojums"
+   },
+   "rate_us_no_thanks": {
+      "message": "Nē, paldies"
+   },
+   "rate_us_prompt": {
+      "message": "Patīk bloķēt reklāmas? Palīdziet citiem uzzināt par mums."
+   },
+   "rate_us_send_feedback": {
+      "message": "Sūtīt atsauksmi"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Lūdzu, pastāstiet, kā varam uzlabot"
+   },
+   "rate_us_thank_you": {
+      "message": "Paldies!"
+   },
+   "report_bug": {
+      "message": "Ziņot par kļūdu"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filtri automātiski aktivizēti"
+   },
+   "toast_filters_update_error": {
+      "message": "Neizdevās iegūt atjauninājumus. Lūdzu, mēģiniet vēlreiz vēlāk."
+   },
+   "toast_filters_update_filter": {
+      "message": "filtrs ir atjaunināts"
+   },
+   "toast_filters_update_filters": {
+      "message": "filtri ir atjaunināti"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Atjauninājumi nav atrasti"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Neizdevās pārbaudīt atjauninājumus"
+   },
+   "version": {
+      "message": "Versija"
+   },
+   "yes": {
+      "message": "Jā"
+   }
+}

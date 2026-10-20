@@ -1,0 +1,68 @@
+/**
+ * Alert popup content styles (ABU design).
+ */
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.popup-alert {
+    font-family: var(--font);
+    font-weight: normal;
+    padding: 16px;
+    color: var(--text);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0;
+    animation: popup-show 4s ease-in;
+    box-sizing: border-box;
+}
+
+.popup-alert__icon {
+    display: block;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.popup-alert__content {
+    min-width: 0;
+}
+
+@keyframes popup-show {
+    0% {
+        opacity: 0;
+    }
+    8% {
+        opacity: 1;
+    }
+    92% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.popup-alert__title {
+    font-size: 16px;
+    line-height: 20px;
+    padding-bottom: 4px;
+    letter-spacing: -0.2px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.popup-alert__desc {
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: 400;
+    text-align: start;
+    color: var(--text-muted);
+}

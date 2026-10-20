@@ -1,0 +1,20 @@
+/**
+ * Styles for rules limits popup iframe container.
+ * Injected into web page to position the popup.
+ */
+
+.rules-limits-iframe {
+    color-scheme: none;
+    position: fixed;
+    top: 16px;
+    inset-inline-end: 16px;
+    inset-inline-start: auto;
+    z-index: 2147483647;
+    border: none;
+    width: 400px;
+    max-width: calc(100vw - 32px);
+    /* Height is set by the content script after load (fit to content). */
+    background: transparent;
+    /* Hidden until load to avoid the unstyled-canvas flash; popups.js reveals it. */
+    visibility: hidden;
+}

@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Hak Cipta Terpelihara"
+   },
+   "assistant_another_element": {
+      "message": "Pilih unsur lain"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Guna pakai peraturan ini pada setiap tapak web"
+   },
+   "assistant_block": {
+      "message": "Sekat"
+   },
+   "assistant_block_by_reference": {
+      "message": "Sekat unsur mengikut URL"
+   },
+   "assistant_block_element": {
+      "message": "Sekat unsur"
+   },
+   "assistant_block_element_explain": {
+      "message": "Persediaan penyekatan unsur"
+   },
+   "assistant_block_similar": {
+      "message": "Sekat unsur yang serupa"
+   },
+   "assistant_extended_settings": {
+      "message": "Tetapan lanjutan..."
+   },
+   "assistant_preview_end": {
+      "message": "Selesaikan pratonton"
+   },
+   "assistant_preview_start": {
+      "message": "Pratonton"
+   },
+   "assistant_select_element": {
+      "message": "Mod pilihan"
+   },
+   "assistant_select_element_cancel": {
+      "message": "batalkan mod pilihan"
+   },
+   "assistant_select_element_ext": {
+      "message": "Klik mana-mana unsur pada laman atau "
+   },
+   "assistant_slider_explain": {
+      "message": "Laraskan peluncur untuk mengubah saiz bingkai"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Sekat unsur"
+   },
+   "close": {
+      "message": "Tutup"
+   },
+   "contact_us": {
+      "message": "Hubungi kami"
+   },
+   "context_block_site_ads": {
+      "message": "Sekat iklan pada tapak web ini..."
+   },
+   "context_complaint_site": {
+      "message": "Kemukakan aduan tentang tapak web ini..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate tidak dapat berjalan pada domain ini"
+   },
+   "context_site_filtering_off": {
+      "message": "Lumpuhkan penapisan pada tapak web ini"
+   },
+   "context_site_filtering_on": {
+      "message": "Dayakan penapisan pada tapak web ini"
+   },
+   "context_update_filters": {
+      "message": "Semak pengemaskinian penapis"
+   },
+   "description": {
+      "message": "Alat sekatan iklan muktamad. Sekat iklan di YouTube, Facebook dan semua tapak web lain secara percuma!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Aplikasi desktop sedang berjalan"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" kini diaktifkan",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Penapis Tersuai"
+   },
+   "follow_us": {
+      "message": "Ikuti kami di"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Tidak"
+   },
+   "official_website": {
+      "message": "Laman Web Rasmi"
+   },
+   "options_about": {
+      "message": "Mengenai"
+   },
+   "options_about_heading": {
+      "message": "Dan semua iklan yang mengganggu telah disingkirkan!"
+   },
+   "options_add_custom_filter": {
+      "message": "Tambah penapis tersuai"
+   },
+   "options_allow_user_scripts": {
+      "message": "Untuk mengaktifkan penapis tersuai, anda perlu aktifkan \u003Csetting-name>Benarkan skrip pengguna\u003C/setting-name> di halaman butiran sambungan. \u003Clearn-link>Ketahui lebih lanjut\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Senarai putih"
+   },
+   "options_allowlist_desc": {
+      "message": "Iklan di laman web yang ditambah ke Senarai Putih ini tidak akan disekat."
+   },
+   "options_android_callout": {
+      "message": "Aplikasi Android kami menawarkan lebih banyak ciri berbanding sambungan pelayar. Lihat apa yang anda terlepas."
+   },
+   "options_android_upgrade": {
+      "message": "Dapatkan aplikasi"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Selepas membuka beberapa halaman dalam sesuatu bahasa, penapis untuk bahasa itu akan ditambah dan diaktifkan secara automatik."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Aktifkan penapis bahasa secara automatik"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Bilangan peraturan penapis: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Adakah anda pasti mahu padam penapis ini?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Penapis tersuai dengan peraturan scriptlet dan JavaScript memerlukan kebenaran User Scripts API diaktifkan. Ini membolehkan sambungan menjalankan skrip dari langganan penapis tersuai."
+   },
+   "options_custom_rules": {
+      "message": "Peraturan Tersuai"
+   },
+   "options_custom_rules_export": {
+      "message": "Eksport"
+   },
+   "options_custom_rules_import": {
+      "message": "Import"
+   },
+   "options_desktop_callout": {
+      "message": "Aplikasi desktop kami menawarkan lebih banyak ciri berbanding sambungan pelayar. Lihat apa yang anda terlepas."
+   },
+   "options_desktop_upgrade": {
+      "message": "Bandingkan"
+   },
+   "options_do_you_like_abu": {
+      "message": "Adakah anda suka AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Dalam senarai ini anda boleh tambah Peraturan Tersuai anda sendiri. Cipta penapis iklan anda dan tambah di sini."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Mengaktifkan menu tindakan yang tersedia apabila anda klik kanan pada laman web."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Aktifkan menu konteks"
+   },
+   "options_enable_developer_mode": {
+      "message": "Untuk mengaktifkan penapis tersuai, anda perlu aktifkan \u003Csetting-name>Mod pembangun\u003C/setting-name> dalam tetapan sambungan Chrome. \u003Clearn-link>Ketahui lebih lanjut\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Masukkan URL atau laluan fail yang sah"
+   },
+   "options_err": {
+      "message": "Ada masalah berlaku!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Hanya fail .txt dibenarkan!"
+   },
+   "options_filter_categories": {
+      "message": "Kategori"
+   },
+   "options_filter_status_all": {
+      "message": "Semua"
+   },
+   "options_filter_status_disabled": {
+      "message": "Dilumpuhkan"
+   },
+   "options_filter_status_enabled": {
+      "message": "Didayakan"
+   },
+   "options_filter_update_date": {
+      "message": "Kemas kini terakhir: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Penapis"
+   },
+   "options_filters_enabled": {
+      "message": "Diaktifkan:"
+   },
+   "options_filters_update_error": {
+      "message": "Tidak dapat mengemas kini penapis. Sila cuba lagi."
+   },
+   "options_filters_update_success": {
+      "message": "Telah dikemas kini $count$ penapis",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Telah dikemas kini $count$ penapis",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Semua penapis adalah terkini"
+   },
+   "options_general": {
+      "message": "Umum"
+   },
+   "options_help_translate": {
+      "message": "Bantu kami dengan terjemahan!"
+   },
+   "options_limits": {
+      "message": "Had"
+   },
+   "options_limits_active_filters": {
+      "message": "Sedang aktif"
+   },
+   "options_limits_bar_warning": {
+      "message": "Beberapa penapis telah dinyahaktifkan kerana pelayar anda telah mencapai had peraturan. \u003Climits-link>Lihat apa yang terjejas\u003C/limits-link> atau \u003Cupgrade-link>dapatkan perlindungan tanpa had\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Hanya \u003Ctext-strong>$active$ daripada $expected$\u003C/text-strong> penapis anda sedang berjalan - pelayar anda telah kehabisan ruang untuk peraturan penapisan. \u003Ctext-strong>Aplikasi desktop kami tiada had peraturan\u003C/text-strong> dan menyekat iklan serta penjejak di seluruh peranti anda. Untuk terus menggunakan sambungan pelayar, kosongkan ruang dengan mematikan sambungan lain atau menonaktifkan penapis keutamaan rendah.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Pelayar anda telah kehabisan ruang untuk peraturan penapisan, jadi beberapa penapis telah dimatikan. \u003Ctext-strong>Aplikasi desktop kami tiada had peraturan\u003C/text-strong> dan menyekat iklan serta penjejak di seluruh peranti anda. Untuk terus menggunakan sambungan pelayar, kosongkan ruang dengan mematikan sambungan lain atau menonaktifkan penapis keutamaan rendah."
+   },
+   "options_limits_callout_title": {
+      "message": "Beberapa penapis telah dinyahaktifkan"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Dinonaktifkan sementara"
+   },
+   "options_limits_dismiss": {
+      "message": "Tutup"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Peraturan regex dinamik"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Peraturan dinamik"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Peraturan dinamik tidak selamat"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Penapis diaktifkan"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Beberapa penapis tidak dapat diaktifkan kerana had pelayar telah dilebihi"
+   },
+   "options_limits_get_desktop": {
+      "message": "Dapatkan aplikasi desktop"
+   },
+   "options_limits_intro": {
+      "message": "mengehadkan bilangan penapis dan peraturan yang boleh diaktifkan serentak. Had ini dikongsi antara semua sambungan pelayar anda."
+   },
+   "options_limits_none": {
+      "message": "Tiada"
+   },
+   "options_limits_promo_body": {
+      "message": "Had peraturan dikongsi dengan sambungan lain anda. Jika melebihi had, beberapa penapis akan dinyahaktifkan sementara. \u003Ctext-strong>Aplikasi desktop kami tiada had peraturan\u003C/text-strong> dan menyekat iklan serta penjejak di seluruh peranti anda. Untuk kekal dalam had pelayar, minimumkan sambungan lain dan elakkan penapis keutamaan rendah."
+   },
+   "options_limits_promo_title": {
+      "message": "Dapatkan penapisan tanpa had"
+   },
+   "options_limits_reenable": {
+      "message": "Aktifkan semula"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Kuota tidak mencukupi. Matikan sambungan lain atau penapis yang tidak digunakan, kemudian cuba lagi"
+   },
+   "options_limits_reenable_success": {
+      "message": "Penapis telah diaktifkan semula"
+   },
+   "options_limits_related": {
+      "message": "Tetapan berkaitan"
+   },
+   "options_limits_static_regex": {
+      "message": "Peraturan regex statik"
+   },
+   "options_limits_static_rules": {
+      "message": "Peraturan statik"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Penapis terbina dalam menggunakan set peraturan statik dan kuota peraturan statik pelayar."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Penapis terbina dalam"
+   },
+   "options_limits_usage": {
+      "message": "$current$ daripada $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Lihat butiran"
+   },
+   "options_limits_warning": {
+      "message": "Beberapa penapis telah dinyahaktifkan kerana had pelayar."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Peraturan tersuai dan entri senarai putih berkongsi kuota peraturan dinamik pelayar."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Peraturan anda"
+   },
+   "options_menu": {
+      "message": "Menu"
+   },
+   "options_new_filter": {
+      "message": "Penapis baru"
+   },
+   "options_no_filters_enabled": {
+      "message": "Tiada penapis diaktifkan"
+   },
+   "options_number_icon_desc": {
+      "message": "Bilangan iklan yang disekat pada setiap halaman akan dipaparkan pada ikon sambungan."
+   },
+   "options_number_icon_title": {
+      "message": "Tunjukkan bilangan pada ikon"
+   },
+   "options_open_extension_details": {
+      "message": "Buka Butiran Sambungan"
+   },
+   "options_page_title": {
+      "message": "Pilihan"
+   },
+   "options_rate_us": {
+      "message": "Beri Penilaian"
+   },
+   "options_search": {
+      "message": "Cari"
+   },
+   "options_search_results": {
+      "message": "Keputusan"
+   },
+   "options_submit": {
+      "message": "Hantar"
+   },
+   "options_theme_dark": {
+      "message": "Gelap"
+   },
+   "options_theme_desc": {
+      "message": "Pilih skema warna untuk halaman tetapan."
+   },
+   "options_theme_light": {
+      "message": "Cerah"
+   },
+   "options_theme_system": {
+      "message": "Sistem"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Mahukan AdBlocker Ultimate dalam bahasa anda?"
+   },
+   "page_blocked_go_back": {
+      "message": "Kembali"
+   },
+   "page_blocked_heading": {
+      "message": "Laman ini telah disekat"
+   },
+   "page_blocked_note": {
+      "message": "Akses sementara akan diberikan."
+   },
+   "page_blocked_proceed": {
+      "message": "Teruskan juga"
+   },
+   "page_blocked_reason": {
+      "message": "Disekat oleh peraturan penapis:"
+   },
+   "page_blocked_title": {
+      "message": "Laman Disekat"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate untuk Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate untuk iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Diaktifkan di laman ini"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate untuk $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Beberapa penapis telah dinyahaktifkan kerana had pelayar telah dilebihi"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Sekat iklan di mudah alih"
+   },
+   "popup_protection_disabled": {
+      "message": "Perlindungan: Dilumpuhkan"
+   },
+   "popup_protection_enabled": {
+      "message": "Perlindungan: Diaktifkan"
+   },
+   "popup_secure_page": {
+      "message": "Laman selamat"
+   },
+   "popup_settings": {
+      "message": "Tetapan"
+   },
+   "popup_tab_blocked": {
+      "message": "Disekat: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Jumlah: $1"
+   },
+   "privacy_policy": {
+      "message": "Dasar Privasi"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Pelayaran tanpa iklan tercapai!"
+   },
+   "rate_us_button": {
+      "message": "Nilaikan kami"
+   },
+   "rate_us_email": {
+      "message": "Emel"
+   },
+   "rate_us_hooray": {
+      "message": "Hebat!"
+   },
+   "rate_us_message": {
+      "message": "Mesej"
+   },
+   "rate_us_no_thanks": {
+      "message": "Tidak, terima kasih"
+   },
+   "rate_us_prompt": {
+      "message": "Suka sekat iklan? Bantu orang lain tahu tentang kami."
+   },
+   "rate_us_send_feedback": {
+      "message": "Hantar Maklum Balas"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Sila beritahu kami bagaimana kami boleh menambah baik"
+   },
+   "rate_us_thank_you": {
+      "message": "Terima kasih!"
+   },
+   "report_bug": {
+      "message": "Laporkan pepijat"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Penapis diaktifkan secara automatik"
+   },
+   "toast_filters_update_error": {
+      "message": "Gagal mendapatkan kemas kini. Sila cuba lagi nanti."
+   },
+   "toast_filters_update_filter": {
+      "message": "penapis telah dikemas kini"
+   },
+   "toast_filters_update_filters": {
+      "message": "penapis telah dikemas kini"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Tiada kemas kini dijumpai"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Gagal menyemak kemas kini"
+   },
+   "version": {
+      "message": "Versi"
+   },
+   "yes": {
+      "message": "Ya"
+   }
+}

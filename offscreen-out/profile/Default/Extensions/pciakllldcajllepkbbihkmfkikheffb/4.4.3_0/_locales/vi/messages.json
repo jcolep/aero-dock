@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Tất cả các quyền được bảo vệ"
+   },
+   "assistant_another_element": {
+      "message": "Chọn phần tử khác"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Áp dụng quy tắc này với mọi trang web"
+   },
+   "assistant_block": {
+      "message": "Chặn"
+   },
+   "assistant_block_by_reference": {
+      "message": "Chặn phần tử bằng url"
+   },
+   "assistant_block_element": {
+      "message": "Chặn phần tử"
+   },
+   "assistant_block_element_explain": {
+      "message": "Thiếp lập quy tắc chặn phần tử"
+   },
+   "assistant_block_similar": {
+      "message": "Chặn các phần tử tương tự"
+   },
+   "assistant_extended_settings": {
+      "message": "Thiết lập nâng cao..."
+   },
+   "assistant_preview_end": {
+      "message": "Kết thúc xem trước"
+   },
+   "assistant_preview_start": {
+      "message": "Xem trước"
+   },
+   "assistant_select_element": {
+      "message": "Chế độ chọn"
+   },
+   "assistant_select_element_cancel": {
+      "message": "hủy bỏ chế độ chọn"
+   },
+   "assistant_select_element_ext": {
+      "message": "Nhấn vào bất kỳ phần tử nào trên trang hoặc "
+   },
+   "assistant_slider_explain": {
+      "message": "Điều chỉnh thanh trượt để thay đổi kích thước khung"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Chặn phần tử"
+   },
+   "close": {
+      "message": "Đóng"
+   },
+   "contact_us": {
+      "message": "Liên hệ với chúng tôi"
+   },
+   "context_block_site_ads": {
+      "message": "Chặn quảng cáo trên trang web này..."
+   },
+   "context_complaint_site": {
+      "message": "Nhập một đơn khiếu nại về trang web này..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate không thể chạy trên tên miền này"
+   },
+   "context_site_filtering_off": {
+      "message": "Vô hiệu hóa bộ lọc trên trang web này"
+   },
+   "context_site_filtering_on": {
+      "message": "Kích hoạt bộ lọc trên trang web này"
+   },
+   "context_update_filters": {
+      "message": "Kiểm tra cập nhật cho bộ lọc"
+   },
+   "description": {
+      "message": "Công cụ chặn quảng cáo cuối cùng. Chặn quảng cáo trên YouTube, Facebook và tất cả các trang web khác miễn phí!"
+   },
+   "desktop_app_info": {
+      "message": "Việc chặn quảng cáo đang được xử lý bởi Adblocker Ultimate for Windows. Tuy nhiên, bạn vẫn có thể dùng menu này quản lý danh sách cho phép hoặc chặn từng quảng cáo nhất định."
+   },
+   "desktop_app_is_running": {
+      "message": "Ứng dụng desktop đang chạy"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" đã được bật",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Bộ lọc tùy biến"
+   },
+   "follow_us": {
+      "message": "Theo dõi chúng tôi trên"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Không"
+   },
+   "official_website": {
+      "message": "Trang web chính thức"
+   },
+   "options_about": {
+      "message": "Giới thiệu"
+   },
+   "options_about_heading": {
+      "message": "và tất cả những quảng cáo phiền phức đã biết mất!"
+   },
+   "options_add_custom_filter": {
+      "message": "Thêm bộ lọc tùy chỉnh"
+   },
+   "options_allow_user_scripts": {
+      "message": "Để bật bộ lọc tùy chỉnh, bạn cần bật \u003Csetting-name>Cho phép user scripts\u003C/setting-name> trong trang chi tiết tiện ích. \u003Clearn-link>Tìm hiểu thêm\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Danh sách loại trừ"
+   },
+   "options_allowlist_desc": {
+      "message": "Những quảng cáo trên trang web được thêm vào danh sách ngoại lệ này sẽ không bị chặn"
+   },
+   "options_android_callout": {
+      "message": "Ứng dụng Android của chúng tôi có nhiều tính năng hơn tiện ích mở rộng trình duyệt. Xem bạn đang bỏ lỡ điều gì."
+   },
+   "options_android_upgrade": {
+      "message": "Tải ứng dụng"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Sau khi mở một vài trang trong ngôn ngữ cụ thể, bộ lọc cho ngôn ngữ này sẽ được tự động thêm vào và kích hoạt."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Tự động kích hoạt bộ lọc theo ngôn ngữ cụ thể"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Số lượng quy tắc bộ lọc: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Bạn có chắc chắn muốn xóa bộ lọc này?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Bộ lọc tùy chỉnh với quy tắc scriptlet và JavaScript yêu cầu bật quyền User Scripts API. Điều này cho phép tiện ích thực thi script từ các bộ lọc tùy chỉnh."
+   },
+   "options_custom_rules": {
+      "message": "Quy tắc riêng"
+   },
+   "options_custom_rules_export": {
+      "message": "Xuất Ra"
+   },
+   "options_custom_rules_import": {
+      "message": "Nhập Vào"
+   },
+   "options_desktop_callout": {
+      "message": "Ứng dụng máy tính của chúng tôi có nhiều tính năng hơn tiện ích mở rộng trình duyệt. Xem bạn đang bỏ lỡ điều gì."
+   },
+   "options_desktop_upgrade": {
+      "message": "So sánh"
+   },
+   "options_do_you_like_abu": {
+      "message": "Bạn có thích AdBlocker Ultimate không?"
+   },
+   "options_editor_desc": {
+      "message": "Trong danh sách này bạn có thể thêm những quy tắc của riêng mình. Tạo bộ lọc riêng của bạn và thêm nó ở đây."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Bật menu hành động khi bạn nhấp chuột phải trên trang web."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Bật menu chuột phải"
+   },
+   "options_enable_developer_mode": {
+      "message": "Để bật bộ lọc tùy chỉnh, bạn cần bật \u003Csetting-name>Chế độ nhà phát triển\u003C/setting-name> trong cài đặt tiện ích Chrome. \u003Clearn-link>Tìm hiểu thêm\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Nhập URL hoặc đường dẫn tệp hợp lệ"
+   },
+   "options_err": {
+      "message": "Đã xảy ra lỗi!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Chỉ cho phép các file .txt!"
+   },
+   "options_filter_categories": {
+      "message": "Danh mục"
+   },
+   "options_filter_status_all": {
+      "message": "Tất cả"
+   },
+   "options_filter_status_disabled": {
+      "message": "Đã tắt"
+   },
+   "options_filter_status_enabled": {
+      "message": "Đã bật"
+   },
+   "options_filter_update_date": {
+      "message": "Cập nhật lần cuối: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Các Bộ lọc"
+   },
+   "options_filters_enabled": {
+      "message": "Đã bật:"
+   },
+   "options_filters_update_error": {
+      "message": "Không thể cập nhật bộ lọc. Vui lòng thử lại."
+   },
+   "options_filters_update_success": {
+      "message": "Đã cập nhật $count$ bộ lọc",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Đã cập nhật $count$ bộ lọc",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Tất cả bộ lọc đều đã được cập nhật"
+   },
+   "options_general": {
+      "message": "Tổng quát"
+   },
+   "options_help_translate": {
+      "message": "Giúp chúng tôi bằng bản dịch của bạn!"
+   },
+   "options_limits": {
+      "message": "Giới hạn"
+   },
+   "options_limits_active_filters": {
+      "message": "Đang hoạt động"
+   },
+   "options_limits_bar_warning": {
+      "message": "Một số bộ lọc đã bị tắt vì trình duyệt của bạn đã đạt giới hạn quy tắc. \u003Climits-link>Xem những gì bị ảnh hưởng\u003C/limits-link> hoặc \u003Cupgrade-link>nhận bảo vệ không giới hạn\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Chỉ \u003Ctext-strong>$active$ trên tổng $expected$\u003C/text-strong> bộ lọc của bạn đang hoạt động – trình duyệt của bạn đã hết chỗ cho các quy tắc lọc. \u003Ctext-strong>Ứng dụng máy tính của chúng tôi không giới hạn số lượng quy tắc\u003C/text-strong> và chặn quảng cáo, trình theo dõi trên toàn bộ thiết bị của bạn. Để tiếp tục dùng tiện ích mở rộng, hãy giải phóng dung lượng bằng cách tắt các tiện ích khác hoặc vô hiệu hóa các bộ lọc ưu tiên thấp.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Trình duyệt của bạn đã hết chỗ cho các quy tắc lọc nên một số bộ lọc đã bị tắt. \u003Ctext-strong>Ứng dụng máy tính của chúng tôi không giới hạn số lượng quy tắc\u003C/text-strong> và chặn quảng cáo, trình theo dõi trên toàn bộ thiết bị của bạn. Để tiếp tục dùng tiện ích mở rộng, hãy giải phóng dung lượng bằng cách tắt các tiện ích khác hoặc vô hiệu hóa các bộ lọc ưu tiên thấp."
+   },
+   "options_limits_callout_title": {
+      "message": "Một số bộ lọc đã bị tắt"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Tạm thời bị tắt"
+   },
+   "options_limits_dismiss": {
+      "message": "Bỏ qua"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Quy tắc regex động"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Quy tắc động"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Quy tắc động không an toàn"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Bộ lọc đã bật"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Một số bộ lọc không thể bật do đã vượt quá giới hạn của trình duyệt"
+   },
+   "options_limits_get_desktop": {
+      "message": "Tải ứng dụng máy tính"
+   },
+   "options_limits_intro": {
+      "message": "giới hạn số lượng bộ lọc và quy tắc có thể hoạt động cùng lúc. Giới hạn này được chia sẻ giữa tất cả tiện ích mở rộng trên trình duyệt của bạn."
+   },
+   "options_limits_none": {
+      "message": "Không có"
+   },
+   "options_limits_promo_body": {
+      "message": "Giới hạn quy tắc được chia sẻ với các tiện ích mở rộng khác của bạn. Vượt quá giới hạn sẽ tạm thời vô hiệu hóa một số bộ lọc. \u003Ctext-strong>Ứng dụng máy tính của chúng tôi không giới hạn số lượng quy tắc\u003C/text-strong> và chặn quảng cáo, trình theo dõi trên toàn bộ thiết bị của bạn. Để không vượt quá giới hạn của trình duyệt, hãy giữ số lượng tiện ích khác ở mức tối thiểu và tránh các bộ lọc ưu tiên thấp."
+   },
+   "options_limits_promo_title": {
+      "message": "Lọc không giới hạn"
+   },
+   "options_limits_reenable": {
+      "message": "Bật lại"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Không đủ dung lượng còn lại. Tắt các tiện ích mở rộng khác hoặc bộ lọc không dùng, rồi thử lại"
+   },
+   "options_limits_reenable_success": {
+      "message": "Các bộ lọc đã được bật lại"
+   },
+   "options_limits_related": {
+      "message": "Cài đặt liên quan"
+   },
+   "options_limits_static_regex": {
+      "message": "Quy tắc regex tĩnh"
+   },
+   "options_limits_static_rules": {
+      "message": "Quy tắc tĩnh"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Bộ lọc tích hợp sử dụng bộ quy tắc tĩnh và hạn mức quy tắc tĩnh của trình duyệt."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Bộ lọc tích hợp"
+   },
+   "options_limits_usage": {
+      "message": "$current$ trên $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Xem chi tiết"
+   },
+   "options_limits_warning": {
+      "message": "Một số bộ lọc đã bị tắt do giới hạn của trình duyệt."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Quy tắc tùy chỉnh và mục trong whitelist dùng chung hạn mức quy tắc động của trình duyệt."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Quy tắc của bạn"
+   },
+   "options_menu": {
+      "message": "Menu"
+   },
+   "options_new_filter": {
+      "message": "Bộ lọc mới"
+   },
+   "options_no_filters_enabled": {
+      "message": "Không có bộ lọc được bật"
+   },
+   "options_number_icon_desc": {
+      "message": "Số lượng quảng cáo bị chặn trên mỗi trang sẽ được hiển thị trong biểu tượng của tiện tích."
+   },
+   "options_number_icon_title": {
+      "message": "Hiển thị số quảng cáo\u003Cbr />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; đã chặn trên biểu tượng"
+   },
+   "options_open_extension_details": {
+      "message": "Mở chi tiết tiện ích"
+   },
+   "options_page_title": {
+      "message": "Tùy chọn"
+   },
+   "options_rate_us": {
+      "message": "Đánh giá ứng dụng"
+   },
+   "options_search": {
+      "message": "Tìm kiếm"
+   },
+   "options_search_results": {
+      "message": "Kết quả"
+   },
+   "options_submit": {
+      "message": "Gửi"
+   },
+   "options_theme_dark": {
+      "message": "Tối"
+   },
+   "options_theme_desc": {
+      "message": "Chọn bảng màu cho trang cài đặt."
+   },
+   "options_theme_light": {
+      "message": "Sáng"
+   },
+   "options_theme_system": {
+      "message": "Hệ thống"
+   },
+   "options_theme_title": {
+      "message": "Giao diện"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Muốn AdBlocker Ultimate trong ngôn ngữ của bạn?"
+   },
+   "page_blocked_go_back": {
+      "message": "Quay lại"
+   },
+   "page_blocked_heading": {
+      "message": "Trang này đã bị chặn"
+   },
+   "page_blocked_note": {
+      "message": "Sẽ được cấp quyền truy cập tạm thời."
+   },
+   "page_blocked_proceed": {
+      "message": "Vẫn tiếp tục"
+   },
+   "page_blocked_reason": {
+      "message": "Đã bị chặn bởi quy tắc bộ lọc:"
+   },
+   "page_blocked_title": {
+      "message": "Trang bị chặn"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate cho Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate cho iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Đã bật trên trang web này"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Tải AdBlocker Ultimate cho $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Một số bộ lọc đã bị tắt do đã vượt quá giới hạn của trình duyệt"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Chặn quảng cáo trên di động"
+   },
+   "popup_protection_disabled": {
+      "message": "Bảo vệ: Đã tắt"
+   },
+   "popup_protection_enabled": {
+      "message": "Bảo vệ: Đã bật"
+   },
+   "popup_secure_page": {
+      "message": "Trang web an toàn"
+   },
+   "popup_settings": {
+      "message": "Cài đặt"
+   },
+   "popup_tab_blocked": {
+      "message": "Đã chặn: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Tổng cộng: $1"
+   },
+   "privacy_policy": {
+      "message": "Chính sách bảo mật"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Đã duyệt web không quảng cáo!"
+   },
+   "rate_us_button": {
+      "message": "Đánh giá chúng tôi"
+   },
+   "rate_us_email": {
+      "message": "Email"
+   },
+   "rate_us_hooray": {
+      "message": "Tuyệt vời!"
+   },
+   "rate_us_message": {
+      "message": "Tin nhắn"
+   },
+   "rate_us_no_thanks": {
+      "message": "Không, cảm ơn"
+   },
+   "rate_us_prompt": {
+      "message": "Thích sản phẩm này? Hãy cho mọi người biết về chúng tôi."
+   },
+   "rate_us_send_feedback": {
+      "message": "Gửi phản hồi"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Hãy cho chúng tôi biết làm thế nào để cải thiện"
+   },
+   "rate_us_thank_you": {
+      "message": "Cảm ơn bạn!"
+   },
+   "report_bug": {
+      "message": "Báo cáo lỗi"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Tự động kích hoạt các bộ lọc"
+   },
+   "toast_filters_update_error": {
+      "message": "Cập nhật thất bại. Hãy thử lại sau."
+   },
+   "toast_filters_update_filter": {
+      "message": "bộ lọc đã được cập nhật"
+   },
+   "toast_filters_update_filters": {
+      "message": "bộ lọc đã được cập nhật"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Không tìm thấy bản cập nhật nào"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Không thể kiểm tra cập nhật"
+   },
+   "version": {
+      "message": "Phiên bản"
+   },
+   "yes": {
+      "message": "Có"
+   }
+}

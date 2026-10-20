@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Kõik õigused kaitstud"
+   },
+   "assistant_another_element": {
+      "message": "Vali teine element"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Rakenda seda reeglit igal leheküljel"
+   },
+   "assistant_block": {
+      "message": "Blokeeri"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blokeeri element leheküljeti"
+   },
+   "assistant_block_element": {
+      "message": "Blokeeri element"
+   },
+   "assistant_block_element_explain": {
+      "message": "Elemendi blokeerimise seadistamine"
+   },
+   "assistant_block_similar": {
+      "message": "Blokeeri sarnased elemendid"
+   },
+   "assistant_extended_settings": {
+      "message": "Täpsemad seaded..."
+   },
+   "assistant_preview_end": {
+      "message": "Lõpeta eelvaade"
+   },
+   "assistant_preview_start": {
+      "message": "Eelvaade"
+   },
+   "assistant_select_element": {
+      "message": "Valiku režiim"
+   },
+   "assistant_select_element_cancel": {
+      "message": "katkesta valiku režiim"
+   },
+   "assistant_select_element_ext": {
+      "message": "Vajuta ükskõik millisele lehekülje elemendile või "
+   },
+   "assistant_slider_explain": {
+      "message": "Kohanda liugurit, et muuta raami suurust"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blokeeri element"
+   },
+   "close": {
+      "message": "Sulge"
+   },
+   "contact_us": {
+      "message": "Võta meiega ühendust"
+   },
+   "context_block_site_ads": {
+      "message": "Blokeeri reklaam sellel leheküljel..."
+   },
+   "context_complaint_site": {
+      "message": "Esitada kaebus sellest veebilest..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate ei saa toimida sellel leheküljel"
+   },
+   "context_site_filtering_off": {
+      "message": "Ära luba lehekülje filtreerimist"
+   },
+   "context_site_filtering_on": {
+      "message": "Luba leheküljel filtreerimine"
+   },
+   "context_update_filters": {
+      "message": "Otsi filtri uuendusi"
+   },
+   "description": {
+      "message": "Ülim reklaamiblokeerimistööriist. Blokeeri reklaamid YouTube'is, Facebookis ja kõigil muudel veebisaitidel tasuta!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Töölauarakendus töötab"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" on nüüd lubatud",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Kohandatud filtrid"
+   },
+   "follow_us": {
+      "message": "Jälgi meid"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Ei"
+   },
+   "official_website": {
+      "message": "Ametlik veebisait"
+   },
+   "options_about": {
+      "message": "Teave"
+   },
+   "options_about_heading": {
+      "message": "Ja kõik tüütud reklaamid on kadunud!"
+   },
+   "options_add_custom_filter": {
+      "message": "Lisa kohandatud filter"
+   },
+   "options_allow_user_scripts": {
+      "message": "Kohandatud filtrite lubamiseks pead lubama \u003Csetting-name>Luba kasutaja skriptid\u003C/setting-name> laienduse detailide lehel. \u003Clearn-link>Loe lähemalt\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Valge nimekiri"
+   },
+   "options_allowlist_desc": {
+      "message": "Veebisaitidel, mis on lisatud sellesse lubatud nimekirja, reklaame ei blokeerita."
+   },
+   "options_android_callout": {
+      "message": "Meie Androidi rakendusel on rohkem funktsioone kui brauserilaiendil. Vaata, millest oled ilma jäänud."
+   },
+   "options_android_upgrade": {
+      "message": "Laadi rakendus"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Kui avad mõne lehe teatud keeles, lisatakse ja aktiveeritakse selle keele filtrid automaatselt."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Keelepõhised filtrid aktiveeritakse automaatselt"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Filtrireeglite arv: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Kas oled kindel, et soovid selle filtri kustutada?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Kohandatud filtrid, mis sisaldavad skriptleti ja JavaScripti reegleid, vajavad User Scripts API loa lubamist. See võimaldab laiendusel käivitada skripte kohandatud filtritellimustest."
+   },
+   "options_custom_rules": {
+      "message": "Kohandatud reeglid"
+   },
+   "options_custom_rules_export": {
+      "message": "Ekspordi"
+   },
+   "options_custom_rules_import": {
+      "message": "Impordi"
+   },
+   "options_desktop_callout": {
+      "message": "Meie töölauarakendusel on rohkem funktsioone kui brauserilaiendil. Vaata, millest oled ilma jäänud."
+   },
+   "options_desktop_upgrade": {
+      "message": "Võrdle"
+   },
+   "options_do_you_like_abu": {
+      "message": "Kas sulle meeldib AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Selles nimekirjas saad lisada oma kohandatud reegleid. Loo oma reklaamifiltrid ja lisa need siia."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Lubab toimingute menüü, mis avaneb veebilehel paremklõpsuga."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Luba kontekstimenüü"
+   },
+   "options_enable_developer_mode": {
+      "message": "Kohandatud filtrite lubamiseks pead lubama \u003Csetting-name>arendajarežiimi\u003C/setting-name> Chrome'i laienduste seadetes. \u003Clearn-link>Loe lähemalt\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Sisesta kehtiv URL või failitee"
+   },
+   "options_err": {
+      "message": "Midagi läks valesti!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Ainult .txt failid on lubatud!"
+   },
+   "options_filter_categories": {
+      "message": "Kategooriad"
+   },
+   "options_filter_status_all": {
+      "message": "Kõik"
+   },
+   "options_filter_status_disabled": {
+      "message": "Keelatud"
+   },
+   "options_filter_status_enabled": {
+      "message": "Lubatud"
+   },
+   "options_filter_update_date": {
+      "message": "Viimane uuendus: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtrid"
+   },
+   "options_filters_enabled": {
+      "message": "Lubatud:"
+   },
+   "options_filters_update_error": {
+      "message": "Filtreid ei õnnestunud uuendada. Palun proovi uuesti."
+   },
+   "options_filters_update_success": {
+      "message": "Uuendatud $count$ filtrit",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Uuendatud $count$ filter",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Kõik filtrid on ajakohased"
+   },
+   "options_general": {
+      "message": "Üldine"
+   },
+   "options_help_translate": {
+      "message": "Aita meid tõlkimisel!"
+   },
+   "options_limits": {
+      "message": "Piirangud"
+   },
+   "options_limits_active_filters": {
+      "message": "Praegu aktiivne"
+   },
+   "options_limits_bar_warning": {
+      "message": "Mõned filtrid keelati, kuna sinu brauseri reeglite limiit sai täis. \u003Climits-link>Vaata, mis on mõjutatud\u003C/limits-link> või \u003Cupgrade-link>hankige piiramatu kaitse\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Ainult \u003Ctext-strong>$active$/$expected$\u003C/text-strong> filtrit on aktiivsed – sinu brauseril sai filtreerimisreeglite jaoks ruum otsa. \u003Ctext-strong>Meie töölauarakendusel pole reeglite piiranguid\u003C/text-strong> ja see blokeerib reklaamid ja jälgijad kogu seadmes. Brauserilaiendi kasutamiseks vabasta ruumi, lülitades välja teisi laiendusi või madala prioriteediga filtreid.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Sinu brauseril sai filtreerimisreeglite jaoks ruum otsa, seega mõned filtrid lülitati välja. \u003Ctext-strong>Meie töölauarakendusel pole reeglite piiranguid\u003C/text-strong> ja see blokeerib reklaamid ja jälgijad kogu seadmes. Brauserilaiendi kasutamiseks vabasta ruumi, lülitades välja teisi laiendusi või madala prioriteediga filtreid."
+   },
+   "options_limits_callout_title": {
+      "message": "Mõned filtrid keelati"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Ajutiselt keelatud"
+   },
+   "options_limits_dismiss": {
+      "message": "Sulge"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dünaamilised regex-reeglid"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dünaamilised reeglid"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Ohtlikud dünaamilised reeglid"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Lubatud filtrid"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Mõnda filtrit ei saanud lubada, kuna brauseri piirangud said ületatud"
+   },
+   "options_limits_get_desktop": {
+      "message": "Hangi töölauarakendus"
+   },
+   "options_limits_intro": {
+      "message": "piirab, kui palju filtreid ja reegleid saab korraga aktiivne olla. Piirangud jagunevad kõigi sinu brauserilaienduste vahel."
+   },
+   "options_limits_none": {
+      "message": "Puudub"
+   },
+   "options_limits_promo_body": {
+      "message": "Reeglite piirangud jagunevad sinu teiste laiendustega. Piirangu ületamisel lülitatakse mõned filtrid ajutiselt välja. \u003Ctext-strong>Meie töölauarakendusel pole reeglite piiranguid\u003C/text-strong> ja see blokeerib reklaamid ja jälgijad kogu seadmes. Et jääda brauseri piiridesse, hoia teisi laiendusi minimaalselt ja väldi madala prioriteediga filtreid."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtreeri piiranguteta"
+   },
+   "options_limits_reenable": {
+      "message": "Luba uuesti"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Pole piisavalt vaba limiiti. Lülita välja teised laiendused või kasutud filtrid ja proovi uuesti"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtrid lubati uuesti"
+   },
+   "options_limits_related": {
+      "message": "Seotud seaded"
+   },
+   "options_limits_static_regex": {
+      "message": "Staatilised regex-reeglid"
+   },
+   "options_limits_static_rules": {
+      "message": "Staatilised reeglid"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Sisseehitatud filtrid kasutavad brauseri staatiliste reeglite komplekti ja staatiliste reeglite limiite."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Sisseehitatud filtrid"
+   },
+   "options_limits_usage": {
+      "message": "$current$ / $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Vaata üksikasju"
+   },
+   "options_limits_warning": {
+      "message": "Mõned filtrid keelati brauseri piirangute tõttu."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Kohandatud reeglid ja lubatud nimekirja kirjed jagavad brauseri dünaamiliste reeglite limiiti."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Sinu reeglid"
+   },
+   "options_menu": {
+      "message": "Menüü"
+   },
+   "options_new_filter": {
+      "message": "Uus filter"
+   },
+   "options_no_filters_enabled": {
+      "message": "Ühtegi filtrit pole lubatud"
+   },
+   "options_number_icon_desc": {
+      "message": "Blokeeritud reklaamide arv igal lehel kuvatakse laienduse ikoonil."
+   },
+   "options_number_icon_title": {
+      "message": "Näita numbrit ikoonis"
+   },
+   "options_open_extension_details": {
+      "message": "Ava laienduse üksikasjad"
+   },
+   "options_page_title": {
+      "message": "Valikud"
+   },
+   "options_rate_us": {
+      "message": "Hinda meid"
+   },
+   "options_search": {
+      "message": "Otsi"
+   },
+   "options_search_results": {
+      "message": "Tulemused"
+   },
+   "options_submit": {
+      "message": "Esita"
+   },
+   "options_theme_dark": {
+      "message": "Tume"
+   },
+   "options_theme_desc": {
+      "message": "Vali seadete lehe värviskeem."
+   },
+   "options_theme_light": {
+      "message": "Hele"
+   },
+   "options_theme_system": {
+      "message": "Süsteemi"
+   },
+   "options_theme_title": {
+      "message": "Teema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Soovid AdBlocker Ultimate'i oma keeles?"
+   },
+   "page_blocked_go_back": {
+      "message": "Tagasi"
+   },
+   "page_blocked_heading": {
+      "message": "See leht on blokeeritud"
+   },
+   "page_blocked_note": {
+      "message": "Ajutine juurdepääs antakse."
+   },
+   "page_blocked_proceed": {
+      "message": "Jätka siiski"
+   },
+   "page_blocked_reason": {
+      "message": "Blokeeritud filtrireegli poolt:"
+   },
+   "page_blocked_title": {
+      "message": "Leht blokeeritud"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate Androidile"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate iOS-ile"
+   },
+   "popup_enabled_on_site": {
+      "message": "Lubatud sellel saidil"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Hanki AdBlocker Ultimate $platform$ile",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Mõned filtrid keelati, kuna brauseri piirangud said ületatud"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blokeeri reklaamid mobiilis"
+   },
+   "popup_protection_disabled": {
+      "message": "Kaitse: väljas"
+   },
+   "popup_protection_enabled": {
+      "message": "Kaitse: sees"
+   },
+   "popup_secure_page": {
+      "message": "Turvaline leht"
+   },
+   "popup_settings": {
+      "message": "Seaded"
+   },
+   "popup_tab_blocked": {
+      "message": "Blokeeritud: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Kokku: $1"
+   },
+   "privacy_policy": {
+      "message": "Privaatsuspoliitika"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Reklaamivaba sirvimine saavutatud!"
+   },
+   "rate_us_button": {
+      "message": "Hinda meid"
+   },
+   "rate_us_email": {
+      "message": "E-post"
+   },
+   "rate_us_hooray": {
+      "message": "Hurraa!"
+   },
+   "rate_us_message": {
+      "message": "Sõnum"
+   },
+   "rate_us_no_thanks": {
+      "message": "Ei soovi"
+   },
+   "rate_us_prompt": {
+      "message": "Meeldib reklaamide blokeerimine? Aita teistel meid leida."
+   },
+   "rate_us_send_feedback": {
+      "message": "Saada tagasisidet"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Palun anna teada, kuidas saaksime paremaks muutuda"
+   },
+   "rate_us_thank_you": {
+      "message": "Aitäh!"
+   },
+   "report_bug": {
+      "message": "Teata veast"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Automaatne filtrite aktiveerimine"
+   },
+   "toast_filters_update_error": {
+      "message": "Uuendamisel tekkis viga. Palun proovige uuesti."
+   },
+   "toast_filters_update_filter": {
+      "message": "Filter on uuendatud"
+   },
+   "toast_filters_update_filters": {
+      "message": "Filtrid on uuendatud"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Uusi uuendusi ei leitud"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Uuenduste kontroll ebaõnnestus"
+   },
+   "version": {
+      "message": "Versioon"
+   },
+   "yes": {
+      "message": "Jah"
+   }
+}

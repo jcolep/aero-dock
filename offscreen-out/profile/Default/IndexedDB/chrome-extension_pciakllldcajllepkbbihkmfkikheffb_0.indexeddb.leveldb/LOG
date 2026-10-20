@@ -1,0 +1,16 @@
+2026/10/19-18:10:22.576 4274 Reusing MANIFEST C:\Users\JakePascoe\source\repos\Aero Dock\data\aero-dock\offscreen-out\profile\Default\IndexedDB\chrome-extension_pciakllldcajllepkbbihkmfkikheffb_0.indexeddb.leveldb/MANIFEST-000001
+2026/10/19-18:10:22.577 4274 Recovering log #345
+2026/10/19-18:10:22.577 4274 Reusing old log C:\Users\JakePascoe\source\repos\Aero Dock\data\aero-dock\offscreen-out\profile\Default\IndexedDB\chrome-extension_pciakllldcajllepkbbihkmfkikheffb_0.indexeddb.leveldb/000345.log 
+2026/10/19-18:10:22.577 4274 Delete type=2 #342
+2026/10/19-18:10:22.577 4274 Delete type=2 #343
+2026/10/19-18:10:22.594 5420 Level-0 table #351: started
+2026/10/19-18:10:22.598 5420 Level-0 table #351: 620 bytes OK
+2026/10/19-18:10:22.601 5420 Delete type=0 #345
+2026/10/19-18:10:22.602 5420 Manual compaction at level-0 from '\x00N\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00O\x00\x00\x00' @ 0 : 0; will stop at '\x00N\x00\x00\x05' @ 5426 : 1
+2026/10/19-18:10:22.602 5420 Compacting 1@0 + 2@1 files
+2026/10/19-18:10:22.613 5420 Generated table #352@0: 1940 keys, 2156969 bytes
+2026/10/19-18:10:22.616 5420 Generated table #353@0: 185 keys, 318176 bytes
+2026/10/19-18:10:22.616 5420 Compacted 1@0 + 2@1 files => 2475145 bytes
+2026/10/19-18:10:22.618 5420 compacted to: files[ 0 2 1 0 0 0 0 ]
+2026/10/19-18:10:22.619 5420 Delete type=2 #351
+2026/10/19-18:10:22.619 5420 Manual compaction at level-0 from '\x00N\x00\x00\x05' @ 5426 : 1 .. '\x00O\x00\x00\x00' @ 0 : 0; will stop at (end)

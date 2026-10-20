@@ -1,0 +1,1 @@
+import{Vd as a}from"./vendor-underscore-Bz5YeRR3.js";var r=class extends a{async addToList(t,e){return await super.addToList({...t,key:n(t)},e)}};function n(t){return t.type&&t.fullName?`${t.type}/${t.fullName}`:t.key||""}var s=new r("metadataStudio-recentComps","key",20);function d(){return s}export{d as t};

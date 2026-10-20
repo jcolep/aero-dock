@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "کلیه حقوق محفوظ است"
+   },
+   "assistant_another_element": {
+      "message": "انتخاب عنصر دیگر"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "این قانون را برای همه وب‌سایت‌ها اعمال کن"
+   },
+   "assistant_block": {
+      "message": "بستن"
+   },
+   "assistant_block_by_reference": {
+      "message": "مسدودسازی عنصر با url"
+   },
+   "assistant_block_element": {
+      "message": "بستن المان"
+   },
+   "assistant_block_element_explain": {
+      "message": "تنظیم قانون مسدودسازی عنصر"
+   },
+   "assistant_block_similar": {
+      "message": "مسدودسازی عناصر مشابه"
+   },
+   "assistant_extended_settings": {
+      "message": "تنظیم‌های پیشرفته..."
+   },
+   "assistant_preview_end": {
+      "message": "پایان پیش‌نمایش"
+   },
+   "assistant_preview_start": {
+      "message": "پیش‌نمایش"
+   },
+   "assistant_select_element": {
+      "message": "حالت انتخاب"
+   },
+   "assistant_select_element_cancel": {
+      "message": "لغو حالت انتخاب"
+   },
+   "assistant_select_element_ext": {
+      "message": "روی هر عنصری در صفحه کلیک کنید یا"
+   },
+   "assistant_slider_explain": {
+      "message": "اسلایدر را تنظیم کنید تا قاب را تغییر اندازه دهید"
+   },
+   "browser_action_popup_block_element": {
+      "message": "بستن المان"
+   },
+   "close": {
+      "message": "بستن"
+   },
+   "contact_us": {
+      "message": "تماس با ما"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate نمی‌تواند در این دامنه اجرا شود"
+   },
+   "context_site_filtering_off": {
+      "message": "غیرفعال‌سازی فیلتر روی این وب‌سایت"
+   },
+   "context_site_filtering_on": {
+      "message": "فعال‌سازی فیلتر روی این وب‌سایت"
+   },
+   "context_update_filters": {
+      "message": "بررسی به‌روزرسانی فیلترها"
+   },
+   "description": {
+      "message": "ابزار نهایی adblock. مسدود کردن تبلیغات در یوتیوب، فیس بوک و سایر وب سایت ها به صورت رایگان!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "برنامه دسکتاپ در حال اجرا است"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "‏\"$filter$\" اکنون فعال شد",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "فیلترهای سفارشی"
+   },
+   "follow_us": {
+      "message": "ما را دنبال کنید در"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "خیر"
+   },
+   "official_website": {
+      "message": "وب‌سایت رسمی"
+   },
+   "options_about": {
+      "message": "درباره"
+   },
+   "options_about_heading": {
+      "message": "و همه تبلیغات مزاحم حذف شدند!"
+   },
+   "options_add_custom_filter": {
+      "message": "افزودن فیلتر سفارشی"
+   },
+   "options_allow_user_scripts": {
+      "message": "برای فعال‌سازی فیلترهای سفارشی باید \u003Csetting-name>اجازه اجرای اسکریپت‌های کاربر\u003C/setting-name> را در صفحه جزئیات افزونه فعال کنید. \u003Clearn-link>بیشتر بدانید\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "لیست سفید"
+   },
+   "options_allowlist_desc": {
+      "message": "تبلیغات در وب‌سایت‌هایی که به این لیست سفید اضافه شده‌اند مسدود نخواهند شد."
+   },
+   "options_android_callout": {
+      "message": "اپلیکیشن اندروید ما امکانات بیشتری نسبت به افزونه مرورگر دارد. ببینید چه چیزهایی را از دست داده‌اید."
+   },
+   "options_android_upgrade": {
+      "message": "دریافت اپلیکیشن"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "پس از باز کردن چند صفحه به یک زبان، فیلترهای مربوط به آن زبان به صورت خودکار اضافه و فعال می‌شوند."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "فعال‌سازی خودکار فیلترهای مخصوص زبان"
+   },
+   "options_built_in_rules_limit": {
+      "message": "تعداد قوانین فیلتر: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "آیا مطمئن هستید که می‌خواهید این فیلتر را حذف کنید؟"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "فیلترهای سفارشی با قوانین اسکریپت و JavaScript نیاز به فعال‌سازی مجوز User Scripts API دارند. این اجازه می‌دهد افزونه اسکریپت‌های فیلترهای سفارشی را اجرا کند."
+   },
+   "options_custom_rules": {
+      "message": "قوانین سفارشی"
+   },
+   "options_custom_rules_export": {
+      "message": "خروجی گرفتن"
+   },
+   "options_custom_rules_import": {
+      "message": "وارد کردن"
+   },
+   "options_desktop_callout": {
+      "message": "اپلیکیشن دسکتاپ ما امکانات بیشتری نسبت به افزونه مرورگر دارد. ببینید چه چیزهایی را از دست داده‌اید."
+   },
+   "options_desktop_upgrade": {
+      "message": "مقایسه کنید"
+   },
+   "options_do_you_like_abu": {
+      "message": "آیا از AdBlocker Ultimate راضی هستید؟"
+   },
+   "options_editor_desc": {
+      "message": "در این لیست می‌توانید قوانین سفارشی خود را اضافه کنید. فیلترهای تبلیغاتی خود را بسازید و اینجا اضافه کنید."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "یک منوی اقدامات هنگام راست‌کلیک روی صفحه وب فعال می‌کند."
+   },
+   "options_enable_context_menu_title": {
+      "message": "فعال‌سازی منوی راست‌کلیک"
+   },
+   "options_enable_developer_mode": {
+      "message": "برای فعال‌سازی فیلترهای سفارشی باید \u003Csetting-name>حالت توسعه‌دهنده\u003C/setting-name> را در تنظیمات افزونه‌های Chrome فعال کنید. \u003Clearn-link>بیشتر بدانید\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "یک URL یا مسیر فایل معتبر وارد کنید"
+   },
+   "options_err": {
+      "message": "مشکلی پیش آمد!"
+   },
+   "options_err_no_txt_file": {
+      "message": "فقط فایل‌های .txt مجاز هستند!"
+   },
+   "options_filter_categories": {
+      "message": "دسته‌بندی‌ها"
+   },
+   "options_filter_status_all": {
+      "message": "همه"
+   },
+   "options_filter_status_disabled": {
+      "message": "غیرفعال"
+   },
+   "options_filter_status_enabled": {
+      "message": "فعال"
+   },
+   "options_filter_update_date": {
+      "message": "آخرین به‌روزرسانی: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "فیلترها"
+   },
+   "options_filters_enabled": {
+      "message": "فعال:"
+   },
+   "options_filters_update_error": {
+      "message": "امکان به‌روزرسانی فیلترها وجود ندارد. لطفاً دوباره تلاش کنید."
+   },
+   "options_filters_update_success": {
+      "message": "$count$ فیلتر به‌روزرسانی شد",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$ فیلتر به‌روزرسانی شد",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "همه فیلترها به‌روز هستند"
+   },
+   "options_general": {
+      "message": "عمومی"
+   },
+   "options_help_translate": {
+      "message": "در ترجمه به ما کمک کنید!"
+   },
+   "options_limits": {
+      "message": "محدودیت‌ها"
+   },
+   "options_limits_active_filters": {
+      "message": "در حال حاضر فعال"
+   },
+   "options_limits_bar_warning": {
+      "message": "برخی فیلترها غیرفعال شدند چون مرورگر شما به محدودیت قوانین رسیده است. \u003Climits-link>مشاهده موارد تحت تأثیر\u003C/limits-link> یا \u003Cupgrade-link>دریافت محافظت نامحدود\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "فقط \u003Ctext-strong>$active$ از $expected$\u003C/text-strong> فیلتر شما فعال است – مرورگر فضای کافی برای قوانین فیلتر ندارد. \u003Ctext-strong>اپلیکیشن دسکتاپ ما هیچ محدودیتی برای قوانین ندارد\u003C/text-strong> و تبلیغات و ردیاب‌ها را در کل دستگاه شما مسدود می‌کند. برای ادامه استفاده از افزونه مرورگر، با غیرفعال کردن افزونه‌های دیگر یا غیرفعال کردن فیلترهای کم‌اهمیت، فضا را آزاد کنید.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "مرورگر فضای کافی برای قوانین فیلتر ندارد و برخی فیلترها را غیرفعال کرده است. \u003Ctext-strong>اپلیکیشن دسکتاپ ما هیچ محدودیتی برای قوانین ندارد\u003C/text-strong> و تبلیغات و ردیاب‌ها را در کل دستگاه شما مسدود می‌کند. برای ادامه استفاده از افزونه مرورگر، با غیرفعال کردن افزونه‌های دیگر یا غیرفعال کردن فیلترهای کم‌اهمیت، فضا را آزاد کنید."
+   },
+   "options_limits_callout_title": {
+      "message": "برخی فیلترها غیرفعال شدند"
+   },
+   "options_limits_disabled_filters": {
+      "message": "غیرفعال شده موقت"
+   },
+   "options_limits_dismiss": {
+      "message": "رد کردن"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "قوانین پویای regex"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "قوانین پویا"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "قوانین پویای ناامن"
+   },
+   "options_limits_enabled_lists": {
+      "message": "فیلترهای فعال"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "برخی فیلترها به دلیل محدودیت‌های مرورگر فعال نشدند"
+   },
+   "options_limits_get_desktop": {
+      "message": "دریافت نسخه دسکتاپ"
+   },
+   "options_limits_intro": {
+      "message": "تعداد فیلترها و قوانین فعال را محدود می‌کند. این محدودیت‌ها بین همه افزونه‌های مرورگر شما مشترک است."
+   },
+   "options_limits_none": {
+      "message": "هیچ‌کدام"
+   },
+   "options_limits_promo_body": {
+      "message": "محدودیت قوانین با سایر افزونه‌های شما مشترک است. اگر از این محدودیت عبور کنید، برخی فیلترها به طور موقت غیرفعال می‌شوند. \u003Ctext-strong>اپلیکیشن دسکتاپ ما هیچ محدودیتی برای قوانین ندارد\u003C/text-strong> و تبلیغات و ردیاب‌ها را در کل دستگاه شما مسدود می‌کند. برای ماندن در محدوده مرورگر، افزونه‌های دیگر را به حداقل برسانید و از فیلترهای کم‌اهمیت پرهیز کنید."
+   },
+   "options_limits_promo_title": {
+      "message": "فیلترینگ بدون محدودیت دریافت کنید"
+   },
+   "options_limits_reenable": {
+      "message": "فعال‌سازی مجدد"
+   },
+   "options_limits_reenable_failed": {
+      "message": "سهمیه کافی آزاد نیست. افزونه‌های دیگر یا فیلترهای بلااستفاده را غیرفعال کنید و دوباره تلاش کنید"
+   },
+   "options_limits_reenable_success": {
+      "message": "فیلترها دوباره فعال شدند"
+   },
+   "options_limits_related": {
+      "message": "تنظیمات مرتبط"
+   },
+   "options_limits_static_regex": {
+      "message": "قوانین ایستای regex"
+   },
+   "options_limits_static_rules": {
+      "message": "قوانین ایستا"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "فیلترهای داخلی از مجموعه قوانین ایستا و سهمیه قوانین ایستای مرورگر استفاده می‌کنند."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "فیلترهای داخلی"
+   },
+   "options_limits_usage": {
+      "message": "$current$ از $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "مشاهده جزئیات"
+   },
+   "options_limits_warning": {
+      "message": "برخی فیلترها به دلیل محدودیت مرورگر غیرفعال شدند."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "قوانین سفارشی و سایت‌های لیست سفید از سهمیه قوانین پویا استفاده می‌کنند."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "قوانین شما"
+   },
+   "options_menu": {
+      "message": "منو"
+   },
+   "options_new_filter": {
+      "message": "فیلتر جدید"
+   },
+   "options_no_filters_enabled": {
+      "message": "هیچ فیلتری فعال نیست"
+   },
+   "options_number_icon_desc": {
+      "message": "تعداد تبلیغات مسدودشده در هر صفحه روی آیکون افزونه نمایش داده می‌شود."
+   },
+   "options_number_icon_title": {
+      "message": "نمایش عدد در آیکون"
+   },
+   "options_open_extension_details": {
+      "message": "باز کردن جزئیات افزونه"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "امتیاز دهید"
+   },
+   "options_search": {
+      "message": "جستجو"
+   },
+   "options_search_results": {
+      "message": "نتایج"
+   },
+   "options_submit": {
+      "message": "ارسال"
+   },
+   "options_theme_dark": {
+      "message": "تیره"
+   },
+   "options_theme_desc": {
+      "message": "طرح رنگ صفحه تنظیمات را انتخاب کنید."
+   },
+   "options_theme_light": {
+      "message": "روشن"
+   },
+   "options_theme_system": {
+      "message": "سیستم"
+   },
+   "options_theme_title": {
+      "message": "تم"
+   },
+   "options_want_abu_in_lang": {
+      "message": "مایلید AdBlocker Ultimate به زبان شما باشد؟"
+   },
+   "page_blocked_go_back": {
+      "message": "بازگشت"
+   },
+   "page_blocked_heading": {
+      "message": "این صفحه مسدود شده است"
+   },
+   "page_blocked_note": {
+      "message": "دسترسی موقت داده خواهد شد."
+   },
+   "page_blocked_proceed": {
+      "message": "ادامه با وجود هشدار"
+   },
+   "page_blocked_reason": {
+      "message": "مسدود شده توسط قانون فیلتر:"
+   },
+   "page_blocked_title": {
+      "message": "صفحه مسدود شد"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate برای اندروید"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate برای iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "در این سایت فعال است"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate برای $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "برخی فیلترها به دلیل محدودیت‌های مرورگر غیرفعال شدند"
+   },
+   "popup_mobile_apps_title": {
+      "message": "حذف تبلیغات در موبایل"
+   },
+   "popup_protection_disabled": {
+      "message": "محافظت: غیرفعال"
+   },
+   "popup_protection_enabled": {
+      "message": "محافظت: فعال"
+   },
+   "popup_secure_page": {
+      "message": "صفحه امن"
+   },
+   "popup_settings": {
+      "message": "تنظیمات"
+   },
+   "popup_tab_blocked": {
+      "message": "مسدود شده: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "مجموع: $1"
+   },
+   "privacy_policy": {
+      "message": "سیاست حفظ حریم خصوصی"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "مرور بدون تبلیغ انجام شد!"
+   },
+   "rate_us_button": {
+      "message": "امتیاز دهید"
+   },
+   "rate_us_email": {
+      "message": "ایمیل"
+   },
+   "rate_us_hooray": {
+      "message": "هورا!"
+   },
+   "rate_us_message": {
+      "message": "پیام"
+   },
+   "rate_us_no_thanks": {
+      "message": "خیر، متشکرم"
+   },
+   "rate_us_prompt": {
+      "message": "از مسدود کردن تبلیغات لذت می‌برید؟ به دیگران کمک کنید ما را پیدا کنند."
+   },
+   "rate_us_send_feedback": {
+      "message": "ارسال بازخورد"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "لطفاً بگویید چگونه می‌توانیم بهتر شویم"
+   },
+   "rate_us_thank_you": {
+      "message": "متشکریم!"
+   },
+   "report_bug": {
+      "message": "گزارش باگ"
+   },
+   "toast_filter_enabled_title": {
+      "message": "فیلترها به طور خودکار فعال شدند"
+   },
+   "toast_filters_update_error": {
+      "message": "دریافت به‌روزرسانی‌ها ناموفق بود. لطفاً بعداً دوباره تلاش کنید."
+   },
+   "toast_filters_update_filter": {
+      "message": "فیلتر به‌روزرسانی شد"
+   },
+   "toast_filters_update_filters": {
+      "message": "فیلترها به‌روزرسانی شدند"
+   },
+   "toast_filters_update_not_found": {
+      "message": "به‌روزرسانی‌ای پیدا نشد"
+   },
+   "toast_filters_update_title_error": {
+      "message": "بررسی به‌روزرسانی‌ها ناموفق بود"
+   },
+   "version": {
+      "message": "نسخه"
+   },
+   "yes": {
+      "message": "بله"
+   }
+}

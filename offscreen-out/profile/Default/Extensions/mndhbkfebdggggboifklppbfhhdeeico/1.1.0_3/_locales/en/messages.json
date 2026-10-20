@@ -1,0 +1,17 @@
+{
+   "badgeAvailable": {
+      "message": "Click to activate the Snap Color Picker."
+   },
+   "badgeNotAvailable": {
+      "message": "Snap Color Picker doesn't run on internal browser pages."
+   },
+   "extName": {
+      "message": "Snap Color Picker"
+   },
+   "extShortDesc": {
+      "message": "Choose Your Colors in a Snap with Snap Color Picker - The Ultimate Design Tool for Creatives!"
+   },
+   "shortcutCommand": {
+      "message": "Pick color from web page (Snap Color Picker)"
+   }
+}

@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "保留所有權利。"
+   },
+   "assistant_another_element": {
+      "message": "請選擇另一個輸入項"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "將此規則應用到每個網站"
+   },
+   "assistant_block": {
+      "message": "封鎖"
+   },
+   "assistant_block_by_reference": {
+      "message": "通過url的塊元素"
+   },
+   "assistant_block_element": {
+      "message": "阻擋元素"
+   },
+   "assistant_block_element_explain": {
+      "message": "元素阻塞規則設置"
+   },
+   "assistant_block_similar": {
+      "message": "塊類似的元素"
+   },
+   "assistant_extended_settings": {
+      "message": "進階設定..."
+   },
+   "assistant_preview_end": {
+      "message": "完成預覽"
+   },
+   "assistant_preview_start": {
+      "message": "預覽"
+   },
+   "assistant_select_element": {
+      "message": "選擇模式"
+   },
+   "assistant_select_element_cancel": {
+      "message": "取消選擇模式"
+   },
+   "assistant_select_element_ext": {
+      "message": "按一下頁面上的任何元素或 "
+   },
+   "assistant_slider_explain": {
+      "message": "調整滑桿以改變框架大小"
+   },
+   "browser_action_popup_block_element": {
+      "message": "阻擋元素"
+   },
+   "close": {
+      "message": "關閉"
+   },
+   "contact_us": {
+      "message": "聯絡我們"
+   },
+   "context_block_site_ads": {
+      "message": "在這個網站上阻止廣告"
+   },
+   "context_complaint_site": {
+      "message": "提交本網站"
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate 不能在這個網域使用。"
+   },
+   "context_site_filtering_off": {
+      "message": "禁用過濾在這個網站上"
+   },
+   "context_site_filtering_on": {
+      "message": "對此網站啟用篩選功能"
+   },
+   "context_update_filters": {
+      "message": "檢查是否有更新"
+   },
+   "description": {
+      "message": "終極廣告攔截工具。免費攔截 YouTube、Facebook 和所有其他網站上的廣告！"
+   },
+   "desktop_app_info": {
+      "message": "廣告攔截已由 適用於 Windows 的 AdBlocker Ultimate 加以處理。你也可以利用此選單來管理你的白名單，或是手動攔截部分廣告。"
+   },
+   "desktop_app_is_running": {
+      "message": "桌面應用程式正在執行"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "「$filter$」已啟用",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "自訂過濾器"
+   },
+   "follow_us": {
+      "message": "追蹤我們"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "否"
+   },
+   "official_website": {
+      "message": "官方網站"
+   },
+   "options_about": {
+      "message": "關於"
+   },
+   "options_about_heading": {
+      "message": "而且所有煩人的廣告都消失了!"
+   },
+   "options_add_custom_filter": {
+      "message": "新增自訂篩選"
+   },
+   "options_allow_user_scripts": {
+      "message": "若要啟用自訂過濾器，請在擴充功能詳細資料頁啟用\u003Csetting-name>允許使用者腳本\u003C/setting-name>。\u003Clearn-link>了解更多\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "安全名單："
+   },
+   "options_allowlist_desc": {
+      "message": "加入到這份白名單的網頁廣告將不會被攔截。"
+   },
+   "options_android_callout": {
+      "message": "我們的 Android 應用程式比瀏覽器擴充功能擁有更多功能。看看您錯過了什麼。"
+   },
+   "options_android_upgrade": {
+      "message": "取得應用程式"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "當開啟某種語言的少量頁面後，將會自動加入並啟動該語言的過濾原則。"
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "自動啟用特定語言的過濾器"
+   },
+   "options_built_in_rules_limit": {
+      "message": "過濾規則數量：$count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "你確定要刪除此過濾器嗎?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "包含 scriptlet 和 JavaScript 規則的自訂過濾器需啟用 User Scripts API 權限。這將允許擴充功能執行自訂過濾器訂閱中的腳本。"
+   },
+   "options_custom_rules": {
+      "message": "自訂原則"
+   },
+   "options_custom_rules_export": {
+      "message": "導出"
+   },
+   "options_custom_rules_import": {
+      "message": "匯入"
+   },
+   "options_desktop_callout": {
+      "message": "我們的桌面應用程式比瀏覽器擴充功能擁有更多功能。看看您錯過了什麼。"
+   },
+   "options_desktop_upgrade": {
+      "message": "比較"
+   },
+   "options_do_you_like_abu": {
+      "message": "你喜歡 AdBlocker Ultimate 嗎?"
+   },
+   "options_editor_desc": {
+      "message": "你可以在此清單上新增你自己的自訂原則。建立你自己的廣告過濾器並加到此處。"
+   },
+   "options_enable_context_menu_desc": {
+      "message": "啟用在網頁上右鍵點擊時可用的操作選單。"
+   },
+   "options_enable_context_menu_title": {
+      "message": "啟用右鍵選單"
+   },
+   "options_enable_developer_mode": {
+      "message": "若要啟用自訂過濾器，請在 Chrome 擴充功能設定中啟用\u003Csetting-name>開發人員模式\u003C/setting-name>。\u003Clearn-link>了解更多\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "請輸入有效的網址或檔案路徑！"
+   },
+   "options_err": {
+      "message": "發生錯誤！"
+   },
+   "options_err_no_txt_file": {
+      "message": "只允許 .txt 格式的檔案"
+   },
+   "options_filter_categories": {
+      "message": "分類"
+   },
+   "options_filter_status_all": {
+      "message": "全部"
+   },
+   "options_filter_status_disabled": {
+      "message": "已停用"
+   },
+   "options_filter_status_enabled": {
+      "message": "啟用"
+   },
+   "options_filter_update_date": {
+      "message": "上次更新：$date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "過濾器"
+   },
+   "options_filters_enabled": {
+      "message": "已啟用："
+   },
+   "options_filters_update_error": {
+      "message": "無法更新過濾器，請再試一次。"
+   },
+   "options_filters_update_success": {
+      "message": "已更新 $count$ 個過濾器",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "已更新 $count$ 個過濾器",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "所有過濾器均為最新狀態"
+   },
+   "options_general": {
+      "message": "一般"
+   },
+   "options_help_translate": {
+      "message": "協助我們翻譯！"
+   },
+   "options_limits": {
+      "message": "限制"
+   },
+   "options_limits_active_filters": {
+      "message": "目前啟用"
+   },
+   "options_limits_bar_warning": {
+      "message": "部分過濾器已被停用，因為您的瀏覽器已達到規則限制。\u003Climits-link>查看受影響項目\u003C/limits-link>或\u003Cupgrade-link>獲得無限制防護\u003C/upgrade-link>。"
+   },
+   "options_limits_callout_body": {
+      "message": "只有 \u003Ctext-strong>$active$ / $expected$\u003C/text-strong> 個過濾器正在運作 — 您的瀏覽器已沒有足夠空間儲存過濾規則。\u003Ctext-strong>我們的桌面應用程式沒有規則限制\u003C/text-strong>，可在整個裝置上封鎖廣告和追蹤器。若要繼續使用瀏覽器擴充功能，請關閉其他擴充功能或停用低優先權過濾器以釋放空間。",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "您的瀏覽器已沒有足夠空間儲存過濾規則，因此已關閉部分過濾器。\u003Ctext-strong>我們的桌面應用程式沒有規則限制\u003C/text-strong>，可在整個裝置上封鎖廣告和追蹤器。若要繼續使用瀏覽器擴充功能，請關閉其他擴充功能或停用低優先權過濾器以釋放空間。"
+   },
+   "options_limits_callout_title": {
+      "message": "部分過濾器已被停用"
+   },
+   "options_limits_disabled_filters": {
+      "message": "暫時停用"
+   },
+   "options_limits_dismiss": {
+      "message": "關閉"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "動態正則規則"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "動態規則"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "不安全動態規則"
+   },
+   "options_limits_enabled_lists": {
+      "message": "已啟用過濾器"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "部分過濾器無法啟用，因為已超出瀏覽器限制"
+   },
+   "options_limits_get_desktop": {
+      "message": "取得桌面應用程式"
+   },
+   "options_limits_intro": {
+      "message": "限制同時可啟用的過濾器和規則數量。所有瀏覽器擴充功能共用這些限制。"
+   },
+   "options_limits_none": {
+      "message": "無"
+   },
+   "options_limits_promo_body": {
+      "message": "規則限制會與您的其他擴充功能共用。超過限制時，部分過濾器將會暫時停用。\u003Ctext-strong>我們的桌面應用程式沒有規則限制\u003C/text-strong>，可在整個裝置上封鎖廣告和追蹤器。為了不超出瀏覽器限制，請盡量減少其他擴充功能並避免使用低優先權過濾器。"
+   },
+   "options_limits_promo_title": {
+      "message": "享受無限制過濾"
+   },
+   "options_limits_reenable": {
+      "message": "重新啟用"
+   },
+   "options_limits_reenable_failed": {
+      "message": "可用配額不足。請關閉其他擴充功能或未使用的過濾器後再試一次"
+   },
+   "options_limits_reenable_success": {
+      "message": "過濾器已重新啟用"
+   },
+   "options_limits_related": {
+      "message": "相關設定"
+   },
+   "options_limits_static_regex": {
+      "message": "靜態正則規則"
+   },
+   "options_limits_static_rules": {
+      "message": "靜態規則"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "內建過濾器會使用瀏覽器的靜態規則集與靜態規則配額。"
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "內建過濾器"
+   },
+   "options_limits_usage": {
+      "message": "$current$ / $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "檢視詳細資料"
+   },
+   "options_limits_warning": {
+      "message": "部分過濾器因瀏覽器限制已被停用。"
+   },
+   "options_limits_your_rules_desc": {
+      "message": "自訂規則與白名單項目共用瀏覽器的動態規則配額。"
+   },
+   "options_limits_your_rules_heading": {
+      "message": "您的規則"
+   },
+   "options_menu": {
+      "message": "選單"
+   },
+   "options_new_filter": {
+      "message": "新過濾器"
+   },
+   "options_no_filters_enabled": {
+      "message": "沒有已啟用的過濾器"
+   },
+   "options_number_icon_desc": {
+      "message": "每個頁面上被攔截的廣告數量都會在擴充功能圖示中顯示。"
+   },
+   "options_number_icon_title": {
+      "message": "在圖示上顯示數量"
+   },
+   "options_open_extension_details": {
+      "message": "開啟擴充功能詳細資料"
+   },
+   "options_page_title": {
+      "message": "選項"
+   },
+   "options_rate_us": {
+      "message": "為我們評分"
+   },
+   "options_search": {
+      "message": "搜尋"
+   },
+   "options_search_results": {
+      "message": "結果"
+   },
+   "options_submit": {
+      "message": "送出"
+   },
+   "options_theme_dark": {
+      "message": "深色"
+   },
+   "options_theme_desc": {
+      "message": "選擇設定頁面的配色方案。"
+   },
+   "options_theme_light": {
+      "message": "淺色"
+   },
+   "options_theme_system": {
+      "message": "系統"
+   },
+   "options_theme_title": {
+      "message": "主題"
+   },
+   "options_want_abu_in_lang": {
+      "message": "想要讓 AdBlocker Ultimate 支援你的語言嗎?"
+   },
+   "page_blocked_go_back": {
+      "message": "返回"
+   },
+   "page_blocked_heading": {
+      "message": "此頁面已被封鎖"
+   },
+   "page_blocked_note": {
+      "message": "將暫時授予存取權限。"
+   },
+   "page_blocked_proceed": {
+      "message": "仍要繼續"
+   },
+   "page_blocked_reason": {
+      "message": "已被過濾規則封鎖："
+   },
+   "page_blocked_title": {
+      "message": "頁面已封鎖"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate 適用於 Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate 適用於 iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "在此頁面上啟用"
+   },
+   "popup_get_abu_desktop": {
+      "message": "取得適用於$platform$的 AdBlocker Ultimate",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "部分過濾器已被停用，因為已超出瀏覽器限制"
+   },
+   "popup_mobile_apps_title": {
+      "message": "在手機上封鎖廣告"
+   },
+   "popup_protection_disabled": {
+      "message": "保護：已關閉"
+   },
+   "popup_protection_enabled": {
+      "message": "保護：已開啟"
+   },
+   "popup_secure_page": {
+      "message": "安全頁面"
+   },
+   "popup_settings": {
+      "message": "設定"
+   },
+   "popup_tab_blocked": {
+      "message": "已封鎖：$1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "總數：$1"
+   },
+   "privacy_policy": {
+      "message": "隱私權政策"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "已實現無廣告瀏覽！"
+   },
+   "rate_us_button": {
+      "message": "評鑑我們"
+   },
+   "rate_us_email": {
+      "message": "電子郵件"
+   },
+   "rate_us_hooray": {
+      "message": "太棒了！"
+   },
+   "rate_us_message": {
+      "message": "訊息"
+   },
+   "rate_us_no_thanks": {
+      "message": "不用了，謝謝"
+   },
+   "rate_us_prompt": {
+      "message": "喜愛廣告攔截的成效嗎？協助我們讓更多人了解。"
+   },
+   "rate_us_send_feedback": {
+      "message": "傳送意見回饋"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "請跟我們說該如何改進"
+   },
+   "rate_us_thank_you": {
+      "message": "謝謝！"
+   },
+   "report_bug": {
+      "message": "回報錯誤"
+   },
+   "toast_filter_enabled_title": {
+      "message": "已自動啟動過濾器"
+   },
+   "toast_filters_update_error": {
+      "message": "獲取更新失敗。"
+   },
+   "toast_filters_update_filter": {
+      "message": "過濾器已更新"
+   },
+   "toast_filters_update_filters": {
+      "message": "過濾器已更新"
+   },
+   "toast_filters_update_not_found": {
+      "message": "未找到更新。"
+   },
+   "toast_filters_update_title_error": {
+      "message": "檢查更新失敗"
+   },
+   "version": {
+      "message": "版本"
+   },
+   "yes": {
+      "message": "是"
+   }
+}

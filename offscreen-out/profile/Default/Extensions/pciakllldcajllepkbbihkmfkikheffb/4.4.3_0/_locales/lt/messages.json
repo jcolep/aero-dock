@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Visos teisės saugomos"
+   },
+   "assistant_another_element": {
+      "message": "Pasirinkti kitą elementą"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Taikyti šią taisyklę visoms svetainėms"
+   },
+   "assistant_block": {
+      "message": "Blokuoti"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blokuoti elementą pagal URL"
+   },
+   "assistant_block_element": {
+      "message": "Blokuoti elementą"
+   },
+   "assistant_block_element_explain": {
+      "message": "Elemento blokavimo taisyklės nustatymas"
+   },
+   "assistant_block_similar": {
+      "message": "Blokuoti panašius elementus"
+   },
+   "assistant_extended_settings": {
+      "message": "Advanced settings..."
+   },
+   "assistant_preview_end": {
+      "message": "Baigti peržiūrą"
+   },
+   "assistant_preview_start": {
+      "message": "Peržiūra"
+   },
+   "assistant_select_element": {
+      "message": "Pasirinkimo režimas"
+   },
+   "assistant_select_element_cancel": {
+      "message": "atšaukti pasirinkimo režimą"
+   },
+   "assistant_select_element_ext": {
+      "message": "Spustelėkite bet kurį elementą puslapyje arba"
+   },
+   "assistant_slider_explain": {
+      "message": "Reguliuokite slankiklį, kad pakeistumėte rėmelio dydį"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blokuoti elementą"
+   },
+   "close": {
+      "message": "Uždaryti"
+   },
+   "contact_us": {
+      "message": "Susisiekite su mumis"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate negali veikti šiame domene"
+   },
+   "context_site_filtering_off": {
+      "message": "Išjungti filtravimą šioje svetainėje"
+   },
+   "context_site_filtering_on": {
+      "message": "Įjungti filtravimą šioje svetainėje"
+   },
+   "context_update_filters": {
+      "message": "Patikrinti filtro atnaujinimus"
+   },
+   "description": {
+      "message": "Geriausias skelbimų blokavimo įrankis. Blokuokite skelbimus „YouTube“, „Facebook“ ir visose kitose svetainėse nemokamai!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Darbastalio programa veikia"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" dabar įjungtas",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Individualūs filtrai"
+   },
+   "follow_us": {
+      "message": "Sekite mus"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Ne"
+   },
+   "official_website": {
+      "message": "Oficiali svetainė"
+   },
+   "options_about": {
+      "message": "Apie"
+   },
+   "options_about_heading": {
+      "message": "Ir visi erzinantys skelbimai dingo!"
+   },
+   "options_add_custom_filter": {
+      "message": "Pridėti individualų filtrą"
+   },
+   "options_allow_user_scripts": {
+      "message": "Norėdami įjungti individualius filtrus, turite įjungti \u003Csetting-name>Leisti naudotojo scenarijus\u003C/setting-name> plėtinio informacijos puslapyje. \u003Clearn-link>Sužinokite daugiau\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Leidžiamų svetainių sąrašas"
+   },
+   "options_allowlist_desc": {
+      "message": "Skelbimai svetainėse, pridėtose prie šio leidžiamų svetainių sąrašo, nebus blokuojami."
+   },
+   "options_android_callout": {
+      "message": "Mūsų Android programa turi daugiau funkcijų nei naršyklės plėtinys. Sužinokite, ko netenkate."
+   },
+   "options_android_upgrade": {
+      "message": "Atsisiųsti programą"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Atsidarius kelis puslapius tam tikra kalba, šios kalbos filtrai bus automatiškai pridėti ir aktyvuoti."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Automatiškai aktyvuoti kalbos filtrus"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Filtrų taisyklių skaičius: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Ar tikrai norite ištrinti šį filtrą?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Individualiems filtrams su scriptlet ir JavaScript taisyklėmis reikia įjungti User Scripts API leidimą. Tai leidžia plėtiniui vykdyti scenarijus iš individualių filtrų prenumeratų."
+   },
+   "options_custom_rules": {
+      "message": "Individualios taisyklės"
+   },
+   "options_custom_rules_export": {
+      "message": "Eksportuoti"
+   },
+   "options_custom_rules_import": {
+      "message": "Importuoti"
+   },
+   "options_desktop_callout": {
+      "message": "Mūsų kompiuterio programa turi daugiau funkcijų nei naršyklės plėtinys. Sužinokite, ko netenkate."
+   },
+   "options_desktop_upgrade": {
+      "message": "Palyginti"
+   },
+   "options_do_you_like_abu": {
+      "message": "Ar jums patinka AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Šiame sąraše galite pridėti savo individualias taisykles. Kurkite savo reklamos filtrus ir pridėkite juos čia."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Įjungia veiksmų meniu, kuris pasirodo dešiniuoju pelės mygtuku spustelėjus tinklalapį."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Įjungti kontekstinį meniu"
+   },
+   "options_enable_developer_mode": {
+      "message": "Norėdami įjungti individualius filtrus, turite įjungti \u003Csetting-name>Kūrėjo režimą\u003C/setting-name> Chrome plėtinių nustatymuose. \u003Clearn-link>Sužinokite daugiau\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Įveskite galiojantį URL arba failo kelią"
+   },
+   "options_err": {
+      "message": "Kažkas negerai!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Leidžiami tik .txt failai!"
+   },
+   "options_filter_categories": {
+      "message": "Kategorijos"
+   },
+   "options_filter_status_all": {
+      "message": "Visi"
+   },
+   "options_filter_status_disabled": {
+      "message": "Išjungta"
+   },
+   "options_filter_status_enabled": {
+      "message": "Įjungta"
+   },
+   "options_filter_update_date": {
+      "message": "Paskutinis atnaujinimas: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtrai"
+   },
+   "options_filters_enabled": {
+      "message": "Įjungta:"
+   },
+   "options_filters_update_error": {
+      "message": "Nepavyko atnaujinti filtrų. Bandykite dar kartą."
+   },
+   "options_filters_update_success": {
+      "message": "Atnaujinta filtrų: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Atnaujintas filtras: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Visi filtrai atnaujinti"
+   },
+   "options_general": {
+      "message": "Bendrieji"
+   },
+   "options_help_translate": {
+      "message": "Padėkite mums išversti!"
+   },
+   "options_limits": {
+      "message": "Ribos"
+   },
+   "options_limits_active_filters": {
+      "message": "Šiuo metu aktyvūs"
+   },
+   "options_limits_bar_warning": {
+      "message": "Kai kurie filtrai buvo išjungti, nes jūsų naršyklė pasiekė taisyklių ribą. \u003Climits-link>Peržiūrėkite, kas paveikta\u003C/limits-link> arba \u003Cupgrade-link>gaukite neribotą apsaugą\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Veikia tik \u003Ctext-strong>$active$ iš $expected$\u003C/text-strong> jūsų filtrų – naršyklėje pritrūko vietos filtravimo taisyklėms. \u003Ctext-strong>Mūsų kompiuterio programa neturi taisyklių ribojimų\u003C/text-strong> ir blokuoja reklamas bei stebėjimo priemones visame įrenginyje. Norėdami toliau naudoti naršyklės plėtinį, atlaisvinkite vietos išjungdami kitus plėtinius arba žemos svarbos filtrus.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Naršyklėje pritrūko vietos filtravimo taisyklėms, todėl kai kurie filtrai buvo išjungti. \u003Ctext-strong>Mūsų kompiuterio programa neturi taisyklių ribojimų\u003C/text-strong> ir blokuoja reklamas bei stebėjimo priemones visame įrenginyje. Norėdami toliau naudoti naršyklės plėtinį, atlaisvinkite vietos išjungdami kitus plėtinius arba žemos svarbos filtrus."
+   },
+   "options_limits_callout_title": {
+      "message": "Kai kurie filtrai buvo išjungti"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Laikinai išjungta"
+   },
+   "options_limits_dismiss": {
+      "message": "Atmesti"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dinaminės regex taisyklės"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dinaminės taisyklės"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Nesaugios dinaminės taisyklės"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Įjungti filtrai"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Kai kurių filtrų nepavyko įjungti, nes viršytos naršyklės ribos"
+   },
+   "options_limits_get_desktop": {
+      "message": "Gauti darbalaukio programą"
+   },
+   "options_limits_intro": {
+      "message": "ribojama, kiek filtrų ir taisyklių gali būti aktyvuota vienu metu. Ribos bendrinamos tarp visų jūsų naršyklės plėtinių."
+   },
+   "options_limits_none": {
+      "message": "Nėra"
+   },
+   "options_limits_promo_body": {
+      "message": "Taisyklių limitai dalijami su kitais jūsų plėtiniais. Viršijus juos, kai kurie filtrai bus laikinai išjungti. \u003Ctext-strong>Mūsų kompiuterio programa neturi taisyklių ribojimų\u003C/text-strong> ir blokuoja reklamas bei stebėjimo priemones visame įrenginyje. Norėdami likti naršyklės ribose, laikykite kitus plėtinius iki minimumo ir venkite žemos svarbos filtrų."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtruokite be apribojimų"
+   },
+   "options_limits_reenable": {
+      "message": "Įjungti iš naujo"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Nepakanka laisvos kvotos. Išjunkite kitas plėtines arba nenaudojamus filtrus ir bandykite dar kartą"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtrai vėl įjungti"
+   },
+   "options_limits_related": {
+      "message": "Susiję nustatymai"
+   },
+   "options_limits_static_regex": {
+      "message": "Statinės regex taisyklės"
+   },
+   "options_limits_static_rules": {
+      "message": "Statinės taisyklės"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Integruoti filtrai naudoja naršyklės statinių taisyklių rinkinį ir kvotas."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Integruoti filtrai"
+   },
+   "options_limits_usage": {
+      "message": "$current$ iš $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Peržiūrėti detales"
+   },
+   "options_limits_warning": {
+      "message": "Kai kurie filtrai buvo išjungti dėl naršyklės apribojimų."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Individualios taisyklės ir baltasis sąrašas dalijasi naršyklės dinaminėmis kvotomis."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Jūsų taisyklės"
+   },
+   "options_menu": {
+      "message": "Meniu"
+   },
+   "options_new_filter": {
+      "message": "Naujas filtras"
+   },
+   "options_no_filters_enabled": {
+      "message": "Nėra įjungtų filtrų"
+   },
+   "options_number_icon_desc": {
+      "message": "Blokuotų skelbimų skaičius kiekviename puslapyje bus rodomas plėtinio piktogramoje."
+   },
+   "options_number_icon_title": {
+      "message": "Rodyti skaičių piktogramoje"
+   },
+   "options_open_extension_details": {
+      "message": "Atidaryti plėtinio informaciją"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "Įvertinkite mus"
+   },
+   "options_search": {
+      "message": "Paieška"
+   },
+   "options_search_results": {
+      "message": "Rezultatai"
+   },
+   "options_submit": {
+      "message": "Pateikti"
+   },
+   "options_theme_dark": {
+      "message": "Tamsi"
+   },
+   "options_theme_desc": {
+      "message": "Pasirinkite nustatymų puslapio spalvų schemą."
+   },
+   "options_theme_light": {
+      "message": "Šviesi"
+   },
+   "options_theme_system": {
+      "message": "Sistema"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Norite AdBlocker Ultimate savo kalba?"
+   },
+   "page_blocked_go_back": {
+      "message": "Grįžti atgal"
+   },
+   "page_blocked_heading": {
+      "message": "Šis puslapis buvo užblokuotas"
+   },
+   "page_blocked_note": {
+      "message": "Laikina prieiga bus suteikta."
+   },
+   "page_blocked_proceed": {
+      "message": "Tęsti vis tiek"
+   },
+   "page_blocked_reason": {
+      "message": "Užblokuota pagal filtro taisyklę:"
+   },
+   "page_blocked_title": {
+      "message": "Puslapis užblokuotas"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Įjungta šiame puslapyje"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Kai kurie filtrai buvo išjungti, nes viršytos naršyklės ribos"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blokuokite reklamas telefone"
+   },
+   "popup_protection_disabled": {
+      "message": "Apsauga: Išjungta"
+   },
+   "popup_protection_enabled": {
+      "message": "Apsauga: Įjungta"
+   },
+   "popup_secure_page": {
+      "message": "Saugus puslapis"
+   },
+   "popup_settings": {
+      "message": "Nustatymai"
+   },
+   "popup_tab_blocked": {
+      "message": "Užblokuota: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Iš viso: $1"
+   },
+   "privacy_policy": {
+      "message": "Privatumo politika"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Naršymas be reklamų pasiektas!"
+   },
+   "rate_us_button": {
+      "message": "Įvertinkite mus"
+   },
+   "rate_us_email": {
+      "message": "El. paštas"
+   },
+   "rate_us_hooray": {
+      "message": "Puiku!"
+   },
+   "rate_us_message": {
+      "message": "Žinutė"
+   },
+   "rate_us_no_thanks": {
+      "message": "Ne, ačiū"
+   },
+   "rate_us_prompt": {
+      "message": "Patinka blokuoti reklamas? Padėkite kitiems apie mus sužinoti."
+   },
+   "rate_us_send_feedback": {
+      "message": "Siųsti atsiliepimą"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Papasakokite, kaip galime patobulinti"
+   },
+   "rate_us_thank_you": {
+      "message": "Ačiū!"
+   },
+   "report_bug": {
+      "message": "Pranešti apie klaidą"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filtrai automatiškai įjungti"
+   },
+   "toast_filters_update_error": {
+      "message": "Nepavyko gauti atnaujinimų. Bandykite vėliau."
+   },
+   "toast_filters_update_filter": {
+      "message": "filtras buvo atnaujintas"
+   },
+   "toast_filters_update_filters": {
+      "message": "filtrai buvo atnaujinti"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Atnaujinimų nerasta"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Nepavyko patikrinti atnaujinimų"
+   },
+   "version": {
+      "message": "Versija"
+   },
+   "yes": {
+      "message": "Taip"
+   }
+}

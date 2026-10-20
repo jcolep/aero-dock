@@ -1,0 +1,6 @@
+2026/10/19-18:10:25.470 6a60 Reusing MANIFEST C:\Users\JakePascoe\source\repos\Aero Dock\data\aero-dock\offscreen-out\profile\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/10/19-18:10:25.471 6a60 Recovering log #182
+2026/10/19-18:10:25.471 6a60 Reusing old log C:\Users\JakePascoe\source\repos\Aero Dock\data\aero-dock\offscreen-out\profile\Default\EdgeCoupons/coupons_data.db/000182.log 
+2026/10/19-18:10:25.495 1a88 Level-0 table #186: started
+2026/10/19-18:10:25.499 1a88 Level-0 table #186: 683376 bytes OK
+2026/10/19-18:10:25.502 1a88 Delete type=0 #182

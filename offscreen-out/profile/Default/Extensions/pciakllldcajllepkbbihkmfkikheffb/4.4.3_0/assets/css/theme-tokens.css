@@ -1,0 +1,90 @@
+/**
+ * Design tokens — the single source of truth for the extension's design
+ * language (light + dark). Imported by the options page, popup, page-blocked,
+ * assistant, and the injected overlay CSS (alert/rate-us/rules-limits toasts).
+ *
+ * Theme resolution: pages and content-script injectors add `abu-theme-light`
+ * or `abu-theme-dark` to the root element (resolving `system` via matchMedia,
+ * see src/common/theme.js). The `abu-theme-system` + media-query rule is a
+ * fallback when no explicit class is set.
+ */
+
+:root,
+.abu-theme-light {
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --mono-font: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'Source Code Pro', monospace;
+
+  --bg: #f7f9fc;
+  --surface: #fff;
+  --surface-hover: #f1f5fa;
+  --border: #e8ecf2;
+  --border-strong: #d5dced;
+
+  --text: #1e2a3b;
+  --text-muted: #6b7789;
+
+  --accent: #2d79e6;
+  --accent-hover: #2264c9;
+  --accent-soft: rgba(45, 121, 230, 0.1);
+
+  --success: #22a06b;
+  --warning: #f2c94c;
+  --warning-strong: #b25a00;
+  --warning-surface: #fff8e6;
+  --warning-border: #f2c94c;
+  --warning-text: #7a5b00;
+  --danger: #e5484d;
+
+  --radius: 10px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+}
+
+.abu-theme-dark {
+  --bg: #161d26;
+  --surface: #202834;
+  --surface-hover: #28323f;
+  --border: #333e4c;
+  --border-strong: #45525f;
+
+  --text: #e6eaf0;
+  --text-muted: #a9b4c3;
+
+  --accent: #4b90ed;
+  --accent-hover: #6aa5f2;
+  --accent-soft: rgba(75, 144, 237, 0.18);
+
+  --success: #3fbf87;
+  --warning: #f0b429;
+  --warning-strong: #f0b429;
+  --warning-surface: rgba(242, 201, 76, 0.1);
+  --warning-border: rgba(242, 201, 76, 0.4);
+  --warning-text: #e0c377;
+  --danger: #f06a6f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root.abu-theme-system,
+  .abu-theme-system {
+    --bg: #161d26;
+    --surface: #202834;
+    --surface-hover: #28323f;
+    --border: #333e4c;
+    --border-strong: #45525f;
+
+    --text: #e6eaf0;
+    --text-muted: #a9b4c3;
+
+    --accent: #4b90ed;
+    --accent-hover: #6aa5f2;
+    --accent-soft: rgba(75, 144, 237, 0.18);
+
+    --success: #3fbf87;
+    --warning: #f0b429;
+    --warning-strong: #f0b429;
+    --warning-surface: rgba(242, 201, 76, 0.1);
+    --warning-border: rgba(242, 201, 76, 0.4);
+    --warning-text: #e0c377;
+    --danger: #f06a6f;
+  }
+}

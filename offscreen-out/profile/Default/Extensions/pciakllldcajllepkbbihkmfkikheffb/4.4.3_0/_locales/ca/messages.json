@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Tots els drets reservats"
+   },
+   "assistant_another_element": {
+      "message": "Selecciona un altre element"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Aplica aquesta norma a totes les pàgines web"
+   },
+   "assistant_block": {
+      "message": "Bloqueja"
+   },
+   "assistant_block_by_reference": {
+      "message": "Bloqueja element per url"
+   },
+   "assistant_block_element": {
+      "message": "Bloqueja l'element"
+   },
+   "assistant_block_element_explain": {
+      "message": "Establiment de normes de bloqueig"
+   },
+   "assistant_block_similar": {
+      "message": "Bloqueja elements similars"
+   },
+   "assistant_extended_settings": {
+      "message": "Opcions avançades..."
+   },
+   "assistant_preview_end": {
+      "message": "Finalitza la previsualització"
+   },
+   "assistant_preview_start": {
+      "message": "Previsualitza"
+   },
+   "assistant_select_element": {
+      "message": "Mode de selecció"
+   },
+   "assistant_select_element_cancel": {
+      "message": "o cancel·la el mode de selecció"
+   },
+   "assistant_select_element_ext": {
+      "message": "Fes click a qualsevol element de la pàgina "
+   },
+   "assistant_slider_explain": {
+      "message": "Ajusta el control lliscant per canviar la mida del marc"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Bloqueja l'element"
+   },
+   "close": {
+      "message": "Tanca"
+   },
+   "contact_us": {
+      "message": "Contacta'ns"
+   },
+   "context_block_site_ads": {
+      "message": "Bloqueja anuncis a aquesta pàgina..."
+   },
+   "context_complaint_site": {
+      "message": "Presenta una queixa sobre aquesta pàgina..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate no pot executar-se en aquest domini"
+   },
+   "context_site_filtering_off": {
+      "message": "Desactiva el filtratge a aquesta pàgina"
+   },
+   "context_site_filtering_on": {
+      "message": "Activa el filtratge a aquesta pàgina"
+   },
+   "context_update_filters": {
+      "message": "Busca actualitzacions dels filtres"
+   },
+   "description": {
+      "message": "L'eina definitiva de bloqueig d'anuncis. Bloqueja els anuncis a YouTube, Facebook i tots els altres llocs web de forma gratuïta!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "L'aplicació d'escriptori està en execució"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" ara està activat",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Filtres personalitzats"
+   },
+   "follow_us": {
+      "message": "Segueix-nos a"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "No"
+   },
+   "official_website": {
+      "message": "Lloc web oficial"
+   },
+   "options_about": {
+      "message": "Quant a"
+   },
+   "options_about_heading": {
+      "message": "I tots els anuncis molestos fora!"
+   },
+   "options_add_custom_filter": {
+      "message": "Afegeix un filtre personalitzat"
+   },
+   "options_allow_user_scripts": {
+      "message": "Per activar filtres personalitzats, cal habilitar \u003Csetting-name>Permet scripts d'usuari\u003C/setting-name> a la pàgina de detalls de l'extensió. \u003Clearn-link>Més informació\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Llista blanca"
+   },
+   "options_allowlist_desc": {
+      "message": "Els anuncis dels llocs web afegits a aquesta Llista blanca no es bloquejaran."
+   },
+   "options_android_callout": {
+      "message": "La nostra aplicació per a Android té més funcions que l’extensió del navegador. Descobreix què t’estàs perdent."
+   },
+   "options_android_upgrade": {
+      "message": "Descarrega l’app"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Després d'obrir unes quantes pàgines en un idioma, els filtres per a aquest idioma s'afegiran i s'activaran automàticament."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Activa automàticament els filtres específics per idioma"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Nombre de regles de filtre: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Esteu segur que voleu suprimir aquest filtre?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Els filtres personalitzats amb regles scriptlet i JavaScript requereixen que el permís User Scripts API estigui activat. Això permet a l'extensió executar scripts de subscripcions de filtres personalitzats."
+   },
+   "options_custom_rules": {
+      "message": "Regles personalitzades"
+   },
+   "options_custom_rules_export": {
+      "message": "Exporta"
+   },
+   "options_custom_rules_import": {
+      "message": "Importa"
+   },
+   "options_desktop_callout": {
+      "message": "La nostra aplicació d’escriptori té més funcions que l’extensió del navegador. Descobreix què t’estàs perdent."
+   },
+   "options_desktop_upgrade": {
+      "message": "Compara"
+   },
+   "options_do_you_like_abu": {
+      "message": "T'agrada AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "En aquesta llista pots afegir les teves pròpies regles personalitzades. Crea els teus propis filtres d'anuncis i afegeix-los aquí."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Activa un menú d'accions disponible quan feu clic dret en una pàgina web."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Activa el menú contextual"
+   },
+   "options_enable_developer_mode": {
+      "message": "Per activar filtres personalitzats, heu d'activar el \u003Csetting-name>mode de desenvolupador\u003C/setting-name> a la configuració d'extensions de Chrome. \u003Clearn-link>Més informació\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Introduïu una URL o un camí de fitxer vàlid"
+   },
+   "options_err": {
+      "message": "Alguna cosa ha fallat!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Només es permeten fitxers .txt!"
+   },
+   "options_filter_categories": {
+      "message": "Categories"
+   },
+   "options_filter_status_all": {
+      "message": "Tots"
+   },
+   "options_filter_status_disabled": {
+      "message": "Desactivat"
+   },
+   "options_filter_status_enabled": {
+      "message": "Activat"
+   },
+   "options_filter_update_date": {
+      "message": "Última actualització: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtres"
+   },
+   "options_filters_enabled": {
+      "message": "Activat:"
+   },
+   "options_filters_update_error": {
+      "message": "No s'han pogut actualitzar els filtres. Torna-ho a provar."
+   },
+   "options_filters_update_success": {
+      "message": "S'han actualitzat $count$ filtres",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "S'ha actualitzat $count$ filtre",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Tots els filtres estan actualitzats"
+   },
+   "options_general": {
+      "message": "General"
+   },
+   "options_help_translate": {
+      "message": "Ajudeu-nos amb la traducció!"
+   },
+   "options_limits": {
+      "message": "Límits"
+   },
+   "options_limits_active_filters": {
+      "message": "Actualment actius"
+   },
+   "options_limits_bar_warning": {
+      "message": "Alguns filtres s'han desactivat perquè el teu navegador ha arribat al límit de regles. \u003Climits-link>Consulta què s'ha vist afectat\u003C/limits-link> o \u003Cupgrade-link>aconsegueix protecció il·limitada\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Només \u003Ctext-strong>$active$ de $expected$\u003C/text-strong> filtres estan actius: el navegador ha arribat al límit de regles de filtratge. \u003Ctext-strong>La nostra aplicació d’escriptori no té límits\u003C/text-strong> i bloqueja anuncis i rastrejadors a tot el dispositiu. Si vols seguir usant l’extensió, allibera espai desactivant altres extensions o filtres de baixa prioritat.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "El navegador ha arribat al límit de regles de filtratge i ha desactivat alguns filtres. \u003Ctext-strong>La nostra aplicació d’escriptori no té límits\u003C/text-strong> i bloqueja anuncis i rastrejadors a tot el dispositiu. Si vols seguir usant l’extensió, allibera espai desactivant altres extensions o filtres de baixa prioritat."
+   },
+   "options_limits_callout_title": {
+      "message": "Alguns filtres s'han desactivat"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Desactivats temporalment"
+   },
+   "options_limits_dismiss": {
+      "message": "Descarta"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Regles dinàmiques regex"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Regles dinàmiques"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Regles dinàmiques no segures"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Filtres activats"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Alguns filtres no s'han pogut activar perquè s'han superat els límits del navegador"
+   },
+   "options_limits_get_desktop": {
+      "message": "Descarrega l'aplicació d'escriptori"
+   },
+   "options_limits_intro": {
+      "message": "limita quants filtres i regles poden estar actius alhora. Els límits es comparteixen entre totes les extensions del navegador."
+   },
+   "options_limits_none": {
+      "message": "Cap"
+   },
+   "options_limits_promo_body": {
+      "message": "Els límits de regles es comparteixen amb altres extensions. Si els superes, alguns filtres es desactivaran temporalment. \u003Ctext-strong>La nostra aplicació d’escriptori no té límits\u003C/text-strong> i bloqueja anuncis i rastrejadors a tot el dispositiu. Per no superar els límits del navegador, mantén al mínim altres extensions i evita filtres de baixa prioritat."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtratge sense límits"
+   },
+   "options_limits_reenable": {
+      "message": "Torna a activar"
+   },
+   "options_limits_reenable_failed": {
+      "message": "No hi ha prou quota lliure. Desactiva altres extensions o filtres no utilitzats i torna-ho a provar"
+   },
+   "options_limits_reenable_success": {
+      "message": "Els filtres s'han tornat a activar"
+   },
+   "options_limits_related": {
+      "message": "Configuració relacionada"
+   },
+   "options_limits_static_regex": {
+      "message": "Regles estàtiques regex"
+   },
+   "options_limits_static_rules": {
+      "message": "Regles estàtiques"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Els filtres integrats utilitzen el conjunt de regles estàtiques i la quota de regles estàtiques del navegador."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Filtres integrats"
+   },
+   "options_limits_usage": {
+      "message": "$current$ de $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Veure detalls"
+   },
+   "options_limits_warning": {
+      "message": "Alguns filtres s'han desactivat per límits del navegador."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Les regles personalitzades i les entrades de la llista blanca comparteixen la quota de regles dinàmiques del navegador."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Les teves regles"
+   },
+   "options_menu": {
+      "message": "Menú"
+   },
+   "options_new_filter": {
+      "message": "Nou filtre"
+   },
+   "options_no_filters_enabled": {
+      "message": "Cap filtre activat"
+   },
+   "options_number_icon_desc": {
+      "message": "El nombre d'anuncis bloquejats a cada pàgina es mostrarà a la icona de l'extensió."
+   },
+   "options_number_icon_title": {
+      "message": "Mostra el número a la icona"
+   },
+   "options_open_extension_details": {
+      "message": "Obre els detalls de l'extensió"
+   },
+   "options_page_title": {
+      "message": "Opcions"
+   },
+   "options_rate_us": {
+      "message": "Valora'ns"
+   },
+   "options_search": {
+      "message": "Cerca"
+   },
+   "options_search_results": {
+      "message": "Resultats"
+   },
+   "options_submit": {
+      "message": "Envia"
+   },
+   "options_theme_dark": {
+      "message": "Fosc"
+   },
+   "options_theme_desc": {
+      "message": "Trieu l'esquema de colors per a la pàgina de configuració."
+   },
+   "options_theme_light": {
+      "message": "Clar"
+   },
+   "options_theme_system": {
+      "message": "Sistema"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Voleu AdBlocker Ultimate en la vostra llengua?"
+   },
+   "page_blocked_go_back": {
+      "message": "Torna enrere"
+   },
+   "page_blocked_heading": {
+      "message": "Aquesta pàgina ha estat bloquejada"
+   },
+   "page_blocked_note": {
+      "message": "S'atorgarà accés temporal."
+   },
+   "page_blocked_proceed": {
+      "message": "Continua igualment"
+   },
+   "page_blocked_reason": {
+      "message": "Bloquejat per la regla del filtre:"
+   },
+   "page_blocked_title": {
+      "message": "Pàgina bloquejada"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate per a Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate per a iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Activat en aquest lloc"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Obtén AdBlocker Ultimate per a $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Alguns filtres s'han desactivat perquè s'han superat els límits del navegador"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Bloca anuncis al mòbil"
+   },
+   "popup_protection_disabled": {
+      "message": "Protecció: desactivada"
+   },
+   "popup_protection_enabled": {
+      "message": "Protecció: activada"
+   },
+   "popup_secure_page": {
+      "message": "Pàgina segura"
+   },
+   "popup_settings": {
+      "message": "Configuració"
+   },
+   "popup_tab_blocked": {
+      "message": "Bloquejat: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Total: $1"
+   },
+   "privacy_policy": {
+      "message": "Política de privacitat"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Navegació sense anuncis aconseguida!"
+   },
+   "rate_us_button": {
+      "message": "Valora'ns"
+   },
+   "rate_us_email": {
+      "message": "Correu electrònic"
+   },
+   "rate_us_hooray": {
+      "message": "Genial!"
+   },
+   "rate_us_message": {
+      "message": "Missatge"
+   },
+   "rate_us_no_thanks": {
+      "message": "No, gràcies"
+   },
+   "rate_us_prompt": {
+      "message": "Gaudiu bloquejant anuncis? Ajudeu altres a conèixer-nos."
+   },
+   "rate_us_send_feedback": {
+      "message": "Envia comentaris"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Digueu-nos com podem millorar"
+   },
+   "rate_us_thank_you": {
+      "message": "Gràcies!"
+   },
+   "report_bug": {
+      "message": "Informar d'un error"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Auto-activació dels filtres"
+   },
+   "toast_filters_update_error": {
+      "message": "Error a l'hora de descarregar les actualitzacions. Si us plau, torna-ho a intentar més tard."
+   },
+   "toast_filters_update_filter": {
+      "message": "el filtre s'ha actualitzat"
+   },
+   "toast_filters_update_filters": {
+      "message": "els filtres s'han actualitzat"
+   },
+   "toast_filters_update_not_found": {
+      "message": "No s'han trobat actualitzacions"
+   },
+   "toast_filters_update_title_error": {
+      "message": "No s'ha pogut comprovar si hi ha actualitzacions"
+   },
+   "version": {
+      "message": "Versió"
+   },
+   "yes": {
+      "message": "Sí"
+   }
+}

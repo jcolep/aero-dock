@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "全著作権所有"
+   },
+   "assistant_another_element": {
+      "message": "別の要素を選択"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "このルールをすべてのウェブサイトに適用"
+   },
+   "assistant_block": {
+      "message": "ブロック"
+   },
+   "assistant_block_by_reference": {
+      "message": "URLで要素をブロック"
+   },
+   "assistant_block_element": {
+      "message": "要素をブロック"
+   },
+   "assistant_block_element_explain": {
+      "message": "要素ブロックルールの設定"
+   },
+   "assistant_block_similar": {
+      "message": "類似の要素をブロック"
+   },
+   "assistant_extended_settings": {
+      "message": "Advanced settings..."
+   },
+   "assistant_preview_end": {
+      "message": "プレビューを終了"
+   },
+   "assistant_preview_start": {
+      "message": "プレビュー"
+   },
+   "assistant_select_element": {
+      "message": "選択モード"
+   },
+   "assistant_select_element_cancel": {
+      "message": "選択モードをキャンセル"
+   },
+   "assistant_select_element_ext": {
+      "message": "ページ上の任意の要素をクリックするか、"
+   },
+   "assistant_slider_explain": {
+      "message": "スライダーを調整してフレームのサイズを変更"
+   },
+   "browser_action_popup_block_element": {
+      "message": "要素をブロック"
+   },
+   "close": {
+      "message": "閉じる"
+   },
+   "contact_us": {
+      "message": "お問い合わせ"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate はこのドメイン上では使用できません"
+   },
+   "context_site_filtering_off": {
+      "message": "この Web サイト上でフィルタリングを無効にする"
+   },
+   "context_site_filtering_on": {
+      "message": "この Web サイト上でフィルタリングを有効にする"
+   },
+   "context_update_filters": {
+      "message": "フィルターの更新をチェック"
+   },
+   "description": {
+      "message": "究極の広告ブロックツール。 YouTube、Facebook、その他すべての Web サイト上の広告を無料でブロックします。"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "デスクトップアプリが実行中です"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "「$filter$」が有効になりました",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "カスタムフィルター"
+   },
+   "follow_us": {
+      "message": "フォローする"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "いいえ"
+   },
+   "official_website": {
+      "message": "公式ウェブサイト"
+   },
+   "options_about": {
+      "message": "情報"
+   },
+   "options_about_heading": {
+      "message": "すべての迷惑な広告を排除！"
+   },
+   "options_add_custom_filter": {
+      "message": "カスタムフィルターを追加"
+   },
+   "options_allow_user_scripts": {
+      "message": "カスタムフィルターを有効にするには、拡張機能の詳細ページで\u003Csetting-name>ユーザースクリプトを許可\u003C/setting-name>を有効にしてください。\u003Clearn-link>詳細はこちら\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "ホワイトリスト"
+   },
+   "options_allowlist_desc": {
+      "message": "このホワイトリストに追加されたウェブサイトの広告はブロックされません。"
+   },
+   "options_android_callout": {
+      "message": "Androidアプリはブラウザー拡張機能より多くの機能を備えています。見逃している機能をご確認ください。"
+   },
+   "options_android_upgrade": {
+      "message": "アプリを入手"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "特定の言語のページをいくつか開くと、その言語用のフィルターが自動的に追加され有効化されます。"
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "言語別フィルターを自動的に有効化"
+   },
+   "options_built_in_rules_limit": {
+      "message": "フィルタールール数：$count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "このフィルターを削除してもよろしいですか？"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "スクリプトレットやJavaScriptルールを含むカスタムフィルターを利用するには、User Scripts APIの権限を有効にする必要があります。これにより、拡張機能がカスタムフィルターサブスクリプションからスクリプトを実行できるようになります。"
+   },
+   "options_custom_rules": {
+      "message": "カスタムルール"
+   },
+   "options_custom_rules_export": {
+      "message": "エクスポート"
+   },
+   "options_custom_rules_import": {
+      "message": "インポート"
+   },
+   "options_desktop_callout": {
+      "message": "デスクトップアプリはブラウザー拡張機能より多くの機能を備えています。見逃している機能をご確認ください。"
+   },
+   "options_desktop_upgrade": {
+      "message": "比較する"
+   },
+   "options_do_you_like_abu": {
+      "message": "AdBlocker Ultimateはお好きですか？"
+   },
+   "options_editor_desc": {
+      "message": "このリストに独自のカスタムルールを追加できます。独自の広告フィルターを作成してここに追加してください。"
+   },
+   "options_enable_context_menu_desc": {
+      "message": "ウェブページを右クリックしたときに利用できるアクションメニューを有効にします。"
+   },
+   "options_enable_context_menu_title": {
+      "message": "コンテキストメニューを有効にする"
+   },
+   "options_enable_developer_mode": {
+      "message": "カスタムフィルターを有効にするには、Chromeの拡張機能設定で\u003Csetting-name>デベロッパーモード\u003C/setting-name>を有効にしてください。\u003Clearn-link>詳細はこちら\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "有効なURLまたはファイルパスを入力してください"
+   },
+   "options_err": {
+      "message": "問題が発生しました！"
+   },
+   "options_err_no_txt_file": {
+      "message": ".txtファイルのみ許可されています！"
+   },
+   "options_filter_categories": {
+      "message": "カテゴリ"
+   },
+   "options_filter_status_all": {
+      "message": "すべて"
+   },
+   "options_filter_status_disabled": {
+      "message": "無効"
+   },
+   "options_filter_status_enabled": {
+      "message": "有効"
+   },
+   "options_filter_update_date": {
+      "message": "最終更新：$date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "フィルター"
+   },
+   "options_filters_enabled": {
+      "message": "有効："
+   },
+   "options_filters_update_error": {
+      "message": "フィルターを更新できませんでした。再試行してください。"
+   },
+   "options_filters_update_success": {
+      "message": "$count$ 件のフィルターを更新しました",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$ 件のフィルターを更新しました",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "すべてのフィルターは最新です"
+   },
+   "options_general": {
+      "message": "一般"
+   },
+   "options_help_translate": {
+      "message": "翻訳にご協力ください！"
+   },
+   "options_limits": {
+      "message": "制限"
+   },
+   "options_limits_active_filters": {
+      "message": "現在有効"
+   },
+   "options_limits_bar_warning": {
+      "message": "ブラウザーのルール上限に達したため、一部のフィルターが無効になりました。\u003Climits-link>影響を受けた内容を見る\u003C/limits-link> または \u003Cupgrade-link>無制限の保護を利用する\u003C/upgrade-link>。"
+   },
+   "options_limits_callout_body": {
+      "message": "お使いのフィルターのうち、\u003Ctext-strong>$active$ / $expected$\u003C/text-strong> だけが有効です。ブラウザーのフィルタールール上限に達しました。\u003Ctext-strong>デスクトップアプリならルール数に制限はありません\u003C/text-strong>。端末全体で広告やトラッカーをブロックします。拡張機能を使い続けるには、他の拡張機能を無効にするか、優先度の低いフィルターをオフにして空き容量を確保してください。",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "ブラウザーのフィルタールール上限に達したため、一部のフィルターが無効になりました。\u003Ctext-strong>デスクトップアプリならルール数に制限はありません\u003C/text-strong>。端末全体で広告やトラッカーをブロックします。拡張機能を使い続けるには、他の拡張機能を無効にするか、優先度の低いフィルターをオフにして空き容量を確保してください。"
+   },
+   "options_limits_callout_title": {
+      "message": "一部のフィルターが無効になりました"
+   },
+   "options_limits_disabled_filters": {
+      "message": "一時的に無効"
+   },
+   "options_limits_dismiss": {
+      "message": "閉じる"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "動的正規表現ルール"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "動的ルール"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "安全でない動的ルール"
+   },
+   "options_limits_enabled_lists": {
+      "message": "有効なフィルター"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "ブラウザーの制限を超えたため、一部のフィルターを有効にできませんでした"
+   },
+   "options_limits_get_desktop": {
+      "message": "デスクトップアプリを入手"
+   },
+   "options_limits_intro": {
+      "message": "一度に有効にできるフィルターやルールの数に制限があります。この制限はすべてのブラウザー拡張機能で共有されます。"
+   },
+   "options_limits_none": {
+      "message": "なし"
+   },
+   "options_limits_promo_body": {
+      "message": "ルールの上限は他の拡張機能と共有されます。上限を超えると一部のフィルターが一時的に無効になります。\u003Ctext-strong>デスクトップアプリならルール数に制限はありません\u003C/text-strong>。端末全体で広告やトラッカーをブロックします。ブラウザーの制限内で使うには、他の拡張機能を最小限にし、優先度の低いフィルターを避けてください。"
+   },
+   "options_limits_promo_title": {
+      "message": "無制限のフィルタリングを利用"
+   },
+   "options_limits_reenable": {
+      "message": "再度有効にする"
+   },
+   "options_limits_reenable_failed": {
+      "message": "空き容量が足りません。他の拡張機能や使っていないフィルターをオフにしてから、再度お試しください"
+   },
+   "options_limits_reenable_success": {
+      "message": "フィルターが再度有効になりました"
+   },
+   "options_limits_related": {
+      "message": "関連設定"
+   },
+   "options_limits_static_regex": {
+      "message": "静的正規表現ルール"
+   },
+   "options_limits_static_rules": {
+      "message": "静的ルール"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "内蔵フィルターはブラウザーの静的ルールセットと静的ルール枠を使用します。"
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "内蔵フィルター"
+   },
+   "options_limits_usage": {
+      "message": "$current$ / $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "詳細を見る"
+   },
+   "options_limits_warning": {
+      "message": "ブラウザの制限により一部のフィルターが無効になりました。"
+   },
+   "options_limits_your_rules_desc": {
+      "message": "カスタムルールとホワイトリストの登録は、ブラウザーの動的ルール枠を共有します。"
+   },
+   "options_limits_your_rules_heading": {
+      "message": "あなたのルール"
+   },
+   "options_menu": {
+      "message": "メニュー"
+   },
+   "options_new_filter": {
+      "message": "新しいフィルター"
+   },
+   "options_no_filters_enabled": {
+      "message": "有効なフィルターがありません"
+   },
+   "options_number_icon_desc": {
+      "message": "各ページでブロックされた広告の数が拡張機能アイコンに表示されます。"
+   },
+   "options_number_icon_title": {
+      "message": "アイコンに数値を表示"
+   },
+   "options_open_extension_details": {
+      "message": "拡張機能の詳細を開く"
+   },
+   "options_page_title": {
+      "message": "オプション"
+   },
+   "options_rate_us": {
+      "message": "評価する"
+   },
+   "options_search": {
+      "message": "検索"
+   },
+   "options_search_results": {
+      "message": "結果"
+   },
+   "options_submit": {
+      "message": "送信"
+   },
+   "options_theme_dark": {
+      "message": "ダーク"
+   },
+   "options_theme_desc": {
+      "message": "設定ページのカラースキームを選択します。"
+   },
+   "options_theme_light": {
+      "message": "ライト"
+   },
+   "options_theme_system": {
+      "message": "システム"
+   },
+   "options_theme_title": {
+      "message": "テーマ"
+   },
+   "options_want_abu_in_lang": {
+      "message": "お使いの言語でAdBlocker Ultimateを使いたいですか？"
+   },
+   "page_blocked_go_back": {
+      "message": "戻る"
+   },
+   "page_blocked_heading": {
+      "message": "このページはブロックされました"
+   },
+   "page_blocked_note": {
+      "message": "一時的にアクセスが許可されます。"
+   },
+   "page_blocked_proceed": {
+      "message": "それでも続行"
+   },
+   "page_blocked_reason": {
+      "message": "フィルタールールによってブロック:"
+   },
+   "page_blocked_title": {
+      "message": "ページがブロックされました"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate for Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate for iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "このサイトで有効"
+   },
+   "popup_get_abu_desktop": {
+      "message": "$platform$ 用の AdBlocker Ultimate を入手",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "ブラウザーの制限を超えたため、一部のフィルターが無効になりました"
+   },
+   "popup_mobile_apps_title": {
+      "message": "モバイルで広告をブロック"
+   },
+   "popup_protection_disabled": {
+      "message": "保護：無効"
+   },
+   "popup_protection_enabled": {
+      "message": "保護：有効"
+   },
+   "popup_secure_page": {
+      "message": "安全なページ"
+   },
+   "popup_settings": {
+      "message": "設定"
+   },
+   "popup_tab_blocked": {
+      "message": "ブロック済み: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "合計: $1"
+   },
+   "privacy_policy": {
+      "message": "プライバシーポリシー"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "広告なしの閲覧を達成しました！"
+   },
+   "rate_us_button": {
+      "message": "評価する"
+   },
+   "rate_us_email": {
+      "message": "メール"
+   },
+   "rate_us_hooray": {
+      "message": "やった！"
+   },
+   "rate_us_message": {
+      "message": "メッセージ"
+   },
+   "rate_us_no_thanks": {
+      "message": "結構です"
+   },
+   "rate_us_prompt": {
+      "message": "広告ブロックを楽しんでいますか？他の人にもAdBlocker Ultimateを紹介しましょう。"
+   },
+   "rate_us_send_feedback": {
+      "message": "フィードバックを送信"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "改善点をお聞かせください"
+   },
+   "rate_us_thank_you": {
+      "message": "ありがとうございます！"
+   },
+   "report_bug": {
+      "message": "バグを報告"
+   },
+   "toast_filter_enabled_title": {
+      "message": "フィルターが自動で有効化されました"
+   },
+   "toast_filters_update_error": {
+      "message": "更新の取得に失敗しました。後でもう一度お試しください。"
+   },
+   "toast_filters_update_filter": {
+      "message": "フィルターが更新されました"
+   },
+   "toast_filters_update_filters": {
+      "message": "フィルターが更新されました"
+   },
+   "toast_filters_update_not_found": {
+      "message": "アップデートはありません"
+   },
+   "toast_filters_update_title_error": {
+      "message": "アップデートの確認に失敗しました"
+   },
+   "version": {
+      "message": "バージョン"
+   },
+   "yes": {
+      "message": "はい"
+   }
+}

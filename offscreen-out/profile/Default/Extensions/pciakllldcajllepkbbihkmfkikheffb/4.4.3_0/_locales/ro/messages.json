@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Toate drepturile rezervate"
+   },
+   "assistant_another_element": {
+      "message": "Selectaţi un alt element"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Aplica aceasta regula fiecarui site web"
+   },
+   "assistant_block": {
+      "message": "Blocati"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blocati element dupa url"
+   },
+   "assistant_block_element": {
+      "message": "Blocati element"
+   },
+   "assistant_block_element_explain": {
+      "message": "Organizarea regurilor de blocare a elemetelor"
+   },
+   "assistant_block_similar": {
+      "message": "Blocati elemente similare"
+   },
+   "assistant_extended_settings": {
+      "message": "Setari avansate..."
+   },
+   "assistant_preview_end": {
+      "message": "Terminati previzualizarea"
+   },
+   "assistant_preview_start": {
+      "message": "Previzualizare"
+   },
+   "assistant_select_element": {
+      "message": "Mod de selectare"
+   },
+   "assistant_select_element_cancel": {
+      "message": "anulati modul de selectare"
+   },
+   "assistant_select_element_ext": {
+      "message": "Faceti click pe orice element de pe pagina sau "
+   },
+   "assistant_slider_explain": {
+      "message": "Ajustează glisorul pentru a redimensiona cadrul"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blocati element"
+   },
+   "close": {
+      "message": "Închide"
+   },
+   "contact_us": {
+      "message": "Contactează-ne"
+   },
+   "context_block_site_ads": {
+      "message": "Blocati reclama pe acest site..."
+   },
+   "context_complaint_site": {
+      "message": "Depuneti o plângere despre acest site..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate nu poate rula pe acest domeniu"
+   },
+   "context_site_filtering_off": {
+      "message": "Dezactivarea filtrelor pe acest site"
+   },
+   "context_site_filtering_on": {
+      "message": "Permite filtre pe acest site"
+   },
+   "context_update_filters": {
+      "message": "Verificați actualizări pentru filtre"
+   },
+   "description": {
+      "message": "Instrumentul suprem de blocare a reclamelor. Blocați reclamele pe YouTube, Facebook și toate celelalte site-uri web gratuit!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Aplicația desktop rulează"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" este acum activat",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Filtre personalizate"
+   },
+   "follow_us": {
+      "message": "Urmărește-ne pe"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Nu"
+   },
+   "official_website": {
+      "message": "Site oficial"
+   },
+   "options_about": {
+      "message": "Despre"
+   },
+   "options_about_heading": {
+      "message": "Și toate reclamele enervante dispar!"
+   },
+   "options_add_custom_filter": {
+      "message": "Adaugă filtru personalizat"
+   },
+   "options_allow_user_scripts": {
+      "message": "Pentru a activa filtre personalizate, trebuie să activezi \u003Csetting-name>Permite scripturi utilizator\u003C/setting-name> în pagina de detalii a extensiei. \u003Clearn-link>Află mai mult\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Lista alba"
+   },
+   "options_allowlist_desc": {
+      "message": "Reclamele de pe site-urile adăugate în această Listă albă nu vor fi blocate."
+   },
+   "options_android_callout": {
+      "message": "Aplicația noastră Android oferă mai multe funcții decât extensia pentru browser. Vezi ce îți lipsește."
+   },
+   "options_android_upgrade": {
+      "message": "Descarcă aplicația"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "După ce deschizi câteva pagini într-o limbă, filtrele pentru acea limbă vor fi adăugate și activate automat."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Activează automat filtrele specifice limbii"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Număr reguli filtru: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Sigur doriți să ștergeți acest filtru?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Filtrele personalizate cu reguli scriptlet și JavaScript necesită activarea permisiunii User Scripts API. Aceasta permite extensiei să ruleze scripturi din abonamentele de filtre personalizate."
+   },
+   "options_custom_rules": {
+      "message": "Reguli personalizate"
+   },
+   "options_custom_rules_export": {
+      "message": "Exportati"
+   },
+   "options_custom_rules_import": {
+      "message": "Importati"
+   },
+   "options_desktop_callout": {
+      "message": "Aplicația noastră desktop oferă mai multe funcții decât extensia pentru browser. Vezi ce îți lipsește."
+   },
+   "options_desktop_upgrade": {
+      "message": "Compară"
+   },
+   "options_do_you_like_abu": {
+      "message": "Îți place AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "În această listă poți adăuga propriile reguli personalizate. Creează-ți propriile filtre de reclame și adaugă-le aici."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Activează un meniu de acțiuni disponibil la clic dreapta pe o pagină web."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Activează meniul contextual"
+   },
+   "options_enable_developer_mode": {
+      "message": "Pentru a activa filtrele personalizate, trebuie să activezi \u003Csetting-name>Modul dezvoltator\u003C/setting-name> în setările extensiilor Chrome. \u003Clearn-link>Află mai multe\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Introduceți o adresă URL sau o cale de fișier validă"
+   },
+   "options_err": {
+      "message": "Ceva nu a funcționat corect!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Doar fișiere .txt permise!"
+   },
+   "options_filter_categories": {
+      "message": "Categorii"
+   },
+   "options_filter_status_all": {
+      "message": "Toate"
+   },
+   "options_filter_status_disabled": {
+      "message": "Dezactivat"
+   },
+   "options_filter_status_enabled": {
+      "message": "Activat"
+   },
+   "options_filter_update_date": {
+      "message": "Ultima actualizare: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtre"
+   },
+   "options_filters_enabled": {
+      "message": "Active:"
+   },
+   "options_filters_update_error": {
+      "message": "Nu s-au putut actualiza filtrele. Te rugăm să încerci din nou."
+   },
+   "options_filters_update_success": {
+      "message": "Actualizate $count$ filtre",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Actualizat $count$ filtru",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Toate filtrele sunt la zi"
+   },
+   "options_general": {
+      "message": "Setări generale"
+   },
+   "options_help_translate": {
+      "message": "Ajută-ne cu traducerea!"
+   },
+   "options_limits": {
+      "message": "Limite"
+   },
+   "options_limits_active_filters": {
+      "message": "Active în prezent"
+   },
+   "options_limits_bar_warning": {
+      "message": "Unele filtre au fost dezactivate deoarece browserul tău a atins limita de reguli. \u003Climits-link>Vezi ce este afectat\u003C/limits-link> sau \u003Cupgrade-link>obține protecție nelimitată\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Doar \u003Ctext-strong>$active$ din $expected$\u003C/text-strong> filtre sunt active – browserul tău a rămas fără spațiu pentru reguli de filtrare. \u003Ctext-strong>Aplicația noastră desktop nu are limite pentru reguli\u003C/text-strong> și blochează reclamele și tracker-ele pe tot dispozitivul. Pentru a folosi în continuare extensia, eliberează spațiu dezactivând alte extensii sau filtre cu prioritate scăzută.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Browserul tău a rămas fără spațiu pentru reguli de filtrare și a dezactivat unele filtre. \u003Ctext-strong>Aplicația noastră desktop nu are limite pentru reguli\u003C/text-strong> și blochează reclamele și tracker-ele pe tot dispozitivul. Pentru a folosi în continuare extensia, eliberează spațiu dezactivând alte extensii sau filtre cu prioritate scăzută."
+   },
+   "options_limits_callout_title": {
+      "message": "Unele filtre au fost dezactivate"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Dezactivate temporar"
+   },
+   "options_limits_dismiss": {
+      "message": "Închide"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Reguli dinamice regex"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Reguli dinamice"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Reguli dinamice nesigure"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Filtre activate"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Unele filtre nu au putut fi activate deoarece limitele browserului au fost depășite"
+   },
+   "options_limits_get_desktop": {
+      "message": "Obține aplicația desktop"
+   },
+   "options_limits_intro": {
+      "message": "limitează câte filtre și reguli pot fi active simultan. Limitele sunt partajate între toate extensiile browserului tău."
+   },
+   "options_limits_none": {
+      "message": "Niciunul"
+   },
+   "options_limits_promo_body": {
+      "message": "Limitele de reguli sunt partajate cu celelalte extensii. Dacă le depășești, unele filtre vor fi dezactivate temporar. \u003Ctext-strong>Aplicația noastră desktop nu are limite pentru reguli\u003C/text-strong> și blochează reclamele și tracker-ele pe tot dispozitivul. Pentru a rămâne în limitele browserului, păstrează la minimum alte extensii și evită filtrele cu prioritate scăzută."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtrare fără limite"
+   },
+   "options_limits_reenable": {
+      "message": "Activează din nou"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Nu există suficientă cotă liberă. Dezactivează alte extensii sau filtre neutilizate, apoi încearcă din nou"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtrele au fost reactivate"
+   },
+   "options_limits_related": {
+      "message": "Setări conexe"
+   },
+   "options_limits_static_regex": {
+      "message": "Reguli statice regex"
+   },
+   "options_limits_static_rules": {
+      "message": "Reguli statice"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Filtrele integrate folosesc setul de reguli statice și cotele de reguli statice ale browserului."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Filtre integrate"
+   },
+   "options_limits_usage": {
+      "message": "$current$ din $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Vezi detalii"
+   },
+   "options_limits_warning": {
+      "message": "Unele filtre au fost dezactivate din cauza limitărilor browserului."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Regulile personalizate și intrările din whitelist folosesc cotele de reguli dinamice ale browserului."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Regulile tale"
+   },
+   "options_menu": {
+      "message": "Meniu"
+   },
+   "options_new_filter": {
+      "message": "Filtru nou"
+   },
+   "options_no_filters_enabled": {
+      "message": "Niciun filtru activat"
+   },
+   "options_number_icon_desc": {
+      "message": "Numărul de reclame blocate pe fiecare pagină va apărea pe pictograma extensiei."
+   },
+   "options_number_icon_title": {
+      "message": "Aratati numarul in inconita"
+   },
+   "options_open_extension_details": {
+      "message": "Deschide detaliile extensiei"
+   },
+   "options_page_title": {
+      "message": "Opțiuni"
+   },
+   "options_rate_us": {
+      "message": "Evaluează-ne"
+   },
+   "options_search": {
+      "message": "Căutare"
+   },
+   "options_search_results": {
+      "message": "Rezultate"
+   },
+   "options_submit": {
+      "message": "Trimite"
+   },
+   "options_theme_dark": {
+      "message": "Întunecată"
+   },
+   "options_theme_desc": {
+      "message": "Alege schema de culori pentru pagina de setări."
+   },
+   "options_theme_light": {
+      "message": "Luminoasă"
+   },
+   "options_theme_system": {
+      "message": "Sistem"
+   },
+   "options_theme_title": {
+      "message": "Temă"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Vrei AdBlocker Ultimate în limba ta?"
+   },
+   "page_blocked_go_back": {
+      "message": "Înapoi"
+   },
+   "page_blocked_heading": {
+      "message": "Această pagină a fost blocată"
+   },
+   "page_blocked_note": {
+      "message": "Accesul temporar va fi acordat."
+   },
+   "page_blocked_proceed": {
+      "message": "Continuă oricum"
+   },
+   "page_blocked_reason": {
+      "message": "Blocat de regula filtrului:"
+   },
+   "page_blocked_title": {
+      "message": "Pagină blocată"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate pentru Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate pentru iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Activat pe acest site"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate pentru $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Unele filtre au fost dezactivate deoarece limitele browserului au fost depășite"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blochează reclamele pe mobil"
+   },
+   "popup_protection_disabled": {
+      "message": "Protecție: Dezactivată"
+   },
+   "popup_protection_enabled": {
+      "message": "Protecție: Activată"
+   },
+   "popup_secure_page": {
+      "message": "Pagină securizată"
+   },
+   "popup_settings": {
+      "message": "Setări"
+   },
+   "popup_tab_blocked": {
+      "message": "Blocate: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Total: $1"
+   },
+   "privacy_policy": {
+      "message": "Politica de confidențialitate"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Navigare fără reclame atinsă!"
+   },
+   "rate_us_button": {
+      "message": "Evaluează-ne"
+   },
+   "rate_us_email": {
+      "message": "Email"
+   },
+   "rate_us_hooray": {
+      "message": "Ura!"
+   },
+   "rate_us_message": {
+      "message": "Mesaj"
+   },
+   "rate_us_no_thanks": {
+      "message": "Nu, mulțumesc"
+   },
+   "rate_us_prompt": {
+      "message": "Îți place să blochezi reclamele? Ajută-i și pe alții să afle despre noi."
+   },
+   "rate_us_send_feedback": {
+      "message": "Trimite feedback"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Spune-ne cum putem îmbunătăți"
+   },
+   "rate_us_thank_you": {
+      "message": "Mulțumim!"
+   },
+   "report_bug": {
+      "message": "Raportează o problemă"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filtre activate automat"
+   },
+   "toast_filters_update_error": {
+      "message": "Eroare la actualizare. Incercati mai tarziu."
+   },
+   "toast_filters_update_filter": {
+      "message": "filtrul a fost actualizat"
+   },
+   "toast_filters_update_filters": {
+      "message": "filtrele au fost actualizate"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Nu am gasit actualizari"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Nu s-a putut verifica actualizările"
+   },
+   "version": {
+      "message": "Versiune"
+   },
+   "yes": {
+      "message": "Da"
+   }
+}

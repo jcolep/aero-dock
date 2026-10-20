@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "สงวนลิขสิทธิ์"
+   },
+   "assistant_another_element": {
+      "message": "เลือกองค์ประกอบอื่น"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "ใช้กฎนี้กับทุกเว็บไซต์"
+   },
+   "assistant_block": {
+      "message": "บล็อก"
+   },
+   "assistant_block_by_reference": {
+      "message": "บล็อกองค์ประกอบตาม url"
+   },
+   "assistant_block_element": {
+      "message": "บล็อกองค์ประกอบ"
+   },
+   "assistant_block_element_explain": {
+      "message": "ตั้งค่ากฎบล็อกองค์ประกอบ"
+   },
+   "assistant_block_similar": {
+      "message": "บล็อกองค์ประกอบที่คล้ายกัน"
+   },
+   "assistant_extended_settings": {
+      "message": "Advanced settings..."
+   },
+   "assistant_preview_end": {
+      "message": "จบการดูตัวอย่าง"
+   },
+   "assistant_preview_start": {
+      "message": "ดูตัวอย่าง"
+   },
+   "assistant_select_element": {
+      "message": "โหมดเลือก"
+   },
+   "assistant_select_element_cancel": {
+      "message": "ยกเลิกโหมดเลือก"
+   },
+   "assistant_select_element_ext": {
+      "message": "คลิกที่องค์ประกอบใดก็ได้บนหน้า หรือ"
+   },
+   "assistant_slider_explain": {
+      "message": "ปรับแถบเลื่อนเพื่อเปลี่ยนขนาดกรอบ"
+   },
+   "browser_action_popup_block_element": {
+      "message": "บล็อกองค์ประกอบ"
+   },
+   "close": {
+      "message": "ปิด"
+   },
+   "contact_us": {
+      "message": "ติดต่อเรา"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate ไม่สามารถทำงานบนโดเมนนี้ได้"
+   },
+   "context_site_filtering_off": {
+      "message": "ปิดการกรองบนเว็บไซต์นี้"
+   },
+   "context_site_filtering_on": {
+      "message": "เปิดการกรองบนเว็บไซต์นี้"
+   },
+   "context_update_filters": {
+      "message": "ตรวจสอบการอัปเดตฟิลเตอร์"
+   },
+   "description": {
+      "message": "สุดยอดเครื่องมือบล็อกโฆษณา บล็อกโฆษณาบน YouTube, Facebook และเว็บไซต์อื่นๆ ทั้งหมดได้ฟรี!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "แอปเดสก์ท็อปกำลังทำงาน"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" เปิดใช้งานแล้ว",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "ฟิลเตอร์ที่กำหนดเอง"
+   },
+   "follow_us": {
+      "message": "ติดตามเราบน"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "ไม่"
+   },
+   "official_website": {
+      "message": "เว็บไซต์ทางการ"
+   },
+   "options_about": {
+      "message": "เกี่ยวกับ"
+   },
+   "options_about_heading": {
+      "message": "และโฆษณาน่ารำคาญทั้งหมดจะถูกบล็อก!"
+   },
+   "options_add_custom_filter": {
+      "message": "เพิ่มฟิลเตอร์ที่กำหนดเอง"
+   },
+   "options_allow_user_scripts": {
+      "message": "หากต้องการเปิดใช้งานฟิลเตอร์ที่กำหนดเอง คุณต้องเปิด \u003Csetting-name>อนุญาต user scripts\u003C/setting-name> ในหน้ารายละเอียดส่วนขยาย \u003Clearn-link>เรียนรู้เพิ่มเติม\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "รายการอนุญาต"
+   },
+   "options_allowlist_desc": {
+      "message": "โฆษณาบนเว็บไซต์ที่เพิ่มใน Whitelist นี้จะไม่ถูกบล็อก"
+   },
+   "options_android_callout": {
+      "message": "แอป Android ของเรามีฟีเจอร์มากกว่าส่วนขยายเบราว์เซอร์ ดูว่าคุณพลาดอะไรไปบ้าง"
+   },
+   "options_android_upgrade": {
+      "message": "รับแอป"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "หลังจากเปิดหน้าเว็บในภาษาหนึ่ง ๆ หลายหน้า ฟิลเตอร์สำหรับภาษานั้นจะถูกเพิ่มและเปิดใช้งานโดยอัตโนมัติ"
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "เปิดใช้งานฟิลเตอร์ตามภาษาโดยอัตโนมัติ"
+   },
+   "options_built_in_rules_limit": {
+      "message": "จำนวนกฎฟิลเตอร์: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "คุณแน่ใจหรือไม่ว่าต้องการลบฟิลเตอร์นี้?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "ฟิลเตอร์ที่กำหนดเองที่มี scriptlet และกฎ JavaScript ต้องเปิดสิทธิ์ User Scripts API เพื่อให้ส่วนขยายสามารถรันสคริปต์จากฟิลเตอร์ที่กำหนดเองได้"
+   },
+   "options_custom_rules": {
+      "message": "กฎที่กำหนดเอง"
+   },
+   "options_custom_rules_export": {
+      "message": "ส่งออก"
+   },
+   "options_custom_rules_import": {
+      "message": "นำเข้า"
+   },
+   "options_desktop_callout": {
+      "message": "แอปเดสก์ท็อปของเรามีฟีเจอร์มากกว่าส่วนขยายเบราว์เซอร์ ดูว่าคุณพลาดอะไรไปบ้าง"
+   },
+   "options_desktop_upgrade": {
+      "message": "เปรียบเทียบ"
+   },
+   "options_do_you_like_abu": {
+      "message": "คุณชอบ AdBlocker Ultimate หรือไม่?"
+   },
+   "options_editor_desc": {
+      "message": "ในรายการนี้ คุณสามารถเพิ่มกฎที่กำหนดเอง สร้างฟิลเตอร์โฆษณาของคุณเองและเพิ่มที่นี่"
+   },
+   "options_enable_context_menu_desc": {
+      "message": "เปิดใช้งานเมนูคำสั่งเมื่อคลิกขวาบนหน้าเว็บ"
+   },
+   "options_enable_context_menu_title": {
+      "message": "เปิดใช้งานเมนูคลิกขวา"
+   },
+   "options_enable_developer_mode": {
+      "message": "หากต้องการเปิดใช้งานฟิลเตอร์ที่กำหนดเอง คุณต้องเปิด \u003Csetting-name>โหมดนักพัฒนา\u003C/setting-name> ในการตั้งค่าส่วนขยายของ Chrome \u003Clearn-link>เรียนรู้เพิ่มเติม\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "กรุณากรอก URL หรือที่อยู่ไฟล์ที่ถูกต้อง"
+   },
+   "options_err": {
+      "message": "เกิดข้อผิดพลาดบางอย่าง!"
+   },
+   "options_err_no_txt_file": {
+      "message": "อนุญาตเฉพาะไฟล์ .txt เท่านั้น!"
+   },
+   "options_filter_categories": {
+      "message": "หมวดหมู่"
+   },
+   "options_filter_status_all": {
+      "message": "ทั้งหมด"
+   },
+   "options_filter_status_disabled": {
+      "message": "ปิดใช้งาน"
+   },
+   "options_filter_status_enabled": {
+      "message": "เปิดใช้งาน"
+   },
+   "options_filter_update_date": {
+      "message": "อัปเดตล่าสุด: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "ฟิลเตอร์"
+   },
+   "options_filters_enabled": {
+      "message": "เปิดใช้งาน:"
+   },
+   "options_filters_update_error": {
+      "message": "ไม่สามารถอัปเดตฟิลเตอร์ได้ กรุณาลองใหม่อีกครั้ง"
+   },
+   "options_filters_update_success": {
+      "message": "อัปเดตฟิลเตอร์ $count$ รายการแล้ว",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "อัปเดตฟิลเตอร์ $count$ รายการแล้ว",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "ตัวกรองทั้งหมดเป็นเวอร์ชันล่าสุดแล้ว"
+   },
+   "options_general": {
+      "message": "ทั่วไป"
+   },
+   "options_help_translate": {
+      "message": "ช่วยแปลภาษาให้เราหน่อย!"
+   },
+   "options_limits": {
+      "message": "ขีดจำกัด"
+   },
+   "options_limits_active_filters": {
+      "message": "กำลังใช้งานอยู่"
+   },
+   "options_limits_bar_warning": {
+      "message": "ฟิลเตอร์บางรายการถูกปิดใช้งานเนื่องจากเบราว์เซอร์ของคุณถึงขีดจำกัดของกฎแล้ว \u003Climits-link>ดูว่ามีอะไรได้รับผลกระทบบ้าง\u003C/limits-link> หรือ \u003Cupgrade-link>รับการป้องกันแบบไม่จำกัด\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "มีเพียง \u003Ctext-strong>$active$ จาก $expected$\u003C/text-strong> ฟิลเตอร์ที่ทำงานอยู่ เบราว์เซอร์ของคุณมีพื้นที่สำหรับกฎการกรองไม่พอ \u003Ctext-strong>แอปเดสก์ท็อปของเราไม่มีข้อจำกัดเรื่องกฎ\u003C/text-strong> และบล็อกโฆษณาและตัวติดตามทั่วทั้งอุปกรณ์ หากต้องการใช้ส่วนขยายเบราว์เซอร์ต่อ ให้เพิ่มพื้นที่โดยปิดส่วนขยายอื่นหรือปิดฟิลเตอร์ที่มีความสำคัญต่ำ",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "เบราว์เซอร์ของคุณมีพื้นที่สำหรับกฎการกรองไม่พอ จึงปิดฟิลเตอร์บางรายการ \u003Ctext-strong>แอปเดสก์ท็อปของเราไม่มีข้อจำกัดเรื่องกฎ\u003C/text-strong> และบล็อกโฆษณาและตัวติดตามทั่วทั้งอุปกรณ์ หากต้องการใช้ส่วนขยายเบราว์เซอร์ต่อ ให้เพิ่มพื้นที่โดยปิดส่วนขยายอื่นหรือปิดฟิลเตอร์ที่มีความสำคัญต่ำ"
+   },
+   "options_limits_callout_title": {
+      "message": "ฟิลเตอร์บางรายการถูกปิดใช้งาน"
+   },
+   "options_limits_disabled_filters": {
+      "message": "ปิดใช้งานชั่วคราว"
+   },
+   "options_limits_dismiss": {
+      "message": "ปิดข้อความ"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "กฎ regex แบบไดนามิก"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "กฎแบบไดนามิก"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "กฎแบบไดนามิกที่ไม่ปลอดภัย"
+   },
+   "options_limits_enabled_lists": {
+      "message": "ฟิลเตอร์ที่เปิดใช้งาน"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "ไม่สามารถเปิดใช้งานฟิลเตอร์บางรายการได้เนื่องจากเกินขีดจำกัดของเบราว์เซอร์"
+   },
+   "options_limits_get_desktop": {
+      "message": "รับแอปเดสก์ท็อป"
+   },
+   "options_limits_intro": {
+      "message": "จำกัดจำนวนฟิลเตอร์และกฎที่สามารถเปิดใช้งานพร้อมกันได้ ขีดจำกัดนี้ใช้ร่วมกันกับส่วนขยายเบราว์เซอร์ทั้งหมดของคุณ"
+   },
+   "options_limits_none": {
+      "message": "ไม่มี"
+   },
+   "options_limits_promo_body": {
+      "message": "ข้อจำกัดของกฎจะถูกแบ่งกับส่วนขยายอื่น ๆ ของคุณ หากเกินขีดจำกัด ฟิลเตอร์บางรายการจะถูกปิดชั่วคราว \u003Ctext-strong>แอปเดสก์ท็อปของเราไม่มีข้อจำกัดเรื่องกฎ\u003C/text-strong> และบล็อกโฆษณาและตัวติดตามทั่วทั้งอุปกรณ์ หากต้องการอยู่ในขีดจำกัดของเบราว์เซอร์ ให้ใช้ส่วนขยายน้อยที่สุดและหลีกเลี่ยงฟิลเตอร์ที่มีความสำคัญต่ำ"
+   },
+   "options_limits_promo_title": {
+      "message": "กรองแบบไม่จำกัด"
+   },
+   "options_limits_reenable": {
+      "message": "เปิดใช้งานอีกครั้ง"
+   },
+   "options_limits_reenable_failed": {
+      "message": "โควต้าว่างไม่เพียงพอ ปิดส่วนขยายอื่นหรือฟิลเตอร์ที่ไม่ได้ใช้ แล้วลองใหม่อีกครั้ง"
+   },
+   "options_limits_reenable_success": {
+      "message": "เปิดใช้งานฟิลเตอร์อีกครั้งแล้ว"
+   },
+   "options_limits_related": {
+      "message": "การตั้งค่าที่เกี่ยวข้อง"
+   },
+   "options_limits_static_regex": {
+      "message": "กฎ regex แบบคงที่"
+   },
+   "options_limits_static_rules": {
+      "message": "กฎแบบคงที่"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "ฟิลเตอร์ในตัวใช้กฎแบบคงที่และโควต้ากฎแบบคงที่ของเบราว์เซอร์"
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "ฟิลเตอร์ในตัว"
+   },
+   "options_limits_usage": {
+      "message": "$current$ จาก $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "ดูรายละเอียด"
+   },
+   "options_limits_warning": {
+      "message": "ฟิลเตอร์บางรายการถูกปิดใช้งานเนื่องจากข้อจำกัดของเบราว์เซอร์"
+   },
+   "options_limits_your_rules_desc": {
+      "message": "กฎที่กำหนดเองและรายการ whitelist ใช้โควต้ากฎแบบไดนามิกของเบราว์เซอร์ร่วมกัน"
+   },
+   "options_limits_your_rules_heading": {
+      "message": "กฎของคุณ"
+   },
+   "options_menu": {
+      "message": "เมนู"
+   },
+   "options_new_filter": {
+      "message": "ฟิลเตอร์ใหม่"
+   },
+   "options_no_filters_enabled": {
+      "message": "ยังไม่มีฟิลเตอร์ที่เปิดใช้งาน"
+   },
+   "options_number_icon_desc": {
+      "message": "จำนวนโฆษณาที่ถูกบล็อกในแต่ละหน้าจะแสดงที่ไอคอนส่วนขยาย"
+   },
+   "options_number_icon_title": {
+      "message": "แสดงตัวเลขบนไอคอน"
+   },
+   "options_open_extension_details": {
+      "message": "เปิดรายละเอียดส่วนขยาย"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "ให้คะแนนเรา"
+   },
+   "options_search": {
+      "message": "ค้นหา"
+   },
+   "options_search_results": {
+      "message": "ผลลัพธ์"
+   },
+   "options_submit": {
+      "message": "ส่ง"
+   },
+   "options_theme_dark": {
+      "message": "โหมดมืด"
+   },
+   "options_theme_desc": {
+      "message": "เลือกชุดสีสำหรับหน้าการตั้งค่า"
+   },
+   "options_theme_light": {
+      "message": "โหมดสว่าง"
+   },
+   "options_theme_system": {
+      "message": "ระบบ"
+   },
+   "options_theme_title": {
+      "message": "ธีม"
+   },
+   "options_want_abu_in_lang": {
+      "message": "ต้องการใช้ AdBlocker Ultimate เป็นภาษาไทยหรือไม่?"
+   },
+   "page_blocked_go_back": {
+      "message": "ย้อนกลับ"
+   },
+   "page_blocked_heading": {
+      "message": "หน้านี้ถูกบล็อก"
+   },
+   "page_blocked_note": {
+      "message": "จะได้รับสิทธิ์เข้าชั่วคราว"
+   },
+   "page_blocked_proceed": {
+      "message": "ดำเนินการต่อ"
+   },
+   "page_blocked_reason": {
+      "message": "ถูกบล็อกโดยกฎฟิลเตอร์:"
+   },
+   "page_blocked_title": {
+      "message": "หน้าถูกบล็อก"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate สำหรับ Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate สำหรับ iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "เปิดใช้งานในเว็บไซต์นี้"
+   },
+   "popup_get_abu_desktop": {
+      "message": "รับ AdBlocker Ultimate สำหรับ $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "ฟิลเตอร์บางรายการถูกปิดใช้งานเนื่องจากเกินขีดจำกัดของเบราว์เซอร์"
+   },
+   "popup_mobile_apps_title": {
+      "message": "บล็อกโฆษณาบนมือถือ"
+   },
+   "popup_protection_disabled": {
+      "message": "การป้องกัน: ปิดใช้งาน"
+   },
+   "popup_protection_enabled": {
+      "message": "การป้องกัน: เปิดใช้งาน"
+   },
+   "popup_secure_page": {
+      "message": "หน้าปลอดภัย"
+   },
+   "popup_settings": {
+      "message": "การตั้งค่า"
+   },
+   "popup_tab_blocked": {
+      "message": "ถูกบล็อก: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "รวม: $1"
+   },
+   "privacy_policy": {
+      "message": "นโยบายความเป็นส่วนตัว"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "ท่องเว็บแบบไร้โฆษณาสำเร็จแล้ว!"
+   },
+   "rate_us_button": {
+      "message": "ให้คะแนนเรา"
+   },
+   "rate_us_email": {
+      "message": "อีเมล"
+   },
+   "rate_us_hooray": {
+      "message": "เยี่ยมเลย!"
+   },
+   "rate_us_message": {
+      "message": "ข้อความ"
+   },
+   "rate_us_no_thanks": {
+      "message": "ไม่เป็นไร ขอบคุณ"
+   },
+   "rate_us_prompt": {
+      "message": "สนุกกับการบล็อกโฆษณาไหม? ช่วยบอกต่อให้คนอื่นรู้จักเรา"
+   },
+   "rate_us_send_feedback": {
+      "message": "ส่งความคิดเห็น"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "โปรดบอกเราว่าควรปรับปรุงอย่างไร"
+   },
+   "rate_us_thank_you": {
+      "message": "ขอบคุณ!"
+   },
+   "report_bug": {
+      "message": "รายงานปัญหา"
+   },
+   "toast_filter_enabled_title": {
+      "message": "ฟิลเตอร์เปิดใช้งานอัตโนมัติ"
+   },
+   "toast_filters_update_error": {
+      "message": "ไม่สามารถรับการอัปเดตได้ กรุณาลองใหม่ภายหลัง"
+   },
+   "toast_filters_update_filter": {
+      "message": "ฟิลเตอร์ได้รับการอัปเดตแล้ว"
+   },
+   "toast_filters_update_filters": {
+      "message": "ฟิลเตอร์ได้รับการอัปเดตแล้ว"
+   },
+   "toast_filters_update_not_found": {
+      "message": "ไม่พบการอัปเดต"
+   },
+   "toast_filters_update_title_error": {
+      "message": "ตรวจสอบการอัปเดตไม่สำเร็จ"
+   },
+   "version": {
+      "message": "เวอร์ชัน"
+   },
+   "yes": {
+      "message": "ใช่"
+   }
+}

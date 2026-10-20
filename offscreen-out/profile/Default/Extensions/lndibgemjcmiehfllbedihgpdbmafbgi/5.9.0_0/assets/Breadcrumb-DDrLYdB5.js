@@ -1,0 +1,1 @@
+import{C as r,Et as a,U as t,p as o}from"./vendor-charts-BA6mrMsB.js";import{n as u}from"./vendor-primevue-D7pJ7riD.js";var m=r({__name:"Breadcrumb",props:{model:{}},setup(e){return(p,c)=>(t(),o(a(u),{class:"bb-breadcrumb flex-wrap",model:e.model},null,8,["model"]))}}),_=m;export{_ as t};

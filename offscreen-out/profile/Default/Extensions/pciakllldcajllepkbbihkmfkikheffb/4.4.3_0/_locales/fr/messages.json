@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Tous droits réservés"
+   },
+   "assistant_another_element": {
+      "message": "Sélectionnez un autre élément"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Appliquer cette règle à tous les sites web"
+   },
+   "assistant_block": {
+      "message": "Bloquer"
+   },
+   "assistant_block_by_reference": {
+      "message": "Bloquer l'élément par son Url"
+   },
+   "assistant_block_element": {
+      "message": "Bloquer l'élément"
+   },
+   "assistant_block_element_explain": {
+      "message": "Configuration de la règle de blocage de l'élément"
+   },
+   "assistant_block_similar": {
+      "message": "Bloquer les éléments similaires"
+   },
+   "assistant_extended_settings": {
+      "message": "Réglages avancés..."
+   },
+   "assistant_preview_end": {
+      "message": "Fermer l'aperçu"
+   },
+   "assistant_preview_start": {
+      "message": "Aperçu"
+   },
+   "assistant_select_element": {
+      "message": "Mode de sélection"
+   },
+   "assistant_select_element_cancel": {
+      "message": "annuler le mode de sélection"
+   },
+   "assistant_select_element_ext": {
+      "message": "Cliquez sur n'importe quel élément dans la page ou "
+   },
+   "assistant_slider_explain": {
+      "message": "Ajustez le curseur pour redimensionner le cadre"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Bloquer l'élément"
+   },
+   "close": {
+      "message": "Fermer"
+   },
+   "contact_us": {
+      "message": "Contactez-nous"
+   },
+   "context_block_site_ads": {
+      "message": "Bloquer des publicités sur ce site web..."
+   },
+   "context_complaint_site": {
+      "message": "Soumettre une plainte au sujet de ce site..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate ne peut pas fonctionner sur ce domaine"
+   },
+   "context_site_filtering_off": {
+      "message": "Désactiver le filtrage sur ce site"
+   },
+   "context_site_filtering_on": {
+      "message": "Activer le filtrage sur ce site"
+   },
+   "context_update_filters": {
+      "message": "Mise à jour des filtres"
+   },
+   "description": {
+      "message": "L'outil ultime de blocage des publicités. Bloquez gratuitement les publicités sur YouTube, Facebook et tous les autres sites Web !"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking est géré par Adblocker Ultimate for Windows. Cependant, vous pouvez toujours utiliser ce menu pour gérer votre liste blanche ou pour bloquer manuellement certaines publicités."
+   },
+   "desktop_app_is_running": {
+      "message": "L'application de bureau est en cours d'exécution"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "« $filter$ » est maintenant activé",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Filtres personnalisés"
+   },
+   "follow_us": {
+      "message": "Suivez-nous sur"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Non"
+   },
+   "official_website": {
+      "message": "Site Officiel"
+   },
+   "options_about": {
+      "message": "À Propos"
+   },
+   "options_about_heading": {
+      "message": "Et toutes les publicités ennuyeuses sont sorties!"
+   },
+   "options_add_custom_filter": {
+      "message": "Ajouter un filtre personnalisé"
+   },
+   "options_allow_user_scripts": {
+      "message": "Pour activer les filtres personnalisés, vous devez activer \u003Csetting-name>Autoriser les scripts utilisateur\u003C/setting-name> sur la page des détails de l’extension. \u003Clearn-link>En savoir plus\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Liste blanche"
+   },
+   "options_allowlist_desc": {
+      "message": "Les publicités sur les sites ajoutés à cette liste blanche ne seront pas bloquées."
+   },
+   "options_android_callout": {
+      "message": "Notre application Android offre plus de fonctionnalités que l’extension navigateur. Découvrez ce que vous manquez."
+   },
+   "options_android_upgrade": {
+      "message": "Obtenir l’application"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Après avoir ouvert quelques pages dans une langue, les filtres pour cette langue seront automatiquement ajoutés et activés."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Activer automatiquement des filtres spécifiques à la langue"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Nombre de règles de filtre : $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Voulez-vous vraiment supprimer ce filtre?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Les filtres personnalisés avec des règles scriptlet et JavaScript nécessitent l’activation de l’autorisation User Scripts API. Cela permet à l’extension d’exécuter des scripts provenant d’abonnements de filtres personnalisés."
+   },
+   "options_custom_rules": {
+      "message": "Règles personnalisées"
+   },
+   "options_custom_rules_export": {
+      "message": "Exporter"
+   },
+   "options_custom_rules_import": {
+      "message": "Importer"
+   },
+   "options_desktop_callout": {
+      "message": "Notre application de bureau offre plus de fonctionnalités que l’extension navigateur. Découvrez ce que vous manquez."
+   },
+   "options_desktop_upgrade": {
+      "message": "Comparer"
+   },
+   "options_do_you_like_abu": {
+      "message": "Aimez-vous AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Dans cette liste, vous pouvez ajouter vos propres règles personnalisées. Créez vos propres filtres publicitaires et ajoutez-les ici."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Active un menu d’actions disponible lors d’un clic droit sur une page web."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Activer le menu contextuel"
+   },
+   "options_enable_developer_mode": {
+      "message": "Pour activer les filtres personnalisés, vous devez activer le \u003Csetting-name>mode développeur\u003C/setting-name> dans les paramètres des extensions de Chrome. \u003Clearn-link>En savoir plus\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Entrez une URL ou un chemin de fichier valide"
+   },
+   "options_err": {
+      "message": "Une erreur est survenue !"
+   },
+   "options_err_no_txt_file": {
+      "message": "Seuls les fichiers .txt sont autorisés!"
+   },
+   "options_filter_categories": {
+      "message": "Catégories"
+   },
+   "options_filter_status_all": {
+      "message": "Tous"
+   },
+   "options_filter_status_disabled": {
+      "message": "Désactivé"
+   },
+   "options_filter_status_enabled": {
+      "message": "Activé"
+   },
+   "options_filter_update_date": {
+      "message": "Dernière mise à jour : $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtres"
+   },
+   "options_filters_enabled": {
+      "message": "Activé:"
+   },
+   "options_filters_update_error": {
+      "message": "Impossible de mettre à jour les filtres. Veuillez réessayer."
+   },
+   "options_filters_update_success": {
+      "message": "$count$ filtres mis à jour",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$ filtre mis à jour",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Tous les filtres sont à jour"
+   },
+   "options_general": {
+      "message": "Paramètres généraux"
+   },
+   "options_help_translate": {
+      "message": "Aidez-nous avec la traduction!"
+   },
+   "options_limits": {
+      "message": "Limites"
+   },
+   "options_limits_active_filters": {
+      "message": "Actuellement actifs"
+   },
+   "options_limits_bar_warning": {
+      "message": "Certains filtres ont été désactivés car votre navigateur a atteint ses limites de règles. \u003Climits-link>Voir ce qui est concerné\u003C/limits-link> ou \u003Cupgrade-link>obtenir une protection illimitée\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Seuls \u003Ctext-strong>$active$ sur $expected$\u003C/text-strong> de vos filtres sont actifs – votre navigateur n’a plus de place pour les règles de filtrage. \u003Ctext-strong>Notre application de bureau n’a aucune limite de règles\u003C/text-strong> et bloque les pubs et traqueurs sur tout votre appareil. Pour continuer à utiliser l’extension, libérez de l’espace en désactivant d’autres extensions ou des filtres de faible priorité.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Votre navigateur n’a plus de place pour les règles de filtrage et a donc désactivé certains filtres. \u003Ctext-strong>Notre application de bureau n’a aucune limite de règles\u003C/text-strong> et bloque les pubs et traqueurs sur tout votre appareil. Pour continuer à utiliser l’extension, libérez de l’espace en désactivant d’autres extensions ou des filtres de faible priorité."
+   },
+   "options_limits_callout_title": {
+      "message": "Certains filtres ont été désactivés"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Désactivés temporairement"
+   },
+   "options_limits_dismiss": {
+      "message": "Ignorer"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Règles regex dynamiques"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Règles dynamiques"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Règles dynamiques non sûres"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Filtres activés"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Certains filtres n'ont pas pu être activés car les limites du navigateur ont été dépassées"
+   },
+   "options_limits_get_desktop": {
+      "message": "Obtenir l'application de bureau"
+   },
+   "options_limits_intro": {
+      "message": "limite le nombre de filtres et de règles pouvant être actifs en même temps. Les limites sont partagées entre toutes vos extensions de navigateur."
+   },
+   "options_limits_none": {
+      "message": "Aucun"
+   },
+   "options_limits_promo_body": {
+      "message": "Les limites de règles sont partagées avec vos autres extensions. Si vous les dépassez, certains filtres seront temporairement désactivés. \u003Ctext-strong>Notre application de bureau n’a aucune limite de règles\u003C/text-strong> et bloque les pubs et traqueurs sur tout votre appareil. Pour rester dans les limites du navigateur, limitez le nombre d’extensions et évitez les filtres de faible priorité."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtrage sans limite"
+   },
+   "options_limits_reenable": {
+      "message": "Réactiver"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Quota libre insuffisant. Désactivez d'autres extensions ou des filtres inutilisés, puis réessayez"
+   },
+   "options_limits_reenable_success": {
+      "message": "Les filtres ont été réactivés"
+   },
+   "options_limits_related": {
+      "message": "Paramètres associés"
+   },
+   "options_limits_static_regex": {
+      "message": "Règles regex statiques"
+   },
+   "options_limits_static_rules": {
+      "message": "Règles statiques"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Les filtres intégrés utilisent le jeu de règles statiques et les quotas de règles statiques du navigateur."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Filtres intégrés"
+   },
+   "options_limits_usage": {
+      "message": "$current$ sur $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Voir les détails"
+   },
+   "options_limits_warning": {
+      "message": "Certains filtres ont été désactivés en raison des limites du navigateur."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Les règles personnalisées et les entrées de la liste blanche partagent les quotas de règles dynamiques du navigateur."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Vos règles"
+   },
+   "options_menu": {
+      "message": "Menu"
+   },
+   "options_new_filter": {
+      "message": "Nouveau filtre"
+   },
+   "options_no_filters_enabled": {
+      "message": "Aucun filtre activé"
+   },
+   "options_number_icon_desc": {
+      "message": "Le nombre d'annonces bloquées sur chaque page s'affiche dans l'icône d'extension."
+   },
+   "options_number_icon_title": {
+      "message": "Montrer le nombre dans l'icône"
+   },
+   "options_open_extension_details": {
+      "message": "Ouvrir les détails de l’extension"
+   },
+   "options_page_title": {
+      "message": "Paramètres"
+   },
+   "options_rate_us": {
+      "message": "Evaluez-nous"
+   },
+   "options_search": {
+      "message": "Rechercher"
+   },
+   "options_search_results": {
+      "message": "Résultats"
+   },
+   "options_submit": {
+      "message": "Envoyer"
+   },
+   "options_theme_dark": {
+      "message": "Sombre"
+   },
+   "options_theme_desc": {
+      "message": "Choisissez le thème de couleurs pour la page des paramètres."
+   },
+   "options_theme_light": {
+      "message": "Clair"
+   },
+   "options_theme_system": {
+      "message": "Système"
+   },
+   "options_theme_title": {
+      "message": "Thème"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Vous voulez AdBlocker Ultimate dans votre langue?"
+   },
+   "page_blocked_go_back": {
+      "message": "Retour"
+   },
+   "page_blocked_heading": {
+      "message": "Cette page a été bloquée"
+   },
+   "page_blocked_note": {
+      "message": "Un accès temporaire sera accordé."
+   },
+   "page_blocked_proceed": {
+      "message": "Continuer quand même"
+   },
+   "page_blocked_reason": {
+      "message": "Bloqué par la règle du filtre :"
+   },
+   "page_blocked_title": {
+      "message": "Page bloquée"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate pour Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate pour iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Activé sur ce site"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate pour $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Certains filtres ont été désactivés car les limites du navigateur ont été dépassées"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Bloquer les pubs sur mobile"
+   },
+   "popup_protection_disabled": {
+      "message": "Protection: Désactivé"
+   },
+   "popup_protection_enabled": {
+      "message": "Protection : Activé"
+   },
+   "popup_secure_page": {
+      "message": "Page sécurisée"
+   },
+   "popup_settings": {
+      "message": "Paramètres"
+   },
+   "popup_tab_blocked": {
+      "message": "Bloqué: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Total : $1"
+   },
+   "privacy_policy": {
+      "message": "Déclaration de Confidentialité"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Navigation sans publicité atteinte !"
+   },
+   "rate_us_button": {
+      "message": "Nous évaluer"
+   },
+   "rate_us_email": {
+      "message": "E-mail "
+   },
+   "rate_us_hooray": {
+      "message": "Hourra !"
+   },
+   "rate_us_message": {
+      "message": "Notification"
+   },
+   "rate_us_no_thanks": {
+      "message": "Non, merci"
+   },
+   "rate_us_prompt": {
+      "message": "Vous aimez bloquer les pubs ? Aidez les autres à se renseigner sur nous."
+   },
+   "rate_us_send_feedback": {
+      "message": "Envoyer des commentaires"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Merci de nous dire comment nous pouvons améliorer"
+   },
+   "rate_us_thank_you": {
+      "message": "Merci beaucoup!"
+   },
+   "report_bug": {
+      "message": "Signaler un bogue"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Activation automatique des filtres"
+   },
+   "toast_filters_update_error": {
+      "message": "Impossible d'obtenir des mises à jour. Veuillez réessayer ultérieurement."
+   },
+   "toast_filters_update_filter": {
+      "message": "le filtre a été mis à jour"
+   },
+   "toast_filters_update_filters": {
+      "message": "les filtres ont été mis à jour"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Aucune mise à jour trouvée"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Échec de la vérification des mises à jour"
+   },
+   "version": {
+      "message": "Version"
+   },
+   "yes": {
+      "message": "Oui\n"
+   }
+}

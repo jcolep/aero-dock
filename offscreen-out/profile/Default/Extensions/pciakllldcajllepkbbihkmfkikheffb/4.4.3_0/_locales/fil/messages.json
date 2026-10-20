@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Lahat ng Karapatan ay Nakalaan"
+   },
+   "assistant_another_element": {
+      "message": "Piliin ang iba pang elemento"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Gamitin ang patakarang ito sa lahat ng website"
+   },
+   "assistant_block": {
+      "message": "Harangin"
+   },
+   "assistant_block_by_reference": {
+      "message": "Harangin ang elemento sa pamamagitan ng url"
+   },
+   "assistant_block_element": {
+      "message": "Harangin ang elemento"
+   },
+   "assistant_block_element_explain": {
+      "message": "Setup ng patakaran sa pagharang sa elemento"
+   },
+   "assistant_block_similar": {
+      "message": "Harangin ang kaparehong mga elemento"
+   },
+   "assistant_extended_settings": {
+      "message": "Higit pang mga setting..."
+   },
+   "assistant_preview_end": {
+      "message": "Taposin ang preview"
+   },
+   "assistant_preview_start": {
+      "message": "Preview"
+   },
+   "assistant_select_element": {
+      "message": "Pagpipiliang paraan"
+   },
+   "assistant_select_element_cancel": {
+      "message": "kanselahin ito"
+   },
+   "assistant_select_element_ext": {
+      "message": "I-click ang ano mang elemento sa pahinang ito o "
+   },
+   "assistant_slider_explain": {
+      "message": "I-adjust ang slider para baguhin ang laki ng frame"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Harangin ang elemento"
+   },
+   "close": {
+      "message": "Isara"
+   },
+   "contact_us": {
+      "message": "Kontakin kami"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "Hindi maaaring tumakbo ang AdBlocker Ultimate sa domain na ito"
+   },
+   "context_site_filtering_off": {
+      "message": "I-disable ang filtering sa website na ito"
+   },
+   "context_site_filtering_on": {
+      "message": "I-enable ang filtering sa website na ito"
+   },
+   "context_update_filters": {
+      "message": "Suriin ang mga filter update"
+   },
+   "description": {
+      "message": "Ang tunay na adblock tool. I-block ang mga ad sa YouTube, Facebook, at lahat ng iba pang website nang libre!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Tumatakbo ang desktop app"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "Ang \"$filter$\" ay naka-enable na",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Mga Custom na Filter"
+   },
+   "follow_us": {
+      "message": "I-follow kami sa"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Hindi"
+   },
+   "official_website": {
+      "message": "Opisyal na Website"
+   },
+   "options_about": {
+      "message": "Tungkol"
+   },
+   "options_about_heading": {
+      "message": "At lahat ng nakakainis na ads ay wala na!"
+   },
+   "options_add_custom_filter": {
+      "message": "Magdagdag ng custom filter"
+   },
+   "options_allow_user_scripts": {
+      "message": "Para ma-enable ang custom filters, kailangan mong i-enable ang \u003Csetting-name>Allow user scripts\u003C/setting-name> sa extension details page. \u003Clearn-link>Matuto pa\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Whitelist"
+   },
+   "options_allowlist_desc": {
+      "message": "Ang mga ads sa mga website na nasa Whitelist ay hindi iba-block."
+   },
+   "options_android_callout": {
+      "message": "Mas marami pang tampok ang aming Android app kaysa sa browser extension. Alamin kung ano ang hindi mo pa natutuklasan."
+   },
+   "options_android_upgrade": {
+      "message": "Kunin ang app"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Pagkatapos magbukas ng ilang pahina sa isang wika, awtomatikong idaragdag at ia-activate ang mga filter para sa wikang iyon."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Awtomatikong i-activate ang mga filter para sa partikular na wika"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Bilang ng filter rules: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Sigurado ka bang gusto mong tanggalin ang filter na ito?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Ang custom filters na may scriptlet at JavaScript rules ay nangangailangan ng User Scripts API permission na naka-enable. Pinapayagan nitong magpatakbo ng scripts mula sa custom filter subscriptions ang extension."
+   },
+   "options_custom_rules": {
+      "message": "Mga Custom na Panuntunan"
+   },
+   "options_custom_rules_export": {
+      "message": "I-export"
+   },
+   "options_custom_rules_import": {
+      "message": "I-import"
+   },
+   "options_desktop_callout": {
+      "message": "Mas marami pang tampok ang aming desktop app kaysa sa browser extension. Alamin kung ano ang hindi mo pa natutuklasan."
+   },
+   "options_desktop_upgrade": {
+      "message": "Ihambing"
+   },
+   "options_do_you_like_abu": {
+      "message": "Gusto mo ba ang AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Sa listahang ito, maaari kang magdagdag ng sarili mong Custom Rules. Gumawa ng sarili mong ad filters at idagdag dito."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Nagbibigay ng menu ng mga aksyon kapag nag-right click ka sa isang web page."
+   },
+   "options_enable_context_menu_title": {
+      "message": "I-enable ang context menu"
+   },
+   "options_enable_developer_mode": {
+      "message": "Para ma-enable ang custom filters, kailangan mong i-enable ang \u003Csetting-name>Developer mode\u003C/setting-name> sa Chrome extension settings. \u003Clearn-link>Matuto pa\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Ilagay ang tamang URL o file path"
+   },
+   "options_err": {
+      "message": "May nangyaring mali!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Tanging .txt files lang ang pinapayagan!"
+   },
+   "options_filter_categories": {
+      "message": "Mga Kategorya"
+   },
+   "options_filter_status_all": {
+      "message": "Lahat"
+   },
+   "options_filter_status_disabled": {
+      "message": "Naka-disable"
+   },
+   "options_filter_status_enabled": {
+      "message": "Naka-enable"
+   },
+   "options_filter_update_date": {
+      "message": "Huling update: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Mga Filter"
+   },
+   "options_filters_enabled": {
+      "message": "Naka-enable:"
+   },
+   "options_filters_update_error": {
+      "message": "Hindi ma-update ang mga filter. Pakisubukang muli."
+   },
+   "options_filters_update_success": {
+      "message": "Na-update ang $count$ filters",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Na-update ang $count$ filter",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Lahat ng filter ay napapanahon"
+   },
+   "options_general": {
+      "message": "Pangkalahatan"
+   },
+   "options_help_translate": {
+      "message": "Tulungan kaming magsalin!"
+   },
+   "options_limits": {
+      "message": "Mga Limitasyon"
+   },
+   "options_limits_active_filters": {
+      "message": "Kasalukuyang aktibo"
+   },
+   "options_limits_bar_warning": {
+      "message": "May mga filter na na-disable dahil naabot ng browser mo ang limitasyon ng mga rules. \u003Climits-link>Tingnan kung ano ang naapektuhan\u003C/limits-link> o \u003Cupgrade-link>kumuha ng walang limitasyong proteksyon\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Tanging \u003Ctext-strong>$active$ sa $expected$\u003C/text-strong> mong mga filter ang gumagana – naubusan na ng espasyo ang iyong browser para sa filtering rules. \u003Ctext-strong>Walang limitasyon sa rules ang aming desktop app\u003C/text-strong> at nagba-block ng ads at trackers sa buong device mo. Para magpatuloy sa paggamit ng browser extension, magpalaya ng espasyo sa pamamagitan ng pag-off ng ibang extension o pag-disable ng mga filter na mababa ang priority.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Naubusan na ng espasyo ang iyong browser para sa filtering rules kaya may mga filter na pinatay. \u003Ctext-strong>Walang limitasyon sa rules ang aming desktop app\u003C/text-strong> at nagba-block ng ads at trackers sa buong device mo. Para magpatuloy sa paggamit ng browser extension, magpalaya ng espasyo sa pamamagitan ng pag-off ng ibang extension o pag-disable ng mga filter na mababa ang priority."
+   },
+   "options_limits_callout_title": {
+      "message": "May mga filter na na-disable"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Pansamantalang na-disable"
+   },
+   "options_limits_dismiss": {
+      "message": "I-dismiss"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dynamic na regex na mga rule"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dynamic na mga rule"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Hindi ligtas na dynamic na mga rule"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Mga naka-enable na filter"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Hindi ma-activate ang ilang filter dahil lumampas na sa limitasyon ng browser"
+   },
+   "options_limits_get_desktop": {
+      "message": "Kunin ang desktop app"
+   },
+   "options_limits_intro": {
+      "message": "nililimitahan kung ilang filter at rules ang maaaring aktibo nang sabay-sabay. Ang mga limitasyon ay pinaghahatian ng lahat ng extension sa browser mo."
+   },
+   "options_limits_none": {
+      "message": "Wala"
+   },
+   "options_limits_promo_body": {
+      "message": "Ibinabahagi ang rule limits sa iba mo pang extension. Kapag lumampas dito, pansamantalang madi-disable ang ilang filter. \u003Ctext-strong>Walang limitasyon sa rules ang aming desktop app\u003C/text-strong> at nagba-block ng ads at trackers sa buong device mo. Para manatili sa limitasyon ng browser, panatilihing kaunti lang ang ibang extension at iwasan ang mga filter na mababa ang priority."
+   },
+   "options_limits_promo_title": {
+      "message": "Mag-filter nang walang limitasyon"
+   },
+   "options_limits_reenable": {
+      "message": "I-enable muli"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Hindi sapat ang libreng quota. I-off ang ibang extension o hindi ginagamit na filter, tapos subukan muli"
+   },
+   "options_limits_reenable_success": {
+      "message": "Na-enable muli ang mga filter"
+   },
+   "options_limits_related": {
+      "message": "Kaugnay na mga setting"
+   },
+   "options_limits_static_regex": {
+      "message": "Static na regex na mga rule"
+   },
+   "options_limits_static_rules": {
+      "message": "Static na mga rule"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Ang built-in na mga filter ay gumagamit ng static ruleset at static rule quota ng browser."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Built-in na mga filter"
+   },
+   "options_limits_usage": {
+      "message": "$current$ sa $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Tingnan ang detalye"
+   },
+   "options_limits_warning": {
+      "message": "May mga filter na na-disable dahil sa limitasyon ng browser."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Ang custom na mga rule at whitelist entries ay pinaghahatian ang dynamic rule quota ng browser."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Iyong mga rule"
+   },
+   "options_menu": {
+      "message": "Menu"
+   },
+   "options_new_filter": {
+      "message": "Bagong filter"
+   },
+   "options_no_filters_enabled": {
+      "message": "Walang naka-enable na filter"
+   },
+   "options_number_icon_desc": {
+      "message": "Ang bilang ng mga na-block na ad sa bawat pahina ay makikita sa icon ng extension."
+   },
+   "options_number_icon_title": {
+      "message": "Ipakita ang bilang sa icon"
+   },
+   "options_open_extension_details": {
+      "message": "Buksan ang Extension Details"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "I-rate Kami"
+   },
+   "options_search": {
+      "message": "Maghanap"
+   },
+   "options_search_results": {
+      "message": "Mga Resulta"
+   },
+   "options_submit": {
+      "message": "Isumite"
+   },
+   "options_theme_dark": {
+      "message": "Madilim"
+   },
+   "options_theme_desc": {
+      "message": "Pumili ng kulay para sa settings page."
+   },
+   "options_theme_light": {
+      "message": "Maliwanag"
+   },
+   "options_theme_system": {
+      "message": "Sistema"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Gusto mo ba ng AdBlocker Ultimate sa iyong wika?"
+   },
+   "page_blocked_go_back": {
+      "message": "Bumalik"
+   },
+   "page_blocked_heading": {
+      "message": "Na-block ang pahinang ito"
+   },
+   "page_blocked_note": {
+      "message": "Pansamantalang papayagan ang access."
+   },
+   "page_blocked_proceed": {
+      "message": "Magpatuloy pa rin"
+   },
+   "page_blocked_reason": {
+      "message": "Na-block ng filter rule:"
+   },
+   "page_blocked_title": {
+      "message": "Na-block ang Pahina"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate para sa Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate para sa iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Naka-enable sa site na ito"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate para sa $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "May mga filter na na-disable dahil lumampas na sa limitasyon ng browser"
+   },
+   "popup_mobile_apps_title": {
+      "message": "I-block ang ads sa mobile"
+   },
+   "popup_protection_disabled": {
+      "message": "Proteksyon: Naka-disable"
+   },
+   "popup_protection_enabled": {
+      "message": "Proteksyon: Naka-enable"
+   },
+   "popup_secure_page": {
+      "message": "Secure na pahina"
+   },
+   "popup_settings": {
+      "message": "Mga Setting"
+   },
+   "popup_tab_blocked": {
+      "message": "Na-block: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Kabuuan: $1"
+   },
+   "privacy_policy": {
+      "message": "Patakaran sa Privacy"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Naabot na ang ad-free na pag-browse!"
+   },
+   "rate_us_button": {
+      "message": "I-rate kami"
+   },
+   "rate_us_email": {
+      "message": "Email"
+   },
+   "rate_us_hooray": {
+      "message": "Yehey!"
+   },
+   "rate_us_message": {
+      "message": "Mensahe"
+   },
+   "rate_us_no_thanks": {
+      "message": "Hindi, salamat"
+   },
+   "rate_us_prompt": {
+      "message": "Nasiyahan ka ba sa pag-block ng ads? Tulungan ang iba na makilala kami."
+   },
+   "rate_us_send_feedback": {
+      "message": "Magpadala ng Feedback"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Pakiusap, sabihin kung paano pa namin mapapabuti"
+   },
+   "rate_us_thank_you": {
+      "message": "Salamat!"
+   },
+   "report_bug": {
+      "message": "I-report ang bug"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Awtomatikong na-activate ang mga filter"
+   },
+   "toast_filters_update_error": {
+      "message": "Hindi nakuha ang mga update. Pakisubukan muli mamaya."
+   },
+   "toast_filters_update_filter": {
+      "message": "na-update na ang filter"
+   },
+   "toast_filters_update_filters": {
+      "message": "na-update na ang mga filter"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Walang nahanap na update"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Nabigong mag-check ng updates"
+   },
+   "version": {
+      "message": "Bersyon"
+   },
+   "yes": {
+      "message": "Oo"
+   }
+}

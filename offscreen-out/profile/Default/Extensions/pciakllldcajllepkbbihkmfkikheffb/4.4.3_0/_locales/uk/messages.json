@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Всі права захищено"
+   },
+   "assistant_another_element": {
+      "message": "Виберіть інший елемент"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Застосувати це правило до всіх веб-сайт"
+   },
+   "assistant_block": {
+      "message": "Заблокувати"
+   },
+   "assistant_block_by_reference": {
+      "message": "Блок елемента за Url-адресою"
+   },
+   "assistant_block_element": {
+      "message": "Елемент блоку"
+   },
+   "assistant_block_element_explain": {
+      "message": "Елемент блокування правила налаштування"
+   },
+   "assistant_block_similar": {
+      "message": "Блокувати подібні елементи"
+   },
+   "assistant_extended_settings": {
+      "message": "Додаткові налаштування..."
+   },
+   "assistant_preview_end": {
+      "message": "Закінчити перегляд"
+   },
+   "assistant_preview_start": {
+      "message": "Переглянути"
+   },
+   "assistant_select_element": {
+      "message": "Виберіть режим"
+   },
+   "assistant_select_element_cancel": {
+      "message": "відмініть режим вибору"
+   },
+   "assistant_select_element_ext": {
+      "message": "Натисніть на будь-який елемент на сторінці або "
+   },
+   "assistant_slider_explain": {
+      "message": "Відрегулюйте повзунок, щоб змінити розмір рамки"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Елемент блоку"
+   },
+   "close": {
+      "message": "Закрити"
+   },
+   "contact_us": {
+      "message": "Зв'язатися з нами"
+   },
+   "context_block_site_ads": {
+      "message": "Блокувати рекламу на цьому сайті..."
+   },
+   "context_complaint_site": {
+      "message": "Подати скаргу про цей сайт..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate може не працювати на цьому домені"
+   },
+   "context_site_filtering_off": {
+      "message": "Вимкнути фільтрування на цьому сайті"
+   },
+   "context_site_filtering_on": {
+      "message": "Увімкнути фільтрацію на цьому сайті"
+   },
+   "context_update_filters": {
+      "message": "Перевірити наявність оновлень"
+   },
+   "description": {
+      "message": "Найкращий інструмент для блокування реклами. Блокуйте рекламу на YouTube, Facebook та інших веб-сайтах безкоштовно!"
+   },
+   "desktop_app_info": {
+      "message": "Блокування реклами обробляється Adblocker Ultimate для Windows. Проте ви все ще можете використовувати це меню для управління вашим білий списком або вручну заблокувати певну рекламу."
+   },
+   "desktop_app_is_running": {
+      "message": "Настільний додаток працює"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" тепер увімкнено",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Користувацькі фільтри"
+   },
+   "follow_us": {
+      "message": "Стежте за нами в"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Ні"
+   },
+   "official_website": {
+      "message": "Офіційний сайт"
+   },
+   "options_about": {
+      "message": "Про додаток"
+   },
+   "options_about_heading": {
+      "message": "І вся дратуюча реклама відсутня!"
+   },
+   "options_add_custom_filter": {
+      "message": "Додати власний фільтр"
+   },
+   "options_allow_user_scripts": {
+      "message": "Щоб увімкнути користувацькі фільтри, потрібно активувати \u003Csetting-name>Дозволити користувацькі скрипти\u003C/setting-name> на сторінці деталей розширення. \u003Clearn-link>Дізнатися більше\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Білий список"
+   },
+   "options_allowlist_desc": {
+      "message": "Реклама на веб-сайтах, доданих до цього Білого списку, не буде заблокована"
+   },
+   "options_android_callout": {
+      "message": "Наш додаток для Android має більше функцій, ніж розширення для браузера. Дізнайтеся, що ви втрачаєте."
+   },
+   "options_android_upgrade": {
+      "message": "Завантажити додаток"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Після відкриття кількох сторінок на мові фільтри для цієї мови будуть автоматично додані та активовані."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Автоматично вмикати Мовні фільтри"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Кількість правил фільтра: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Ви впевнені, що бажаєте видалити цей фільтр?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Користувацькі фільтри зі скриптлетами та JavaScript-правилами потребують дозволу User Scripts API. Це дозволяє розширенню виконувати скрипти з власних підписок фільтрів."
+   },
+   "options_custom_rules": {
+      "message": "Власні правила"
+   },
+   "options_custom_rules_export": {
+      "message": "Експорт"
+   },
+   "options_custom_rules_import": {
+      "message": "Імпорт"
+   },
+   "options_desktop_callout": {
+      "message": "Наша десктопна програма має більше функцій, ніж розширення для браузера. Дізнайтеся, що ви втрачаєте."
+   },
+   "options_desktop_upgrade": {
+      "message": "Порівняти"
+   },
+   "options_do_you_like_abu": {
+      "message": "Вам подобається AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "У цьому списку ви можете додати свої власні користувацькі правила. Створіть свої рекламні фільтри і додайте їх сюди."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Активує меню дій при натисканні правої кнопки на веб-сторінку."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Увімкнути контекстне меню"
+   },
+   "options_enable_developer_mode": {
+      "message": "Щоб увімкнути користувацькі фільтри, потрібно активувати \u003Csetting-name>Режим розробника\u003C/setting-name> у налаштуваннях розширень Chrome. \u003Clearn-link>Дізнатися більше\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Введіть дійсний URL або шлях до файлу"
+   },
+   "options_err": {
+      "message": "Щось пішло не так!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Допустимі лише файли .txt!"
+   },
+   "options_filter_categories": {
+      "message": "Категорії"
+   },
+   "options_filter_status_all": {
+      "message": "Усі"
+   },
+   "options_filter_status_disabled": {
+      "message": "Вимкнено"
+   },
+   "options_filter_status_enabled": {
+      "message": "Ввімкнено"
+   },
+   "options_filter_update_date": {
+      "message": "Останнє оновлення: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Фільтри"
+   },
+   "options_filters_enabled": {
+      "message": "Увімкнено:"
+   },
+   "options_filters_update_error": {
+      "message": "Не вдалося оновити фільтри. Спробуйте ще раз."
+   },
+   "options_filters_update_success": {
+      "message": "Оновлено фільтрів: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Оновлено фільтр: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Усі фільтри оновлені"
+   },
+   "options_general": {
+      "message": "Основні"
+   },
+   "options_help_translate": {
+      "message": "Допоможіть нам з перекладом!"
+   },
+   "options_limits": {
+      "message": "Ліміти"
+   },
+   "options_limits_active_filters": {
+      "message": "Зараз активні"
+   },
+   "options_limits_bar_warning": {
+      "message": "Деякі фільтри були вимкнені, оскільки ваш браузер досяг ліміту правил. \u003Climits-link>Дізнатися, що постраждало\u003C/limits-link> або \u003Cupgrade-link>отримати необмежений захист\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Активно лише \u003Ctext-strong>$active$ із $expected$\u003C/text-strong> ваших фільтрів — у браузері закінчилось місце для правил фільтрації. \u003Ctext-strong>Наша десктопна програма не має обмежень на кількість правил\u003C/text-strong> і блокує рекламу та трекери на всьому пристрої. Щоб і надалі користуватися розширенням, звільніть місце, вимкнувши інші розширення або фільтри з низьким пріоритетом.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "У браузері закінчилось місце для правил фільтрації, тому деякі фільтри були вимкнені. \u003Ctext-strong>Наша десктопна програма не має обмежень на кількість правил\u003C/text-strong> і блокує рекламу та трекери на всьому пристрої. Щоб і надалі користуватися розширенням, звільніть місце, вимкнувши інші розширення або фільтри з низьким пріоритетом."
+   },
+   "options_limits_callout_title": {
+      "message": "Деякі фільтри були вимкнені"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Тимчасово вимкнені"
+   },
+   "options_limits_dismiss": {
+      "message": "Закрити"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Динамічні regex-правила"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Динамічні правила"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Небезпечні динамічні правила"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Увімкнені фільтри"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Деякі фільтри не вдалося увімкнути, оскільки перевищено ліміти браузера"
+   },
+   "options_limits_get_desktop": {
+      "message": "Завантажити десктопний застосунок"
+   },
+   "options_limits_intro": {
+      "message": "обмежує кількість активних фільтрів і правил одночасно. Ліміти спільні для всіх ваших розширень браузера."
+   },
+   "options_limits_none": {
+      "message": "Немає"
+   },
+   "options_limits_promo_body": {
+      "message": "Обмеження на кількість правил спільні з іншими вашими розширеннями. Якщо їх перевищити, деякі фільтри тимчасово вимикаються. \u003Ctext-strong>Наша десктопна програма не має обмежень на кількість правил\u003C/text-strong> і блокує рекламу та трекери на всьому пристрої. Щоб залишатися в межах обмежень браузера, мінімізуйте кількість інших розширень і уникайте фільтрів з низьким пріоритетом."
+   },
+   "options_limits_promo_title": {
+      "message": "Фільтрація без обмежень"
+   },
+   "options_limits_reenable": {
+      "message": "Увімкнути знову"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Недостатньо вільної квоти. Вимкніть інші розширення або невикористані фільтри й спробуйте ще раз"
+   },
+   "options_limits_reenable_success": {
+      "message": "Фільтри були повторно увімкнені"
+   },
+   "options_limits_related": {
+      "message": "Схожі налаштування"
+   },
+   "options_limits_static_regex": {
+      "message": "Статичні regex-правила"
+   },
+   "options_limits_static_rules": {
+      "message": "Статичні правила"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Вбудовані фільтри використовують статичний набір правил і квоти статичних правил браузера."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Вбудовані фільтри"
+   },
+   "options_limits_usage": {
+      "message": "$current$ з $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Переглянути деталі"
+   },
+   "options_limits_warning": {
+      "message": "Деякі фільтри були вимкнені через обмеження браузера."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Власні правила та записи у whitelist ділять динамічну квоту правил браузера."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Ваші правила"
+   },
+   "options_menu": {
+      "message": "Меню"
+   },
+   "options_new_filter": {
+      "message": "Новий фільтр"
+   },
+   "options_no_filters_enabled": {
+      "message": "Немає увімкнених фільтрів"
+   },
+   "options_number_icon_desc": {
+      "message": "Кількість заблокованих елементів на кожній сторінці буде відображатися в значку розширення."
+   },
+   "options_number_icon_title": {
+      "message": "Кількість в зображенні"
+   },
+   "options_open_extension_details": {
+      "message": "Відкрити деталі розширення"
+   },
+   "options_page_title": {
+      "message": "Налаштування"
+   },
+   "options_rate_us": {
+      "message": "Оцініть нас"
+   },
+   "options_search": {
+      "message": "Пошук"
+   },
+   "options_search_results": {
+      "message": "Результати"
+   },
+   "options_submit": {
+      "message": "Продовжити"
+   },
+   "options_theme_dark": {
+      "message": "Темна"
+   },
+   "options_theme_desc": {
+      "message": "Виберіть колірну схему для сторінки налаштувань."
+   },
+   "options_theme_light": {
+      "message": "Світла"
+   },
+   "options_theme_system": {
+      "message": "Системна"
+   },
+   "options_theme_title": {
+      "message": "Тема"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Хочете AdBlocker Ultimate своєю мовою?"
+   },
+   "page_blocked_go_back": {
+      "message": "Повернутися"
+   },
+   "page_blocked_heading": {
+      "message": "Цю сторінку заблоковано"
+   },
+   "page_blocked_note": {
+      "message": "Тимчасовий доступ буде надано."
+   },
+   "page_blocked_proceed": {
+      "message": "Все одно продовжити"
+   },
+   "page_blocked_reason": {
+      "message": "Заблоковано правилом фільтра:"
+   },
+   "page_blocked_title": {
+      "message": "Сторінку заблоковано"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate для Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate для iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Увімкнено на цьому сайті"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate для $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Деякі фільтри були вимкнені, оскільки перевищено ліміти браузера"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Блокуйте рекламу на телефоні"
+   },
+   "popup_protection_disabled": {
+      "message": "Захист: Вимкнений"
+   },
+   "popup_protection_enabled": {
+      "message": "Захист: Увімкнений"
+   },
+   "popup_secure_page": {
+      "message": "Безпечна сторінка"
+   },
+   "popup_settings": {
+      "message": "Налаштування"
+   },
+   "popup_tab_blocked": {
+      "message": "Заблоковано: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Всього: $1"
+   },
+   "privacy_policy": {
+      "message": "Політика конфіденційності"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Перегляд без реклами досягнуто!"
+   },
+   "rate_us_button": {
+      "message": "Оцініть нас"
+   },
+   "rate_us_email": {
+      "message": "Адреса електронної пошти"
+   },
+   "rate_us_hooray": {
+      "message": "Ура!"
+   },
+   "rate_us_message": {
+      "message": "Повідомлення"
+   },
+   "rate_us_no_thanks": {
+      "message": "Ні, дякую"
+   },
+   "rate_us_prompt": {
+      "message": "Насолоджуйтесь блокуванням реклами? Допоможіть іншим дізнатися про нас."
+   },
+   "rate_us_send_feedback": {
+      "message": "Надіслати відгук"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Розкажіть нам, як ми можемо стати краще"
+   },
+   "rate_us_thank_you": {
+      "message": "Дякую!"
+   },
+   "report_bug": {
+      "message": "Повідомити про помилку"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Фільтри автоматично активовані"
+   },
+   "toast_filters_update_error": {
+      "message": "Не вдалося отримати оновлення. Будь ласка, спробуйте ще раз пізніше."
+   },
+   "toast_filters_update_filter": {
+      "message": "фільтр оновлено"
+   },
+   "toast_filters_update_filters": {
+      "message": "фільтри оновлено"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Немає оновлень"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Не вдалося перевірити оновлення"
+   },
+   "version": {
+      "message": "Версія"
+   },
+   "yes": {
+      "message": "Так"
+   }
+}

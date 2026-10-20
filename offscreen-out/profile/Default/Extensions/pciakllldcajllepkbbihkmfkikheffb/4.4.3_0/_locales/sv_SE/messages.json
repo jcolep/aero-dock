@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Alla rättigheter förbehållna"
+   },
+   "assistant_another_element": {
+      "message": "Välj ett annat element"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Tillämpa denna regel till alla webbsidor"
+   },
+   "assistant_block": {
+      "message": "Blockera"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blockera element med URL"
+   },
+   "assistant_block_element": {
+      "message": "Blockera element"
+   },
+   "assistant_block_element_explain": {
+      "message": "Regelinställning för blockering av element"
+   },
+   "assistant_block_similar": {
+      "message": "Blockera liknande element"
+   },
+   "assistant_extended_settings": {
+      "message": "Avancerade inställningar..."
+   },
+   "assistant_preview_end": {
+      "message": "Slutför förhandsvisning"
+   },
+   "assistant_preview_start": {
+      "message": "Förhandsvisa"
+   },
+   "assistant_select_element": {
+      "message": "Markeringsläge"
+   },
+   "assistant_select_element_cancel": {
+      "message": "avbryt markeringsläget"
+   },
+   "assistant_select_element_ext": {
+      "message": "Klicka på valfritt element på sidan eller "
+   },
+   "assistant_slider_explain": {
+      "message": "Justera reglaget för att ändra storlek på ramen"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blockera element"
+   },
+   "close": {
+      "message": "Stäng"
+   },
+   "contact_us": {
+      "message": "Kontakta oss"
+   },
+   "context_block_site_ads": {
+      "message": "Blockera annons på denna webbsida..."
+   },
+   "context_complaint_site": {
+      "message": "Skicka ett klagomål om denna webbsida..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate kan inte köras på denna domän"
+   },
+   "context_site_filtering_off": {
+      "message": "Inaktivera filtrering på denna webbsida"
+   },
+   "context_site_filtering_on": {
+      "message": "Aktivera filtrering på denna webbsida"
+   },
+   "context_update_filters": {
+      "message": "Kolla efter filteruppdateringar"
+   },
+   "description": {
+      "message": "Det ultimata annonsblockeringsverktyget. Blockera annonser på YouTube, Facebook och alla andra webbplatser gratis!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Skrivbordsappen körs"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" är nu aktiverat",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Anpassade filter"
+   },
+   "follow_us": {
+      "message": "Följ oss på"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Nej"
+   },
+   "official_website": {
+      "message": "Officiell webbplats"
+   },
+   "options_about": {
+      "message": "Om"
+   },
+   "options_about_heading": {
+      "message": "Och alla irriterande annonser är borta!"
+   },
+   "options_add_custom_filter": {
+      "message": "Lägg till anpassat filter"
+   },
+   "options_allow_user_scripts": {
+      "message": "För att aktivera anpassade filter måste du aktivera \u003Csetting-name>Tillåt användarskript\u003C/setting-name> på tilläggets detaljsida. \u003Clearn-link>Läs mer\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Vitlista"
+   },
+   "options_allowlist_desc": {
+      "message": "Annonser på webbplatser som lagts till i denna vitlista blockeras inte."
+   },
+   "options_android_callout": {
+      "message": "Vår Android-app har fler funktioner än webbläsartillägget. Se vad du går miste om."
+   },
+   "options_android_upgrade": {
+      "message": "Hämta appen"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Efter att du öppnat några sidor på ett språk läggs filter för det språket till och aktiveras automatiskt."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Aktivera språkfilter automatiskt"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Antal filterregler: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Är du säker på att du vill ta bort det här filtret?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Anpassade filter med scriptlet- och JavaScript-regler kräver att User Scripts API-behörigheten är aktiverad. Detta tillåter tillägget att köra skript från anpassade filtersubscriptioner."
+   },
+   "options_custom_rules": {
+      "message": "Egna regler"
+   },
+   "options_custom_rules_export": {
+      "message": "Exportera"
+   },
+   "options_custom_rules_import": {
+      "message": "Importera"
+   },
+   "options_desktop_callout": {
+      "message": "Vår skrivbordsapp har fler funktioner än webbläsartillägget. Se vad du går miste om."
+   },
+   "options_desktop_upgrade": {
+      "message": "Jämför"
+   },
+   "options_do_you_like_abu": {
+      "message": "Gillar du AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "I denna lista kan du lägga till egna regler. Skapa egna annonsfilter och lägg till dem här."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Aktiverar en meny med åtgärder när du högerklickar på en webbsida."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Aktivera snabbmeny"
+   },
+   "options_enable_developer_mode": {
+      "message": "För att aktivera anpassade filter måste du aktivera \u003Csetting-name>Utvecklarläge\u003C/setting-name> i Chromes tilläggsinställningar. \u003Clearn-link>Läs mer\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Ange giltig URL eller filsökväg"
+   },
+   "options_err": {
+      "message": "Något gick fel!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Endast .txt-filer tillåtna!"
+   },
+   "options_filter_categories": {
+      "message": "Kategorier"
+   },
+   "options_filter_status_all": {
+      "message": "Alla"
+   },
+   "options_filter_status_disabled": {
+      "message": "Inaktiverad"
+   },
+   "options_filter_status_enabled": {
+      "message": "Aktiverad"
+   },
+   "options_filter_update_date": {
+      "message": "Senast uppdaterad: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filter"
+   },
+   "options_filters_enabled": {
+      "message": "Aktiverade:"
+   },
+   "options_filters_update_error": {
+      "message": "Kunde inte uppdatera filter. Försök igen."
+   },
+   "options_filters_update_success": {
+      "message": "Uppdaterade $count$ filter",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Uppdaterade $count$ filter",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Alla filter är uppdaterade"
+   },
+   "options_general": {
+      "message": "Allmänt"
+   },
+   "options_help_translate": {
+      "message": "Hjälp oss att översätta!"
+   },
+   "options_limits": {
+      "message": "Gränser"
+   },
+   "options_limits_active_filters": {
+      "message": "Aktiva just nu"
+   },
+   "options_limits_bar_warning": {
+      "message": "Vissa filter har inaktiverats eftersom din webbläsare har nått sina regelgränser. \u003Climits-link>Se vad som påverkas\u003C/limits-link> eller \u003Cupgrade-link>få obegränsat skydd\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Endast \u003Ctext-strong>$active$ av $expected$\u003C/text-strong> filter är aktiva – din webbläsare har slut på utrymme för filtreringsregler. \u003Ctext-strong>Vår skrivbordsapp har inga begränsningar för regler\u003C/text-strong> och blockerar annonser och spårare på hela din enhet. För att fortsätta använda webbläsartillägget, frigör utrymme genom att stänga av andra tillägg eller inaktivera filter med låg prioritet.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Din webbläsare har slut på utrymme för filtreringsregler och har därför stängt av vissa filter. \u003Ctext-strong>Vår skrivbordsapp har inga begränsningar för regler\u003C/text-strong> och blockerar annonser och spårare på hela din enhet. För att fortsätta använda webbläsartillägget, frigör utrymme genom att stänga av andra tillägg eller inaktivera filter med låg prioritet."
+   },
+   "options_limits_callout_title": {
+      "message": "Vissa filter har inaktiverats"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Tillfälligt inaktiverade"
+   },
+   "options_limits_dismiss": {
+      "message": "Stäng"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dynamiska regex-regler"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dynamiska regler"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Osäkra dynamiska regler"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Aktiverade filter"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Vissa filter kunde inte aktiveras eftersom webbläsarens gränser överskreds"
+   },
+   "options_limits_get_desktop": {
+      "message": "Skaffa skrivbordsapp"
+   },
+   "options_limits_intro": {
+      "message": "begränsar hur många filter och regler som kan vara aktiva samtidigt. Gränserna delas mellan alla dina webbläsartillägg."
+   },
+   "options_limits_none": {
+      "message": "Inga"
+   },
+   "options_limits_promo_body": {
+      "message": "Regelbegränsningar delas med dina andra tillägg. Om du överskrider dem inaktiveras vissa filter tillfälligt. \u003Ctext-strong>Vår skrivbordsapp har inga begränsningar för regler\u003C/text-strong> och blockerar annonser och spårare på hela din enhet. För att hålla dig inom webbläsarens gränser, minimera antalet andra tillägg och undvik filter med låg prioritet."
+   },
+   "options_limits_promo_title": {
+      "message": "Få filtrering utan begränsningar"
+   },
+   "options_limits_reenable": {
+      "message": "Aktivera igen"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Inte tillräckligt med ledig kvot. Stäng av andra tillägg eller oanvända filter och försök igen"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filter har återaktiverats"
+   },
+   "options_limits_related": {
+      "message": "Relaterade inställningar"
+   },
+   "options_limits_static_regex": {
+      "message": "Statiska regex-regler"
+   },
+   "options_limits_static_rules": {
+      "message": "Statiska regler"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Inbyggda filter använder webbläsarens statiska regeluppsättning och kvoter för statiska regler."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Inbyggda filter"
+   },
+   "options_limits_usage": {
+      "message": "$current$ av $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Visa detaljer"
+   },
+   "options_limits_warning": {
+      "message": "Vissa filter har inaktiverats på grund av webbläsarbegränsningar."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Egna regler och vitlistade poster delar webbläsarens kvot för dynamiska regler."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Dina regler"
+   },
+   "options_menu": {
+      "message": "Meny"
+   },
+   "options_new_filter": {
+      "message": "Nytt filter"
+   },
+   "options_no_filters_enabled": {
+      "message": "Inga filter aktiverade"
+   },
+   "options_number_icon_desc": {
+      "message": "Antalet blockerade annonser på varje sida visas i tilläggsikonen."
+   },
+   "options_number_icon_title": {
+      "message": "Visa antal i ikonen"
+   },
+   "options_open_extension_details": {
+      "message": "Öppna tilläggsdetaljer"
+   },
+   "options_page_title": {
+      "message": "Alternativ"
+   },
+   "options_rate_us": {
+      "message": "Betygsätt oss"
+   },
+   "options_search": {
+      "message": "Sök"
+   },
+   "options_search_results": {
+      "message": "Resultat"
+   },
+   "options_submit": {
+      "message": "Skicka"
+   },
+   "options_theme_dark": {
+      "message": "Mörkt"
+   },
+   "options_theme_desc": {
+      "message": "Välj färgschema för inställningssidan."
+   },
+   "options_theme_light": {
+      "message": "Ljust"
+   },
+   "options_theme_system": {
+      "message": "System"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Vill du ha AdBlocker Ultimate på ditt språk?"
+   },
+   "page_blocked_go_back": {
+      "message": "Gå tillbaka"
+   },
+   "page_blocked_heading": {
+      "message": "Denna sida har blockerats"
+   },
+   "page_blocked_note": {
+      "message": "Tillfällig åtkomst kommer att ges."
+   },
+   "page_blocked_proceed": {
+      "message": "Fortsätt ändå"
+   },
+   "page_blocked_reason": {
+      "message": "Blockerad av filterregel:"
+   },
+   "page_blocked_title": {
+      "message": "Sida blockerad"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate för Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate för iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Aktiverad på denna sida"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Skaffa AdBlocker Ultimate för $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Vissa filter har inaktiverats eftersom webbläsarens gränser överskreds"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blockera annonser på mobilen"
+   },
+   "popup_protection_disabled": {
+      "message": "Skydd: Inaktiverat"
+   },
+   "popup_protection_enabled": {
+      "message": "Skydd: Aktiverat"
+   },
+   "popup_secure_page": {
+      "message": "Säker sida"
+   },
+   "popup_settings": {
+      "message": "Inställningar"
+   },
+   "popup_tab_blocked": {
+      "message": "Blockerade: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Totalt: $1"
+   },
+   "privacy_policy": {
+      "message": "Integritetspolicy"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Annonsfri surf uppnådd!"
+   },
+   "rate_us_button": {
+      "message": "Betygsätt oss"
+   },
+   "rate_us_email": {
+      "message": "E-post"
+   },
+   "rate_us_hooray": {
+      "message": "Hurra!"
+   },
+   "rate_us_message": {
+      "message": "Meddelande"
+   },
+   "rate_us_no_thanks": {
+      "message": "Nej tack"
+   },
+   "rate_us_prompt": {
+      "message": "Gillar du att blockera annonser? Hjälp andra att hitta oss."
+   },
+   "rate_us_send_feedback": {
+      "message": "Skicka feedback"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Berätta gärna hur vi kan bli bättre"
+   },
+   "rate_us_thank_you": {
+      "message": "Tack!"
+   },
+   "report_bug": {
+      "message": "Rapportera ett fel"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filter aktiverade automatiskt"
+   },
+   "toast_filters_update_error": {
+      "message": "Misslyckades att hämta uppdateringar. Försök igen senare."
+   },
+   "toast_filters_update_filter": {
+      "message": "filter har uppdaterats"
+   },
+   "toast_filters_update_filters": {
+      "message": "filter har uppdaterats"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Inga uppdateringar hittades"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Det gick inte att söka efter uppdateringar"
+   },
+   "version": {
+      "message": "Version"
+   },
+   "yes": {
+      "message": "Ja"
+   }
+}

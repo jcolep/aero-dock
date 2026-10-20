@@ -1,0 +1,1 @@
+import{Gp as a,gl as o,nm as s,pu as r}from"./vendor-underscore-Bz5YeRR3.js";var n="common-releaseBannerVersion";async function l(){const e=await a().get(n,"");return!e||o(e,s)}async function c(){r(!1),await a().set(n,s)}export{c as n,l as t};

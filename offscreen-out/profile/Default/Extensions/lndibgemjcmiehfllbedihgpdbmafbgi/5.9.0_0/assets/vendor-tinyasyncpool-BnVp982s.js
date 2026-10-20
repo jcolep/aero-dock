@@ -1,0 +1,1 @@
+import{t as u}from"./rolldown-runtime-BPrqr1PP.js";var w=u(((f,s)=>{async function*a(c,i,r){const e=new Set;async function n(){const[t,o]=await Promise.race(e);return e.delete(t),o}for(const t of i){const o=(async()=>await r(t,i))().then(m=>[o,m]);e.add(o),e.size>=c&&(yield await n())}for(;e.size;)yield await n()}s.exports=a}));export{w as t};

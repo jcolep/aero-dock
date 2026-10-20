@@ -1,0 +1,30 @@
+{
+   "action": {
+      "default_popup": "index.html",
+      "default_title": "WebNowPlaying"
+   },
+   "background": {
+      "service_worker": "sw.js"
+   },
+   "content_scripts": [ {
+      "all_frames": true,
+      "js": [ "content.js" ],
+      "matches": [ "*://*/*" ]
+   } ],
+   "description": "A browser extension that provides information and controls for media playing in the browser to external adapters.",
+   "icons": {
+      "128": "icons/icon-darkmode-128.png",
+      "256": "icons/icon-darkmode-256.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoN+H2lOp/MxZAkjgwXtOy3oV9kJGSDYdBwk7j6UIMs5FIP5dB2tqV4Czu2sKUvEkbmgC3bw3SKeqpxyBoI0WDfEUXBLQ5PjNh0hD3qGFetTTwZ/ZQwpgSREwnjBpp4Gmj6KiwwL6QMZz1xBLO5VMibEtthzrYkxZbgT0JkFx9KbuL/imX4F0xE94iqa0pS0cnKyl7GJqgC5rfei+54Fizn/s7sageLP0qtKDxKil3vxTpigOKvK/D0HHVZRDBHjYsdhxdqGWCtNj1+bQwccVj2T3oSU79nSoROtvzdVjF/UPsNKmq6r1iNwpOfHiHVt5xLO2sS6ZSXt6kL5jBwwpzwIDAQAB",
+   "manifest_version": 3,
+   "name": "WebNowPlaying",
+   "permissions": [ "storage" ],
+   "short_name": "WebNowPlaying",
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "3.1.0",
+   "web_accessible_resources": [ {
+      "matches": [ "*://*/*" ],
+      "resources": [ "injected.js" ]
+   } ]
+}

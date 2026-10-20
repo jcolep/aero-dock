@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Të gjitha të drejtat e rezervuara"
+   },
+   "assistant_another_element": {
+      "message": "Zgjidh një element tjetër"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Apliko këtë rregull në çdo faqe"
+   },
+   "assistant_block": {
+      "message": "Blloko"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blloko elementin sipas url"
+   },
+   "assistant_block_element": {
+      "message": "Blloko elementin"
+   },
+   "assistant_block_element_explain": {
+      "message": "Konfigurimi i rregullit për bllokimin e elementit"
+   },
+   "assistant_block_similar": {
+      "message": "Blloko elemente të ngjashme"
+   },
+   "assistant_extended_settings": {
+      "message": "Advanced settings..."
+   },
+   "assistant_preview_end": {
+      "message": "Përfundo parapamjen"
+   },
+   "assistant_preview_start": {
+      "message": "Parapamje"
+   },
+   "assistant_select_element": {
+      "message": "Mënyra e përzgjedhjes"
+   },
+   "assistant_select_element_cancel": {
+      "message": "anulo mënyrën e përzgjedhjes"
+   },
+   "assistant_select_element_ext": {
+      "message": "Klikoni mbi çdo element në faqe ose"
+   },
+   "assistant_slider_explain": {
+      "message": "Rregulloni rrëshqitësin për të ndryshuar madhësinë e kornizës"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blloko elementin"
+   },
+   "close": {
+      "message": "Mbyll"
+   },
+   "contact_us": {
+      "message": "Na kontaktoni"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate nuk mund të funksionojë në këtë domain"
+   },
+   "context_site_filtering_off": {
+      "message": "Çaktivizo filtrimin në këtë faqe"
+   },
+   "context_site_filtering_on": {
+      "message": "Aktivo filtrimin në këtë faqe"
+   },
+   "context_update_filters": {
+      "message": "Kontrollo për përditësime të filtrave"
+   },
+   "description": {
+      "message": "Mjeti i fundit i bllokut të reklamave. Blloko reklamat në YouTube, Facebook dhe të gjitha faqet e tjera të internetit falas!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Aplikacioni desktop është aktiv"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" tani është aktivizuar",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Filtra të personalizuar"
+   },
+   "follow_us": {
+      "message": "Na ndiqni në"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Jo"
+   },
+   "official_website": {
+      "message": "Faqja zyrtare"
+   },
+   "options_about": {
+      "message": "Rreth"
+   },
+   "options_about_heading": {
+      "message": "Dhe të gjitha reklamat bezdisëse janë larguar!"
+   },
+   "options_add_custom_filter": {
+      "message": "Shto filtër të personalizuar"
+   },
+   "options_allow_user_scripts": {
+      "message": "Për të aktivizuar filtrat e personalizuar, duhet të aktivizosh \u003Csetting-name>Lejo skriptet e përdoruesit\u003C/setting-name> në faqen e detajeve të zgjerimit. \u003Clearn-link>Mëso më shumë\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Lista e lejuar"
+   },
+   "options_allowlist_desc": {
+      "message": "Reklamat në faqet e internetit të shtuara në këtë Whitelist nuk do të bllokohen."
+   },
+   "options_android_callout": {
+      "message": "Aplikacioni ynë Android ofron më shumë veçori se zgjerimi i shfletuesit. Zbuloni çfarë po ju mungon."
+   },
+   "options_android_upgrade": {
+      "message": "Shkarko aplikacionin"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Pas hapjes së disa faqeve në një gjuhë, filtrat për atë gjuhë do të shtohen dhe aktivizohen automatikisht."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Aktivizo automatikisht filtrat sipas gjuhës"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Numri i rregullave të filtrit: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Jeni i sigurt që doni të fshini këtë filtër?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Filtrat e personalizuar me rregulla scriptlet dhe JavaScript kërkojnë lejen User Scripts API të aktivizuar. Kjo i lejon zgjerimit të ekzekutojë skripte nga abonimet e filtrave të personalizuar."
+   },
+   "options_custom_rules": {
+      "message": "Rregulla të personalizuara"
+   },
+   "options_custom_rules_export": {
+      "message": "Eksporto"
+   },
+   "options_custom_rules_import": {
+      "message": "Importo"
+   },
+   "options_desktop_callout": {
+      "message": "Aplikacioni ynë desktop ofron më shumë veçori se zgjerimi i shfletuesit. Zbuloni çfarë po ju mungon."
+   },
+   "options_desktop_upgrade": {
+      "message": "Krahaso"
+   },
+   "options_do_you_like_abu": {
+      "message": "Ju pëlqen AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Në këtë listë mund të shtoni rregullat tuaja të personalizuara. Krijoni filtrat tuaj të reklamave dhe shtoni këtu."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Aktivizon një menu veprimesh që shfaqet kur klikoni me të djathtën në një faqe interneti."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Aktivizo menunë kontekstuale"
+   },
+   "options_enable_developer_mode": {
+      "message": "Për të aktivizuar filtrat e personalizuar, duhet të aktivizosh \u003Csetting-name>Modalitetin e zhvilluesit\u003C/setting-name> te cilësimet e zgjerimeve të Chrome. \u003Clearn-link>Mëso më shumë\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Shkruani URL ose rrugë të vlefshme të skedarit"
+   },
+   "options_err": {
+      "message": "Diçka shkoi keq!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Lejohen vetëm skedarë .txt!"
+   },
+   "options_filter_categories": {
+      "message": "Kategoritë"
+   },
+   "options_filter_status_all": {
+      "message": "Të gjitha"
+   },
+   "options_filter_status_disabled": {
+      "message": "Çaktivizuar"
+   },
+   "options_filter_status_enabled": {
+      "message": "Aktivizuar"
+   },
+   "options_filter_update_date": {
+      "message": "Përditësimi i fundit: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtrat"
+   },
+   "options_filters_enabled": {
+      "message": "Aktivizuar:"
+   },
+   "options_filters_update_error": {
+      "message": "Nuk u arrit të përditësohen filtrat. Ju lutem provoni përsëri."
+   },
+   "options_filters_update_success": {
+      "message": "U përditësuan $count$ filtra",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "U përditësua $count$ filtër",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Të gjitha filtrat janë të përditësuar"
+   },
+   "options_general": {
+      "message": "Të përgjithshme"
+   },
+   "options_help_translate": {
+      "message": "Ndihmo në përkthim!"
+   },
+   "options_limits": {
+      "message": "Kufizime"
+   },
+   "options_limits_active_filters": {
+      "message": "Aktualisht aktivë"
+   },
+   "options_limits_bar_warning": {
+      "message": "Disa filtra u çaktivizuan sepse shfletuesi juaj arriti kufirin e rregullave. \u003Climits-link>Shiko çfarë është prekur\u003C/limits-link> ose \u003Cupgrade-link>merr mbrojtje të pakufizuar\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Vetëm \u003Ctext-strong>$active$ nga $expected$\u003C/text-strong> filtrat tuaj janë aktivë – shfletuesi juaj nuk ka më hapësirë për rregulla filtrimi. \u003Ctext-strong>Aplikacioni ynë desktop nuk ka kufizime rregullash\u003C/text-strong> dhe bllokon reklama dhe gjurmues në të gjithë pajisjen tuaj. Për të vazhduar përdorimin e zgjerimit të shfletuesit, lironi hapësirë duke çaktivizuar zgjerime të tjera ose filtra me prioritet të ulët.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Shfletuesi juaj nuk ka më hapësirë për rregulla filtrimi, ndaj disa filtra janë çaktivizuar. \u003Ctext-strong>Aplikacioni ynë desktop nuk ka kufizime rregullash\u003C/text-strong> dhe bllokon reklama dhe gjurmues në të gjithë pajisjen tuaj. Për të vazhduar përdorimin e zgjerimit të shfletuesit, lironi hapësirë duke çaktivizuar zgjerime të tjera ose filtra me prioritet të ulët."
+   },
+   "options_limits_callout_title": {
+      "message": "Disa filtra u çaktivizuan"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Të çaktivizuar përkohësisht"
+   },
+   "options_limits_dismiss": {
+      "message": "Mbyll"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Rregulla dinamike regex"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Rregulla dinamike"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Rregulla dinamike të pasigurta"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Filtrat e aktivizuar"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Disa filtra nuk mund të aktivizoheshin sepse u tejkaluan kufizimet e shfletuesit"
+   },
+   "options_limits_get_desktop": {
+      "message": "Merr aplikacionin desktop"
+   },
+   "options_limits_intro": {
+      "message": "kufizon sa filtra dhe rregulla mund të jenë aktive njëkohësisht. Kufizimet ndahen mes të gjitha zgjerimeve të shfletuesit tuaj."
+   },
+   "options_limits_none": {
+      "message": "Asnjë"
+   },
+   "options_limits_promo_body": {
+      "message": "Kufizimet e rregullave ndahen me zgjerimet e tjera. Nëse i tejkaloni, disa filtra do të çaktivizohen përkohësisht. \u003Ctext-strong>Aplikacioni ynë desktop nuk ka kufizime rregullash\u003C/text-strong> dhe bllokon reklama dhe gjurmues në të gjithë pajisjen tuaj. Për të qëndruar brenda kufijve të shfletuesit, mbani zgjerimet e tjera në minimum dhe shmangni filtrat me prioritet të ulët."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtrim pa kufizime"
+   },
+   "options_limits_reenable": {
+      "message": "Riaktivizo"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Nuk ka kuotë të lirë të mjaftueshme. Çaktivizo zgjerime të tjera ose filtra të papërdorur dhe provo përsëri"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtrat u riaktivizuan"
+   },
+   "options_limits_related": {
+      "message": "Cilësime të lidhura"
+   },
+   "options_limits_static_regex": {
+      "message": "Rregulla statike regex"
+   },
+   "options_limits_static_rules": {
+      "message": "Rregulla statike"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Filtrat e integruar përdorin grupin statik të rregullave të shfletuesit dhe kuotat për rregulla statike."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Filtrat e integruar"
+   },
+   "options_limits_usage": {
+      "message": "$current$ nga $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Shiko detajet"
+   },
+   "options_limits_warning": {
+      "message": "Disa filtra u çaktivizuan për shkak të kufizimeve të shfletuesit."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Rregullat e personalizuara dhe hyrjet në whitelist ndajnë kuotat dinamike të rregullave të shfletuesit."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Rregullat tuaja"
+   },
+   "options_menu": {
+      "message": "Meny"
+   },
+   "options_new_filter": {
+      "message": "Filtër i ri"
+   },
+   "options_no_filters_enabled": {
+      "message": "Asnjë filtër i aktivizuar"
+   },
+   "options_number_icon_desc": {
+      "message": "Numri i reklamave të bllokuara në çdo faqe do të shfaqet në ikonën e shtesës."
+   },
+   "options_number_icon_title": {
+      "message": "Shfaq numrin në ikonë"
+   },
+   "options_open_extension_details": {
+      "message": "Hap Detajet e Zgjerimit"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "Vlerësoni na"
+   },
+   "options_search": {
+      "message": "Kërko"
+   },
+   "options_search_results": {
+      "message": "Rezultatet"
+   },
+   "options_submit": {
+      "message": "Dërgo"
+   },
+   "options_theme_dark": {
+      "message": "E errët"
+   },
+   "options_theme_desc": {
+      "message": "Zgjidhni skemën e ngjyrave për faqen e cilësimeve."
+   },
+   "options_theme_light": {
+      "message": "E ndritshme"
+   },
+   "options_theme_system": {
+      "message": "Sistemi"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Dëshiron AdBlocker Ultimate në gjuhën tënde?"
+   },
+   "page_blocked_go_back": {
+      "message": "Kthehu mbrapa"
+   },
+   "page_blocked_heading": {
+      "message": "Kjo faqe është bllokuar"
+   },
+   "page_blocked_note": {
+      "message": "Qasja e përkohshme do të lejohet."
+   },
+   "page_blocked_proceed": {
+      "message": "Vazhdo gjithsesi"
+   },
+   "page_blocked_reason": {
+      "message": "Bllokuar nga rregulli i filtrit:"
+   },
+   "page_blocked_title": {
+      "message": "Faqja e bllokuar"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate për Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate për iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Aktivizuar në këtë faqe"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Merr AdBlocker Ultimate për $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Disa filtra u çaktivizuan sepse u tejkaluan kufizimet e shfletuesit"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blloko reklamat në celular"
+   },
+   "popup_protection_disabled": {
+      "message": "Mbrojtja: Çaktivizuar"
+   },
+   "popup_protection_enabled": {
+      "message": "Mbrojtja: Aktivizuar"
+   },
+   "popup_secure_page": {
+      "message": "Faqe e sigurt"
+   },
+   "popup_settings": {
+      "message": "Cilësimet"
+   },
+   "popup_tab_blocked": {
+      "message": "Bllokuar: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Totali: $1"
+   },
+   "privacy_policy": {
+      "message": "Politika e privatësisë"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Shfletim pa reklama u arrit!"
+   },
+   "rate_us_button": {
+      "message": "Na vlerësoni"
+   },
+   "rate_us_email": {
+      "message": "Email"
+   },
+   "rate_us_hooray": {
+      "message": "Urime!"
+   },
+   "rate_us_message": {
+      "message": "Mesazh"
+   },
+   "rate_us_no_thanks": {
+      "message": "Jo, faleminderit"
+   },
+   "rate_us_prompt": {
+      "message": "Të pëlqen të bllokosh reklamat? Ndihmo të tjerët të na zbulojnë."
+   },
+   "rate_us_send_feedback": {
+      "message": "Dërgo komente"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Na trego si mund të përmirësohemi"
+   },
+   "rate_us_thank_you": {
+      "message": "Faleminderit!"
+   },
+   "report_bug": {
+      "message": "Raporto një problem"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filtrat u aktivizuan automatikisht"
+   },
+   "toast_filters_update_error": {
+      "message": "Dështoi marrja e përditësimeve. Ju lutemi provoni më vonë."
+   },
+   "toast_filters_update_filter": {
+      "message": "filtri u përditësua"
+   },
+   "toast_filters_update_filters": {
+      "message": "filtrat u përditësuan"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Nuk u gjetën përditësime"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Dështoi kontrolli për përditësime"
+   },
+   "version": {
+      "message": "Versioni"
+   },
+   "yes": {
+      "message": "Po"
+   }
+}

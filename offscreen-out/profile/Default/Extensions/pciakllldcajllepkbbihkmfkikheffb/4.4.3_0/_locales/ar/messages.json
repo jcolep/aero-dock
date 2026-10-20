@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "جميع الحقوق محفوظة"
+   },
+   "assistant_another_element": {
+      "message": "اختار عنصر آخر"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "تطبيق هذه القاعدة على كل موقع ويب"
+   },
+   "assistant_block": {
+      "message": "حظر"
+   },
+   "assistant_block_by_reference": {
+      "message": "حظر العنصر بواسطة url"
+   },
+   "assistant_block_element": {
+      "message": "منع عنصر"
+   },
+   "assistant_block_element_explain": {
+      "message": "إعداد القاعدة حظر عنصر"
+   },
+   "assistant_block_similar": {
+      "message": "حظر العناصر المشابهة"
+   },
+   "assistant_extended_settings": {
+      "message": "إعدادات متقدمة..."
+   },
+   "assistant_preview_end": {
+      "message": "إنهاء المعاينة"
+   },
+   "assistant_preview_start": {
+      "message": "معاينة"
+   },
+   "assistant_select_element": {
+      "message": "وضع الإختيار"
+   },
+   "assistant_select_element_cancel": {
+      "message": "إلغاء وضع الاختيار"
+   },
+   "assistant_select_element_ext": {
+      "message": "انقر فوق أي عنصر في الصفحة أو "
+   },
+   "assistant_slider_explain": {
+      "message": "حرّك شريط التمرير لتغيير حجم الإطار"
+   },
+   "browser_action_popup_block_element": {
+      "message": "منع عنصر"
+   },
+   "close": {
+      "message": "إغلاق"
+   },
+   "contact_us": {
+      "message": "اتصل بنا"
+   },
+   "context_block_site_ads": {
+      "message": "حظر الإعلانات على هذا الموقع..."
+   },
+   "context_complaint_site": {
+      "message": "تقديم شكوى حول هذا الموقع..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate لا بمكن تشغيلة فى هذا النطاق"
+   },
+   "context_site_filtering_off": {
+      "message": "تعطيل تصفية على هذا الموقع"
+   },
+   "context_site_filtering_on": {
+      "message": "تمكين تصفية على هذا الموقع"
+   },
+   "context_update_filters": {
+      "message": "التحقق من وجود تحديثات عامل تصفية"
+   },
+   "description": {
+      "message": "أداة حظر الإعلانات النهائية. منع الإعلانات على YouTube وFacebook وجميع المواقع الأخرى مجانًا!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "تطبيق سطح المكتب يعمل"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" تم تفعيله الآن",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "فلاتر مخصصة"
+   },
+   "follow_us": {
+      "message": "تابعنا على"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "لا"
+   },
+   "official_website": {
+      "message": "الموقع الرسمي"
+   },
+   "options_about": {
+      "message": "حول"
+   },
+   "options_about_heading": {
+      "message": "وتم التخلص من جميع الإعلانات المزعجة!"
+   },
+   "options_add_custom_filter": {
+      "message": "إضافة فلتر مخصص"
+   },
+   "options_allow_user_scripts": {
+      "message": "لتفعيل الفلاتر المخصصة، يجب تفعيل \u003Csetting-name>السماح بسكربتات المستخدم\u003C/setting-name> في صفحة تفاصيل الإضافة. \u003Clearn-link>اعرف المزيد\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "القائمة البيضاء"
+   },
+   "options_allowlist_desc": {
+      "message": "لن يتم حظر الإعلانات على المواقع المضافة إلى هذه القائمة البيضاء."
+   },
+   "options_android_callout": {
+      "message": "تطبيق Android لدينا يوفر ميزات أكثر من إضافة المتصفح. اكتشف ما الذي يفوتك."
+   },
+   "options_android_upgrade": {
+      "message": "احصل على التطبيق"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "بعد فتح عدة صفحات بلغة معينة، سيتم إضافة وتفعيل الفلاتر الخاصة بهذه اللغة تلقائيًا."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "تفعيل الفلاتر الخاصة باللغة تلقائيًا"
+   },
+   "options_built_in_rules_limit": {
+      "message": "عدد قواعد الفلاتر: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "هل أنت متأكد أنك تريد حذف هذا الفلتر؟"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "الفلاتر المخصصة التي تحتوي على قواعد scriptlet وJavaScript تتطلب تفعيل إذن User Scripts API. هذا يسمح للإضافة بتنفيذ السكربتات من اشتراكات الفلاتر المخصصة."
+   },
+   "options_custom_rules": {
+      "message": "قواعد مخصصة"
+   },
+   "options_custom_rules_export": {
+      "message": "استخراج"
+   },
+   "options_custom_rules_import": {
+      "message": "استيراد"
+   },
+   "options_desktop_callout": {
+      "message": "تطبيق سطح المكتب لدينا يوفر ميزات أكثر من إضافة المتصفح. اكتشف ما الذي يفوتك."
+   },
+   "options_desktop_upgrade": {
+      "message": "قارن"
+   },
+   "options_do_you_like_abu": {
+      "message": "هل أعجبك AdBlocker Ultimate؟"
+   },
+   "options_editor_desc": {
+      "message": "في هذه القائمة يمكنك إضافة قواعدك المخصصة. أنشئ فلاتر إعلاناتك الخاصة وأضفها هنا."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "يتيح قائمة بالإجراءات المتاحة عند النقر بزر الماوس الأيمن على صفحة ويب."
+   },
+   "options_enable_context_menu_title": {
+      "message": "تفعيل قائمة السياق"
+   },
+   "options_enable_developer_mode": {
+      "message": "لتفعيل الفلاتر المخصصة، يجب تفعيل \u003Csetting-name>وضع المطور\u003C/setting-name> في إعدادات إضافات Chrome. \u003Clearn-link>اعرف المزيد\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "أدخل عنوان URL أو مسار ملف صالح"
+   },
+   "options_err": {
+      "message": "حدث خطأ ما!"
+   },
+   "options_err_no_txt_file": {
+      "message": "يسمح فقط بملفات .txt!"
+   },
+   "options_filter_categories": {
+      "message": "الفئات"
+   },
+   "options_filter_status_all": {
+      "message": "الكل"
+   },
+   "options_filter_status_disabled": {
+      "message": "معطّل"
+   },
+   "options_filter_status_enabled": {
+      "message": "ممكنة"
+   },
+   "options_filter_update_date": {
+      "message": "آخر تحديث: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "الفلاتر"
+   },
+   "options_filters_enabled": {
+      "message": "مفعّل:"
+   },
+   "options_filters_update_error": {
+      "message": "تعذر تحديث الفلاتر. يرجى المحاولة مرة أخرى."
+   },
+   "options_filters_update_success": {
+      "message": "تم تحديث $count$ من الفلاتر",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "تم تحديث $count$ فلتر",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "جميع الفلاتر محدثة"
+   },
+   "options_general": {
+      "message": "عامّ"
+   },
+   "options_help_translate": {
+      "message": "ساعدنا في الترجمة!"
+   },
+   "options_limits": {
+      "message": "الحدود"
+   },
+   "options_limits_active_filters": {
+      "message": "مفعلة حاليًا"
+   },
+   "options_limits_bar_warning": {
+      "message": "تم تعطيل بعض الفلاتر لأن متصفحك وصل إلى حد القواعد. \u003Climits-link>اطلع على ما تأثر\u003C/limits-link> أو \u003Cupgrade-link>احصل على حماية غير محدودة\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "يعمل فقط \u003Ctext-strong>$active$ من أصل $expected$\u003C/text-strong> من الفلاتر لديك - لم يعد لدى المتصفح مساحة لقواعد التصفية. \u003Ctext-strong>تطبيق سطح المكتب لدينا بلا حدود للقواعد\u003C/text-strong> ويحجب الإعلانات والمتعقبات على كامل جهازك. للاستمرار في استخدام إضافة المتصفح، حرر مساحة بإيقاف إضافات أخرى أو تعطيل الفلاتر ذات الأولوية المنخفضة.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "لم يعد لدى المتصفح مساحة لقواعد التصفية، لذا تم إيقاف بعض الفلاتر. \u003Ctext-strong>تطبيق سطح المكتب لدينا بلا حدود للقواعد\u003C/text-strong> ويحجب الإعلانات والمتعقبات على كامل جهازك. للاستمرار في استخدام إضافة المتصفح، حرر مساحة بإيقاف إضافات أخرى أو تعطيل الفلاتر ذات الأولوية المنخفضة."
+   },
+   "options_limits_callout_title": {
+      "message": "تم تعطيل بعض الفلاتر"
+   },
+   "options_limits_disabled_filters": {
+      "message": "تم تعطيلها مؤقتًا"
+   },
+   "options_limits_dismiss": {
+      "message": "تجاهل"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "قواعد regex الديناميكية"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "القواعد الديناميكية"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "القواعد الديناميكية غير الآمنة"
+   },
+   "options_limits_enabled_lists": {
+      "message": "الفلاتر المفعلة"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "تعذر تفعيل بعض الفلاتر بسبب تجاوز حدود المتصفح"
+   },
+   "options_limits_get_desktop": {
+      "message": "احصل على تطبيق سطح المكتب"
+   },
+   "options_limits_intro": {
+      "message": "يحدد عدد الفلاتر والقواعد التي يمكن تفعيلها في نفس الوقت. هذه الحدود مشتركة بين جميع إضافات المتصفح لديك."
+   },
+   "options_limits_none": {
+      "message": "لا يوجد"
+   },
+   "options_limits_promo_body": {
+      "message": "حدود القواعد مشتركة مع إضافاتك الأخرى. تجاوزها سيؤدي إلى تعطيل بعض الفلاتر مؤقتًا. \u003Ctext-strong>تطبيق سطح المكتب لدينا بلا حدود للقواعد\u003C/text-strong> ويحجب الإعلانات والمتعقبات على كامل جهازك. للبقاء ضمن حدود المتصفح، حافظ على الحد الأدنى من الإضافات وتجنب الفلاتر ذات الأولوية المنخفضة."
+   },
+   "options_limits_promo_title": {
+      "message": "احصل على تصفية بلا حدود"
+   },
+   "options_limits_reenable": {
+      "message": "إعادة التفعيل"
+   },
+   "options_limits_reenable_failed": {
+      "message": "لا توجد حصة كافية متاحة. أوقف تشغيل إضافات أخرى أو الفلاتر غير المستخدمة ثم حاول مرة أخرى"
+   },
+   "options_limits_reenable_success": {
+      "message": "تم إعادة تفعيل الفلاتر"
+   },
+   "options_limits_related": {
+      "message": "إعدادات ذات صلة"
+   },
+   "options_limits_static_regex": {
+      "message": "قواعد regex الثابتة"
+   },
+   "options_limits_static_rules": {
+      "message": "القواعد الثابتة"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "تستخدم الفلاتر المدمجة مجموعة القواعد الثابتة وحصة القواعد الثابتة في المتصفح."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "الفلاتر المدمجة"
+   },
+   "options_limits_usage": {
+      "message": "$current$ من $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "عرض التفاصيل"
+   },
+   "options_limits_warning": {
+      "message": "تم تعطيل بعض الفلاتر بسبب حدود المتصفح."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "تشارك القواعد المخصصة وإدخالات القائمة البيضاء حصة القواعد الديناميكية للمتصفح."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "قواعدك"
+   },
+   "options_menu": {
+      "message": "القائمة"
+   },
+   "options_new_filter": {
+      "message": "فلتر جديد"
+   },
+   "options_no_filters_enabled": {
+      "message": "لا توجد فلاتر مفعلة"
+   },
+   "options_number_icon_desc": {
+      "message": "سيظهر عدد الإعلانات المحظورة في كل صفحة على أيقونة الإضافة."
+   },
+   "options_number_icon_title": {
+      "message": "إظهار الرقم في الأيقونة"
+   },
+   "options_open_extension_details": {
+      "message": "فتح تفاصيل الإضافة"
+   },
+   "options_page_title": {
+      "message": "الخيارات"
+   },
+   "options_rate_us": {
+      "message": "قيّمنا"
+   },
+   "options_search": {
+      "message": "بحث"
+   },
+   "options_search_results": {
+      "message": "النتائج"
+   },
+   "options_submit": {
+      "message": "إرسال"
+   },
+   "options_theme_dark": {
+      "message": "داكن"
+   },
+   "options_theme_desc": {
+      "message": "اختر نظام الألوان لصفحة الإعدادات."
+   },
+   "options_theme_light": {
+      "message": "فاتح"
+   },
+   "options_theme_system": {
+      "message": "النظام"
+   },
+   "options_theme_title": {
+      "message": "المظهر"
+   },
+   "options_want_abu_in_lang": {
+      "message": "هل تريد AdBlocker Ultimate بلغتك؟"
+   },
+   "page_blocked_go_back": {
+      "message": "العودة"
+   },
+   "page_blocked_heading": {
+      "message": "تم حظر هذه الصفحة"
+   },
+   "page_blocked_note": {
+      "message": "سيتم منح وصول مؤقت."
+   },
+   "page_blocked_proceed": {
+      "message": "المتابعة على أي حال"
+   },
+   "page_blocked_reason": {
+      "message": "تم الحظر بواسطة قاعدة الفلتر:"
+   },
+   "page_blocked_title": {
+      "message": "صفحة محظورة"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate لنظام Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate لنظام iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "مفعل على هذا الموقع"
+   },
+   "popup_get_abu_desktop": {
+      "message": "حمّل AdBlocker Ultimate لـ $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "تم تعطيل بعض الفلاتر بسبب تجاوز حدود المتصفح"
+   },
+   "popup_mobile_apps_title": {
+      "message": "حظر الإعلانات على الجوال"
+   },
+   "popup_protection_disabled": {
+      "message": "الحماية: معطلة"
+   },
+   "popup_protection_enabled": {
+      "message": "الحماية: مفعلة"
+   },
+   "popup_secure_page": {
+      "message": "صفحة آمنة"
+   },
+   "popup_settings": {
+      "message": "الإعدادات"
+   },
+   "popup_tab_blocked": {
+      "message": "حظر: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "الإجمالى: $1"
+   },
+   "privacy_policy": {
+      "message": "سياسة الخصوصية"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "تم تحقيق تصفح خالٍ من الإعلانات!"
+   },
+   "rate_us_button": {
+      "message": "قم بتقييمنا"
+   },
+   "rate_us_email": {
+      "message": "البريد الإلكتروني"
+   },
+   "rate_us_hooray": {
+      "message": "رائع!"
+   },
+   "rate_us_message": {
+      "message": "رسالة"
+   },
+   "rate_us_no_thanks": {
+      "message": "لا، شكرًا"
+   },
+   "rate_us_prompt": {
+      "message": "هل تستمتع بحجب الإعلانات؟ ساعد الآخرين في التعرف علينا."
+   },
+   "rate_us_send_feedback": {
+      "message": "إرسال ملاحظات"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "يرجى إخبارنا كيف يمكننا التحسين"
+   },
+   "rate_us_thank_you": {
+      "message": "شكرًا لك!"
+   },
+   "report_bug": {
+      "message": "الإبلاغ عن خطأ"
+   },
+   "toast_filter_enabled_title": {
+      "message": "التنشيط التلقائي للمرشحات"
+   },
+   "toast_filters_update_error": {
+      "message": "فشل الحصول على التحديثات. الرجاء المحاولة مرة أخرى لاحقاً."
+   },
+   "toast_filters_update_filter": {
+      "message": "تم تحديث الفلتر"
+   },
+   "toast_filters_update_filters": {
+      "message": "تم تحديث الفلاتر"
+   },
+   "toast_filters_update_not_found": {
+      "message": "لا توجد تحديثات"
+   },
+   "toast_filters_update_title_error": {
+      "message": "فشل التحقق من وجود تحديثات"
+   },
+   "version": {
+      "message": "الإصدار"
+   },
+   "yes": {
+      "message": "نعم"
+   }
+}

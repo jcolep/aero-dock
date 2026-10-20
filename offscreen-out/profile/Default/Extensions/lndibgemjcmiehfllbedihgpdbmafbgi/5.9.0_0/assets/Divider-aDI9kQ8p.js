@@ -1,0 +1,1 @@
+import{C as r,Et as t,Kt as a,U as i,p as s}from"./vendor-charts-BA6mrMsB.js";import{C as n}from"./vendor-primevue-D7pJ7riD.js";var p=r({__name:"Divider",props:{margin:{}},setup(e){return(_,l)=>(i(),s(t(n),{class:"bb-divider",style:a({margin:e.margin})},null,8,["style"]))}}),m=p;export{m as t};

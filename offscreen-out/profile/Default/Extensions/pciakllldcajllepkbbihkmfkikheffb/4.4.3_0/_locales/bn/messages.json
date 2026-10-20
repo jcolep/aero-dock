@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "সর্বস্বত্ব সংরক্ষিত"
+   },
+   "assistant_another_element": {
+      "message": "অন্য উপাদান নির্বাচন করুন"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "এই নিয়মটি প্রতিটি ওয়েবসাইটে প্রয়োগ করুন"
+   },
+   "assistant_block": {
+      "message": "ব্লক করুন"
+   },
+   "assistant_block_by_reference": {
+      "message": "URL দ্বারা উপাদান ব্লক করুন"
+   },
+   "assistant_block_element": {
+      "message": "উপাদান ব্লক করুন"
+   },
+   "assistant_block_element_explain": {
+      "message": "উপাদান ব্লকিং নিয়ম সেটআপ"
+   },
+   "assistant_block_similar": {
+      "message": "একই ধরনের উপাদান ব্লক করুন"
+   },
+   "assistant_extended_settings": {
+      "message": "Advanced settings..."
+   },
+   "assistant_preview_end": {
+      "message": "প্রিভিউ শেষ করুন"
+   },
+   "assistant_preview_start": {
+      "message": "প্রিভিউ"
+   },
+   "assistant_select_element": {
+      "message": "নির্বাচন মোড"
+   },
+   "assistant_select_element_cancel": {
+      "message": "নির্বাচন মোড বাতিল করুন"
+   },
+   "assistant_select_element_ext": {
+      "message": "পৃষ্ঠার যেকোনো উপাদানে ক্লিক করুন অথবা"
+   },
+   "assistant_slider_explain": {
+      "message": "ফ্রেমের আকার পরিবর্তন করতে স্লাইডারটি সামঞ্জস্য করুন"
+   },
+   "browser_action_popup_block_element": {
+      "message": "উপাদান ব্লক করুন"
+   },
+   "close": {
+      "message": "বন্ধ করুন"
+   },
+   "contact_us": {
+      "message": "যোগাযোগ করুন"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate এই ডোমেইনে চালানো যাবে না"
+   },
+   "context_site_filtering_off": {
+      "message": "এই ওয়েবসাইটে ফিল্টারিং বন্ধ করুন"
+   },
+   "context_site_filtering_on": {
+      "message": "এই ওয়েবসাইটে ফিল্টারিং চালু করুন"
+   },
+   "context_update_filters": {
+      "message": "ফিল্টার আপডেট চেক করুন"
+   },
+   "description": {
+      "message": "চূড়ান্ত অ্যাডব্লক টুল। ইউটিউব, ফেসবুক এবং অন্যান্য সমস্ত ওয়েবসাইটে বিনামূল্যে বিজ্ঞাপন ব্লক করুন!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "ডেস্কটপ অ্যাপ চালু আছে"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" এখন সক্রিয়",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "কাস্টম ফিল্টার"
+   },
+   "follow_us": {
+      "message": "আমাদের অনুসরণ করুন"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "না"
+   },
+   "official_website": {
+      "message": "অফিশিয়াল ওয়েবসাইট"
+   },
+   "options_about": {
+      "message": "পরিচিতি"
+   },
+   "options_about_heading": {
+      "message": "এবং সব বিরক্তিকর বিজ্ঞাপন চলে গেছে!"
+   },
+   "options_add_custom_filter": {
+      "message": "কাস্টম ফিল্টার যোগ করুন"
+   },
+   "options_allow_user_scripts": {
+      "message": "কাস্টম ফিল্টার চালু করতে এক্সটেনশন ডিটেইলস পেজে \u003Csetting-name>Allow user scripts\u003C/setting-name> চালু করতে হবে। \u003Clearn-link>আরও জানুন\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "হোয়াইটলিস্ট"
+   },
+   "options_allowlist_desc": {
+      "message": "এই Whitelist-এ যোগ করা ওয়েবসাইটগুলোর বিজ্ঞাপন ব্লক করা হবে না।"
+   },
+   "options_android_callout": {
+      "message": "আমাদের অ্যান্ড্রয়েড অ্যাপে ব্রাউজার এক্সটেনশনের চেয়ে আরও বেশি ফিচার রয়েছে। কী মিস করছেন দেখুন।"
+   },
+   "options_android_upgrade": {
+      "message": "অ্যাপটি নিন"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "কিছু পেজ নির্দিষ্ট ভাষায় খোলার পর, সেই ভাষার ফিল্টার স্বয়ংক্রিয়ভাবে যোগ এবং সক্রিয় হবে।"
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "ভাষাভিত্তিক ফিল্টার স্বয়ংক্রিয়ভাবে সক্রিয় করুন"
+   },
+   "options_built_in_rules_limit": {
+      "message": "ফিল্টার নিয়মের সংখ্যা: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "আপনি কি নিশ্চিত যে এই ফিল্টার মুছে ফেলতে চান?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "স্ক্রিপ্টলেট ও JavaScript নিয়মসহ কাস্টম ফিল্টার চালু করতে User Scripts API অনুমতি প্রয়োজন। এটি কাস্টম ফিল্টার সাবস্ক্রিপশন থেকে স্ক্রিপ্ট চালাতে এক্সটেনশনকে অনুমতি দেয়।"
+   },
+   "options_custom_rules": {
+      "message": "কাস্টম নিয়ম"
+   },
+   "options_custom_rules_export": {
+      "message": "এক্সপোর্ট"
+   },
+   "options_custom_rules_import": {
+      "message": "ইম্পোর্ট"
+   },
+   "options_desktop_callout": {
+      "message": "আমাদের ডেস্কটপ অ্যাপে ব্রাউজার এক্সটেনশনের চেয়ে আরও বেশি ফিচার রয়েছে। কী মিস করছেন দেখুন।"
+   },
+   "options_desktop_upgrade": {
+      "message": "তুলনা করুন"
+   },
+   "options_do_you_like_abu": {
+      "message": "আপনি কি AdBlocker Ultimate পছন্দ করেন?"
+   },
+   "options_editor_desc": {
+      "message": "এই তালিকায় আপনি নিজের কাস্টম নিয়ম যোগ করতে পারেন। নিজের বিজ্ঞাপন ফিল্টার তৈরি করুন এবং এখানে যোগ করুন।"
+   },
+   "options_enable_context_menu_desc": {
+      "message": "ওয়েব পেজে ডান-ক্লিক করলে একটি অ্যাকশন মেনু সক্রিয় হবে।"
+   },
+   "options_enable_context_menu_title": {
+      "message": "কনটেক্সট মেনু সক্রিয় করুন"
+   },
+   "options_enable_developer_mode": {
+      "message": "কাস্টম ফিল্টার চালু করতে Chrome-এর এক্সটেনশন সেটিংসে \u003Csetting-name>ডেভেলপার মোড\u003C/setting-name> চালু করতে হবে। \u003Clearn-link>আরও জানুন\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "বৈধ URL বা ফাইল পাথ লিখুন"
+   },
+   "options_err": {
+      "message": "কিছু ভুল হয়েছে!"
+   },
+   "options_err_no_txt_file": {
+      "message": "শুধুমাত্র .txt ফাইল অনুমোদিত!"
+   },
+   "options_filter_categories": {
+      "message": "বিভাগ"
+   },
+   "options_filter_status_all": {
+      "message": "সব"
+   },
+   "options_filter_status_disabled": {
+      "message": "নিষ্ক্রিয়"
+   },
+   "options_filter_status_enabled": {
+      "message": "সক্রিয়"
+   },
+   "options_filter_update_date": {
+      "message": "সর্বশেষ আপডেট: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "ফিল্টার"
+   },
+   "options_filters_enabled": {
+      "message": "সক্রিয়:"
+   },
+   "options_filters_update_error": {
+      "message": "ফিল্টার আপডেট করা যায়নি। আবার চেষ্টা করুন।"
+   },
+   "options_filters_update_success": {
+      "message": "$count$টি ফিল্টার আপডেট হয়েছে",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$টি ফিল্টার আপডেট হয়েছে",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "সব ফিল্টার আপডেট রয়েছে"
+   },
+   "options_general": {
+      "message": "সাধারণ"
+   },
+   "options_help_translate": {
+      "message": "অনুবাদে আমাদের সাহায্য করুন!"
+   },
+   "options_limits": {
+      "message": "সীমা"
+   },
+   "options_limits_active_filters": {
+      "message": "বর্তমানে সক্রিয়"
+   },
+   "options_limits_bar_warning": {
+      "message": "কিছু ফিল্টার নিষ্ক্রিয় করা হয়েছে কারণ আপনার ব্রাউজার তার নিয়মের সীমায় পৌঁছেছে। \u003Climits-link>কী কী প্রভাবিত হয়েছে দেখুন\u003C/limits-link> অথবা \u003Cupgrade-link>সীমাহীন সুরক্ষা পান\u003C/upgrade-link>।"
+   },
+   "options_limits_callout_body": {
+      "message": "শুধু \u003Ctext-strong>$active$ / $expected$\u003C/text-strong> ফিল্টার চালু আছে - আপনার ব্রাউজারে ফিল্টারিং রুলের জন্য জায়গা শেষ। \u003Ctext-strong>আমাদের ডেস্কটপ অ্যাপে কোনো রুল সীমা নেই\u003C/text-strong> এবং এটি পুরো ডিভাইস জুড়ে বিজ্ঞাপন ও ট্র্যাকার ব্লক করে। এক্সটেনশন চালিয়ে যেতে হলে, অন্য এক্সটেনশন বন্ধ করুন বা কম গুরুত্বের ফিল্টার নিষ্ক্রিয় করুন।",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "আপনার ব্রাউজারে ফিল্টারিং রুলের জন্য জায়গা শেষ, তাই কিছু ফিল্টার বন্ধ করা হয়েছে। \u003Ctext-strong>আমাদের ডেস্কটপ অ্যাপে কোনো রুল সীমা নেই\u003C/text-strong> এবং এটি পুরো ডিভাইস জুড়ে বিজ্ঞাপন ও ট্র্যাকার ব্লক করে। এক্সটেনশন চালিয়ে যেতে হলে, অন্য এক্সটেনশন বন্ধ করুন বা কম গুরুত্বের ফিল্টার নিষ্ক্রিয় করুন।"
+   },
+   "options_limits_callout_title": {
+      "message": "কিছু ফিল্টার নিষ্ক্রিয় করা হয়েছে"
+   },
+   "options_limits_disabled_filters": {
+      "message": "অস্থায়ীভাবে নিষ্ক্রিয়"
+   },
+   "options_limits_dismiss": {
+      "message": "বাতিল করুন"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "ডাইনামিক রেগেক্স নিয়ম"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "ডাইনামিক নিয়ম"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "অনিরাপদ ডাইনামিক নিয়ম"
+   },
+   "options_limits_enabled_lists": {
+      "message": "সক্রিয় ফিল্টার"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "কিছু ফিল্টার সক্রিয় করা যায়নি কারণ ব্রাউজারের সীমা অতিক্রম হয়েছে"
+   },
+   "options_limits_get_desktop": {
+      "message": "ডেস্কটপ অ্যাপ ডাউনলোড করুন"
+   },
+   "options_limits_intro": {
+      "message": "একসাথে কতগুলো ফিল্টার ও নিয়ম সক্রিয় থাকতে পারবে তা সীমিত করে। এই সীমা আপনার সব ব্রাউজার এক্সটেনশনের মধ্যে ভাগ করা হয়।"
+   },
+   "options_limits_none": {
+      "message": "কিছুই না"
+   },
+   "options_limits_promo_body": {
+      "message": "রুল সীমা আপনার অন্যান্য এক্সটেনশনের সাথেও ভাগাভাগি হয়। সীমা ছাড়িয়ে গেলে কিছু ফিল্টার সাময়িকভাবে বন্ধ হবে। \u003Ctext-strong>আমাদের ডেস্কটপ অ্যাপে কোনো রুল সীমা নেই\u003C/text-strong> এবং এটি পুরো ডিভাইস জুড়ে বিজ্ঞাপন ও ট্র্যাকার ব্লক করে। ব্রাউজারের সীমার মধ্যে থাকতে চাইলে, কম এক্সটেনশন ব্যবহার করুন এবং কম গুরুত্বের ফিল্টার এড়িয়ে চলুন।"
+   },
+   "options_limits_promo_title": {
+      "message": "সীমাহীন ফিল্টারিং পান"
+   },
+   "options_limits_reenable": {
+      "message": "পুনরায় সক্রিয় করুন"
+   },
+   "options_limits_reenable_failed": {
+      "message": "পর্যাপ্ত ফ্রি কোটা নেই। অন্যান্য এক্সটেনশন বা অপ্রয়োজনীয় ফিল্টার বন্ধ করুন, তারপর আবার চেষ্টা করুন"
+   },
+   "options_limits_reenable_success": {
+      "message": "ফিল্টারগুলো পুনরায় সক্রিয় করা হয়েছে"
+   },
+   "options_limits_related": {
+      "message": "সম্পর্কিত সেটিংস"
+   },
+   "options_limits_static_regex": {
+      "message": "স্ট্যাটিক রেগেক্স নিয়ম"
+   },
+   "options_limits_static_rules": {
+      "message": "স্ট্যাটিক নিয়ম"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "বিল্ট-ইন ফিল্টার ব্রাউজারের স্ট্যাটিক রুলসেট ও স্ট্যাটিক রুল কোটাগুলো ব্যবহার করে।"
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "বিল্ট-ইন ফিল্টার"
+   },
+   "options_limits_usage": {
+      "message": "$current$ / $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "বিস্তারিত দেখুন"
+   },
+   "options_limits_warning": {
+      "message": "ব্রাউজারের সীমার কারণে কিছু ফিল্টার নিষ্ক্রিয় করা হয়েছে।"
+   },
+   "options_limits_your_rules_desc": {
+      "message": "কাস্টম নিয়ম ও whitelist এন্ট্রি ব্রাউজারের ডাইনামিক রুল কোটাগুলো ভাগ করে।"
+   },
+   "options_limits_your_rules_heading": {
+      "message": "আপনার নিয়ম"
+   },
+   "options_menu": {
+      "message": "মেনু"
+   },
+   "options_new_filter": {
+      "message": "নতুন ফিল্টার"
+   },
+   "options_no_filters_enabled": {
+      "message": "কোনো ফিল্টার সক্রিয় নেই"
+   },
+   "options_number_icon_desc": {
+      "message": "প্রতি পেজে ব্লক হওয়া বিজ্ঞাপনের সংখ্যা এক্সটেনশন আইকনে দেখাবে।"
+   },
+   "options_number_icon_title": {
+      "message": "আইকনে সংখ্যা দেখান"
+   },
+   "options_open_extension_details": {
+      "message": "এক্সটেনশন ডিটেইলস খুলুন"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "রেট করুন"
+   },
+   "options_search": {
+      "message": "অনুসন্ধান"
+   },
+   "options_search_results": {
+      "message": "ফলাফল"
+   },
+   "options_submit": {
+      "message": "জমা দিন"
+   },
+   "options_theme_dark": {
+      "message": "ডার্ক"
+   },
+   "options_theme_desc": {
+      "message": "সেটিংস পেজের জন্য রঙের স্কিম নির্বাচন করুন।"
+   },
+   "options_theme_light": {
+      "message": "হালকা"
+   },
+   "options_theme_system": {
+      "message": "সিস্টেম"
+   },
+   "options_theme_title": {
+      "message": "থিম"
+   },
+   "options_want_abu_in_lang": {
+      "message": "আপনার ভাষায় AdBlocker Ultimate চান?"
+   },
+   "page_blocked_go_back": {
+      "message": "ফিরে যান"
+   },
+   "page_blocked_heading": {
+      "message": "এই পৃষ্ঠাটি ব্লক করা হয়েছে"
+   },
+   "page_blocked_note": {
+      "message": "অস্থায়ী প্রবেশাধিকার প্রদান করা হবে।"
+   },
+   "page_blocked_proceed": {
+      "message": "যেভাবেই হোক চালিয়ে যান"
+   },
+   "page_blocked_reason": {
+      "message": "ফিল্টার নিয়ম দ্বারা ব্লক করা হয়েছে:"
+   },
+   "page_blocked_title": {
+      "message": "পৃষ্ঠাটি ব্লক করা হয়েছে"
+   },
+   "popup_abu_for_android": {
+      "message": "Android-এর জন্য AdBlocker Ultimate"
+   },
+   "popup_abu_for_ios": {
+      "message": "iOS-এর জন্য AdBlocker Ultimate"
+   },
+   "popup_enabled_on_site": {
+      "message": "এই সাইটে সক্রিয়"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate $platform$-এর জন্য",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "কিছু ফিল্টার নিষ্ক্রিয় করা হয়েছে কারণ ব্রাউজারের সীমা অতিক্রম হয়েছে"
+   },
+   "popup_mobile_apps_title": {
+      "message": "মোবাইলে বিজ্ঞাপন ব্লক করুন"
+   },
+   "popup_protection_disabled": {
+      "message": "সুরক্ষা: বন্ধ"
+   },
+   "popup_protection_enabled": {
+      "message": "সুরক্ষা: চালু"
+   },
+   "popup_secure_page": {
+      "message": "নিরাপদ পৃষ্ঠা"
+   },
+   "popup_settings": {
+      "message": "সেটিংস"
+   },
+   "popup_tab_blocked": {
+      "message": "ব্লক হয়েছে: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "মোট: $1"
+   },
+   "privacy_policy": {
+      "message": "গোপনীয়তা নীতি"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "বিজ্ঞাপনমুক্ত ব্রাউজিং সম্পন্ন হয়েছে!"
+   },
+   "rate_us_button": {
+      "message": "রেট করুন"
+   },
+   "rate_us_email": {
+      "message": "ইমেইল"
+   },
+   "rate_us_hooray": {
+      "message": "অভিনন্দন!"
+   },
+   "rate_us_message": {
+      "message": "বার্তা"
+   },
+   "rate_us_no_thanks": {
+      "message": "না, ধন্যবাদ"
+   },
+   "rate_us_prompt": {
+      "message": "বিজ্ঞাপন ব্লকিং উপভোগ করছেন? অন্যদের জানাতে সাহায্য করুন।"
+   },
+   "rate_us_send_feedback": {
+      "message": "মতামত পাঠান"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "আমরা কীভাবে আরও উন্নত করতে পারি জানান"
+   },
+   "rate_us_thank_you": {
+      "message": "ধন্যবাদ!"
+   },
+   "report_bug": {
+      "message": "বাগ রিপোর্ট করুন"
+   },
+   "toast_filter_enabled_title": {
+      "message": "ফিল্টার স্বয়ংক্রিয়ভাবে সক্রিয় হয়েছে"
+   },
+   "toast_filters_update_error": {
+      "message": "আপডেট আনতে ব্যর্থ হয়েছে। অনুগ্রহ করে পরে আবার চেষ্টা করুন।"
+   },
+   "toast_filters_update_filter": {
+      "message": "ফিল্টার আপডেট হয়েছে"
+   },
+   "toast_filters_update_filters": {
+      "message": "ফিল্টারসমূহ আপডেট হয়েছে"
+   },
+   "toast_filters_update_not_found": {
+      "message": "কোনো আপডেট পাওয়া যায়নি"
+   },
+   "toast_filters_update_title_error": {
+      "message": "আপডেট চেক করতে ব্যর্থ"
+   },
+   "version": {
+      "message": "ভার্সন"
+   },
+   "yes": {
+      "message": "হ্যাঁ"
+   }
+}

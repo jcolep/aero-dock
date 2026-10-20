@@ -1,0 +1,1 @@
+[{"id":1,"action":{"type":"block"},"condition":{"urlFilter":"dummy.rule.adguard.com","resourceTypes":["xmlhttprequest"]}},{"action":{"type":"block"},"condition":{"urlFilter":"||test-filter-rule-1.example.com^"},"id":1160473302,"priority":1},{"action":{"type":"block"},"condition":{"urlFilter":"||test-filter-rule-2.example.com^"},"id":630838837,"priority":1}]

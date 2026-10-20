@@ -1,0 +1,1 @@
+import{C as e,U as a,ct as o,p as r,q as _}from"./vendor-charts-BA6mrMsB.js";import{t as s}from"./Layout-D1qkNmnL.js";var l=e({__name:"Block",setup(c){return(t,p)=>(a(),r(s,{class:"bb-block"},{body:o(()=>[_(t.$slots,"default")]),_:3}))}}),d=l;export{d as t};

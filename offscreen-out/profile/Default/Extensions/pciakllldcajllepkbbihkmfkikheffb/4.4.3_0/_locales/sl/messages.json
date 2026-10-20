@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Vse pravice pridržane"
+   },
+   "assistant_another_element": {
+      "message": "Izberi drug element"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Uporabi to pravilo na vseh spletnih straneh"
+   },
+   "assistant_block": {
+      "message": "Blokiraj"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blokiraj element po url-ju"
+   },
+   "assistant_block_element": {
+      "message": "Blokiraj element"
+   },
+   "assistant_block_element_explain": {
+      "message": "Nastavitev pravila za blokiranje elementa"
+   },
+   "assistant_block_similar": {
+      "message": "Blokiraj podobne elemente"
+   },
+   "assistant_extended_settings": {
+      "message": "Advanced settings..."
+   },
+   "assistant_preview_end": {
+      "message": "Končaj predogled"
+   },
+   "assistant_preview_start": {
+      "message": "Predogled"
+   },
+   "assistant_select_element": {
+      "message": "Način izbire"
+   },
+   "assistant_select_element_cancel": {
+      "message": "prekličite način izbire"
+   },
+   "assistant_select_element_ext": {
+      "message": "Kliknite na kateri koli element na strani ali"
+   },
+   "assistant_slider_explain": {
+      "message": "Prilagodite drsnik za spreminjanje velikosti okvirja"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blokiraj element"
+   },
+   "close": {
+      "message": "Zapri"
+   },
+   "contact_us": {
+      "message": "Kontaktirajte nas"
+   },
+   "context_block_site_ads": {
+      "message": "Block ad on this website..."
+   },
+   "context_complaint_site": {
+      "message": "Submit a complaint about this website..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate ne more delovati na tej domeni"
+   },
+   "context_site_filtering_off": {
+      "message": "Onemogoči filtriranje na tej strani"
+   },
+   "context_site_filtering_on": {
+      "message": "Omogoči filtriranje na tej strani"
+   },
+   "context_update_filters": {
+      "message": "Preveri posodobitve filtrov"
+   },
+   "description": {
+      "message": "Najboljše orodje za blokiranje oglasov. Brezplačno blokirajte oglase na YouTubu, Facebooku in vseh drugih spletnih mestih!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "Namizna aplikacija je zagnana"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" je zdaj omogočen",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Lastni filtri"
+   },
+   "follow_us": {
+      "message": "Sledite nam na"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Ne"
+   },
+   "official_website": {
+      "message": "Uradna spletna stran"
+   },
+   "options_about": {
+      "message": "O programu"
+   },
+   "options_about_heading": {
+      "message": "In vsi nadležni oglasi so odstranjeni!"
+   },
+   "options_add_custom_filter": {
+      "message": "Dodaj lasten filter"
+   },
+   "options_allow_user_scripts": {
+      "message": "Za omogočanje lastnih filtrov morate na strani s podrobnostmi razširitve omogočiti \u003Csetting-name>Dovoli uporabniške skripte\u003C/setting-name>. \u003Clearn-link>Več o tem\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Seznam dovoljenih"
+   },
+   "options_allowlist_desc": {
+      "message": "Oglasi na spletnih mestih, dodanih na ta seznam dovoljenih, ne bodo blokirani."
+   },
+   "options_android_callout": {
+      "message": "Naša Android aplikacija ponuja več funkcij kot razširitev za brskalnik. Oglejte si, kaj zamujate."
+   },
+   "options_android_upgrade": {
+      "message": "Prenesi aplikacijo"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Po odprtju nekaj strani v določenem jeziku bodo filtri za ta jezik samodejno dodani in aktivirani."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Samodejno aktiviraj jezikovno specifične filtre"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Število filtrov: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Ali ste prepričani, da želite izbrisati ta filter?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Lastni filtri s pravili scriptlet in JavaScript zahtevajo dovoljenje User Scripts API. To omogoča razširitvi izvajanje skript iz lastnih filtrov."
+   },
+   "options_custom_rules": {
+      "message": "Lastna pravila"
+   },
+   "options_custom_rules_export": {
+      "message": "Izvozi"
+   },
+   "options_custom_rules_import": {
+      "message": "Uvozi"
+   },
+   "options_desktop_callout": {
+      "message": "Naša namizna aplikacija ponuja več funkcij kot razširitev za brskalnik. Oglejte si, kaj zamujate."
+   },
+   "options_desktop_upgrade": {
+      "message": "Primerjaj"
+   },
+   "options_do_you_like_abu": {
+      "message": "Vam je AdBlocker Ultimate všeč?"
+   },
+   "options_editor_desc": {
+      "message": "Na tem seznamu lahko dodate svoja lastna pravila. Ustvarite svoje filtre za oglase in jih dodajte tukaj."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Omogoči meni z dejanji, ki so na voljo ob desnem kliku na spletno stran."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Omogoči kontekstni meni"
+   },
+   "options_enable_developer_mode": {
+      "message": "Za omogočanje lastnih filtrov morate v nastavitvah razširitev v Chromu omogočiti \u003Csetting-name>Način za razvijalce\u003C/setting-name>. \u003Clearn-link>Več o tem\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Vnesite veljaven URL ali pot do datoteke"
+   },
+   "options_err": {
+      "message": "Prišlo je do napake!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Dovoljene so samo .txt datoteke!"
+   },
+   "options_filter_categories": {
+      "message": "Kategorije"
+   },
+   "options_filter_status_all": {
+      "message": "Vse"
+   },
+   "options_filter_status_disabled": {
+      "message": "Onemogočeno"
+   },
+   "options_filter_status_enabled": {
+      "message": "Omogočeno"
+   },
+   "options_filter_update_date": {
+      "message": "Zadnja posodobitev: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Filtri"
+   },
+   "options_filters_enabled": {
+      "message": "Omogočeno:"
+   },
+   "options_filters_update_error": {
+      "message": "Filtrov ni bilo mogoče posodobiti. Poskusite znova."
+   },
+   "options_filters_update_success": {
+      "message": "Posodobljenih $count$ filtrov",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Posodobljen $count$ filter",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Vsi filtri so posodobljeni"
+   },
+   "options_general": {
+      "message": "Splošno"
+   },
+   "options_help_translate": {
+      "message": "Pomagajte nam pri prevajanju!"
+   },
+   "options_limits": {
+      "message": "Omejitve"
+   },
+   "options_limits_active_filters": {
+      "message": "Trenutno aktivno"
+   },
+   "options_limits_bar_warning": {
+      "message": "Nekateri filtri so bili onemogočeni, ker je vaš brskalnik dosegel omejitev pravil. \u003Climits-link>Poglejte, kaj je prizadeto\u003C/limits-link> ali \u003Cupgrade-link>pridobite neomejeno zaščito\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Samo \u003Ctext-strong>$active$ od $expected$\u003C/text-strong> vaših filtrov je aktivnih – vašemu brskalniku je zmanjkalo prostora za filtrirna pravila. \u003Ctext-strong>Naša namizna aplikacija nima omejitev pravil\u003C/text-strong> in blokira oglase ter sledilce na celotni napravi. Če želite še naprej uporabljati razširitev, sprostite prostor tako, da izklopite druge razširitve ali onemogočite filtre z nizko prioriteto.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Vašemu brskalniku je zmanjkalo prostora za filtrirna pravila, zato je nekatere filtre izklopil. \u003Ctext-strong>Naša namizna aplikacija nima omejitev pravil\u003C/text-strong> in blokira oglase ter sledilce na celotni napravi. Če želite še naprej uporabljati razširitev, sprostite prostor tako, da izklopite druge razširitve ali onemogočite filtre z nizko prioriteto."
+   },
+   "options_limits_callout_title": {
+      "message": "Nekateri filtri so bili onemogočeni"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Začasno onemogočeno"
+   },
+   "options_limits_dismiss": {
+      "message": "Opusti"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dinamična regex pravila"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dinamična pravila"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Nevarna dinamična pravila"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Omogočeni filtri"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Nekaterih filtrov ni bilo mogoče omogočiti, ker so bile presežene omejitve brskalnika"
+   },
+   "options_limits_get_desktop": {
+      "message": "Prenesite namizno aplikacijo"
+   },
+   "options_limits_intro": {
+      "message": "omejuje, koliko filtrov in pravil je lahko hkrati aktivnih. Omejitve si delijo vse vaše razširitve za brskalnik."
+   },
+   "options_limits_none": {
+      "message": "Brez"
+   },
+   "options_limits_promo_body": {
+      "message": "Omejitve pravil si deli z vašimi drugimi razširitvami. Če jih presežete, bodo nekateri filtri začasno onemogočeni. \u003Ctext-strong>Naša namizna aplikacija nima omejitev pravil\u003C/text-strong> in blokira oglase ter sledilce na celotni napravi. Če želite ostati znotraj omejitev brskalnika, zmanjšajte število drugih razširitev in se izogibajte filtrom z nizko prioriteto."
+   },
+   "options_limits_promo_title": {
+      "message": "Filtriranje brez omejitev"
+   },
+   "options_limits_reenable": {
+      "message": "Ponovno omogoči"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Ni dovolj prostih kvot. Izklopite druge razširitve ali neuporabljene filtre in poskusite znova"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filtri so bili ponovno omogočeni"
+   },
+   "options_limits_related": {
+      "message": "Povezane nastavitve"
+   },
+   "options_limits_static_regex": {
+      "message": "Statična regex pravila"
+   },
+   "options_limits_static_rules": {
+      "message": "Statična pravila"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Vgrajeni filtri uporabljajo statični nabor pravil in kvote statičnih pravil brskalnika."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Vgrajeni filtri"
+   },
+   "options_limits_usage": {
+      "message": "$current$ od $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Poglej podrobnosti"
+   },
+   "options_limits_warning": {
+      "message": "Nekateri filtri so bili onemogočeni zaradi omejitev brskalnika."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Prilagojena pravila in vnosi na beli seznam si delijo kvote dinamičnih pravil brskalnika."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Vaša pravila"
+   },
+   "options_menu": {
+      "message": "Meni"
+   },
+   "options_new_filter": {
+      "message": "Nov filter"
+   },
+   "options_no_filters_enabled": {
+      "message": "Noben filter ni omogočen"
+   },
+   "options_number_icon_desc": {
+      "message": "Število blokiranih oglasov na vsaki strani bo prikazano na ikoni razširitve."
+   },
+   "options_number_icon_title": {
+      "message": "Prikaži številko v ikoni"
+   },
+   "options_open_extension_details": {
+      "message": "Odpri podrobnosti razširitve"
+   },
+   "options_page_title": {
+      "message": "Options"
+   },
+   "options_rate_us": {
+      "message": "Ocenite nas"
+   },
+   "options_search": {
+      "message": "Iskanje"
+   },
+   "options_search_results": {
+      "message": "Rezultati"
+   },
+   "options_submit": {
+      "message": "Pošlji"
+   },
+   "options_theme_dark": {
+      "message": "Temna"
+   },
+   "options_theme_desc": {
+      "message": "Izberite barvno shemo za stran z nastavitvami."
+   },
+   "options_theme_light": {
+      "message": "Svetla"
+   },
+   "options_theme_system": {
+      "message": "Sistemska"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Želite AdBlocker Ultimate v vašem jeziku?"
+   },
+   "page_blocked_go_back": {
+      "message": "Nazaj"
+   },
+   "page_blocked_heading": {
+      "message": "Ta stran je bila blokirana"
+   },
+   "page_blocked_note": {
+      "message": "Začasni dostop bo omogočen."
+   },
+   "page_blocked_proceed": {
+      "message": "Vseeno nadaljuj"
+   },
+   "page_blocked_reason": {
+      "message": "Blokirano s filtrom:"
+   },
+   "page_blocked_title": {
+      "message": "Stran blokirana"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate za Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate za iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Omogočeno na tej strani"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Prenesi AdBlocker Ultimate za $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Nekateri filtri so bili onemogočeni, ker so bile presežene omejitve brskalnika"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blokirajte oglase na telefonu"
+   },
+   "popup_protection_disabled": {
+      "message": "Zaščita: onemogočena"
+   },
+   "popup_protection_enabled": {
+      "message": "Zaščita: omogočena"
+   },
+   "popup_secure_page": {
+      "message": "Varna stran"
+   },
+   "popup_settings": {
+      "message": "Nastavitve"
+   },
+   "popup_tab_blocked": {
+      "message": "Blokirano: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Skupaj: $1"
+   },
+   "privacy_policy": {
+      "message": "Pravilnik o zasebnosti"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Brskanje brez oglasov doseženo!"
+   },
+   "rate_us_button": {
+      "message": "Ocenite nas"
+   },
+   "rate_us_email": {
+      "message": "E-pošta"
+   },
+   "rate_us_hooray": {
+      "message": "Super!"
+   },
+   "rate_us_message": {
+      "message": "Sporočilo"
+   },
+   "rate_us_no_thanks": {
+      "message": "Ne, hvala"
+   },
+   "rate_us_prompt": {
+      "message": "Uživajte v blokiranju oglasov? Pomagajte drugim, da izvejo za nas."
+   },
+   "rate_us_send_feedback": {
+      "message": "Pošlji povratne informacije"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Povejte nam, kako lahko izboljšamo"
+   },
+   "rate_us_thank_you": {
+      "message": "Hvala!"
+   },
+   "report_bug": {
+      "message": "Prijavite napako"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Filtri samodejno aktivirani"
+   },
+   "toast_filters_update_error": {
+      "message": "Posodobitev ni uspela. Poskusite znova kasneje."
+   },
+   "toast_filters_update_filter": {
+      "message": "filter je bil posodobljen"
+   },
+   "toast_filters_update_filters": {
+      "message": "filtri so bili posodobljeni"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Ni najdenih posodobitev"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Preverjanje posodobitev ni uspelo"
+   },
+   "version": {
+      "message": "Različica"
+   },
+   "yes": {
+      "message": "Da"
+   }
+}

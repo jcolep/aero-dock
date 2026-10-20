@@ -1,0 +1,1 @@
+import{t as n}from"./vendor-ansiregex-kUpl5oNN.js";var o=n();function f(e){if(typeof e!="string")throw new TypeError(`Expected a \`string\`, got \`${typeof e}\``);return e.replace(o,"")}var a=new Intl.Segmenter;function s(e,{countAnsiEscapeCodes:r=!1}={}){if(e===""||(r||(e=f(e)),e===""))return 0;let t=0;for(const p of a.segment(e))t++;return t}export{s as t};

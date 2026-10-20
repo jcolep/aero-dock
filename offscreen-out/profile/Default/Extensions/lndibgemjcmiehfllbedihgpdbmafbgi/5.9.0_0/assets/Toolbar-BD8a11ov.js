@@ -1,0 +1,1 @@
+import{U as r,h as a,q as t}from"./vendor-charts-BA6mrMsB.js";import{t as o}from"./_plugin-vue_export-helper-DvKAVYQk.js";var l={},s={class:"bb-toolbar flex align-items-center gap-1.5"};function _(e,n){return r(),a("div",s,[t(e.$slots,"default")])}var i=o(l,[["render",_]]);export{i as t};

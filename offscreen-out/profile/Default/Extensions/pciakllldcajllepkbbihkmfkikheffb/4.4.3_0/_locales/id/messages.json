@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Semua Hak Dilindungi Undang-Undang"
+   },
+   "assistant_another_element": {
+      "message": "Pilih unsur lain"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Terapkan aturan ini ke setiap situs"
+   },
+   "assistant_block": {
+      "message": "Blokir"
+   },
+   "assistant_block_by_reference": {
+      "message": "Blokir unsur menurut url"
+   },
+   "assistant_block_element": {
+      "message": "Blok elemen"
+   },
+   "assistant_block_element_explain": {
+      "message": "Mengatur pemblokiran unsur"
+   },
+   "assistant_block_similar": {
+      "message": "Blokir unsur-unsur yang serupa"
+   },
+   "assistant_extended_settings": {
+      "message": "Setelan lanjutan"
+   },
+   "assistant_preview_end": {
+      "message": "Menyelesaikan Tinjauan"
+   },
+   "assistant_preview_start": {
+      "message": "Tinjauan"
+   },
+   "assistant_select_element": {
+      "message": "Mode pilihan"
+   },
+   "assistant_select_element_cancel": {
+      "message": "Batalkan mode pemilihan"
+   },
+   "assistant_select_element_ext": {
+      "message": "Klik pada setiap unsur pada halaman "
+   },
+   "assistant_slider_explain": {
+      "message": "Atur slider untuk mengubah ukuran bingkai"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Blok elemen"
+   },
+   "close": {
+      "message": "Tutup"
+   },
+   "contact_us": {
+      "message": "Hubungi kami"
+   },
+   "context_block_site_ads": {
+      "message": "Blok iklan di situs web ini..."
+   },
+   "context_complaint_site": {
+      "message": "Kirim keluhan tentang situs web ini..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate tidak dapat berjalan pada domain ini"
+   },
+   "context_site_filtering_off": {
+      "message": "Nonaktifkan filtering pada situs web ini"
+   },
+   "context_site_filtering_on": {
+      "message": "Aktifkan filtering pada situs web ini"
+   },
+   "context_update_filters": {
+      "message": "Periksa pembaruan filter"
+   },
+   "description": {
+      "message": "Alat adblock terbaik. Blokir iklan di YouTube, Facebook, dan semua situs web lainnya secara gratis!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking ditangani oleh Adblocker Ultimate for Windows. Namun, Anda masih bisa menggunakan menu ini untuk mengatur daftar putih Anda atau memblokir iklan tertentu secara manual."
+   },
+   "desktop_app_is_running": {
+      "message": "Aplikasi desktop sedang berjalan"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" sekarang diaktifkan",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Saringan Khusus"
+   },
+   "follow_us": {
+      "message": "Ikuti kami di"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Tidak"
+   },
+   "official_website": {
+      "message": "Situs Web Resmi"
+   },
+   "options_about": {
+      "message": "Tentang"
+   },
+   "options_about_heading": {
+      "message": "Dan semua iklan yang mengganggu menghilang!"
+   },
+   "options_add_custom_filter": {
+      "message": "Tambah saringan khusus"
+   },
+   "options_allow_user_scripts": {
+      "message": "Untuk mengaktifkan filter kustom, Anda perlu mengaktifkan \u003Csetting-name>Izinkan user scripts\u003C/setting-name> di halaman detail ekstensi. \u003Clearn-link>Pelajari lebih lanjut\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Whitelist"
+   },
+   "options_allowlist_desc": {
+      "message": "Iklan yang ditambahkan di situs web ke Daftar putih tidak akan diblokir."
+   },
+   "options_android_callout": {
+      "message": "Aplikasi Android kami memiliki lebih banyak fitur dibanding ekstensi browser. Lihat apa saja yang Anda lewatkan."
+   },
+   "options_android_upgrade": {
+      "message": "Unduh aplikasi"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Setelah membuka beberapa halaman dalam suatu bahasa, saringan untuk bahasa ini akan otomatis ditambahkan dan diaktifkan."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Otomatis mengaktifkan saringan bahasa-tertentu"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Jumlah aturan filter: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Apakah Anda yakin untuk menghapus saringan ini?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Filter kustom dengan aturan scriptlet dan JavaScript memerlukan izin User Scripts API diaktifkan. Ini memungkinkan ekstensi menjalankan skrip dari langganan filter kustom."
+   },
+   "options_custom_rules": {
+      "message": "Aturan Khusus"
+   },
+   "options_custom_rules_export": {
+      "message": "Ekspor"
+   },
+   "options_custom_rules_import": {
+      "message": "Impor"
+   },
+   "options_desktop_callout": {
+      "message": "Aplikasi desktop kami memiliki lebih banyak fitur dibanding ekstensi browser. Lihat apa saja yang Anda lewatkan."
+   },
+   "options_desktop_upgrade": {
+      "message": "Bandingkan"
+   },
+   "options_do_you_like_abu": {
+      "message": "Apakah Anda menyukai AdBlocker Ultimate?"
+   },
+   "options_editor_desc": {
+      "message": "Di daftar ini Anda dapat menambahkan Aturan Khusus sendiri. Buat saringan iklan Anda sendiri dan tambahkan mereka disini."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Mengaktifkan menu aksi yang tersedia saat Anda klik kanan pada halaman web."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Aktifkan menu konteks"
+   },
+   "options_enable_developer_mode": {
+      "message": "Untuk mengaktifkan filter kustom, Anda perlu mengaktifkan \u003Csetting-name>Mode pengembang\u003C/setting-name> di pengaturan ekstensi Chrome. \u003Clearn-link>Pelajari lebih lanjut\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Masukkan URL yang sah atau jalur berkas"
+   },
+   "options_err": {
+      "message": "Terjadi kesalahan!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Hanya berkas .txt yang diperbolehkan!"
+   },
+   "options_filter_categories": {
+      "message": "Kategori"
+   },
+   "options_filter_status_all": {
+      "message": "Semua"
+   },
+   "options_filter_status_disabled": {
+      "message": "Nonaktif"
+   },
+   "options_filter_status_enabled": {
+      "message": "Diaktifkan"
+   },
+   "options_filter_update_date": {
+      "message": "Pembaruan terakhir: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Saringan"
+   },
+   "options_filters_enabled": {
+      "message": "Diaktfikan"
+   },
+   "options_filters_update_error": {
+      "message": "Tidak dapat memperbarui filter. Silakan coba lagi."
+   },
+   "options_filters_update_success": {
+      "message": "$count$ filter diperbarui",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$ filter diperbarui",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Semua filter sudah terbaru"
+   },
+   "options_general": {
+      "message": "Umum"
+   },
+   "options_help_translate": {
+      "message": "Bantu kami dengan penerjemahan!"
+   },
+   "options_limits": {
+      "message": "Batas"
+   },
+   "options_limits_active_filters": {
+      "message": "Sedang aktif"
+   },
+   "options_limits_bar_warning": {
+      "message": "Beberapa filter dinonaktifkan karena browser Anda mencapai batas aturan. \u003Climits-link>Lihat yang terpengaruh\u003C/limits-link> atau \u003Cupgrade-link>dapatkan perlindungan tanpa batas\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Hanya \u003Ctext-strong>$active$ dari $expected$\u003C/text-strong> filter Anda yang berjalan – browser Anda kehabisan ruang untuk aturan pemfilteran. \u003Ctext-strong>Aplikasi desktop kami tidak memiliki batas aturan\u003C/text-strong> dan memblokir iklan serta pelacak di seluruh perangkat Anda. Untuk terus menggunakan ekstensi browser, kosongkan ruang dengan mematikan ekstensi lain atau menonaktifkan filter prioritas rendah.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Browser Anda kehabisan ruang untuk aturan pemfilteran, sehingga beberapa filter dinonaktifkan. \u003Ctext-strong>Aplikasi desktop kami tidak memiliki batas aturan\u003C/text-strong> dan memblokir iklan serta pelacak di seluruh perangkat Anda. Untuk terus menggunakan ekstensi browser, kosongkan ruang dengan mematikan ekstensi lain atau menonaktifkan filter prioritas rendah."
+   },
+   "options_limits_callout_title": {
+      "message": "Beberapa filter dinonaktifkan"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Dinonaktifkan sementara"
+   },
+   "options_limits_dismiss": {
+      "message": "Tutup"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Aturan regex dinamis"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Aturan dinamis"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Aturan dinamis tidak aman"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Filter yang diaktifkan"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Beberapa filter tidak dapat diaktifkan karena batas browser terlampaui"
+   },
+   "options_limits_get_desktop": {
+      "message": "Dapatkan aplikasi desktop"
+   },
+   "options_limits_intro": {
+      "message": "membatasi jumlah filter dan aturan yang dapat aktif secara bersamaan. Batas ini dibagi dengan semua ekstensi browser Anda."
+   },
+   "options_limits_none": {
+      "message": "Tidak ada"
+   },
+   "options_limits_promo_body": {
+      "message": "Batas aturan dibagi dengan ekstensi lain. Jika melebihi batas, beberapa filter akan dinonaktifkan sementara. \u003Ctext-strong>Aplikasi desktop kami tidak memiliki batas aturan\u003C/text-strong> dan memblokir iklan serta pelacak di seluruh perangkat Anda. Untuk tetap dalam batas browser, minimalkan ekstensi lain dan hindari filter prioritas rendah."
+   },
+   "options_limits_promo_title": {
+      "message": "Dapatkan pemfilteran tanpa batas"
+   },
+   "options_limits_reenable": {
+      "message": "Aktifkan kembali"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Kuota tidak cukup. Matikan ekstensi lain atau filter yang tidak digunakan, lalu coba lagi"
+   },
+   "options_limits_reenable_success": {
+      "message": "Filter berhasil diaktifkan kembali"
+   },
+   "options_limits_related": {
+      "message": "Pengaturan terkait"
+   },
+   "options_limits_static_regex": {
+      "message": "Aturan regex statis"
+   },
+   "options_limits_static_rules": {
+      "message": "Aturan statis"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Filter bawaan menggunakan static ruleset dan kuota aturan statis dari browser."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Filter bawaan"
+   },
+   "options_limits_usage": {
+      "message": "$current$ dari $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Lihat detail"
+   },
+   "options_limits_warning": {
+      "message": "Beberapa filter dinonaktifkan karena batasan browser."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Aturan kustom dan entri whitelist berbagi kuota aturan dinamis browser."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Aturan Anda"
+   },
+   "options_menu": {
+      "message": "Menu"
+   },
+   "options_new_filter": {
+      "message": "Saringan baru"
+   },
+   "options_no_filters_enabled": {
+      "message": "Tidak ada filter yang aktif"
+   },
+   "options_number_icon_desc": {
+      "message": "Jumlah iklan yang diblokir pada setiap halaman akan ditampilkan di ikon ekstensi."
+   },
+   "options_number_icon_title": {
+      "message": "Tampilkan nomor di ikon"
+   },
+   "options_open_extension_details": {
+      "message": "Buka Detail Ekstensi"
+   },
+   "options_page_title": {
+      "message": "Opsi"
+   },
+   "options_rate_us": {
+      "message": "Nilai kami"
+   },
+   "options_search": {
+      "message": "Cari"
+   },
+   "options_search_results": {
+      "message": "Hasil"
+   },
+   "options_submit": {
+      "message": "Kirimkan"
+   },
+   "options_theme_dark": {
+      "message": "Gelap"
+   },
+   "options_theme_desc": {
+      "message": "Pilih skema warna untuk halaman pengaturan."
+   },
+   "options_theme_light": {
+      "message": "Terang"
+   },
+   "options_theme_system": {
+      "message": "Sistem"
+   },
+   "options_theme_title": {
+      "message": "Tema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Ingin AdBlocker Ultimate dalam bahasa Anda?"
+   },
+   "page_blocked_go_back": {
+      "message": "Kembali"
+   },
+   "page_blocked_heading": {
+      "message": "Halaman ini telah diblokir"
+   },
+   "page_blocked_note": {
+      "message": "Akses sementara akan diberikan."
+   },
+   "page_blocked_proceed": {
+      "message": "Tetap Lanjutkan"
+   },
+   "page_blocked_reason": {
+      "message": "Diblokir oleh aturan filter:"
+   },
+   "page_blocked_title": {
+      "message": "Halaman Diblokir"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate untuk Android"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate untuk iOS"
+   },
+   "popup_enabled_on_site": {
+      "message": "Aktifkan pada situs ini"
+   },
+   "popup_get_abu_desktop": {
+      "message": "AdBlocker Ultimate untuk $platform$",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Beberapa filter dinonaktifkan karena batas browser terlampaui"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Blokir iklan di ponsel"
+   },
+   "popup_protection_disabled": {
+      "message": "Perlindungan: Nonaktif"
+   },
+   "popup_protection_enabled": {
+      "message": "Perlindungan: Aktif"
+   },
+   "popup_secure_page": {
+      "message": "Halaman Aman"
+   },
+   "popup_settings": {
+      "message": "Pengaturan"
+   },
+   "popup_tab_blocked": {
+      "message": "Diblokir: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Total: $1"
+   },
+   "privacy_policy": {
+      "message": "Kebijakan Privasi"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Browsing bebas iklan tercapai!"
+   },
+   "rate_us_button": {
+      "message": "Menilai kami"
+   },
+   "rate_us_email": {
+      "message": "Surel"
+   },
+   "rate_us_hooray": {
+      "message": "Hore!"
+   },
+   "rate_us_message": {
+      "message": "Pesan"
+   },
+   "rate_us_no_thanks": {
+      "message": "Tidak terima kasih"
+   },
+   "rate_us_prompt": {
+      "message": "Suka memblokir iklan? Bantu orang lain mengetahui tentang kami."
+   },
+   "rate_us_send_feedback": {
+      "message": "Kirim Masukkan"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Beri tahu kami bagaimana kami bisa memperbaiki"
+   },
+   "rate_us_thank_you": {
+      "message": "Terima kasih!"
+   },
+   "report_bug": {
+      "message": "Laporkan kesalahan"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Auto-aktivasi filter"
+   },
+   "toast_filters_update_error": {
+      "message": "Gagal untuk mendapatkan pembaruan. Silakan coba sesaat lagi."
+   },
+   "toast_filters_update_filter": {
+      "message": "filter telah diperbarui"
+   },
+   "toast_filters_update_filters": {
+      "message": "filter telah diperbarui"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Tidak ada pembaruan yang ditemukan"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Gagal memeriksa pembaruan"
+   },
+   "version": {
+      "message": "Versi"
+   },
+   "yes": {
+      "message": "Ya"
+   }
+}

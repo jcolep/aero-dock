@@ -1,0 +1,1 @@
+import{U as r,h as a,q as t}from"./vendor-charts-BA6mrMsB.js";import{t as l}from"./_plugin-vue_export-helper-DvKAVYQk.js";var o={},s={class:"d-collapse"};function _(e,c){return r(),a("div",s,[t(e.$slots,"default")])}var p=l(o,[["render",_]]);export{p as t};

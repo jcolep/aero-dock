@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "모든 권리 보유"
+   },
+   "assistant_another_element": {
+      "message": "다른 요소를 선택합니다"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "모든 웹 사이트에 이 규칙을 적용"
+   },
+   "assistant_block": {
+      "message": "차단"
+   },
+   "assistant_block_by_reference": {
+      "message": "URL에 따른 요소 차단"
+   },
+   "assistant_block_element": {
+      "message": "요소 차단"
+   },
+   "assistant_block_element_explain": {
+      "message": "요소 차단 규칙 설정"
+   },
+   "assistant_block_similar": {
+      "message": "유사한 요소 차단"
+   },
+   "assistant_extended_settings": {
+      "message": "고급 설정..."
+   },
+   "assistant_preview_end": {
+      "message": "미리보기 완료"
+   },
+   "assistant_preview_start": {
+      "message": "미리보기"
+   },
+   "assistant_select_element": {
+      "message": "선택 모드"
+   },
+   "assistant_select_element_cancel": {
+      "message": "선택 모드를 취소하십시오."
+   },
+   "assistant_select_element_ext": {
+      "message": "페이지에 어떤 요소를 클릭 하거나 "
+   },
+   "assistant_slider_explain": {
+      "message": "슬라이더를 조절하여 프레임 크기를 변경하세요"
+   },
+   "browser_action_popup_block_element": {
+      "message": "요소 차단"
+   },
+   "close": {
+      "message": "닫기"
+   },
+   "contact_us": {
+      "message": "문의하기"
+   },
+   "context_block_site_ads": {
+      "message": "이 웹사이트의 광고를 차단"
+   },
+   "context_complaint_site": {
+      "message": "이 웹사이트에 대한 불만 제출..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate은 이 도메인에서 실행할 수 없습니다"
+   },
+   "context_site_filtering_off": {
+      "message": "이 웹사이트를 필터하지 않습니다"
+   },
+   "context_site_filtering_on": {
+      "message": "이 웹사이트를 필터합니다"
+   },
+   "context_update_filters": {
+      "message": "필터 업데이트 확인"
+   },
+   "description": {
+      "message": "최고의 광고 차단 도구입니다. YouTube, Facebook 및 기타 모든 웹사이트의 광고를 무료로 차단하세요!"
+   },
+   "desktop_app_info": {
+      "message": "AdBlocking is handled by Adblocker Ultimate for Windows. However, you can still use this menu to manage your whitelist or to manually block certain ads."
+   },
+   "desktop_app_is_running": {
+      "message": "데스크톱 앱이 실행 중입니다"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\"이(가) 이제 활성화되었습니다",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "사용자 지정 필터"
+   },
+   "follow_us": {
+      "message": "팔로우하기"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "아니오"
+   },
+   "official_website": {
+      "message": "공식 웹사이트"
+   },
+   "options_about": {
+      "message": "정보"
+   },
+   "options_about_heading": {
+      "message": "모든 성가신 광고가 사라집니다!"
+   },
+   "options_add_custom_filter": {
+      "message": "사용자 지정 필터 추가"
+   },
+   "options_allow_user_scripts": {
+      "message": "사용자 지정 필터를 사용하려면 확장 프로그램 세부정보 페이지에서 \u003Csetting-name>사용자 스크립트 허용\u003C/setting-name>을 활성화해야 합니다. \u003Clearn-link>자세히 알아보기\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "화이트리스트"
+   },
+   "options_allowlist_desc": {
+      "message": "이 화이트리스트에 추가된 웹사이트의 광고는 차단되지 않습니다."
+   },
+   "options_android_callout": {
+      "message": "Android 앱은 브라우저 확장 프로그램보다 더 많은 기능을 제공합니다. 놓치고 있는 기능을 확인해 보세요."
+   },
+   "options_android_upgrade": {
+      "message": "앱 받기"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "특정 언어로 된 페이지를 몇 개 열면 해당 언어의 필터가 자동으로 추가 및 활성화됩니다."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "언어별 필터 자동 활성화"
+   },
+   "options_built_in_rules_limit": {
+      "message": "필터 규칙 수: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "이 필터를 정말 삭제하시겠습니까?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "스크립틀릿 및 JavaScript 규칙이 포함된 사용자 지정 필터를 사용하려면 User Scripts API 권한이 필요합니다. 이 권한을 통해 확장 프로그램이 사용자 지정 필터 구독에서 스크립트를 실행할 수 있습니다."
+   },
+   "options_custom_rules": {
+      "message": "사용자 정의 규칙"
+   },
+   "options_custom_rules_export": {
+      "message": "내보내기"
+   },
+   "options_custom_rules_import": {
+      "message": "가져오기"
+   },
+   "options_desktop_callout": {
+      "message": "데스크톱 앱은 브라우저 확장 프로그램보다 더 많은 기능을 제공합니다. 놓치고 있는 기능을 확인해 보세요."
+   },
+   "options_desktop_upgrade": {
+      "message": "비교하기"
+   },
+   "options_do_you_like_abu": {
+      "message": "AdBlocker Ultimate가 마음에 드시나요?"
+   },
+   "options_editor_desc": {
+      "message": "이 목록에 직접 사용자 정의 규칙을 추가할 수 있습니다. 나만의 광고 필터를 만들어 추가하세요."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "웹 페이지에서 마우스 오른쪽 버튼을 클릭할 때 사용할 수 있는 작업 메뉴를 활성화합니다."
+   },
+   "options_enable_context_menu_title": {
+      "message": "컨텍스트 메뉴 활성화"
+   },
+   "options_enable_developer_mode": {
+      "message": "사용자 지정 필터를 사용하려면 Chrome 확장 프로그램 설정에서 \u003Csetting-name>개발자 모드\u003C/setting-name>를 활성화해야 합니다. \u003Clearn-link>자세히 알아보기\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "유효한 URL 또는 파일 경로를 입력하세요"
+   },
+   "options_err": {
+      "message": "문제가 발생했습니다!"
+   },
+   "options_err_no_txt_file": {
+      "message": "오직 .txt 파일만 허용됩니다!"
+   },
+   "options_filter_categories": {
+      "message": "카테고리"
+   },
+   "options_filter_status_all": {
+      "message": "전체"
+   },
+   "options_filter_status_disabled": {
+      "message": "비활성화됨"
+   },
+   "options_filter_status_enabled": {
+      "message": "사용"
+   },
+   "options_filter_update_date": {
+      "message": "마지막 업데이트: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "필터"
+   },
+   "options_filters_enabled": {
+      "message": "활성화됨:"
+   },
+   "options_filters_update_error": {
+      "message": "필터를 업데이트할 수 없습니다. 다시 시도해 주세요."
+   },
+   "options_filters_update_success": {
+      "message": "$count$개의 필터가 업데이트되었습니다",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "$count$개의 필터가 업데이트되었습니다",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "모든 필터가 최신 상태입니다"
+   },
+   "options_general": {
+      "message": "일반"
+   },
+   "options_help_translate": {
+      "message": "번역을 도와주세요!"
+   },
+   "options_limits": {
+      "message": "제한"
+   },
+   "options_limits_active_filters": {
+      "message": "현재 활성화됨"
+   },
+   "options_limits_bar_warning": {
+      "message": "브라우저의 규칙 제한에 도달하여 일부 필터가 비활성화되었습니다. \u003Climits-link>영향받은 항목 보기\u003C/limits-link> 또는 \u003Cupgrade-link>무제한 보호 받기\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "\u003Ctext-strong>$expected$개 중 $active$개\u003C/text-strong> 필터만 실행 중입니다. 브라우저의 필터 규칙 공간이 부족합니다. \u003Ctext-strong>데스크톱 앱은 규칙 제한이 없습니다\u003C/text-strong> 그리고 기기 전체에서 광고와 추적기를 차단합니다. 브라우저 확장 프로그램을 계속 사용하려면 다른 확장 프로그램을 끄거나 우선순위가 낮은 필터를 비활성화해 공간을 확보하세요.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "브라우저의 필터 규칙 공간이 부족하여 일부 필터가 꺼졌습니다. \u003Ctext-strong>데스크톱 앱은 규칙 제한이 없습니다\u003C/text-strong> 그리고 기기 전체에서 광고와 추적기를 차단합니다. 브라우저 확장 프로그램을 계속 사용하려면 다른 확장 프로그램을 끄거나 우선순위가 낮은 필터를 비활성화해 공간을 확보하세요."
+   },
+   "options_limits_callout_title": {
+      "message": "일부 필터가 비활성화됨"
+   },
+   "options_limits_disabled_filters": {
+      "message": "임시 비활성화됨"
+   },
+   "options_limits_dismiss": {
+      "message": "닫기"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "동적 정규식 규칙"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "동적 규칙"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "안전하지 않은 동적 규칙"
+   },
+   "options_limits_enabled_lists": {
+      "message": "활성화된 필터"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "브라우저 제한을 초과하여 일부 필터를 활성화할 수 없습니다"
+   },
+   "options_limits_get_desktop": {
+      "message": "데스크톱 앱 받기"
+   },
+   "options_limits_intro": {
+      "message": "한 번에 활성화할 수 있는 필터와 규칙의 수를 제한합니다. 이 제한은 모든 브라우저 확장 프로그램에서 공유됩니다."
+   },
+   "options_limits_none": {
+      "message": "없음"
+   },
+   "options_limits_promo_body": {
+      "message": "규칙 제한은 다른 확장 프로그램과 공유됩니다. 제한을 초과하면 일부 필터가 일시적으로 비활성화됩니다. \u003Ctext-strong>데스크톱 앱은 규칙 제한이 없습니다\u003C/text-strong> 그리고 기기 전체에서 광고와 추적기를 차단합니다. 브라우저 제한 내에서 사용하려면 다른 확장 프로그램을 최소화하고 우선순위가 낮은 필터를 피하세요."
+   },
+   "options_limits_promo_title": {
+      "message": "제한 없는 필터링 사용"
+   },
+   "options_limits_reenable": {
+      "message": "다시 활성화"
+   },
+   "options_limits_reenable_failed": {
+      "message": "사용 가능한 할당량이 부족합니다. 다른 확장 프로그램이나 사용하지 않는 필터를 끄고 다시 시도하세요"
+   },
+   "options_limits_reenable_success": {
+      "message": "필터가 다시 활성화되었습니다"
+   },
+   "options_limits_related": {
+      "message": "관련 설정"
+   },
+   "options_limits_static_regex": {
+      "message": "정적 정규식 규칙"
+   },
+   "options_limits_static_rules": {
+      "message": "정적 규칙"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "내장 필터는 브라우저의 정적 규칙 집합과 정적 규칙 할당량을 사용합니다."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "내장 필터"
+   },
+   "options_limits_usage": {
+      "message": "$current$ / $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "자세히 보기"
+   },
+   "options_limits_warning": {
+      "message": "브라우저 제한으로 일부 필터가 비활성화되었습니다."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "사용자 지정 규칙과 허용 목록 항목은 브라우저의 동적 규칙 할당량을 공유합니다."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "사용자 규칙"
+   },
+   "options_menu": {
+      "message": "메뉴"
+   },
+   "options_new_filter": {
+      "message": "새 필터"
+   },
+   "options_no_filters_enabled": {
+      "message": "활성화된 필터 없음"
+   },
+   "options_number_icon_desc": {
+      "message": "각 페이지에서 차단된 광고 수가 확장 프로그램 아이콘에 표시됩니다."
+   },
+   "options_number_icon_title": {
+      "message": "아이콘에 숫자 표시"
+   },
+   "options_open_extension_details": {
+      "message": "확장 프로그램 세부정보 열기"
+   },
+   "options_page_title": {
+      "message": "설정"
+   },
+   "options_rate_us": {
+      "message": "평가하기"
+   },
+   "options_search": {
+      "message": "검색"
+   },
+   "options_search_results": {
+      "message": "결과"
+   },
+   "options_submit": {
+      "message": "제출"
+   },
+   "options_theme_dark": {
+      "message": "다크"
+   },
+   "options_theme_desc": {
+      "message": "설정 페이지의 색상 테마를 선택하세요."
+   },
+   "options_theme_light": {
+      "message": "라이트"
+   },
+   "options_theme_system": {
+      "message": "시스템"
+   },
+   "options_theme_title": {
+      "message": "테마"
+   },
+   "options_want_abu_in_lang": {
+      "message": "AdBlocker Ultimate를 내 언어로 사용하고 싶으신가요?"
+   },
+   "page_blocked_go_back": {
+      "message": "뒤로 가기"
+   },
+   "page_blocked_heading": {
+      "message": "이 페이지는 차단되었습니다"
+   },
+   "page_blocked_note": {
+      "message": "임시로 접근이 허용됩니다."
+   },
+   "page_blocked_proceed": {
+      "message": "계속 진행"
+   },
+   "page_blocked_reason": {
+      "message": "필터 규칙에 의해 차단됨:"
+   },
+   "page_blocked_title": {
+      "message": "페이지 차단됨"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate Android용"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate iOS용"
+   },
+   "popup_enabled_on_site": {
+      "message": "이 사이트에서 활성화됨"
+   },
+   "popup_get_abu_desktop": {
+      "message": "$platform$용 AdBlocker Ultimate 받기",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "브라우저 제한을 초과하여 일부 필터가 비활성화되었습니다"
+   },
+   "popup_mobile_apps_title": {
+      "message": "모바일에서 광고 차단"
+   },
+   "popup_protection_disabled": {
+      "message": "보호: 비활성화됨"
+   },
+   "popup_protection_enabled": {
+      "message": "보호: 활성화됨"
+   },
+   "popup_secure_page": {
+      "message": "보안 페이지"
+   },
+   "popup_settings": {
+      "message": "설정"
+   },
+   "popup_tab_blocked": {
+      "message": "차된됨: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "전체: $1"
+   },
+   "privacy_policy": {
+      "message": "개인정보처리방침"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "광고 없는 브라우징이 완료되었습니다!"
+   },
+   "rate_us_button": {
+      "message": "평가하기"
+   },
+   "rate_us_email": {
+      "message": "이메일"
+   },
+   "rate_us_hooray": {
+      "message": "만세!"
+   },
+   "rate_us_message": {
+      "message": "메시지"
+   },
+   "rate_us_no_thanks": {
+      "message": "괜찮아요"
+   },
+   "rate_us_prompt": {
+      "message": "광고 차단이 마음에 드시나요? 다른 사용자에게 알려주세요."
+   },
+   "rate_us_send_feedback": {
+      "message": "피드백 보내기"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "개선할 점을 알려주세요"
+   },
+   "rate_us_thank_you": {
+      "message": "감사합니다!"
+   },
+   "report_bug": {
+      "message": "버그 신고"
+   },
+   "toast_filter_enabled_title": {
+      "message": "필터 자동 활성화"
+   },
+   "toast_filters_update_error": {
+      "message": "업데이트를 불러오지 못했습니다. 나중에 다시 시도하십시오."
+   },
+   "toast_filters_update_filter": {
+      "message": "필터가 업데이트되었습니다"
+   },
+   "toast_filters_update_filters": {
+      "message": "필터가 업데이트되었습니다"
+   },
+   "toast_filters_update_not_found": {
+      "message": "업데이트가 없습니다."
+   },
+   "toast_filters_update_title_error": {
+      "message": "업데이트 확인에 실패했습니다"
+   },
+   "version": {
+      "message": "버전"
+   },
+   "yes": {
+      "message": "예"
+   }
+}

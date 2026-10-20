@@ -1,0 +1,41 @@
+import{C as K,M as L,U as $,b as P,bt as x,ct as C,d as J,f as g,h as F,m as k,nt as Q,ot as X,p as Y,qt as A,x as V}from"./vendor-charts-BA6mrMsB.js";import{Ns as N,Qu as D,Uc as j,cc as y,il as q,ol as Z,xl as ee}from"./vendor-underscore-Bz5YeRR3.js";import{t as te}from"./Message2-BnGtoJYT.js";import{t as B}from"./HelpIcon-CAnHnd8r.js";import{t as le}from"./Dialog-Da6kly5a.js";import{t as M}from"./InputSwitch-B0uDSd3U.js";import{t as ne}from"./ItemsSelector-BsWUmwKo.js";function ae(e,n,t={}){const l=n.filter(i=>!!(i?.field||i?.label)),s=l.map(i=>i.label||i.field).join(" > "),r=t.includeValueLevelAnalysis&&t.groupFields?`<div><strong>Hierarchy:</strong> ${m(s)}</div>`:"";return{title:"Analysis",message:[`<div><strong>Rows analyzed:</strong> ${y(e.length)}</div>`,r,t.includeValueLevelAnalysis?t.groupFields?se(e,l):ie(e,l):oe(e,l)].join("").replace(/\n\s*/g,"")}}function oe(e,n){return n.map((t,l)=>{const s=z(e,t),r=m(t.label||t.field),i=t.type?` <span class="text-sm">(${m(t.type)})</span>`:"";return`
+        <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--bb-item-border-color)">
+          <div style="font-weight: 700; margin-bottom: 6px">${l+1}. ${r}${i}</div>
+          ${S(s)}
+        </div>
+      `}).join("")}function se(e,n){return R(e,n,0)}function ie(e,n){return n.map((t,l)=>{const s=z(e,t),r=m(t.label||t.field),i=t.type?` <span class="text-sm">(${m(t.type)})</span>`:"",p=U(H(e,t),[t],0);return`
+        <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--bb-item-border-color)">
+          <div style="font-weight: 700; margin-bottom: 6px">${l+1}. ${r}${i}</div>
+          ${S(s)}
+          ${p?`<div>${p}</div>`:""}
+        </div>
+      `}).join("")}function R(e,n,t){const l=n[t];if(!l||!e?.length)return"";const s=z(e,l),r=m(l.label||l.field),i=l.type?` <span class="text-sm">(${m(l.type)})</span>`:"",p=U(H(e,l),n,t);return`
+    <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--bb-item-border-color)">
+      <div style="font-weight: 700; margin-bottom: 6px">${t+1}. ${r}${i}</div>
+      ${S(s)}
+      ${p?`<div>${p}</div>`:""}
+    </div>
+  `}function U(e,n,t){return`
+    <table class="analyze-table analyze-values-table">
+      <tbody>
+        ${e.map(l=>re(l,n,t)).join("")}
+      </tbody>
+    </table>
+  `}function re(e,n,t){const l=t+1,s=n[t];return`
+    <tr class="analyze-value-row">
+      <th style="text-align: left; white-space: nowrap; vertical-align: top" title="${m(s?.label||s?.field||"")}">Value</th>
+      <td style="vertical-align: top">
+        <div style="font-weight: 600">${m(e.label)} <span class="text-sm">(${y(e.rows.length)})</span></div>
+        ${R(e.rows,n,l)}
+      </td>
+    </tr>
+  `}function S(e){const n=[f("Count",y(e.rows)),f("Blanks",y(e.blanks)),f("Non-Blanks",y(e.nonBlanks)),f("Duplicates",y(e.duplicates)),f("Uniques",y(e.uniques)),f("Max",w(e.max)),f("Min",w(e.min))];return e.avg!==void 0&&n.push(f("Avg",w(e.avg))),e.sum!==void 0&&n.push(f("Sum",w(e.sum))),`
+    <table class="analyze-table analyze-stats-table">
+      ${n.join("")}
+    </table>
+  `}function f(e,n){return`
+    <tr class="analyze-stat-row">
+      <th style="text-align: left; padding: 4px 4px 4px 0; white-space: nowrap; vertical-align: top">${m(e)}</th>
+      <td style="padding: 4px 0 4px 4px; vertical-align: top">${n}</td>
+    </tr>
+  `}function z(e,n){const t=e.map(a=>j(a,n.field)),l=t.filter(a=>!q(a)),s=new Map;for(const a of l){const u=O(a);s.set(u,(s.get(u)||0)+1)}const r=G(n)?l.map(T).filter(a=>a!==void 0):[],i=l.map(a=>de(a,n)),p=i.length?i.reduce((a,u)=>I(u,a)<0?u:a):void 0,b=i.length?i.reduce((a,u)=>I(u,a)>0?u:a):void 0,h=Array.from(s.values()).filter(a=>a===1).reduce((a,u)=>a+u,0),v=Array.from(s.values()).filter(a=>a>1).reduce((a,u)=>a+u,0);return{rows:e.length,blanks:t.length-l.length,nonBlanks:l.length,uniques:h,duplicates:v,min:p,max:b,avg:r.length?r.reduce((a,u)=>a+u,0)/r.length:void 0,sum:r.length?r.reduce((a,u)=>a+u,0):void 0}}function H(e,n){const t=new Map;for(const l of e){const s=j(l,n.field),r=O(s),i=ue(s);t.has(r)||t.set(r,{label:i,rows:[]}),t.get(r).rows.push(l)}return Array.from(t.values()).sort((l,s)=>s.rows.length-l.rows.length||l.label.localeCompare(s.label))}function de(e,n){return G(n)?T(e)??e:e}function T(e){if(typeof e=="number"&&!isNaN(e))return e;if(ee(e))return Number(e)}function I(e,n){return typeof e=="number"&&typeof n=="number"?e-n:String(e??"").localeCompare(String(n??""))}function G(e){return Z(e.type,["integer","double","number","double2digit","percent"])}function ue(e){return q(e)?"[Blank]":typeof e=="object"?D(e).replace(/\n/g," "):String(e)}function w(e){return e==null||e===""?'<span style="color: var(--bb-text-secondary-color)">-</span>':m(typeof e=="number"?ce(e):String(e))}function ce(e){return Number.isInteger(e)?e.toLocaleString():e.toLocaleString(void 0,{minimumFractionDigits:2,maximumFractionDigits:2})}function O(e){return e==null?"__blank__":typeof e=="string"?`s:${e}`:typeof e=="number"?`n:${e}`:typeof e=="boolean"?`b:${e}`:e instanceof Date?`d:${e.toISOString()}`:typeof e=="object"?`j:${D(e)}`:`v:${String(e)}`}function m(e){return e.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;")}var pe={class:"mb-sm flex align-items-center gap-4 flex-wrap"},me={class:"flex align-items-center gap-2"},fe={key:0,class:"flex align-items-center gap-2 ml-2"},ge={key:0,class:"text-sm"},be={key:0,class:"mt-md"},ve={class:"mt-xl mb-sm text-lg font-bold"},ye=["innerHTML"],he=K({__name:"AnalyzeFieldsDialog",props:L({rows:{},cols:{},selectedCols:{default:()=>[]}},{modelValue:{type:Boolean,required:!0},modelModifiers:{}}),emits:L(["cancel"],["update:modelValue"]),setup(e,{emit:n}){const t=Q(e,"modelValue"),l=e,s=n,r=x(""),i=x(""),p=x(""),b=x(!1),h=x(!1),v=x([]),a=J(()=>(l.cols||[]).filter(c=>!!(c.field||c.label)&&c.field!=="actions"));X(()=>t.value,()=>{t.value&&(r.value="",i.value="",p.value="",b.value=!1,h.value=!1,v.value=W(l.selectedCols||[]),v.value.length&&_())},{immediate:!0});function u(){s("cancel"),t.value=!1}function _(){r.value="";const c=E();if(!c.length){r.value="Select one or more fields to analyze.";return}if(!l.rows?.length){i.value="Analysis",p.value="<div>No rows to analyze.</div>";return}const d=ae(l.rows,c,{includeValueLevelAnalysis:b.value,groupFields:h.value});i.value=d.title,p.value=d.message}function W(c){const d=new Map(a.value.map(o=>[o.field,o]));return N((c||[]).map(o=>d.get(o.field)||o).filter(o=>!!o),o=>o.field).filter(o=>o.field!=="actions")}function E(){return N((v.value||[]).filter(c=>!!c),c=>c.field).filter(c=>c.field!=="actions")}return(c,d)=>($(),Y(le,{modelValue:t.value,"onUpdate:modelValue":d[3]||(d[3]=o=>t.value=o),title:"View Stats",onOk:_,onClose:u,width:"1100px","ok-label":"Analyze Fields","cancel-label":"Close",closeOnEscape:"",helpFeature:"Datagrid/Field Analysis"},{default:C(()=>[V(te,{message:r.value},null,8,["message"]),d[6]||(d[6]=g("div",{class:"mb-sm text-lg font-bold"},"Input",-1)),d[7]||(d[7]=g("div",{class:"mb-sm text-sm"},"Pick one or more fields to analyze. When Group Fields is enabled, the selected order defines the hierarchy.",-1)),g("div",pe,[g("div",me,[V(M,{modelValue:b.value,"onUpdate:modelValue":d[0]||(d[0]=o=>b.value=o)},null,8,["modelValue"]),d[4]||(d[4]=g("span",{class:"text-sm"},"Value level analysis",-1)),V(B,{help:"When enabled, the report can expand selected fields into a hierarchy."})]),b.value?($(),F("div",fe,[V(M,{modelValue:h.value,"onUpdate:modelValue":d[1]||(d[1]=o=>h.value=o)},null,8,["modelValue"]),d[5]||(d[5]=g("span",{class:"text-sm"},"Group Fields",-1)),V(B,{help:"When enabled, selected fields are treated as a hierarchy. When disabled, each selected field is analyzed independently."})])):k("",!0)]),V(ne,{modelValue:v.value,"onUpdate:modelValue":d[2]||(d[2]=o=>v.value=o),availableItems:a.value,itemKey:"field",type:"Fields",height:220},{item:C(({item:o})=>[P(A(o.label||o.field)+" ",1),o.type?($(),F("span",ge,"("+A(o.type)+")",1)):k("",!0)]),_:1},8,["modelValue","availableItems"]),p.value?($(),F("div",be,[g("div",ve,A(i.value),1),g("div",{class:"analyze-report",innerHTML:p.value},null,8,ye)])):k("",!0)]),_:1},8,["modelValue"]))}}),Se=he;export{Se as default};

@@ -1,0 +1,19 @@
+/**
+ * Rate-us popup iframe container styles (injected into web page).
+ */
+.rate-us-iframe {
+  position: fixed;
+  top: 16px;
+  inset-inline-end: 16px;
+  inset-inline-start: auto;
+  width: 265px;
+  max-width: calc(100vw - 32px);
+  /* Height is set by the content script after load (fit to content). */
+  border: none;
+  z-index: 2147483647;
+  overflow: hidden;
+  background: transparent;
+  color-scheme: none;
+  /* Hidden until load to avoid the unstyled-canvas flash; popups.js reveals it. */
+  visibility: hidden;
+}

@@ -1,0 +1,522 @@
+{
+   "all_rights_reserved": {
+      "message": "Kaikki Oikeudet Pidätetään"
+   },
+   "assistant_another_element": {
+      "message": "Valitse toinen elementti"
+   },
+   "assistant_apply_rule_to_all_sites": {
+      "message": "Käytä kaikilla sivustoilla"
+   },
+   "assistant_block": {
+      "message": "Estä"
+   },
+   "assistant_block_by_reference": {
+      "message": "Estä osoitteen perusteella"
+   },
+   "assistant_block_element": {
+      "message": "Estä elementti"
+   },
+   "assistant_block_element_explain": {
+      "message": "Elementin eston asetukset"
+   },
+   "assistant_block_similar": {
+      "message": "Estä samankaltaiset"
+   },
+   "assistant_extended_settings": {
+      "message": "Lisäasetukset..."
+   },
+   "assistant_preview_end": {
+      "message": "Lopeta esikatselu"
+   },
+   "assistant_preview_start": {
+      "message": "Esikatselu"
+   },
+   "assistant_select_element": {
+      "message": "Valintatila"
+   },
+   "assistant_select_element_cancel": {
+      "message": "peruuta valintatila"
+   },
+   "assistant_select_element_ext": {
+      "message": "Valitse sivulta mikä tahansa elementti tai "
+   },
+   "assistant_slider_explain": {
+      "message": "Säädä liukusäädintä kehyksen koon muuttamiseksi"
+   },
+   "browser_action_popup_block_element": {
+      "message": "Estä elementti"
+   },
+   "close": {
+      "message": "Sulje"
+   },
+   "contact_us": {
+      "message": "Ota yhteyttä"
+   },
+   "context_block_site_ads": {
+      "message": "Estä mainokset tällä sivustolla..."
+   },
+   "context_complaint_site": {
+      "message": "Lähetä valitus tästä sivustosta..."
+   },
+   "context_site_filtering_disabled": {
+      "message": "AdBlocker Ultimate ei kykene toimimaan tällä verkkotunnuksella"
+   },
+   "context_site_filtering_off": {
+      "message": "Poista suodatus käytöstä tällä sivustolla"
+   },
+   "context_site_filtering_on": {
+      "message": "Salli suodatus tällä sivustolla"
+   },
+   "context_update_filters": {
+      "message": "Tarkista suodatinpäivitykset"
+   },
+   "description": {
+      "message": "Lopullinen mainosten estotyökalu. Estä mainokset YouTubessa, Facebookissa ja kaikilla muilla sivustoilla ilmaiseksi!"
+   },
+   "desktop_app_info": {
+      "message": "Mainosestoa hoitaa Adblocker Ultimate Windowsille\u003C/strong>. Voit kuitenkin edelleen käyttää tätä valikkoa sallittujen listan hallintaan tai yksittäisten mainoksien estoon."
+   },
+   "desktop_app_is_running": {
+      "message": "Työpöytäsovellus on käynnissä"
+   },
+   "filter_auto_enabled_desc": {
+      "message": "\"$filter$\" on nyt käytössä",
+      "placeholders": {
+         "filter": {
+            "content": "$1"
+         }
+      }
+   },
+   "filter_group_custom_filters": {
+      "message": "Mukautetut Suodattimet"
+   },
+   "follow_us": {
+      "message": "Seuraa meitä"
+   },
+   "name": {
+      "message": "AdBlocker Ultimate"
+   },
+   "no": {
+      "message": "Ei"
+   },
+   "official_website": {
+      "message": "Virallinen Nettisivu"
+   },
+   "options_about": {
+      "message": "Tietoja"
+   },
+   "options_about_heading": {
+      "message": "Ja kaikki ärsyttävät mainokset ovat poissa!"
+   },
+   "options_add_custom_filter": {
+      "message": "Lisää oma suodatin"
+   },
+   "options_allow_user_scripts": {
+      "message": "Ota mukautetut suodattimet käyttöön sallimalla \u003Csetting-name>Salli käyttäjäsuoritettavat skriptit\u003C/setting-name> laajennuksen tiedoista. \u003Clearn-link>Lue lisää\u003C/learn-link>"
+   },
+   "options_allowlist": {
+      "message": "Sallitut sivut"
+   },
+   "options_allowlist_desc": {
+      "message": "Mainoksia ei estetä sallittujen listalle lisättyillä verkkosivustoilla."
+   },
+   "options_android_callout": {
+      "message": "Android-sovelluksessamme on enemmän ominaisuuksia kuin selainlaajennuksessa. Katso, mitä olet jäämässä paitsi."
+   },
+   "options_android_upgrade": {
+      "message": "Lataa sovellus"
+   },
+   "options_auto_activate_lang_filters_desc": {
+      "message": "Kun muutamia tietynkielisiä sivuja on avattu, kielikohtainen suodatin lisätään ja otetaan käyttöön automaattisesti."
+   },
+   "options_auto_activate_lang_filters_title": {
+      "message": "Ota kielikohtaiset suodattimet käyttöön automaattisesti"
+   },
+   "options_built_in_rules_limit": {
+      "message": "Suodatussääntöjen määrä: $count$",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_confirm_filter_delete": {
+      "message": "Haluatko varmasti poistaa suodattimen?"
+   },
+   "options_custom_filters_user_scripts_required": {
+      "message": "Mukautetut suodattimet, joissa on scriptlet- ja JavaScript-sääntöjä, vaativat User Scripts API -oikeuden käyttöön. Tämä sallii laajennuksen suorittaa skriptejä mukautetuista suodatuslistoista."
+   },
+   "options_custom_rules": {
+      "message": "Omat säännöt"
+   },
+   "options_custom_rules_export": {
+      "message": "Vie"
+   },
+   "options_custom_rules_import": {
+      "message": "Tuo"
+   },
+   "options_desktop_callout": {
+      "message": "Työpöytäsovelluksessamme on enemmän ominaisuuksia kuin selainlaajennuksessa. Katso, mitä olet jäämässä paitsi."
+   },
+   "options_desktop_upgrade": {
+      "message": "Vertaile"
+   },
+   "options_do_you_like_abu": {
+      "message": "Pidätkö AdBlocker Ultimatesta?"
+   },
+   "options_editor_desc": {
+      "message": "Tässä voit lisätä omia sääntöjäsi. Luo mainoksille omia suodattimia ja lisää ne tähän."
+   },
+   "options_enable_context_menu_desc": {
+      "message": "Näyttää toimintovalikon, kun sivua klikataan hiiren kakkospainikkeella."
+   },
+   "options_enable_context_menu_title": {
+      "message": "Käytä kontekstivalikkoa"
+   },
+   "options_enable_developer_mode": {
+      "message": "Ota mukautetut suodattimet käyttöön aktivoimalla \u003Csetting-name>Kehittäjätila\u003C/setting-name> Chromen laajennusasetuksista. \u003Clearn-link>Lue lisää\u003C/learn-link>"
+   },
+   "options_enter_url_or_path": {
+      "message": "Syötä kelvollinen URL-osoite tai tiedostosijainti"
+   },
+   "options_err": {
+      "message": "Jotain meni pieleen!"
+   },
+   "options_err_no_txt_file": {
+      "message": "Vain .txt-tiedostot sallitaan!"
+   },
+   "options_filter_categories": {
+      "message": "Kategoriat"
+   },
+   "options_filter_status_all": {
+      "message": "Kaikki"
+   },
+   "options_filter_status_disabled": {
+      "message": "Poistettu käytöstä"
+   },
+   "options_filter_status_enabled": {
+      "message": "Käytössä"
+   },
+   "options_filter_update_date": {
+      "message": "Viimeisin päivitys: $date$",
+      "placeholders": {
+         "date": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters": {
+      "message": "Suodattimet"
+   },
+   "options_filters_enabled": {
+      "message": "Käytössä:"
+   },
+   "options_filters_update_error": {
+      "message": "Suodattimia ei voitu päivittää. Yritä uudelleen."
+   },
+   "options_filters_update_success": {
+      "message": "Päivitetty $count$ suodatinta",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_success_single": {
+      "message": "Päivitetty $count$ suodatin",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "options_filters_update_uptodate": {
+      "message": "Kaikki suodattimet ovat ajan tasalla"
+   },
+   "options_general": {
+      "message": "Yleiset"
+   },
+   "options_help_translate": {
+      "message": "Auta meitä käännöksissä"
+   },
+   "options_limits": {
+      "message": "Rajat"
+   },
+   "options_limits_active_filters": {
+      "message": "Tällä hetkellä käytössä"
+   },
+   "options_limits_bar_warning": {
+      "message": "Joitakin suodattimia poistettiin käytöstä, koska selaimesi saavutti sääntöjen rajan. \u003Climits-link>Katso, mitä tämä koskee\u003C/limits-link> tai \u003Cupgrade-link>hanki rajaton suojaus\u003C/upgrade-link>."
+   },
+   "options_limits_callout_body": {
+      "message": "Vain \u003Ctext-strong>$active$/$expected$\u003C/text-strong> suodattimista on käytössä – selaimessasi ei ole enää tilaa suodatussäännöille. \u003Ctext-strong>Työpöytäsovelluksessamme ei ole sääntörajoituksia\u003C/text-strong> ja se estää mainokset ja seurannan koko laitteellasi. Jatkaaksesi selainlaajennuksen käyttöä vapauta tilaa poistamalla muita laajennuksia käytöstä tai poistamalla matalan prioriteetin suodattimia.",
+      "placeholders": {
+         "active": {
+            "content": "$1"
+         },
+         "expected": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_callout_body_generic": {
+      "message": "Selaimessasi ei ole enää tilaa suodatussäännöille, joten osa suodattimista on poistettu käytöstä. \u003Ctext-strong>Työpöytäsovelluksessamme ei ole sääntörajoituksia\u003C/text-strong> ja se estää mainokset ja seurannan koko laitteellasi. Jatkaaksesi selainlaajennuksen käyttöä vapauta tilaa poistamalla muita laajennuksia käytöstä tai poistamalla matalan prioriteetin suodattimia."
+   },
+   "options_limits_callout_title": {
+      "message": "Joitakin suodattimia poistettiin käytöstä"
+   },
+   "options_limits_disabled_filters": {
+      "message": "Väliaikaisesti poistettu käytöstä"
+   },
+   "options_limits_dismiss": {
+      "message": "Ohita"
+   },
+   "options_limits_dynamic_regex": {
+      "message": "Dynaamiset regex-säännöt"
+   },
+   "options_limits_dynamic_rules": {
+      "message": "Dynaamiset säännöt"
+   },
+   "options_limits_dynamic_unsafe": {
+      "message": "Turvattomat dynaamiset säännöt"
+   },
+   "options_limits_enabled_lists": {
+      "message": "Käytössä olevat suodattimet"
+   },
+   "options_limits_exceeded_warning": {
+      "message": "Joitakin suodattimia ei voitu ottaa käyttöön, koska selaimen rajat ylittyivät"
+   },
+   "options_limits_get_desktop": {
+      "message": "Hanki työpöytäsovellus"
+   },
+   "options_limits_intro": {
+      "message": "rajoittaa, kuinka monta suodatinta ja sääntöä voi olla käytössä samanaikaisesti. Rajat jaetaan kaikkien selaimen laajennusten kesken."
+   },
+   "options_limits_none": {
+      "message": "Ei mitään"
+   },
+   "options_limits_promo_body": {
+      "message": "Sääntörajat jaetaan muiden laajennustesi kanssa. Jos ylität rajan, osa suodattimista poistetaan väliaikaisesti käytöstä. \u003Ctext-strong>Työpöytäsovelluksessamme ei ole sääntörajoituksia\u003C/text-strong> ja se estää mainokset ja seurannan koko laitteellasi. Pysyäksesi selaimen rajoissa pidä muut laajennukset minimissä ja vältä matalan prioriteetin suodattimia."
+   },
+   "options_limits_promo_title": {
+      "message": "Rajaton suodatus"
+   },
+   "options_limits_reenable": {
+      "message": "Ota uudelleen käyttöön"
+   },
+   "options_limits_reenable_failed": {
+      "message": "Ei tarpeeksi vapaata kapasiteettia. Poista muita laajennuksia tai käyttämättömiä suodattimia käytöstä ja yritä uudelleen"
+   },
+   "options_limits_reenable_success": {
+      "message": "Suodattimet otettiin uudelleen käyttöön"
+   },
+   "options_limits_related": {
+      "message": "Aiheeseen liittyvät asetukset"
+   },
+   "options_limits_static_regex": {
+      "message": "Staattiset regex-säännöt"
+   },
+   "options_limits_static_rules": {
+      "message": "Staattiset säännöt"
+   },
+   "options_limits_subscriptions_desc": {
+      "message": "Sisäänrakennetut suodattimet käyttävät selaimen staattista sääntökokoelmaa ja sääntökiintiötä."
+   },
+   "options_limits_subscriptions_heading": {
+      "message": "Sisäänrakennetut suodattimet"
+   },
+   "options_limits_usage": {
+      "message": "$current$ / $maximum$",
+      "placeholders": {
+         "current": {
+            "content": "$1"
+         },
+         "maximum": {
+            "content": "$2"
+         }
+      }
+   },
+   "options_limits_view_details": {
+      "message": "Näytä tiedot"
+   },
+   "options_limits_warning": {
+      "message": "Jotkin suodattimet poistettiin käytöstä selaimen rajoitusten vuoksi."
+   },
+   "options_limits_your_rules_desc": {
+      "message": "Mukautetut säännöt ja sallittujen sivustojen lista jakavat selaimen dynaamisten sääntöjen kiintiön."
+   },
+   "options_limits_your_rules_heading": {
+      "message": "Omat säännöt"
+   },
+   "options_menu": {
+      "message": "Valikko"
+   },
+   "options_new_filter": {
+      "message": "Uusi suodatin"
+   },
+   "options_no_filters_enabled": {
+      "message": "Suodattimia ei ole käytössä"
+   },
+   "options_number_icon_desc": {
+      "message": "Avoimella sivulla estettyjen mainosten määrä näkyy laajennuksen kuvakkeessa."
+   },
+   "options_number_icon_title": {
+      "message": "Näytä luku kuvakkeessa"
+   },
+   "options_open_extension_details": {
+      "message": "Avaa laajennuksen tiedot"
+   },
+   "options_page_title": {
+      "message": "Asetukset"
+   },
+   "options_rate_us": {
+      "message": "Arvostele Meidät"
+   },
+   "options_search": {
+      "message": "Etsi"
+   },
+   "options_search_results": {
+      "message": "Tulokset"
+   },
+   "options_submit": {
+      "message": "Lähetä"
+   },
+   "options_theme_dark": {
+      "message": "Tumma"
+   },
+   "options_theme_desc": {
+      "message": "Valitse asetussivun värimaailma."
+   },
+   "options_theme_light": {
+      "message": "Vaalea"
+   },
+   "options_theme_system": {
+      "message": "Järjestelmä"
+   },
+   "options_theme_title": {
+      "message": "Teema"
+   },
+   "options_want_abu_in_lang": {
+      "message": "Haluatko AdBlocker Ultimaten omalla kielelläsi?"
+   },
+   "page_blocked_go_back": {
+      "message": "Palaa takaisin"
+   },
+   "page_blocked_heading": {
+      "message": "Tämä sivu on estetty"
+   },
+   "page_blocked_note": {
+      "message": "Väliaikainen pääsy myönnetään."
+   },
+   "page_blocked_proceed": {
+      "message": "Jatka silti"
+   },
+   "page_blocked_reason": {
+      "message": "Estetty suodatussäännön perusteella:"
+   },
+   "page_blocked_title": {
+      "message": "Sivu estetty"
+   },
+   "popup_abu_for_android": {
+      "message": "AdBlocker Ultimate Androidille"
+   },
+   "popup_abu_for_ios": {
+      "message": "AdBlocker Ultimate iOS:lle"
+   },
+   "popup_enabled_on_site": {
+      "message": "Käytössä tällä sivustolla"
+   },
+   "popup_get_abu_desktop": {
+      "message": "Hanki AdBlocker Ultimate $platform$ille",
+      "placeholders": {
+         "platform": {
+            "content": "$1"
+         }
+      }
+   },
+   "popup_limits_warning": {
+      "message": "Joitakin suodattimia poistettiin käytöstä, koska selaimen rajat ylittyivät"
+   },
+   "popup_mobile_apps_title": {
+      "message": "Estä mainokset mobiilissa"
+   },
+   "popup_protection_disabled": {
+      "message": "Suojaus: Ei käytössä"
+   },
+   "popup_protection_enabled": {
+      "message": "Suojaus: Käytössä"
+   },
+   "popup_secure_page": {
+      "message": "Turvallinen sivu"
+   },
+   "popup_settings": {
+      "message": "Asetukset"
+   },
+   "popup_tab_blocked": {
+      "message": "Estetty: $1"
+   },
+   "popup_tab_blocked_all": {
+      "message": "Yhteensä: $1"
+   },
+   "privacy_policy": {
+      "message": "Yksityisyyskäytännöt"
+   },
+   "rate_us_adfree_browsing_achieved": {
+      "message": "Mainosvapaa selaus saavutettu!"
+   },
+   "rate_us_button": {
+      "message": "Arvioi meidät"
+   },
+   "rate_us_email": {
+      "message": "Sähköposti"
+   },
+   "rate_us_hooray": {
+      "message": "Jes!"
+   },
+   "rate_us_message": {
+      "message": "Viesti"
+   },
+   "rate_us_no_thanks": {
+      "message": "Ei kiitos"
+   },
+   "rate_us_prompt": {
+      "message": "Nautitko mainosten estämisestä? Auta muita löytämään meidät."
+   },
+   "rate_us_send_feedback": {
+      "message": "Lähetä palautetta"
+   },
+   "rate_us_tell_how_to_improve": {
+      "message": "Kerro meille, miten voimme parantaa."
+   },
+   "rate_us_thank_you": {
+      "message": "Kiitos!"
+   },
+   "report_bug": {
+      "message": "Ilmoita bugista"
+   },
+   "toast_filter_enabled_title": {
+      "message": "Suodattimia aktivoitiin automaattisesti"
+   },
+   "toast_filters_update_error": {
+      "message": "Päivitysten haku ei onnistunut. Yritä myöhemmin uudestaan."
+   },
+   "toast_filters_update_filter": {
+      "message": "suodatin on päivitetty"
+   },
+   "toast_filters_update_filters": {
+      "message": "suodattimet on päivitetty"
+   },
+   "toast_filters_update_not_found": {
+      "message": "Päivityksiä ei löytynyt"
+   },
+   "toast_filters_update_title_error": {
+      "message": "Päivitysten tarkistus epäonnistui"
+   },
+   "version": {
+      "message": "Versio"
+   },
+   "yes": {
+      "message": "Kyllä"
+   }
+}
