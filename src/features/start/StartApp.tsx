@@ -36,7 +36,7 @@ import { matchSettings } from "./settingsPages";
 import { scoreApp } from "./searchMatch";
 import { boost, reload as reloadLearned, remember } from "./learned";
 import { usePinDrag } from "./usePinDrag";
-import { motion } from "motion/react";
+import { motion, useSpring, useTransform, useVelocity } from "motion/react";
 import { spring } from "../../engine/motion/tokens";
 import "./start.css";
 
@@ -545,6 +545,9 @@ export function StartApp() {
     },
   });
   const dragging = pinDrag.drag !== null;
+  // the carried tile leans into the way it is going (up to 8 degrees, with its sideways speed), as something held does
+  const ghostSpeed = useVelocity(pinDrag.x);
+  const ghostLean = useSpring(useTransform(ghostSpeed, [-1400, 0, 1400], [-8, 0, 8], { clamp: true }), spring.quick);
   // Recommended, as Windows has it: what was installed lately and what was opened lately, together,
   // newest first. An app counts as new for two weeks.
   const recommendedAll = useMemo(() => {
@@ -1122,7 +1125,7 @@ export function StartApp() {
             aria-hidden
             data-out={(pinDrag.drag.insert === null && !pinDrag.drag.landing) || undefined}
             data-unpin={(pinDrag.drag.insert === null && pinDrag.drag.from === "pinned") || undefined}
-            style={{ x: pinDrag.x, y: pinDrag.y, width: pinDrag.drag.width, height: pinDrag.drag.height }}
+            style={{ x: pinDrag.x, y: pinDrag.y, rotate: ghostLean, width: pinDrag.drag.width, height: pinDrag.drag.height }}
             initial={{ scale: 1 }}
             animate={
               pinDrag.drag.landing
@@ -1131,7 +1134,8 @@ export function StartApp() {
                   : { scale: 1, opacity: 1 }
                 : { scale: 1.08, opacity: pinDrag.drag.insert === null ? 0.6 : 1 }
             }
-            transition={spring.quick}
+            // its lift and its landing spring with a little give; fading is quick
+            transition={{ default: spring.quick, scale: spring.settle }}
           >
             <ItemIcon item={pinDrag.drag.item} big />
             <span>{pinDrag.drag.item.name}</span>

@@ -548,7 +548,7 @@ on (ask, or look for the monitors below) before touching either.
 - Strip scenes (menu bar, and the four frame strips per monitor) draw through `Fx2D.setFrameFloor(1000/12)`: each frame there is a whole screen-wide window handed to Windows, so the cost is per frame, not per mote. Measured idle (sandbox copy, 20 s of process-tree CPU): 55% of a core at 24-30 fps, 25% at 12 fps; scene "none" is ~4%, frame off ~8.5%. The strips are the remaining ~17%; lowering the floor further trades smoothness for CPU.
 
 ## Launch races (menu bar, Start)
-- The menu bar window is **pinned** (`dock_window::pin`, enforced in the `keep_caption_off` subclass on `WM_WINDOWPOSCHANGING`): when the frame takes over its appbar strip, the shell moves the window into the work area (to the frame opening, (10, 44)), which put the bar below its strip at about half of launches. `set_bounds` updates the pin; anything else that asks the window to move is turned back (traced as "pinned window ... refused").
+- The menu bar window is **pinned** (`dock_window::pin`, enforced in the `keep_caption_off` subclass on `WM_WINDOWPOSCHANGING`): when the frame takes over its appbar strip, the shell moves the window into the work area (to the frame opening, (10, 44)), which put the bar below its strip at about half of launches. `set_bounds` updates the pin; anything else that asks the window to move is turned back (traced as "pinned window ... refused"). A move that skips the asking (`SWP_NOSENDCHANGING`; seen at a launch on October 20) is caught on `WM_WINDOWPOSCHANGED` and put back by a posted registered message (`LiquidockPutBack`). **Read `PINNED` into a value before acting**: an `if let` on the lock holds it through the block, and moving the window inside re-enters the subclass, which deadlocks (the test `a_pinned_window_goes_back...` hung until this was fixed).
 - Start: an event sent before its page has registered listeners is lost, and the window stayed visible but empty so the next press "closed" it. The page now calls `start_ready` once its listeners are up, Rust waits for that (up to 8 s) before showing, builds the window 4 s after launch (`prebuild`), and the page's listeners are registered once (they call `closeRef`) so none is ever torn down and re-registered. A close told to a page that is closed puts the window away.
 - Repro/diagnosis: `AERO_TRACE=1` writes `trace.log` beside the settings; poll the bar's rect during launch.
 
@@ -768,6 +768,17 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   a `gap` at `insert`, tiles are `motion.button layout="position"` only while dragging. Cells come from the grid's
   computed style, not tiles' boxes (they move). From All apps: `onBegin` shows Pinned; outside the grid: unpin (pinned)
   or back to All apps at its scroll. The harness's `held(x, y)` moves with the button down.
+- **Dock drag** (`dockOrder.ts`, `DockDragItem` in DockBar): pinned, `DIVIDER`, running as ONE list in one
+  `.dock-section` (magnifyField moves the divider there too, if displayed), keyed by app (`app:<targetKey>`), not id
+  (pinning changes `run-…` to `pin-…`, which remounted the icon: the pop). After a drop the order is `hold`-ed until the
+  items agree (≤2 s). The drag is our own (pointer events, offset from the icon's current `layoutRect`, re-placed in a
+  layout effect after every reorder): **motion's `drag` failed to compensate for layout moves for icons after the
+  divider** (a slot behind per place passed) **and re-fitted every icon to the bar's reveal scale** (drift inside the
+  glass). Neighbours use motion `layout="position"`, off while the dock is hidden or coming in (`comingIn`, 700 ms):
+  motion measures through the bar's scale and reads that as movement. Pop's `character.reveal` damping 25 (was 17:
+  6.5% overshoot). Tests: `dockdrag.mjs` (pointer-to-icon 0 px, no jump, same element), `dockreveal.mjs`. The harness
+  now mocks `pin_item`/`unpin_item`/`reorder_*` (changes settings, emits `settings://changed` after `__saveDelay`).
+  `backdrop.mjs`'s two dock-label glass checks fail, and did before this work (not yet looked into).
 - **Lenses sit BEHIND their items** (`.glide-highlight` z 0, `.mb-lens` z 2 under `.mb-item` z 3; each user lifts
   its items: start.css panel children, `.sb-item`, widget buttons). Over them, the backdrop filter (`SOLID_ONLY`
   alpha^4, brightness/saturate, displacement) thinned and recoloured text. `data-lensed` scales only icons/svg, never

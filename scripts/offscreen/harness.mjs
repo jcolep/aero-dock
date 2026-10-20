@@ -238,7 +238,18 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         }
         case "list_recent_downloads": return ${JSON.stringify(downloads)};
         case "user_profile": return ${JSON.stringify(profile)};
-        case "toggle_start": case "close_start": case "launch_as_admin": case "open_file_location": case "system_action": case "pin_item": return null;
+        case "toggle_start": case "close_start": case "launch_as_admin": case "open_file_location": case "system_action": return null;
+        // the dock's pins and running order, changed as Rust would and announced a moment later (window.__saveDelay)
+        case "pin_item": case "unpin_item": case "reorder_pinned": case "reorder_running": {
+          const s = settings;
+          if (cmd === "pin_item" && args?.item) s.pinned.splice(args.index ?? s.pinned.length, 0, args.item);
+          if (cmd === "unpin_item") s.pinned = s.pinned.filter((p) => p.id !== args.id);
+          if (cmd === "reorder_pinned") s.pinned = args.ids.map((id) => s.pinned.find((p) => p.id === id)).filter(Boolean);
+          if (cmd === "reorder_running") s.dock.runningOrder = args.ids.slice();
+          const copy = JSON.parse(JSON.stringify(s));
+          setTimeout(() => window.__emit("settings://changed", copy), window.__saveDelay ?? 150);
+          return copy;
+        }
         case "media_artwork": return window.__art;
         case "report_frame_glass": return null;
         case "set_glass_pane": return null;

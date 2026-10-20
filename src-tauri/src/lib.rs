@@ -90,12 +90,19 @@ pub fn run() {
                 builder.build()?
             };
 
+            // Not having the window's handle yet is not worth failing the launch for ("the underlying handle is not
+            // available" ended a start on October 20; the next one a minute later was fine): the styles are put on
+            // again each time the dock is placed.
             #[cfg(windows)]
-            {
-                let hwnd = window.hwnd()?;
-                let hwnd = windows::Win32::Foundation::HWND(hwnd.0);
-                platform::windows::dock_window::apply_dock_styles(hwnd)?;
-                platform::windows::dock_window::strip_caption(hwnd);
+            match window.hwnd() {
+                Ok(hwnd) => {
+                    let hwnd = windows::Win32::Foundation::HWND(hwnd.0);
+                    if let Err(e) = platform::windows::dock_window::apply_dock_styles(hwnd) {
+                        log::warn!("could not style the dock window: {e}");
+                    }
+                    platform::windows::dock_window::strip_caption(hwnd);
+                }
+                Err(e) => log::warn!("the dock window's handle is not ready yet: {e}"),
             }
 
             // honor the taskbar preference from the last session, and if it
@@ -113,7 +120,10 @@ pub fn run() {
                 platform::windows::taskbar::restore_taskbar();
             }
 
-            commands::dock::position_dock(&handle)?;
+            // the same for its first placement: the docks are placed again once they are all built (sync_docks)
+            if let Err(e) = commands::dock::position_dock(&handle) {
+                log::warn!("could not place the dock yet: {e}");
+            }
             window.show()?;
 
             // The shell takes a moment to actually clear its taskbar away,

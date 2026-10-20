@@ -41,7 +41,9 @@ export const character = {
   pop: { type: "spring", stiffness: 560, damping: 26, mass: 0.55 },
   jelly: { type: "spring", stiffness: 380, damping: 12, mass: 0.6 },
   bounce: { type: "spring", stiffness: 320, damping: 13, mass: 0.6 },
-  reveal: { type: "spring", stiffness: 330, damping: 17, mass: 0.75 },
+  // The dock's Pop: springs out, but only just past its size (damping ratio ~0.8, ~1.5% over). At 17 it went 6.5% over,
+  // from the screen edge, so the icons rode up ~4 px and then sank back a moment after they had seemed to arrive.
+  reveal: { type: "spring", stiffness: 330, damping: 25, mass: 0.75 },
 } as const;
 
 /** The gliding lens: its leading edge runs ahead, the trailing edge follows, and it settles. */

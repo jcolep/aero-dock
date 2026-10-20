@@ -8,7 +8,10 @@
 import { listen } from "@tauri-apps/api/event";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { layoutRect } from "./layoutRect";
-import { AnimatePresence, motion, Reorder, useMotionValue } from "motion/react";
+import { animate, AnimatePresence, motion, useMotionValue, useSpring, useTransform, useVelocity } from "motion/react";
+import { spring } from "../../engine/motion/tokens";
+import { DIVIDER, moved, sides, useDockOrder } from "./dockOrder";
+import { targetKey } from "../../state/runningStore";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { animationsOf, PANEL_EXIT_MS, revealMotion } from "../../engine/animation/presets";
 import { idleFloat, springs } from "../../engine/animation/springs";
@@ -105,48 +108,133 @@ function useLinger(value: number, ms: number): number {
 }
 
 /**
- * The order of a group of dock items while the user drags them. It follows
- * the items it is given between drags, and belongs to the drag while one is
- * in flight, so a settings refresh cannot snap an icon back mid-gesture.
+ * One app's icon in the dock's list, which can be picked up and dragged: free in both directions (so a pinned app can
+ * be pulled off the dock), exactly under the pointer. Picked up it lifts and swells a little, and leans into the way it
+ * is going, as something held does; its neighbours slide aside as it passes them (layout), and let go it springs into
+ * its place. The order itself is DockBar's (dockOrder.ts), told of every move through `onMove`.
  *
- * The group has to know every member by id, or it cannot reorder it. An app
- * pinned by dropping it here arrives as a new member just as the drag ends;
- * if the order did not take it in, the app would draw (at the end) but could
- * never be dragged to another place.
- *
- * `dragging` is read as the current value rather than being a dependency:
- * re-syncing the instant a drag ends would, after a reorder, briefly put the
- * icons back in the old order until the saved one arrived.
+ * The drag is its own, not motion's: as the icon takes a new place in the list its box moves, and motion's drag is
+ * meant to make up for that, but for the icons after the divider it did not (each place passed left the icon a slot
+ * further from the pointer; found by tracking pointer against icon). Here the offset is worked out from the box where
+ * it is laid out now, every move and after every reorder, so it cannot drift. Motion's drag also re-fitted the icons
+ * when the bar's scale changed as the dock came in, which drew them drifting ~20 px inside their glass.
  */
-function useLocalOrder(items: DockItemView[], dragging: boolean) {
-  const [order, setOrder] = useState<string[]>(() => items.map((i) => i.id));
-  const draggingNow = useRef(dragging);
-  draggingNow.current = dragging;
+function DockDragItem({
+  dragKey,
+  vertical,
+  removing,
+  arranging,
+  register,
+  onStart,
+  onMove,
+  onEnd,
+  children,
+}: {
+  dragKey: string;
+  vertical: boolean;
+  removing: boolean;
+  /** The icons slide to their places as the order changes (layout). Off while the dock is away or coming in: the bar
+   *  springs up by a scale motion does not measure through, so each icon read as having moved ~20 px and was drawn
+   *  sliding inside its glass (motion measures every layout element whenever any one changes, so keying it to the
+   *  order did not keep it out). */
+  arranging: boolean;
+  register: (key: string, el: HTMLElement | null) => void;
+  onStart: (key: string) => void;
+  onMove: (key: string, p: { x: number; y: number }) => void;
+  onEnd: (key: string, p: { x: number; y: number }) => void;
+  children: React.ReactNode;
+}) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  // a lean of up to 9 degrees with the speed it is carried along a horizontal dock, sprung so it eases in and out
+  const speed = useVelocity(x);
+  const lean = useSpring(useTransform(speed, [-1600, 0, 1600], [-9, 0, 9], { clamp: true }), spring.quick);
+  const el = useRef<HTMLDivElement | null>(null);
+  // the press: where the pointer went down, where the icon was laid out then, and where the pointer is now
+  const press = useRef<{ id: number; sx: number; sy: number; lx: number; ly: number; px: number; py: number; moved: boolean } | null>(null);
+  const [held, setHeld] = useState(false);
+  const settle = useRef<{ stop: () => void }[]>([]);
+
+  /** Put the icon under the pointer: the pointer's travel, less how far its own box has moved in the list since. */
+  const place = () => {
+    const p = press.current;
+    const node = el.current;
+    if (!p || !node) return;
+    const r = layoutRect(node);
+    x.set(p.px - p.sx - (r.left - p.lx));
+    y.set(p.py - p.sy - (r.top - p.ly));
+  };
+  // after every render while held: a reorder has just moved its box
+  useLayoutEffect(() => {
+    if (held) place();
+  });
+
   useEffect(() => {
-    const ids = items.map((i) => i.id);
-    setOrder((current) => {
-      // no drag in flight: follow the items exactly
-      if (!draggingNow.current) return ids;
-      // a drag is reordering them: keep its order, but take in newcomers (at
-      // the end) and drop anything that has gone, so every member is known
-      const sameMembers =
-        current.length === ids.length && ids.every((id) => current.includes(id));
-      if (sameMembers) return current;
-      return [
-        ...current.filter((id) => ids.includes(id)),
-        ...ids.filter((id) => !current.includes(id)),
-      ];
-    });
-  }, [items]);
+    const move = (e: PointerEvent) => {
+      const p = press.current;
+      if (!p || e.pointerId !== p.id) return;
+      p.px = e.clientX;
+      p.py = e.clientY;
+      if (!p.moved) {
+        if (Math.hypot(p.px - p.sx, p.py - p.sy) < 5) return;
+        p.moved = true;
+        try {
+          el.current?.setPointerCapture(p.id);
+        } catch {
+          /* the pointer has gone */
+        }
+        setHeld(true);
+        onStart(dragKey);
+      }
+      place();
+      onMove(dragKey, { x: p.px, y: p.py });
+    };
+    const up = (e: PointerEvent) => {
+      const p = press.current;
+      if (!p || e.pointerId !== p.id) return;
+      press.current = null;
+      if (!p.moved) return;
+      setHeld(false);
+      onEnd(dragKey, { x: e.clientX, y: e.clientY });
+      // home, from wherever it was let go
+      settle.current = [animate(x, 0, spring.standard), animate(y, 0, spring.standard)];
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
+    // the handlers read the latest props through the closure each render
+  });
 
-  const ordered = useMemo(() => {
-    const byId = new Map(items.map((i) => [i.id, i]));
-    const seq = order.map((id) => byId.get(id)).filter(Boolean) as DockItemView[];
-    for (const item of items) if (!order.includes(item.id)) seq.push(item);
-    return seq;
-  }, [order, items]);
-
-  return { order, setOrder, ordered };
+  return (
+    <motion.div
+      ref={(node) => {
+        el.current = node;
+        register(dragKey, node);
+      }}
+      // it is placed by hand while held; the others slide as its place among them changes
+      layout={arranging && !held ? "position" : false}
+      style={{ x, y, rotate: vertical ? 0 : lean, zIndex: held ? 30 : undefined, touchAction: "none" }}
+      // neighbours make way quickly (the gap opens before the pointer arrives); its lift springs in and out with a
+      // little give
+      transition={{ default: spring.standard, layout: springs.reorder, scale: spring.settle }}
+      animate={{ opacity: removing ? 0.45 : 1, scale: held ? 1.12 : 1 }}
+      onPointerDown={(e) => {
+        if (e.button !== 0 || !arranging) return;
+        settle.current.forEach((a) => a.stop());
+        const node = el.current;
+        const r = node ? layoutRect(node) : { left: 0, top: 0 };
+        // (from where it is drawn: a press while it is still settling home takes it from there)
+        press.current = { id: e.pointerId, sx: e.clientX - x.get(), sy: e.clientY - y.get(), lx: r.left, ly: r.top, px: e.clientX, py: e.clientY, moved: false };
+      }}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 interface DockBarProps {
@@ -212,14 +300,10 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemKeys]);
 
-  // Local order during a drag; resynced from settings between drags. Both
-  // groups, pinned and running, are draggable and share this logic.
-  const { order, setOrder, ordered: orderedPinned } = useLocalOrder(pinnedItems, dragging);
-  const {
-    order: runOrder,
-    setOrder: setRunOrder,
-    ordered: orderedRunning,
-  } = useLocalOrder(runningItems, dragging);
+  // Pinned apps, the divider and running apps as one list, so an icon can be dragged across the divider (dockOrder.ts)
+  const dockOrder = useDockOrder(items, dragging);
+  const orderRef = useRef(dockOrder.order);
+  orderRef.current = dockOrder.order;
 
   const peak = magnification ? magnificationScale : 1;
   // how far above where it rests the icon under the pointer reaches, in px, beyond what its growth gives it
@@ -609,7 +693,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   // Deterministic window size: no ResizeObserver, no feedback loops.
   const windowSize = useMemo(() => {
     const n = Math.max(items.length, 1);
-    const dividers = runningItems.length > 0 ? 1 : 0;
+    // (the divider shows while an app is dragged, even with one side empty, so it can be dropped on either side)
+    const dividers = runningItems.length > 0 || dragging ? 1 : 0;
     const mainBase = n * iconSize + (n - 1 + dividers) * iconSpacing + dividers * 8 + PAD_MAIN * 2;
     // neighbors near the cursor grow too: the swollen stretch is as wide as the reach, and the growth over it adds
     // up to no more than the peak times the reach, in icons
@@ -696,6 +781,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     edgeGap,
     settings.dock.showSearchButton,
     settings.dock.startSize,
+    dragging,
   ]);
 
   // The room a flyout takes is given back only after its exit has played. A
@@ -906,9 +992,10 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
   };
 
   // ---- dragging apps on and off the dock ----
-  // Pull a pinned app clear of the dock and let go: it is unpinned. Drag a
-  // running app that is not pinned onto the pinned side of the divider: it is
-  // pinned there. Anything else is just a reorder within its own group.
+  // One list (dockOrder.ts): an icon dragged along it moves past its neighbours, the divider included, and they slide
+  // aside to make room. Let go on the pinned side, a running app is pinned there; let go on the running side, a pinned
+  // app is unpinned (and goes, if it has no windows); pulled clear of the dock, a pinned app is unpinned. Anything else
+  // is a reorder of its own side.
 
   /** Whether a point is far enough past the bar, on the side away from the
    *  screen edge, to count as "pulled off the dock". Kept inside the window's
@@ -928,102 +1015,131 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     }
   };
 
-  /** Where, among the pinned apps, a drop at this point would put a new one. */
-  const pinnedIndexAt = (p: { x: number; y: number }): number => {
-    const section = barRef.current?.querySelectorAll(".dock-section")[0];
-    if (!section) return 0;
-    let before = 0;
-    for (const child of Array.from(section.children)) {
-      const r = child.getBoundingClientRect();
-      const centre = vertical ? r.top + r.height / 2 : r.left + r.width / 2;
-      if ((vertical ? p.y : p.x) > centre) before++;
-    }
-    return before;
+  // the icons' elements by key, to measure where they are laid out
+  const dragEls = useRef(new Map<string, HTMLElement>());
+  const registerDragEl = useCallback((key: string, el: HTMLElement | null) => {
+    if (el) dragEls.current.set(key, el);
+    else dragEls.current.delete(key);
+  }, []);
+  // what was picked up: whether it was pinned, and whether the app is running (an app with no windows that is unpinned
+  // goes from the dock altogether)
+  const dragFrom = useRef<{ key: string; wasPinned: boolean; running: boolean } | null>(null);
+  // the icon that letting go now would unpin and take away (drawn faded, with "Remove from Dock" by the pointer)
+  const [removing, setRemoving] = useState<string | null>(null);
+  // The icons slide to their places (layout) except while the dock is away and while it comes back in (see
+  // DockDragItem): the bar springs up by a scale motion does not measure through, so each icon read as having moved
+  // ~20 px and was drawn sliding inside its glass to catch up. Switched off then, and on again once the bar is at rest.
+  const [comingIn, setComingIn] = useState(false);
+  useEffect(() => {
+    if (hidden) return;
+    setComingIn(true);
+    const t = setTimeout(() => setComingIn(false), 700 / Math.max(0.25, speed));
+    return () => clearTimeout(t);
+  }, [hidden, speed]);
+  const arranging = !hidden && !comingIn;
+  // a move was just made: the next is weighed against the new layout, not the one before it
+  const reordering = useRef(false);
+  useLayoutEffect(() => {
+    reordering.current = false;
+  }, [dockOrder.order]);
+
+  /** Where along the dock an icon (or the divider) is laid out: the middle of its box, ignoring any transform. */
+  const middleOf = (key: string): number | null => {
+    const el = dragEls.current.get(key);
+    if (!el || el.offsetParent === null) return null;
+    const r = layoutRect(el);
+    return vertical ? r.top + r.height / 2 : r.left + r.width / 2;
   };
 
-  /** Whether a point is on the pinned side of the divider and still at the
-   *  bar, rather than off somewhere else. */
-  const onPinnedSide = (p: { x: number; y: number }): boolean => {
-    const bar = barRef.current?.getBoundingClientRect();
-    const divider = barRef.current?.querySelector(".dock-divider")?.getBoundingClientRect();
-    if (!bar || !divider) return false;
-    const atBar =
-      p.x > bar.left - PULL_OFF &&
-      p.x < bar.right + PULL_OFF &&
-      p.y > bar.top - PULL_OFF &&
-      p.y < bar.bottom + PULL_OFF;
-    return atBar && (vertical ? p.y < divider.top : p.x < divider.left);
+  /** Whether letting go of the icon picked up, at this point and in this order, would unpin and take it away. */
+  const wouldRemove = (key: string, p: { x: number; y: number }, seq: string[]) => {
+    const from = dragFrom.current;
+    if (!from?.wasPinned) return false;
+    return pulledOff(p) || (!from.running && sides(seq).running.includes(key));
   };
 
-  /** Act on a drop. True if it pinned or unpinned something, in which case
-   *  the group's order does not need saving. */
-  const dropOnDock = (
-    item: DockItemView,
-    kind: "pinned" | "running",
-    p: { x: number; y: number },
-  ): boolean => {
-    if (kind === "pinned") {
-      if (!pulledOff(p)) return false;
-      ipc.unpinItem(item.id).catch(notify.on(`Could not remove ${item.name}`));
-      // a small puff where it was let go
-      effectsBus.emit("burst", {
-        x: p.x,
-        y: p.y,
-        winW: window.innerWidth,
-        winH: window.innerHeight,
-      });
-      return true;
-    }
-    if (!onPinnedSide(p)) return false;
-    pinRunningItem(item, pinnedIndexAt(p)).catch(notify.on(`Could not pin ${item.name}`));
-    return true;
+  const onIconDragStart = (key: string) => {
+    const item = dockOrder.byKey.get(key);
+    dragFrom.current = { key, wasPinned: sides(orderRef.current).pinned.includes(key), running: (item?.windows.length ?? 0) > 0 };
+    draggingRef.current = true;
+    setDragging(true);
+    mouseAxis.set(Infinity);
   };
 
-  /** One icon in a draggable group; `save` persists the group's new order. */
-  const draggableItem = (
-    item: DockItemView,
-    index: number,
-    kind: "pinned" | "running",
-    save: () => Promise<unknown>,
-  ) => (
-    <Reorder.Item
-      as="div"
-      key={item.id}
-      value={item.id}
-      /* Free in both directions, not only along the dock, so an icon can be
-         pulled off it. Reordering still only looks at the dock's own axis. */
-      drag
-      /* Only the siblings animate. Momentum and elasticity both
-         make the dragged tile trail the cursor, which is what
-         read as lag, so the tile itself tracks 1:1. */
-      transition={springs.reorder}
-      dragMomentum={false}
-      dragElastic={0.04}
-      whileDrag={{ zIndex: 30 }}
-      onDragStart={() => {
-        draggingRef.current = true;
-        setDragging(true);
-        mouseAxis.set(Infinity);
-      }}
-      onDrag={(_, info) => {
-        // tell the user what letting go here would do
-        setPullOut(kind === "pinned" && pulledOff(info.point) ? info.point : null);
-      }}
-      onDragEnd={(_, info) => {
-        setPullOut(null);
-        if (!dropOnDock(item, kind, info.point)) {
-          save().catch(notify.on("Could not save the new order"));
+  const onIconDrag = (key: string, p: { x: number; y: number }) => {
+    const seq = orderRef.current;
+    // past the middle of a neighbour (or the divider), it takes that place, and the neighbour slides into its own
+    if (!reordering.current) {
+      const at = seq.indexOf(key);
+      const along = vertical ? p.y : p.x;
+      let to = at;
+      while (to + 1 < seq.length) {
+        const m = middleOf(seq[to + 1]);
+        if (m === null || along <= m) break;
+        to++;
+      }
+      if (to === at) {
+        while (to - 1 >= 0) {
+          const m = middleOf(seq[to - 1]);
+          if (m === null || along >= m) break;
+          to--;
         }
-        setDragging(false);
-        // let the trailing click event pass before re-enabling launch
-        setTimeout(() => {
-          draggingRef.current = false;
-        }, 50);
-      }}
-    >
-      <DockIcon item={item} index={index} {...iconProps} />
-    </Reorder.Item>
-  );
+      }
+      if (to !== at) {
+        reordering.current = true;
+        const next = moved(seq, at, to);
+        orderRef.current = next;
+        dockOrder.setOrder(next);
+      }
+    }
+    // tell the user what letting go here would do
+    const gone = wouldRemove(key, p, orderRef.current);
+    setRemoving(gone ? key : null);
+    setPullOut(gone ? p : null);
+  };
+
+  const onIconDragEnd = (key: string, p: { x: number; y: number }) => {
+    const seq = orderRef.current;
+    const item = dockOrder.byKey.get(key);
+    const from = dragFrom.current;
+    setPullOut(null);
+    setRemoving(null);
+    dragFrom.current = null;
+    if (item && from) {
+      const { pinned, running } = sides(seq);
+      const idOf = (k: string) => dockOrder.byKey.get(k)?.id ?? k;
+      const puff = () => effectsBus.emit("burst", { x: p.x, y: p.y, winW: window.innerWidth, winH: window.innerHeight });
+      if (wouldRemove(key, p, seq)) {
+        // unpinned, and with no windows it leaves the dock: gone at once, with a puff, and the gap closes
+        dockOrder.hold(seq.filter((k) => k !== key));
+        puff();
+        ipc.unpinItem(item.id).catch(notify.on(`Could not remove ${item.name}`));
+      } else if (from.wasPinned && pinned.includes(key)) {
+        dockOrder.hold(seq);
+        ipc.reorderPinned(pinned.map(idOf)).catch(notify.on("Could not save the new order"));
+      } else if (!from.wasPinned && running.includes(key)) {
+        dockOrder.hold(seq);
+        ipc.reorderRunning(running.map(idOf)).catch(notify.on("Could not save the new order"));
+      } else if (!from.wasPinned) {
+        // a running app let go among the pinned ones: pinned there
+        dockOrder.hold(seq);
+        pinRunningItem(item, pinned.indexOf(key)).catch(notify.on(`Could not pin ${item.name}`));
+      } else {
+        // a pinned app with windows let go among the running ones: unpinned, and it stays there as running
+        dockOrder.hold(seq);
+        const runId = `run-${targetKey(item.target)}`;
+        ipc
+          .unpinItem(item.id)
+          .then(() => ipc.reorderRunning(running.map((k) => (k === key ? runId : idOf(k)))))
+          .catch(notify.on(`Could not unpin ${item.name}`));
+      }
+    }
+    setDragging(false);
+    // let the trailing click event pass before re-enabling launch
+    setTimeout(() => {
+      draggingRef.current = false;
+    }, 50);
+  };
 
   // A custom running-mark color (Settings > Dock items > Running app mark): the same color math the theme's own
   // accent gets (tokensFromAccent), computed once more for whatever color was picked, so the mark's gradient and
@@ -1139,35 +1255,50 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
             <span className="dock-divider" aria-hidden />
           </StartSlot>
         )}
-        <Reorder.Group
-          as="div"
-          className="dock-section"
-          axis={vertical ? "y" : "x"}
-          values={order}
-          onReorder={setOrder}
-        >
-          {orderedPinned.map((item, i) =>
-            draggableItem(item, i, "pinned", () => ipc.reorderPinned(order)),
-          )}
-        </Reorder.Group>
-        {/* between pinned and running apps; with nothing pinned there is nothing to divide (and the Liquidock
-            button's divider would stand beside it as a double line) */}
-        {runningItems.length > 0 && orderedPinned.length > 0 && <span className="dock-divider" aria-hidden />}
-        {runningItems.length > 0 && (
-          <Reorder.Group
-            as="div"
-            className="dock-section"
-            axis={vertical ? "y" : "x"}
-            values={runOrder}
-            onReorder={setRunOrder}
-          >
-            {orderedRunning.map((item, i) =>
-              draggableItem(item, orderedPinned.length + i, "running", () =>
-                ipc.reorderRunning(runOrder),
-              ),
-            )}
-          </Reorder.Group>
-        )}
+        {/* the pinned apps, the divider and the running apps in one list, so an icon can be dragged across */}
+        <div className="dock-section">
+          {(() => {
+            const { pinned: pinnedKeys, running: runningKeys } = sides(dockOrder.order);
+            // between pinned and running apps; with one side empty there is nothing to divide (and beside the
+            // Liquidock button's divider it would stand as a double line), unless an app is being dragged, which can
+            // then be put down on either side of it
+            const showDivider = dragging || (pinnedKeys.length > 0 && runningKeys.length > 0);
+            let index = 0;
+            return dockOrder.order.map((key) => {
+              if (key === DIVIDER) {
+                return (
+                  <motion.span
+                    key={DIVIDER}
+                    ref={(el) => registerDragEl(DIVIDER, el)}
+                    layout={arranging ? "position" : false}
+                    transition={springs.reorder}
+                    className="dock-divider"
+                    data-hidden={!showDivider || undefined}
+                    aria-hidden
+                  />
+                );
+              }
+              const item = dockOrder.byKey.get(key);
+              if (!item) return null;
+              const at = index++;
+              return (
+                <DockDragItem
+                  key={key}
+                  dragKey={key}
+                  vertical={vertical}
+                  removing={removing === key}
+                  arranging={arranging}
+                  register={registerDragEl}
+                  onStart={onIconDragStart}
+                  onMove={onIconDrag}
+                  onEnd={onIconDragEnd}
+                >
+                  <DockIcon item={item} index={at} {...iconProps} />
+                </DockDragItem>
+              );
+            });
+          })()}
+        </div>
         {(showClock || showStatus) && (
           <span className="dock-divider" aria-hidden />
         )}

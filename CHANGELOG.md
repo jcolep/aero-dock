@@ -50,6 +50,24 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Dragging in the dock and Start; the dock coming in; the menu bar at launch (October 20)
+
+- **Dock apps drag across the divider**: pinned apps, the divider and running apps are one list now, so an icon carried
+  from one side to the other moves past the divider like any neighbour and the icons slide aside to make room. Let go
+  on the pinned side, a running app is pinned there; let go on the running side, a pinned app is unpinned (it stays as
+  a running app if it has windows, and goes, with "Remove from Dock" shown on the way, if it has none). The icon is the
+  same one before and after (it used to vanish from one side and pop into the other), stays exactly under the pointer,
+  lifts a little and leans into the way it is going, and springs into its place when let go.
+- **Start's pinned grid**: the carried tile leans with its speed, the place it would go shows as a soft empty well, and
+  it settles with a little give.
+- **The dock coming in no longer shifts its icons**: with Pop, the bar went 6.5% past its size from the screen edge, so
+  the icons rose ~4 px and sank back a moment after they seemed to arrive (now about half a pixel); and every icon was
+  drawn drifting ~20 px inside its glass as the dock came in (a re-fit by the drag library to the bar's changing scale,
+  there since the icons were first draggable).
+- **The menu bar stays at the top at launch**: a move into the frame's opening that the shell made without asking first
+  got past the pin; the bar now notices it has been moved and goes back. A start that failed with "the underlying
+  handle is not available" now carries on instead.
+
 ### Start: drag to arrange pins; search that finds apps the way Windows' does (October 20)
 
 - **Drag pinned apps** in Start to move them; the others slide aside to make room. Drag one out of the grid to unpin it

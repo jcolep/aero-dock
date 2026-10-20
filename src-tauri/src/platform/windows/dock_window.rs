@@ -3,17 +3,24 @@
 //! actually working in (docks are furniture, not windows).
 
 use parking_lot::Mutex;
-use windows::Win32::Foundation::{HWND, LPARAM, LRESULT, WPARAM};
+use windows::Win32::Foundation::{HWND, LPARAM, LRESULT, RECT, WPARAM};
 use windows::Win32::Graphics::Gdi::{CreateRectRgn, DeleteObject, SetWindowRgn};
 use windows::Win32::UI::Shell::{DefSubclassProc, SetWindowSubclass};
 use windows::Win32::UI::WindowsAndMessaging::{
-    GetWindowLongPtrW, SetWindowLongPtrW, SetWindowPos, GWL_EXSTYLE, GWL_STYLE, STYLESTRUCT,
-    SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, WINDOWPOS, WM_NCACTIVATE,
-    WM_STYLECHANGING, WM_WINDOWPOSCHANGING,
+    GetWindowLongPtrW, GetWindowRect, PostMessageW, RegisterWindowMessageW, SetWindowLongPtrW, SetWindowPos, GWL_EXSTYLE,
+    GWL_STYLE, STYLESTRUCT, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, WINDOWPOS, WM_NCACTIVATE,
+    WM_STYLECHANGING, WM_WINDOWPOSCHANGED, WM_WINDOWPOSCHANGING,
     WS_CAPTION, WS_EX_APPWINDOW, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_SYSMENU,
 };
 
 use crate::core::AeroResult;
+
+/// Posted to a pinned window that was moved without being asked, to put it back (see [`keep_caption_off`]). A
+/// registered message, so it can be nothing tao or WebView2 uses on the same window.
+fn put_back() -> u32 {
+    static ID: std::sync::OnceLock<u32> = std::sync::OnceLock::new();
+    *ID.get_or_init(|| unsafe { RegisterWindowMessageW(windows::core::w!("LiquidockPutBack")) })
+}
 
 /// Where windows that must stay put have been placed, by handle: (x, y, width, height), physical pixels.
 static PINNED: Mutex<Vec<(isize, [i32; 4])>> = Mutex::new(Vec::new());
@@ -107,6 +114,35 @@ pub fn keep_caption_off(hwnd: HWND) {
         // say "do not repaint the frame"; everything else about it still runs.
         if msg == WM_NCACTIVATE {
             return unsafe { DefSubclassProc(hwnd, msg, wparam, LPARAM(-1)) };
+        }
+        // A move that got past the check below (`SWP_NOSENDCHANGING` skips WM_WINDOWPOSCHANGING, and the shell moves
+        // windows into the work area that way at some launches: the bar was found at the frame's opening, 1920 wide,
+        // with no refusal in the trace) is put right once it has happened. Posted, not done here: moving a window
+        // from inside its own WM_WINDOWPOSCHANGED would run this again within itself.
+        // (the pin is read into a value first: an `if let` on the lock would hold it through the block, and moving the
+        // window inside it asks this procedure again, which would wait on that same lock for ever)
+        if msg == WM_WINDOWPOSCHANGED && lparam.0 != 0 {
+            let at = unsafe { &*(lparam.0 as *const WINDOWPOS) };
+            let want = PINNED.lock().iter().find(|(k, _)| *k == hwnd.0 as isize).map(|(_, r)| *r);
+            if let Some([x, y, w, h]) = want {
+                let moved = at.flags.0 & SWP_NOMOVE.0 == 0 && (at.x != x || at.y != y);
+                let sized = at.flags.0 & SWP_NOSIZE.0 == 0 && (at.cx != w || at.cy != h);
+                if moved || sized {
+                    crate::trace!("pinned window {:#x}: was moved to ({}, {}) {}x{} unasked, putting it back", hwnd.0 as isize, at.x, at.y, at.cx, at.cy);
+                    let _ = unsafe { PostMessageW(Some(hwnd), put_back(), WPARAM(0), LPARAM(0)) };
+                }
+            }
+        }
+        if msg == put_back() {
+            let want = PINNED.lock().iter().find(|(k, _)| *k == hwnd.0 as isize).map(|(_, r)| *r);
+            if let Some([x, y, w, h]) = want {
+                let mut now = RECT::default();
+                let _ = unsafe { GetWindowRect(hwnd, &mut now) };
+                if (now.left, now.top, now.right - now.left, now.bottom - now.top) != (x, y, w, h) {
+                    let _ = unsafe { SetWindowPos(hwnd, None, x, y, w, h, SWP_NOZORDER | SWP_NOACTIVATE) };
+                }
+            }
+            return LRESULT(0);
         }
         // a window that was told where it belongs stays there, whoever asks it to go elsewhere
         if msg == WM_WINDOWPOSCHANGING && lparam.0 != 0 {
@@ -230,6 +266,46 @@ mod tests {
     fn has_caption(hwnd: HWND) -> bool {
         let style = unsafe { GetWindowLongPtrW(hwnd, GWL_STYLE) } as u32;
         style & WS_CAPTION.0 != 0 || style & WS_SYSMENU.0 != 0
+    }
+
+    #[test]
+    fn a_pinned_window_goes_back_even_when_moved_without_being_asked() {
+        use windows::Win32::UI::WindowsAndMessaging::{DispatchMessageW, PeekMessageW, TranslateMessage, MSG, PM_REMOVE, SWP_NOSENDCHANGING};
+        // an unshown window far off screen
+        let hwnd = unsafe {
+            CreateWindowExW(WINDOW_EX_STYLE(0), w!("STATIC"), w!("pin test"), WS_POPUP, -30000, -30000, 300, 200, None, None, None, None)
+        }
+        .expect("a test window");
+        keep_caption_off(hwnd);
+        pin(hwnd, -30000, -30000, 300, 200);
+        let rect = || {
+            let mut r = RECT::default();
+            unsafe { GetWindowRect(hwnd, &mut r) }.expect("its rect");
+            (r.left, r.top, r.right - r.left, r.bottom - r.top)
+        };
+        let pump = || unsafe {
+            let mut m = MSG::default();
+            while PeekMessageW(&mut m, None, 0, 0, PM_REMOVE).as_bool() {
+                let _ = TranslateMessage(&m);
+                DispatchMessageW(&m);
+            }
+        };
+        // asked: refused on the way in
+        unsafe { SetWindowPos(hwnd, None, -29000, -29000, 300, 200, SWP_NOZORDER | SWP_NOACTIVATE) }.expect("a move");
+        assert_eq!(rect(), (-30000, -30000, 300, 200), "an asked move is refused");
+        // not asked (the shell's way at some launches): it happens, and is put back
+        unsafe { SetWindowPos(hwnd, None, -29000, -29000, 300, 200, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSENDCHANGING) }.expect("a move");
+        assert_eq!(rect(), (-29000, -29000, 300, 200), "the unasked move happened");
+        pump();
+        assert_eq!(rect(), (-30000, -30000, 300, 200), "and was put back");
+        // moved on purpose, it stays
+        set_bounds(hwnd, -28000, -28000, 320, 210).expect("set_bounds");
+        pump();
+        assert_eq!(rect(), (-28000, -28000, 320, 210), "set_bounds moves it for good");
+        PINNED.lock().retain(|(k, _)| *k != hwnd.0 as isize);
+        unsafe {
+            let _ = DestroyWindow(hwnd);
+        }
     }
 
     #[test]

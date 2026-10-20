@@ -150,8 +150,13 @@
   gap: var(--icon-gap);
   list-style: none;
 }
-/* an empty section (no pinned apps) takes no gap, so it adds nothing to the start */
+/* an empty section takes no gap, so it adds nothing to the start */
 .dock-section:empty {
+  display: none;
+}
+/* the divider between pinned and running apps lives in the list (so an icon can be dragged across it); with one side
+   empty it is out of the way, until an app is picked up */
+.dock-section > .dock-divider[data-hidden] {
   display: none;
 }
 

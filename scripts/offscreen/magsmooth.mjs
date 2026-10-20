@@ -35,7 +35,8 @@ for (const feel of ["soft", "liquid", "snappy"]) {
     const bar = await q("(() => { const b = document.querySelector('.dock-bar').getBoundingClientRect(); return { left: b.left, right: b.right, y: (b.top + b.bottom) / 2 }; })()");
     const sizes = `[...document.querySelectorAll('.dock-bar .dock-icon-mag')].map((b) => +b.getBoundingClientRect().width.toFixed(2))`;
     // where layout puts each thing in the bar (whole pixels, which is how it is painted), apart from any translate
-    const laidOut = `[...document.querySelectorAll('.dock-bar .dock-icon, .dock-bar .dock-divider, .dock-bar .widget-cluster')].map((e) => { const r = e.getBoundingClientRect(); return r.left + r.width / 2 - (parseFloat(e.style.translate) || 0); })`;
+    // (less the translates of what holds it too, up to the bar: the Liquidock button's divider rides in its slot)
+    const laidOut = `[...document.querySelectorAll('.dock-bar .dock-icon, .dock-bar .dock-divider:not([data-hidden]), .dock-bar .widget-cluster')].map((e) => { const r = e.getBoundingClientRect(); let t = 0; for (let n = e; n && !n.classList.contains('dock-bar'); n = n.parentElement) t += parseFloat(n.style.translate) || 0; return r.left + r.width / 2 - t; })`;
     const layoutAtRest = await h.eval(laidOut);
     // the turns in each icon's size, over a run of frames (a change of under a hundredth of a pixel is not a turn)
     const turns = (frames) => {

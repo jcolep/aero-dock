@@ -97,10 +97,15 @@ export function place(field: MagnifyField): void {
       move(field, child, before);
       continue;
     }
-    // a section of icons: each is a reorder item holding the icon's button
+    // a section of icons: each is a draggable item holding the icon's button; the divider between pinned and running
+    // apps sits among them and is moved along like anything else in the bar
     for (const item of child.children) {
       const button = item.firstElementChild;
-      if (!(button instanceof HTMLElement) || !field.widths.has(button)) continue;
+      if (!(button instanceof HTMLElement) || !field.widths.has(button)) {
+        // (not one that is hidden: the divider is, with one side empty)
+        if (item instanceof HTMLElement && !item.firstElementChild && item.offsetParent !== null) move(field, item, before);
+        continue;
+      }
       const g = swell(field, button);
       move(field, button, before + g / 2);
       button.style.setProperty("--grow", `${g.toFixed(3)}px`);
