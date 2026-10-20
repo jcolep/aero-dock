@@ -612,6 +612,7 @@ What changed, and the rules that come with it:
 - **Frame corners** (`shaper::windows_on_screen`): rule a window out by `GetWindowRect` before any DWM call, and stop the
   walk once every corner point has its top window.
 - **Settings events** identical to what a window has are dropped (`settingsStore`).
+- **Memory, measured October 20 (work machine, idle, 7 min up): 357 MB private working set** (Task Manager's number; `Win32_PerfFormattedData_PerfProc_Process.WorkingSetPrivate` summed over the app's tree): 6 renderers 186, GPU process 73, the two main processes 82, utilities 14. (Commit size and plain working set read 2-3x that and mean little.) **Every window's JS heap is only 2-9 MB** (`scripts/native/heaps.mjs`, against an app started with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9444`), so JavaScript-level refactoring will not move it. **Tried and dropped: `MemoryUsageTargetLevel` Low for Start and Mission Control (6 s after hiding), the frame windows (always) and the menu bar (20 s idle)**, on top of the dock's own: A/B at the same uptime gave 374 MB against 357 MB (GPU 99 against 73, renderers 178 against 186): no gain, so not shipped. What is left is structural (the number of web views: one renderer is ~30 MB), at a cost to first-open latency or function.
 - Dead code removed (unused wrappers, constants, ten dead CSS classes); `deadcode.mjs` and `deadcss.mjs` find more.
 
 Tools (all off screen unless said):
