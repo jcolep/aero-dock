@@ -743,6 +743,9 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   `revealZone` of the bar's start; stays while within the slot's right + max(16, zone·0.6); shuts 180 ms after).
   Looks `dock.startStyle` solid (Droplet `solid`) | outline | well (`--well` from `startWellColor`); its own click
   effect `startClick`/`startClickTune`. The running divider shows only with pinned apps. `startslot.mjs`.
+  **Clamp the settle spring's progress to 0..1** (`held`): it overshoots below 0 when shutting, and the slot reads a
+  negative size as "natural width", so the bar sprang open for a few frames. The button draws `Droplet compact`
+  (shading for ~30 px: one soft top catch, a faint foot glow, `rimSoft`; the large marks keep the full drawing).
 - **Liquidock button hover** = a click effect via `effectsBus` `glint` (EffectsLayer), `dock.startShine` +
   `startShineTune`; the drop's outline is a white `DROP_PATH` image (`dropShapeImage`). `dropglint.mjs` films it.
   Shared `ClickTuneControls` (settings). Readability strength: `start.adaptiveTintStrength` → `veilFor(b, strength)`.
@@ -786,7 +789,9 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   its previews). `dockmenu.mjs`.
 - **Window previews** (WindowsFlyout): one window shows its title once (header) and a full-width close bar under the
   picture; several show the app name and each window's title over its picture. No `title` attributes anywhere in it:
-  the DWM thumbnail is drawn over the page, so a tooltip comes up behind it and sticks (`previews.mjs`).
+  the DWM thumbnail is drawn over the page, so a tooltip comes up behind it and sticks (`previews.mjs`). While it
+  waits 400 ms to be sure an app's windows are gone it keeps showing the last ones (emptied, it shrank to a sliver);
+  Close on the last window calls `close()` at once.
 - **Spelling**: "color" throughout code and UI (renamed from "colour" in October 2026; section id `color`).
 - **Hover effect** (`appearance.hoverEffect`: magnify | lift | glow | none → `html[data-hover-fx]`, global.css)
   applies to `.mb-menu-item`, `.aero-menu-item`, `.cc-card`. The rules sit under `html` so they outrank each item's
