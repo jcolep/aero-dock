@@ -184,8 +184,56 @@ try {
   shots["after"] = await h.shot(0, 0, 760, 800);
 
   check((await h.errors()).length === 0, "no errors in the page");
-  console.log("sheet:", await h.sheet(shots, "startsearch", 500));
 } finally {
   h.close();
+}
+
+// A tile dragged past its neighbour: the neighbour slides over several frames instead of jumping a whole tile, and a name
+// too long for the carried tile is cut with an ellipsis inside it (two lines at most; one long word is cut as well).
+{
+  const long = "Extraordinarily-Long-Application-Name-With-No-Spaces-To-Wrap-At Professional Enterprise Edition";
+  const set = [...apps.slice(0, 4), app(long, "C:\\Apps\\long.exe")];
+  const g = await startHarness({
+    out,
+    window: "start",
+    viewport: [760, 800],
+    apps: set,
+    settings: (s) => {
+      s.start.seeded = true;
+      s.start.pinned = set.map((a) => ({ name: a.name, target: a.targetPath, args: "" }));
+    },
+  });
+  try {
+    await g.open(".st-root");
+    await g.eval(`window.__emit("start://open", { previous: 1 })`);
+    await g.sleep(900);
+    const tile = (i) => g.eval(`(() => { const r = document.querySelectorAll('.st-pinned .st-tile')[${i}].getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+    const from = await tile(4);
+    const to = await tile(0);
+    await g.down(from.x, from.y);
+    await g.held(from.x - 14, from.y);
+    await g.sleep(150);
+    await g.eval("window.__nb = document.querySelectorAll('.st-pinned .st-tile')[0]; true");
+    await g.record("nb", "Math.round(window.__nb.getBoundingClientRect().left * 10) / 10");
+    for (let i = 1; i <= 24; i++) {
+      await g.held(from.x + ((to.x - from.x) * i) / 24, from.y);
+      await g.sleep(16);
+    }
+    await g.sleep(300);
+    const film = (await g.recorded("nb")).map((s) => s.v);
+    const steps = film.map((v, i) => (i ? +(v - film[i - 1]).toFixed(1) : 0)).filter((d) => d !== 0);
+    const tileW = await g.eval("Math.round(document.querySelectorAll('.st-pinned .st-tile')[1].getBoundingClientRect().width)");
+    const big = Math.max(0, ...steps.map(Math.abs));
+    check(steps.length > 6 && big < tileW * 0.4, `a neighbour slides over ${steps.length} frames, never more than ${big}px in one (a tile is ${tileW}px)`);
+    const ghost = await g.eval(`(() => { const gh = document.querySelector('.st-ghost'); if (!gh) return null; const s = gh.querySelector('span'); const cs = getComputedStyle(s); return { w: Math.round(gh.getBoundingClientRect().width), spanW: Math.round(s.getBoundingClientRect().width), clipped: s.scrollHeight > s.clientHeight || s.scrollWidth > s.clientWidth, overflow: cs.overflow, ellipsis: cs.textOverflow, clamp: cs.webkitLineClamp, text: s.textContent.length }; })()`);
+    check(ghost && ghost.spanW <= ghost.w && ghost.ellipsis === "ellipsis" && ghost.clamp === "2" && ghost.overflow === "hidden", `the carried tile keeps its name inside it: ellipsis, two lines (${JSON.stringify(ghost)})`);
+    shots["a long name, carried"] = await g.shot(0, 0, 760, 800);
+    await g.up(to.x, to.y);
+    await g.sleep(500);
+    check((await g.errors()).length === 0, "no errors in the page");
+    console.log("sheet:", await g.sheet(shots, "startsearch", 500));
+  } finally {
+    g.close();
+  }
 }
 process.exit(failed ? 1 : 0);

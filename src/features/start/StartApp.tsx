@@ -545,6 +545,7 @@ export function StartApp() {
     },
   });
   const dragging = pinDrag.drag !== null;
+  const orderKey = pinDrag.order.map((i) => i.key + (i.gap ? "*" : "")).join("|");
   // the carried tile leans into the way it is going (up to 8 degrees, with its sideways speed), as something held does
   const ghostSpeed = useVelocity(pinDrag.x);
   const ghostLean = useSpring(useTransform(ghostSpeed, [-1400, 0, 1400], [-8, 0, 8], { clamp: true }), spring.quick);
@@ -943,7 +944,10 @@ export function StartApp() {
               {pinDrag.order.map((item) => (
                 <motion.button
                   key={item.key}
-                  layout={dragging ? "position" : false}
+                  // always a layout item, measured only when the order changes: switched on at the start of a drag,
+                  // the first swap had no earlier place to slide from and the neighbour jumped
+                  layout="position"
+                  layoutDependency={orderKey}
                   transition={spring.standard}
                   type="button"
                   className="st-tile"

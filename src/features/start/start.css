@@ -404,12 +404,18 @@
   background: rgba(255, 255, 255, 0.12);
   box-shadow: var(--elev-3), var(--rim);
 }
+/* its name stays inside the tile: two lines at most, then an ellipsis; one long word is cut with one too */
 .st-ghost span {
+  box-sizing: border-box;
   max-width: 100%;
+  min-width: 0;
+  padding: 0 2px;
   overflow: hidden;
+  overflow-wrap: anywhere;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
   text-align: center;
   line-height: 1.2;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -449,7 +455,11 @@
 }
 
 .st-tile span {
+  box-sizing: border-box;
   max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;

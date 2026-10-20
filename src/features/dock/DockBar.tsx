@@ -108,6 +108,61 @@ function useLinger(value: number, ms: number): number {
 }
 
 /**
+ * Sliding to a new place in the list. After every render, if the element is laid out somewhere other than where it was
+ * (a neighbour carried past it, an app arriving or leaving), it is drawn where it was and springs to where it is: the
+ * icons make way smoothly, the same for every icon. (Motion's own layout animation did this for the pinned apps and
+ * never for the unpinned running ones after the divider, which jumped a whole slot at once; no difference in how they
+ * were made explained it, so this does it plainly.) `enabled` is off while the dock is away or coming in, when
+ * nothing should slide; `skip` is the icon being carried, which is placed under the pointer instead.
+ */
+function useSlide(node: React.RefObject<HTMLElement | null>, enabled: boolean, skip: boolean) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const last = useRef<{ left: number; top: number } | null>(null);
+  const running = useRef<{ stop: () => void }[]>([]);
+  const stop = () => running.current.forEach((a) => a.stop());
+  useLayoutEffect(() => {
+    const el = node.current;
+    if (!el) return;
+    // its place within the list, not on the page: the whole bar moves as it grows and shrinks (the Liquidock button
+    // coming and going re-centres it every frame), and that is not the icon moving
+    const at = layoutRect(el);
+    const list = el.parentElement ? layoutRect(el.parentElement) : { left: 0, top: 0 };
+    const r = { left: at.left - list.left, top: at.top - list.top };
+    const before = last.current;
+    last.current = r;
+    if (skip || !enabled || !before) return;
+    const dx = before.left - r.left;
+    const dy = before.top - r.top;
+    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+    stop();
+    // where it is drawn now, less how far it has moved: the slide in progress carries on from there
+    x.set(x.get() + dx);
+    y.set(y.get() + dy);
+    running.current = [animate(x, 0, springs.reorder), animate(y, 0, springs.reorder)];
+  });
+  useEffect(() => stop, []);
+  return { x, y, stop };
+}
+
+/** The divider between the pinned and the running apps, in the list so an icon can be carried across it. */
+function DockDivider({ hidden, arranging, register }: { hidden: boolean; arranging: boolean; register: (key: string, el: HTMLElement | null) => void }) {
+  const el = useRef<HTMLSpanElement | null>(null);
+  const slide = useSlide(el, arranging, false);
+  return (
+    <motion.span
+      ref={(node) => {
+        el.current = node;
+        register(DIVIDER, node);
+      }}
+      className="dock-divider"
+      data-hidden={hidden || undefined}
+      style={{ x: slide.x, y: slide.y }}
+      aria-hidden
+    />
+  );
+}
+/**
  * One app's icon in the dock's list, which can be picked up and dragged: free in both directions (so a pinned app can
  * be pulled off the dock), exactly under the pointer. Picked up it lifts and swells a little, and leans into the way it
  * is going, as something held does; its neighbours slide aside as it passes them (layout), and let go it springs into
@@ -154,6 +209,10 @@ function DockDragItem({
   const press = useRef<{ id: number; sx: number; sy: number; lx: number; ly: number; px: number; py: number; moved: boolean } | null>(null);
   const [held, setHeld] = useState(false);
   const settle = useRef<{ stop: () => void }[]>([]);
+  // as the others make way for the one carried, it slides to where it is laid out now
+  const slide = useSlide(el, arranging, held);
+  const drawnX = useTransform(() => x.get() + slide.x.get());
+  const drawnY = useTransform(() => y.get() + slide.y.get());
 
   /** Put the icon under the pointer: the pointer's travel, less how far its own box has moved in the list since. */
   const place = () => {
@@ -216,16 +275,18 @@ function DockDragItem({
         el.current = node;
         register(dragKey, node);
       }}
-      // it is placed by hand while held; the others slide as its place among them changes
-      layout={arranging && !held ? "position" : false}
-      style={{ x, y, rotate: vertical ? 0 : lean, zIndex: held ? 30 : undefined, touchAction: "none" }}
+      style={{ x: drawnX, y: drawnY, rotate: vertical ? 0 : lean, zIndex: held ? 30 : undefined, touchAction: "none" }}
       // neighbours make way quickly (the gap opens before the pointer arrives); its lift springs in and out with a
       // little give
-      transition={{ default: spring.standard, layout: springs.reorder, scale: spring.settle }}
+      transition={{ default: spring.standard, scale: spring.settle }}
       animate={{ opacity: removing ? 0.45 : 1, scale: held ? 1.12 : 1 }}
       onPointerDown={(e) => {
         if (e.button !== 0 || !arranging) return;
         settle.current.forEach((a) => a.stop());
+        // pressed while still sliding into place: it is taken from where it is drawn
+        x.set(x.get() + slide.x.get());
+        y.set(y.get() + slide.y.get());
+        slide.stop();
         const node = el.current;
         const r = node ? layoutRect(node) : { left: 0, top: 0 };
         // (from where it is drawn: a press while it is still settling home takes it from there)
@@ -1267,15 +1328,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
             return dockOrder.order.map((key) => {
               if (key === DIVIDER) {
                 return (
-                  <motion.span
-                    key={DIVIDER}
-                    ref={(el) => registerDragEl(DIVIDER, el)}
-                    layout={arranging ? "position" : false}
-                    transition={springs.reorder}
-                    className="dock-divider"
-                    data-hidden={!showDivider || undefined}
-                    aria-hidden
-                  />
+                  <DockDivider key={DIVIDER} hidden={!showDivider} arranging={arranging} register={registerDragEl} />
                 );
               }
               const item = dockOrder.byKey.get(key);

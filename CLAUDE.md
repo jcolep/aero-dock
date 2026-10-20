@@ -765,7 +765,7 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   `KEYEVENTF_UNICODE`. **Not yet seen natively.** `startsearch.mjs`.
 - **Start pin drag** (`usePinDrag.ts`): press → drag after 6 px; the panel captures the pointer (so no click lands on
   a tile); a ghost (`.st-ghost`, excluded from the `.st-panel > :not(...)` lift) follows; `order` = pins without it plus
-  a `gap` at `insert`, tiles are `motion.button layout="position"` only while dragging. Cells come from the grid's
+  a `gap` at `insert`, tiles are `motion.button layout="position"` always on, measured only when the order changes (`layoutDependency`; switched on at pick-up, the first swap had no earlier place to slide from and the neighbour jumped); long names: two lines + ellipsis (`startsearch.mjs`). Cells come from the grid's
   computed style, not tiles' boxes (they move). From All apps: `onBegin` shows Pinned; outside the grid: unpin (pinned)
   or back to All apps at its scroll. The harness's `held(x, y)` moves with the button down.
 - **Dock drag** (`dockOrder.ts`, `DockDragItem` in DockBar): pinned, `DIVIDER`, running as ONE list in one
@@ -774,8 +774,8 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   items agree (≤2 s). The drag is our own (pointer events, offset from the icon's current `layoutRect`, re-placed in a
   layout effect after every reorder): **motion's `drag` failed to compensate for layout moves for icons after the
   divider** (a slot behind per place passed) **and re-fitted every icon to the bar's reveal scale** (drift inside the
-  glass). Neighbours use motion `layout="position"`, off while the dock is hidden or coming in (`comingIn`, 700 ms):
-  motion measures through the bar's scale and reads that as movement. Pop's `character.reveal` damping 25 (was 17:
+  glass). Neighbours slide by our own `useSlide`, not motion `layout` (off while the dock is hidden or coming in, `comingIn`, 700 ms): **motion's layout animation never ran for the unpinned running icons after the divider** (the wrapper jumped a slot; found by filming a neighbour's left edge, `dockneighbours.mjs`; content, divider, arrival order and props were all ruled out and the cause never found), and it measured through the bar's scale at reveal. `useSlide` measures a place **within its list** (the bar re-centres as the Liquidock button comes and goes; measured on the page every icon lagged behind the glass), draws the element at its old place and springs it over.
+  Pop's `character.reveal` damping 25 (was 17:
   6.5% overshoot). Tests: `dockdrag.mjs` (pointer-to-icon 0 px, no jump, same element), `dockreveal.mjs`. The harness
   now mocks `pin_item`/`unpin_item`/`reorder_*` (changes settings, emits `settings://changed` after `__saveDelay`).
   `backdrop.mjs`'s two dock-label glass checks fail, and did before this work (not yet looked into).

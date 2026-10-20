@@ -50,6 +50,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The icons passed while dragging glide into place (October 20)
+
+- **Dock**: the icons a carried icon passes now slide into their new places over a few frames. Those after the divider
+  (the unpinned running apps) used to jump a whole slot at once; only the pinned ones glided. They are moved by a slide
+  of our own now, the same for every icon and for the divider.
+- **Start**: the tile passed jumped a whole tile when the first swap of a drag happened; it glides now too.
+- **A long name on the tile being carried** in Start stays inside it: two lines, then an ellipsis (a single very long
+  word is cut with one too); the same on the tiles at rest.
+
 ### Dragging in the dock and Start; the dock coming in; the menu bar at launch (October 20)
 
 - **Dock apps drag across the divider**: pinned apps, the divider and running apps are one list now, so an icon carried
