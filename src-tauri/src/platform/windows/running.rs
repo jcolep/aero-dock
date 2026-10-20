@@ -776,15 +776,16 @@ pub fn activate_window(hwnd: isize) {
 /// brought forward. Decided from live window state rather than the cached
 /// focus snapshot, which goes stale (for instance after the last window is
 /// minimized, nothing else takes focus to update it).
-pub fn toggle_window(hwnd: isize, into_icon: Option<(super::genie::Area, super::genie::Effect)>) {
+pub fn toggle_window(hwnd: isize, into_icon: Option<(super::genie::Area, super::genie::Effect)>) -> Toggled {
     use windows::Win32::UI::WindowsAndMessaging::{
         GetAncestor, GetForegroundWindow, IsIconic, GA_ROOTOWNER,
     };
-    let is_foreground = unsafe {
+    let (is_foreground, was_minimized) = unsafe {
         let h = HWND(hwnd as *mut _);
         if !IsWindow(Some(h)).as_bool() {
-            return;
+            return Toggled::Gone;
         }
+        let minimized = IsIconic(h).as_bool();
         // Pressing the dock can make the dock itself the foreground
         // window, so when it is, "in front" means whichever other window
         // was in front just before, which the shell hook tracks.
@@ -793,22 +794,53 @@ pub fn toggle_window(hwnd: isize, into_icon: Option<(super::genie::Area, super::
             let tracked = with_state(|s| s.focused).unwrap_or(0);
             front = HWND(tracked as *mut _);
         }
-        !IsIconic(h).as_bool()
-            && !front.0.is_null()
-            && (front == h || GetAncestor(front, GA_ROOTOWNER) == GetAncestor(h, GA_ROOTOWNER))
+        (
+            !minimized
+                && !front.0.is_null()
+                && (front == h || GetAncestor(front, GA_ROOTOWNER) == GetAncestor(h, GA_ROOTOWNER)),
+            minimized,
+        )
     };
     // With an icon to pour into (or out of) the window goes the long way; if the
     // effect cannot take the job it is done plainly, as before.
     if is_foreground {
-        if into_icon.is_some_and(|(at, effect)| super::genie::minimize(hwnd, at, effect)) {
-            return;
+        if !into_icon.is_some_and(|(at, effect)| super::genie::minimize(hwnd, at, effect)) {
+            minimize_window(hwnd);
         }
-        minimize_window(hwnd);
+        Toggled::Minimized
     } else {
-        if into_icon.is_some_and(|(at, effect)| super::genie::restore(hwnd, at, effect)) {
-            return;
+        if !into_icon.is_some_and(|(at, effect)| super::genie::restore(hwnd, at, effect)) {
+            activate_window(hwnd);
         }
-        activate_window(hwnd);
+        if was_minimized {
+            Toggled::Restored
+        } else {
+            Toggled::Focused
+        }
+    }
+}
+
+/// What a click on a dock icon did to its one window (the page makes a sound to match).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Toggled {
+    /// It was in front and went into its icon.
+    Minimized,
+    /// It was minimised and came back.
+    Restored,
+    /// It was behind something and came forward.
+    Focused,
+    /// It was gone.
+    Gone,
+}
+
+impl Toggled {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Toggled::Minimized => "minimized",
+            Toggled::Restored => "restored",
+            Toggled::Focused => "focused",
+            Toggled::Gone => "gone",
+        }
     }
 }
 

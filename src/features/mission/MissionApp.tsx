@@ -96,6 +96,8 @@ export function MissionApp() {
       setGone(new Set());
       setOrigins({});
       setOpening(o);
+      // the overview arriving
+      playCue("open");
       const ids = useRunning.getState().windows.map((w) => w.hwnd);
       try {
         const rects = await ipc.windowRects(ids);
@@ -150,6 +152,7 @@ export function MissionApp() {
 
   const leave = useCallback(
     (handBack: boolean) => {
+      playCue("close");
       ipc.hideWindowPreviews().catch(() => undefined);
       ipc.closeMission().catch(() => undefined);
       if (handBack && opening?.previous) ipc.activateWindow(opening.previous).catch(() => undefined);
@@ -160,7 +163,8 @@ export function MissionApp() {
 
   const go = useCallback(
     (hwnd: number) => {
-      playCue("open");
+      // a window chosen comes forward
+      playCue("restore");
       ipc.hideWindowPreviews().catch(() => undefined);
       ipc.closeMission().catch(() => undefined);
       ipc.activateWindow(hwnd).catch(() => undefined);

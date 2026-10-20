@@ -519,6 +519,7 @@ export function StartApp() {
     same: sameApp,
     still: reduced.motion,
     onBegin: (from) => {
+      playCue("lift");
       lens.fade();
       setMenu(null);
       setPop(null);
@@ -528,11 +529,12 @@ export function StartApp() {
       }
     },
     onDrop: (order) => {
-      playCue("tick");
+      // put down among the others, or pinned from All apps
+      playCue(order.length > pinned.length ? "pin" : "place");
       savePins(order);
     },
     onUnpin: (item) => {
-      playCue("tick");
+      playCue("unpin");
       void useSettings.getState().apply((d) => {
         d.start.pinned = d.start.pinned.filter((p) => !sameApp(p, item));
       });
@@ -544,6 +546,16 @@ export function StartApp() {
       });
     },
   });
+  // The account menu, the power menu and an item's menu: the menu's own sound as one comes and goes (not while Start
+  // itself is leaving, which has its own, and which clears them).
+  const popup = menu ? "menu" : pop;
+  const hadPopup = useRef(false);
+  useEffect(() => {
+    const has = popup !== null;
+    if (has === hadPopup.current) return;
+    hadPopup.current = has;
+    if (phaseRef.current === "open") playCue(has ? "open" : "close");
+  }, [popup]);
   const dragging = pinDrag.drag !== null;
   const orderKey = pinDrag.order.map((i) => i.key + (i.gap ? "*" : "")).join("|");
   // the carried tile leans into the way it is going (up to 8 degrees, with its sideways speed), as something held does
@@ -690,6 +702,8 @@ export function StartApp() {
       }
       // what was opened for these letters comes first next time
       if (q && searchLearn) remember(q, item.target);
+      // an app opening has its arpeggio; a file, a folder or a page of Settings the menu's own
+      playCue(item.kind === "app" ? "launch" : "open");
       ipc.launch(item.target, item.args || undefined).catch(notify.on(`Could not open ${item.name}`));
       close(false);
     },
@@ -698,14 +712,18 @@ export function StartApp() {
 
   const apply = (mutate: (s: NonNullable<typeof settings>) => void) => void useSettings.getState().apply(mutate);
   const isPinned = (item: Item) => (pins ?? []).some((p) => sameApp(p, item));
-  const pin = (item: Item) =>
+  const pin = (item: Item) => {
+    playCue("pin");
     apply((d) => {
       if (!d.start.pinned.some((p) => sameApp(p, item))) d.start.pinned.push({ name: item.name, target: item.target, args: item.args ?? "" });
     });
-  const unpin = (item: Item) =>
+  };
+  const unpin = (item: Item) => {
+    playCue("unpin");
     apply((d) => {
       d.start.pinned = d.start.pinned.filter((p) => !sameApp(p, item));
     });
+  };
   const toFront = (item: Item) =>
     apply((d) => {
       const at = d.start.pinned.findIndex((p) => sameApp(p, item));

@@ -76,6 +76,11 @@ try {
   check(rows.every(([, r]) => r.seconds < 1.0), "and none outstays a second");
   check(rows.every(([, r]) => r.duckedRms / r.rms > 0.4 && r.duckedRms / r.rms < 0.6), "with music playing every cue is about half as loud");
   check(report.firstOn > report.firstOpen * 1.9, `a switch is an octave above a menu (${report.firstOn.toFixed(0)} Hz against ${report.firstOpen.toFixed(0)} Hz)`);
+  // no two cues are the same sound (a new cue once repeated "off" note for note)
+  const sig = (r) => JSON.stringify(r.notes.map(([a, b]) => [Math.round(a), Math.round(b)]));
+  const same = [];
+  for (const [a, ra] of rows) for (const [b, rb] of rows) if (a < b && sig(ra) === sig(rb)) same.push(a + " = " + b);
+  check(same.length === 0, "every cue is its own sound" + (same.length ? " (alike: " + same.join(", ") + ")" : ""));
   check(report.tick > report.firstOn, "and the tick is higher than both");
   console.log("the cues, as WAV files:", join(out, "sounds"));
 } finally {

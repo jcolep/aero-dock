@@ -15,6 +15,7 @@ import { listen } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useReduced } from "../../engine/accessibility/policy";
 import { ipc } from "../../ipc/commands";
+import { playCue } from "../../engine/sound/ui";
 import type { NowPlaying } from "../../ipc/types";
 import { useDockIcons } from "../../state/dockStore";
 import { useSettings } from "../../state/settingsStore";
@@ -141,7 +142,15 @@ function Button({
       aria-pressed={on === undefined ? undefined : on}
       aria-disabled={disabled || undefined}
       title={label}
-      onClick={() => !disabled && onClick()}
+      onClick={() => {
+        if (disabled) return;
+        // a switch (shuffle, repeat) goes on or off; play and pause is one, by what it will be; the rest is a soft lift
+        if (on !== undefined) playCue(on ? "off" : "on");
+        else if (glyph === "play") playCue("on");
+        else if (glyph === "pause") playCue("off");
+        else playCue("lift");
+        onClick();
+      }}
     >
       <Glyph name={glyph} />
     </button>

@@ -27,7 +27,7 @@ import { applyAppearance } from "../../engine/themes/applyTheme";
 import { ipc } from "../../ipc/commands";
 import { EVENTS } from "../../ipc/types";
 import { reverseEntrance } from "./interrupt";
-import { playCue } from "../../engine/sound/ui";
+import { listenForItemTicks, playCue } from "../../engine/sound/ui";
 import { usePointerLight } from "../../engine/light/usePointerLight";
 import { useUserIdle } from "../../state/idleStore";
 import { appName as officialAppName, useAppNames, useRunning } from "../../state/runningStore";
@@ -192,6 +192,8 @@ export function MenuBarApp() {
   const privacyUses = usePrivacyUse(settings?.menuBar.showPrivacy ?? false);
   const statsOn = settings?.menuBar.showStats ?? false;
   useEffect(() => (statsOn ? startStatsPolling() : undefined), [statsOn]);
+  // the items of the bar's menus (the buttons along the bar have the lens's tick)
+  useEffect(() => listenForItemTicks(".mb-menu-item, .cc-card"), []);
   const statsLabel = useStatsLabel();
   const lensLook = useMemo<LensLook>(() => ({ grow: settings?.menuBar.lensGrow ?? 3, warp: settings?.menuBar.lensWarp ?? 1, still: reduced.motion }), [settings?.menuBar.lensGrow, settings?.menuBar.lensWarp, reduced.motion]);
   const { barRef, Lens, handlers: lensHandlers } = useLens(open?.id ?? null, lensLook);
@@ -451,10 +453,13 @@ export function MenuBarApp() {
         {
           label: `Hide ${appName}`,
           movesFocus: true,
-          run: () => ipc.hideApp(front.exe),
+          run: () => {
+            playCue("minimize");
+            return ipc.hideApp(front.exe);
+          },
         },
-        { label: "Hide Others", movesFocus: true, run: () => ipc.hideOthers(front.exe) },
-        { label: "Show All", run: () => ipc.showAllApps() },
+        { label: "Hide Others", movesFocus: true, run: () => { playCue("minimize"); return ipc.hideOthers(front.exe); } },
+        { label: "Show All", run: () => { playCue("restore"); return ipc.showAllApps(); } },
         {
           label: `Quit ${appName}`,
           separatorAbove: true,
@@ -462,7 +467,7 @@ export function MenuBarApp() {
           run: () => ipc.quitAppWindows(front.exe),
         },
       ]
-    : [{ label: "Show All", run: () => ipc.showAllApps() }];
+    : [{ label: "Show All", run: () => { playCue("restore"); return ipc.showAllApps(); } }];
 
   /** A top-level item: click opens its menu, and hovering over it while
    *  another is open switches to it, as on the Mac. */
@@ -545,7 +550,7 @@ export function MenuBarApp() {
           />
         )}
         <div className="mb-side">
-          <button className="mb-item mb-logo" title="Liquidock" {...trigger("apple")}>
+          <button className="mb-item mb-logo" title="Liquidock" data-cue="droplet" {...trigger("apple")}>
             <Logo />
           </button>
           <button className="mb-item mb-app" {...trigger("app")}>

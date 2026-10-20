@@ -47,7 +47,7 @@ pub fn toggle_window(
     store: State<'_, SettingsStore>,
     hwnd: isize,
     target: Option<IconRect>,
-) {
+) -> &'static str {
     let settings = store.get();
     let still = accessibility::effective(&settings.accessibility.reduce_motion, accessibility::read().reduce_motion);
     let effect = genie::Effect::parse(&settings.dock.minimize_effect);
@@ -59,7 +59,8 @@ pub fn toggle_window(
             .map(|(p, scale)| (on_screen(icon, (p.x, p.y), scale), effect)),
         _ => None,
     };
-    running::toggle_window(hwnd, plan);
+    // what it did, so that the page can make the sound that goes with it
+    running::toggle_window(hwnd, plan).as_str()
 }
 
 #[tauri::command]

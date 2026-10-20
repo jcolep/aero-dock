@@ -12,6 +12,7 @@ import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { useEffect, useRef, useState } from "react";
 import { create } from "zustand";
+import { playCue } from "../../engine/sound/ui";
 import { ipc } from "../../ipc/commands";
 import type { DockEdge, Settings } from "../../ipc/types";
 import { notify } from "../feedback/toastStore";
@@ -32,10 +33,14 @@ interface SwitcherState {
 }
 
 /** Lives outside the component so DockBar can size the window for it. */
-export const useModeSwitcher = create<SwitcherState>((set) => ({
+export const useModeSwitcher = create<SwitcherState>((set, get) => ({
   open: false,
   anchor: null,
-  setOpen: (open, anchor) => set({ open, anchor: open ? (anchor ?? null) : null }),
+  setOpen: (open, anchor) => {
+    // the flyout coming and going (only when it changes: it is told again by every outside click)
+    if (open !== get().open) playCue(open ? "open" : "close");
+    set({ open, anchor: open ? (anchor ?? null) : null });
+  },
 }));
 
 /** Say what a switch did without making the user read numbers. */
@@ -91,6 +96,8 @@ export function ModeSwitcher({ settings, edge }: { settings: Settings; edge: Doc
     if (busy) return;
     setBusy(true);
     setOpen(false);
+    // a whole desktop changing: a switch going on
+    playCue("on");
     ipc
       .switchMode(id)
       .then((report) => notify.info(describe(report)))

@@ -1018,7 +1018,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         menu.open("windows", item, anchorFor(target));
         return;
       }
-      playCue("launch");
+      // (the sound is made by what the click does: DockApp)
       onLaunch(item, target);
     },
     [onLaunch, menu],
@@ -1125,6 +1125,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     draggingRef.current = true;
     setDragging(true);
     mouseAxis.set(Infinity);
+    playCue("lift");
   };
 
   const onIconDrag = (key: string, p: { x: number; y: number }) => {
@@ -1148,6 +1149,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       }
       if (to !== at) {
         reordering.current = true;
+        // each place passed is felt
+        playCue("tick");
         const next = moved(seq, at, to);
         orderRef.current = next;
         dockOrder.setOrder(next);
@@ -1174,20 +1177,25 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         // unpinned, and with no windows it leaves the dock: gone at once, with a puff, and the gap closes
         dockOrder.hold(seq.filter((k) => k !== key));
         puff();
+        playCue("unpin");
         ipc.unpinItem(item.id).catch(notify.on(`Could not remove ${item.name}`));
       } else if (from.wasPinned && pinned.includes(key)) {
         dockOrder.hold(seq);
+        playCue("place");
         ipc.reorderPinned(pinned.map(idOf)).catch(notify.on("Could not save the new order"));
       } else if (!from.wasPinned && running.includes(key)) {
         dockOrder.hold(seq);
+        playCue("place");
         ipc.reorderRunning(running.map(idOf)).catch(notify.on("Could not save the new order"));
       } else if (!from.wasPinned) {
         // a running app let go among the pinned ones: pinned there
         dockOrder.hold(seq);
+        playCue("pin");
         pinRunningItem(item, pinned.indexOf(key)).catch(notify.on(`Could not pin ${item.name}`));
       } else {
         // a pinned app with windows let go among the running ones: unpinned, and it stays there as running
         dockOrder.hold(seq);
+        playCue("unpin");
         const runId = `run-${targetKey(item.target)}`;
         ipc
           .unpinItem(item.id)

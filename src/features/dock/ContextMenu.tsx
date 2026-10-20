@@ -9,6 +9,7 @@ import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ipc } from "../../ipc/commands";
+import { playCue } from "../../engine/sound/ui";
 import { notify } from "../feedback/toastStore";
 import type { AudioDevice, JumpList, Settings, StackView } from "../../ipc/types";
 import { exeKey, useAppAudio } from "../../state/audioStore";
@@ -115,14 +116,20 @@ function buildActions(item: DockItemView, settings: Settings): Action[] {
     });
     actions.push({
       label: "Unpin from Dock",
-      run: () => ipc.unpinItem(item.id),
+      run: () => {
+        playCue("unpin");
+        return ipc.unpinItem(item.id);
+      },
     });
     return actions;
   }
 
   actions.push({
     label: item.windows.length > 0 ? "New window" : "Open",
-    run: () => ipc.launch(item.target, item.args),
+    run: () => {
+      playCue("launch");
+      return ipc.launch(item.target, item.args);
+    },
   });
   actions.push({
     label: "Run as administrator",
@@ -137,7 +144,10 @@ function buildActions(item: DockItemView, settings: Settings): Action[] {
     actions.push({
       label: "Unpin from Dock",
       separatorAbove: true,
-      run: () => ipc.unpinItem(item.id),
+      run: () => {
+        playCue("unpin");
+        return ipc.unpinItem(item.id);
+      },
     });
     const idx = settings.pinned.findIndex((p) => p.id === item.id);
     if (idx > 0) {
@@ -153,7 +163,10 @@ function buildActions(item: DockItemView, settings: Settings): Action[] {
     actions.push({
       label: "Pin to Dock",
       separatorAbove: true,
-      run: () => pinRunningItem(item, settings.pinned.length),
+      run: () => {
+        playCue("pin");
+        return pinRunningItem(item, settings.pinned.length);
+      },
     });
   }
 
@@ -161,7 +174,10 @@ function buildActions(item: DockItemView, settings: Settings): Action[] {
     actions.push({
       label: "Minimize",
       separatorAbove: true,
-      run: () => ipc.minimizeWindow(item.windows[0].hwnd),
+      run: () => {
+        playCue("minimize");
+        return ipc.minimizeWindow(item.windows[0].hwnd);
+      },
     });
     actions.push({
       label: "Close window",

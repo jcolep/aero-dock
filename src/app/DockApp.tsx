@@ -14,6 +14,7 @@ import { applyAppearance } from "../engine/themes/applyTheme";
 import { accentForTheme, normalizeHex } from "../engine/themes/accent";
 import { useTrayDroplet } from "../engine/brand/useTrayDroplet";
 import { notify } from "../features/feedback/toastStore";
+import { listenForItemTicks, playCue } from "../engine/sound/ui";
 import { ipc } from "../ipc/commands";
 import { useAppAudio } from "../state/audioStore";
 import { buildDockItems, useDockIcons, type DockItemView } from "../state/dockStore";
@@ -99,6 +100,9 @@ export function DockApp() {
     };
   }, [autoSwitch, focusedExe]);
 
+  // the items of the dock's menus and flyouts, and the modes' rows
+  useEffect(() => listenForItemTicks(".aero-menu-item, .mode-row"), []);
+
   // pin files/shortcuts dropped onto the dock from Explorer
   useEffect(() => {
     const setOverDock = useFileDrag.getState().setOverDock;
@@ -131,6 +135,7 @@ export function DockApp() {
             icon: entry.icon,
             children: [],
           });
+          playCue("pin");
         } catch (e) {
           notify.error(`Could not pin ${path.split("\\").pop()}`, e);
         }
@@ -195,6 +200,8 @@ export function DockApp() {
 
   const activate = (item: DockItemView, target?: HTMLElement) => {
     if (item.windows.length === 0) {
+      // an app opening: its own arpeggio
+      playCue("launch");
       ipc.launch(item.target, item.args).catch(notify.on(`Could not open ${item.name}`));
       return;
     }
@@ -204,10 +211,18 @@ export function DockApp() {
       // the icon's place goes along so the window can pour into it (or out of it)
       const box = target?.getBoundingClientRect();
       const icon = box ? { x: box.left, y: box.top, width: box.width, height: box.height } : undefined;
-      ipc.toggleWindow(item.windows[0].hwnd, icon).catch(notify.on("Could not switch to that window"));
+      // what it did says what it sounds like: pouring into the icon, or coming out of it / forward
+      ipc
+        .toggleWindow(item.windows[0].hwnd, icon)
+        .then((did) => {
+          if (did === "minimized") playCue("minimize");
+          else if (did === "restored" || did === "focused") playCue("restore");
+        })
+        .catch(notify.on("Could not switch to that window"));
       return;
     }
     // several windows: focus the first, or cycle if one is already focused
+    playCue("restore");
     const focusedIdx = item.windows.findIndex((w) => w.hwnd === focused);
     if (focusedIdx === -1) {
       ipc.activateWindow(item.windows[0].hwnd).catch(notify.on("Could not focus that window"));

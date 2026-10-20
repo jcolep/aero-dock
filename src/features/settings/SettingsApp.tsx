@@ -91,6 +91,22 @@ export function SettingsApp() {
       .catch((e) => console.warn("storage info unavailable", e));
   }, [hydrate]);
 
+  // A button, a choice of animation or a color swatch that has no sound of its own: the controls that do (switches,
+  // sliders, segmented choices) make theirs; a button is a soft lift, a choice among several a notch. One listener at
+  // the window, so a new button is never forgotten.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const hit = (e.target as HTMLElement | null)?.closest<HTMLButtonElement>("button");
+      if (!hit || hit.disabled) return;
+      if (hit.matches(".anim-chip, .bubble-swatch")) {
+        if (hit.getAttribute("aria-checked") !== "true") playCue("notch", 1);
+      } else if (hit.matches(".aero-button, .aero-button-link")) {
+        playCue("lift");
+      }
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
   // settings window uses the same token system for its own glass
   useEffect(() => {
     if (settings) applyAppearance(settings, null, "settings");

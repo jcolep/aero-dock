@@ -16,7 +16,7 @@
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { lens } from "../../engine/motion/tokens";
-import { playCue } from "../../engine/sound/ui";
+import { playCue, type Cue } from "../../engine/sound/ui";
 import { displacementFilter } from "../../engine/glass/displacement";
 import { usePress, useSubpixelBox } from "../../engine/motion/subpixelBox";
 
@@ -162,8 +162,9 @@ export function useLens(activeKey: string | null, look: LensLook) {
       if (!bar) return;
       const box = boxOf(item, bar, lookRef.current.grow);
       const same = current.current === item;
-      // a tick for each new button, not for coming back to the one just left across the gap beside it
-      if (ticked.current !== item) playCue("tick");
+      // a tick for each new button, not for coming back to the one just left across the gap beside it; a button can ask
+      // for a sound of its own instead (the drop in the corner: data-cue)
+      if (ticked.current !== item) playCue((item.dataset.cue as Cue | undefined) ?? "tick");
       ticked.current = item;
       setLensed(item);
       observer.current ??= new ResizeObserver(() => {

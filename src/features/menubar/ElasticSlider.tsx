@@ -24,6 +24,7 @@ import {
   useVelocity,
 } from "motion/react";
 import { useLayoutEffect, useRef, useState } from "react";
+import { playCue } from "../../engine/sound/ui";
 
 /** Diameter of the knob, which is also the height of the track. */
 const KNOB = 24;
@@ -147,6 +148,8 @@ export function ElasticSlider({ value, muted, label, onChange, onDragging }: Ela
     pullTarget.set(beyond === 0 ? 0 : Math.sign(beyond) * rubber(Math.abs(beyond)));
     const next = Math.round(inside * 100);
     if (next !== lastEmitted.current) {
+      // a notch every few steps along the way, up or down
+      if (Math.abs(next - lastEmitted.current) >= 2 || next % 4 === 0) playCue("notch", next > lastEmitted.current ? 1 : -1);
       lastEmitted.current = next;
       onChange(next);
     }
@@ -165,6 +168,7 @@ export function ElasticSlider({ value, muted, label, onChange, onDragging }: Ela
   const nudge = (by: number) => {
     const next = clamp(Math.round(lastEmitted.current + by), 0, 100);
     if (next === lastEmitted.current) return;
+    playCue("notch", next > lastEmitted.current ? 1 : -1);
     lastEmitted.current = next;
     target.set((next / 100) * travel());
     onChange(next);

@@ -5,6 +5,7 @@
  */
 
 import { create } from "zustand";
+import { playCue } from "../../engine/sound/ui";
 import type { DockEdge } from "../../ipc/types";
 import type { DockItemView } from "../../state/dockStore";
 
@@ -38,21 +39,40 @@ interface MenuState {
 
 let closeTimer: ReturnType<typeof setTimeout> | undefined;
 
-export const useMenu = create<MenuState>((set) => ({
+/** The sound of a flyout coming or going. Previews of an app's windows come up by themselves when the pointer rests on
+ *  an icon, so theirs is barely there (the lens's tick); a menu or a flyout that was asked for has the menu's own. */
+function flyoutSound(kind: FlyoutKind, opening: boolean): void {
+  if (kind === "windows") {
+    if (opening) playCue("tick", 1);
+    return;
+  }
+  playCue(opening ? "open" : "close");
+}
+
+export const useMenu = create<MenuState>((set, get) => ({
   kind: "menu",
   item: null,
   anchor: null,
   open: (kind, item, anchor) => {
     clearTimeout(closeTimer);
+    const was = get();
+    // (replacing one flyout with another, or moving the same one, is not opening a new one)
+    if (was.anchor === null) flyoutSound(kind, true);
     set({ kind, item, anchor });
   },
   close: () => {
     clearTimeout(closeTimer);
+    const was = get();
+    if (was.anchor !== null) flyoutSound(was.kind, false);
     set({ item: null, anchor: null });
   },
   scheduleClose: (delayMs) => {
     clearTimeout(closeTimer);
-    closeTimer = setTimeout(() => set({ item: null, anchor: null }), delayMs);
+    closeTimer = setTimeout(() => {
+      const was = get();
+      if (was.anchor !== null) flyoutSound(was.kind, false);
+      set({ item: null, anchor: null });
+    }, delayMs);
   },
   cancelScheduledClose: () => clearTimeout(closeTimer),
 }));

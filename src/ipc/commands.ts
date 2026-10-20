@@ -92,7 +92,7 @@ export const ipc = {
   activateWindow: (hwnd: number) => invoke<void>("activate_window", { hwnd }),
   /** Taskbar-style click: restore if minimized, minimize if frontmost, else focus. */
   toggleWindow: (hwnd: number, target?: { x: number; y: number; width: number; height: number }) =>
-    invoke<void>("toggle_window", { hwnd, target: target ?? null }),
+    invoke<"minimized" | "restored" | "focused" | "gone">("toggle_window", { hwnd, target: target ?? null }),
   minimizeWindow: (hwnd: number) => invoke<void>("minimize_window", { hwnd }),
   closeWindow: (hwnd: number) => invoke<void>("close_window", { hwnd }),
   /** End the programs that own these windows at once; the names of those ended. */

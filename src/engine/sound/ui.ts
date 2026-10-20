@@ -22,7 +22,27 @@
 import { ipc } from "../../ipc/commands";
 import { useSettings } from "../../state/settingsStore";
 
-export type Cue = "open" | "close" | "on" | "off" | "tick" | "launch" | "hover" | "notch" | "startOpen" | "startClose";
+export type Cue =
+  | "open"
+  | "close"
+  | "on"
+  | "off"
+  | "tick"
+  | "launch"
+  | "hover"
+  | "notch"
+  | "startOpen"
+  | "startClose"
+  | "minimize"
+  | "restore"
+  | "droplet"
+  | "lift"
+  | "place"
+  | "pin"
+  | "unpin"
+  | "alert"
+  | "notice"
+  | "attention";
 
 export interface Note {
   /** Frequency at the start and at the end, in Hz. */
@@ -85,6 +105,28 @@ export const CUES: Record<Cue, Note[]> = {
   startOpen: [glide(0, 7, 0, 0.2, 0.62, 0.3), tone(7, 0.035, 0.24, 0.54, 0.45), glide(12, 14, 0.075, 0.28, 0.45, 0.5), tone(19, 0.12, 0.34, 0.27, 0.6)],
   // and leaving: the same, falling and shorter
   startClose: [glide(14, 9, 0, 0.14, 0.55, 0.3), glide(7, 4, 0.04, 0.18, 0.5, 0.3), glide(0, -5, 0.08, 0.22, 0.38, 0.2)],
+  // a window poured down into its dock icon: a sweep that falls from B5 to E4 and lands on a soft E4 (the genie goes
+  // the long way down; this goes with it)
+  minimize: [glide(19, 7, 0, 0.24, 0.52, 0.3), glide(12, 0, 0.05, 0.26, 0.42, 0.25), tone(0, 0.2, 0.18, 0.34, 0.2)],
+  // and out of it again (or brought forward): the same turned over, rising from E4 to B5
+  restore: [tone(0, 0, 0.12, 0.34, 0.2), glide(0, 12, 0.04, 0.24, 0.42, 0.3), glide(7, 19, 0.09, 0.26, 0.52, 0.4)],
+  // the drop (the menu bar's logo, the dock's Liquidock button) touched: a drip that falls from E6 to B5, with a
+  // faint ring of B6 above it and B5 under it, as a drop sounds as it meets water
+  droplet: [glide(24, 19, 0, 0.1, 0.5, 0.5), tone(31, 0.035, 0.16, 0.2, 0.7), tone(19, 0.07, 0.2, 0.18, 0.3)],
+  // an icon picked up to be moved: a short rise E5 to G#5
+  lift: [glide(12, 16, 0, 0.08, 0.38, 0.3)],
+  // and put down: a small fall to E5 and a soft G#4 under it
+  place: [glide(16, 12, 0, 0.07, 0.4, 0.3), tone(4, 0.045, 0.14, 0.45, 0.25)],
+  // pinned to the dock or to Start: B4, F#5, B5, rising
+  pin: [tone(7, 0, 0.1, 0.5, 0.4), tone(14, 0.05, 0.12, 0.46, 0.5), tone(19, 0.1, 0.22, 0.42, 0.6)],
+  // taken off: B5 and a fall from F#5 to F#4, airy
+  unpin: [tone(19, 0, 0.08, 0.42, 0.5), glide(14, 2, 0.04, 0.22, 0.36, 0.2)],
+  // something went wrong: G#4 and B3 under it, low and short, not a buzzer
+  alert: [tone(4, 0, 0.16, 0.5, 0.25), tone(-5, 0.1, 0.3, 0.55, 0.2)],
+  // something worth saying (a mode switched, a desktop saved): E5 and B5
+  notice: [tone(12, 0, 0.1, 0.38, 0.3), tone(19, 0.07, 0.2, 0.4, 0.45)],
+  // an app asking for you: a gentle chime of G#5, C#6 and G#6
+  attention: [tone(16, 0, 0.14, 0.4, 0.5), tone(21, 0.12, 0.16, 0.36, 0.5), tone(28, 0.24, 0.36, 0.34, 0.6)],
   // these two depend on what they are played for (see notesFor)
   hover: [],
   notch: [],
@@ -131,6 +173,16 @@ const THROTTLE_MS: Record<Cue, number> = {
   notch: 40,
   startOpen: 200,
   startClose: 200,
+  minimize: 150,
+  restore: 150,
+  droplet: 140,
+  lift: 120,
+  place: 120,
+  pin: 150,
+  unpin: 150,
+  alert: 300,
+  notice: 300,
+  attention: 600,
 };
 
 // ---- the graph ----
@@ -323,6 +375,9 @@ export function playCue(cue: Cue, step = 0): void {
   const now = performance.now();
   if (now - (lastAt[cue] ?? -1e9) < THROTTLE_MS[cue]) return;
   lastAt[cue] = now;
+  // for the bench and the off-screen scenarios, which have no speakers: what was played, in order
+  const heard = (window as unknown as { __aeroCueLog?: string[] }).__aeroCueLog;
+  if (heard) heard.push(cue);
 
   const a = audio();
   if (!a) return;
@@ -332,6 +387,21 @@ export function playCue(cue: Cue, step = 0): void {
   sleepSoon(a.ctx);
 }
 
+/**
+ * A tick as the pointer reaches each of the things that match `selector`, anywhere on the page (the items of a menu,
+ * which have a hover of their own and no lens). One tick per item, not one per movement inside it. Returns what takes it
+ * away.
+ */
+export function listenForItemTicks(selector: string): () => void {
+  let last: Element | null = null;
+  const over = (e: PointerEvent) => {
+    const el = (e.target as Element | null)?.closest?.(selector) ?? null;
+    if (el && el !== last) playCue("tick", 2);
+    last = el;
+  };
+  document.addEventListener("pointerover", over);
+  return () => document.removeEventListener("pointerover", over);
+}
 // for the bench (scripts/offscreen/sound.mjs), which renders the cues and measures them
 if (typeof window !== "undefined" && (window as unknown as { __AERO_TEST__?: boolean }).__AERO_TEST__) {
   (window as unknown as { __aeroSound: unknown }).__aeroSound = { CUES, notesFor, inKey, buildBus, setDucked, renderCue, st, CEILING, DUCK };

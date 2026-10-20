@@ -10,6 +10,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { animate, motion, useMotionValue, useMotionValueEvent, useTransform } from "motion/react";
 import { effectsBus } from "../../engine/effects/effectsBus";
+import { playCue } from "../../engine/sound/ui";
 import { spring } from "../../engine/motion/tokens";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
@@ -27,7 +28,7 @@ function ControlButton({
 }) {
   const dockGlass = useGlass("dock");
   return (
-    <button className="dock-control-btn" title={label} aria-label={label} onClick={onClick}>
+    <button className="dock-control-btn" title={label} aria-label={label} onPointerEnter={() => playCue("tick")} onClick={() => { playCue("open"); onClick(); }}>
     <BackdropLayer active={dockGlass.active} blur={dockGlass.blur} grain={dockGlass.grain} tint="own" />
       <svg viewBox="0 0 24 24">{children}</svg>
     </button>
@@ -203,7 +204,11 @@ export function LiquidockButton({
         play(clickEffect, clickTune);
         onClick();
       }}
-      onPointerEnter={() => play(effect, tune)}
+      onPointerEnter={() => {
+        // the drop has a sound of its own, the same as the menu bar's drop (.mb-logo, data-cue)
+        playCue("droplet");
+        play(effect, tune);
+      }}
     >
       <Droplet size={100} className="dock-drop-mark" solid={look === "solid"} compact {...(color ? { tint: color } : {})} />
     </button>

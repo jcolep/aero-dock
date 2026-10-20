@@ -212,6 +212,8 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
         case "list_recent_files": return ${JSON.stringify(recent)};
         case "search_files": return ${JSON.stringify(files)}.filter((f) => f.name.toLowerCase().includes(String(args.query || "").toLowerCase()));
         case "windows_search": return null;
+        // what a click on an icon did to its window (window.__toggled, to try each)
+        case "toggle_window": return window.__toggled ?? "minimized";
         case "blur_report": return "";
         case "report_frame_stats": return null;
         case "frame_stats": return window.__frameRows || [];

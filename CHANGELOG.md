@@ -50,6 +50,27 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Sounds for everything that should have one (October 20)
+
+- **Minimising has its own sound**: a sweep that falls into the icon and lands on a soft note; a window coming back, or
+  forward, has the same turned over. A click on an icon used to play the "app opening" arpeggio whatever it did; now that
+  is only for an app that opens, and Rust says what a click did (`minimized`, `restored`, `focused`) so the page plays
+  the matching one. The context menu's Minimize and the menu bar's Hide / Hide Others / Show All too.
+- **Touching the drop makes a sound**, in the dock (the Liquidock button) and the menu bar (the logo): a drip that falls
+  and rings. The menu bar's lens no longer ticks over it (a button can ask for its own cue with `data-cue`).
+- **Moving apps in the dock and Start**: picked up (a short rise), each place passed (a tick), put down (a soft
+  thump), pinned (a rising three notes), unpinned (falling, airy). The same for pinning from a menu, by dropping a
+  file on the dock, and from Start's menu.
+- **Menus and flyouts**: the dock's right-click menu, folder and stack flyouts, the dock's own menu, the modes flyout,
+  Start's account / power / item menus, and Mission Control open and close; the previews of a window's apps come up with
+  a barely-there tick. The items inside menus tick as the pointer reaches each (dock and menu bar).
+- **Settings**: switches go on and off, choices and sliders notch, buttons lift, animation and color choices notch.
+- **Also**: the Control Center's sliders notch as they move; the media card's buttons (play/pause and shuffle/repeat
+  as switches, the rest a lift); the clock, status chips, gear and Recycle Bin on the dock (opening, muting, emptying);
+  an error toast has a low short note and an info toast a soft pair; an app asking for attention chimes once, with its
+  first hop (not at every reminder); an app opened from Start has the launch arpeggio.
+- Ten new cues, all in the key of E; `sound.mjs` also checks that no two cues are the same sound, and `soundmap.mjs`
+  checks what plays for each interaction (the engine logs its cues when `__aeroCueLog` is set).
 ### The icons passed while dragging glide into place (October 20)
 
 - **Dock**: the icons a carried icon passes now slide into their new places over a few frames. Those after the divider

@@ -236,6 +236,8 @@ export function DockIcon({
   const attention = useRunning((s) => item.windows.some((w) => s.attention.has(w.hwnd)));
   useEffect(() => {
     if (!attention || !attentionBounce) return;
+    // asked for once, with the first hop; the reminders every few seconds are silent (it asks without nagging)
+    playCue("attention");
     const hop = () => {
       if (motionReduced()) return;
       void animate(bounce, [0, -18, 0, -11, 0, -5, 0], { duration: 0.95, ease: "easeOut" });

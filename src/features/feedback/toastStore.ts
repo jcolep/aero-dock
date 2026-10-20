@@ -7,6 +7,7 @@
 
 import { create } from "zustand";
 import { because } from "../../engine/errors/humane";
+import { playCue } from "../../engine/sound/ui";
 
 export interface Toast {
   id: number;
@@ -28,6 +29,8 @@ export const useToasts = create<ToastState>((set, get) => ({
   items: [],
   push: (message, tone) => {
     const id = nextId++;
+    // a failure is heard (low, short, not a buzzer); a notice has a softer pair of notes
+    playCue(tone === "error" ? "alert" : "notice");
     set((s) => ({ items: [...s.items, { id, message, tone }].slice(-MAX_VISIBLE) }));
     setTimeout(() => get().dismiss(id), LIFETIME_MS);
   },

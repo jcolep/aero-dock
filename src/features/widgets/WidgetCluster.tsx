@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useReduced } from "../../engine/accessibility/policy";
 import { useGlideHighlight } from "../../engine/lens/useGlideHighlight";
 import { useSettings } from "../../state/settingsStore";
+import { playCue } from "../../engine/sound/ui";
 import { ipc } from "../../ipc/commands";
 import { useSystem } from "../../state/systemStore";
 import { notify } from "../feedback/toastStore";
@@ -67,6 +68,7 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
   const onVolumeWheel = (e: React.WheelEvent) => {
     if (!status?.volume.available) return;
     const next = Math.max(0, Math.min(100, status.volume.level + (e.deltaY < 0 ? 4 : -4)));
+    playCue("notch", e.deltaY < 0 ? 1 : -1);
     ipc.setVolume(next).catch(notify.on("Could not change the volume"));
   };
 
@@ -90,7 +92,10 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
       <button
         className="widget-clock widget-clock-button"
         title={`${date} - click for notifications and the calendar`}
-        onClick={() => ipc.openNotificationCenter().catch(notify.on("Could not open the calendar"))}
+        onClick={() => {
+          playCue("open");
+          ipc.openNotificationCenter().catch(notify.on("Could not open the calendar"));
+        }}
       >
         <span className="widget-time"><Roll className="roll-steady" text={time} /></span>
         <span className="widget-date">{date}</span>
@@ -102,6 +107,7 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
           className="widget-chip widget-chip-button"
           title="Show hidden icons"
           onClick={(e) => {
+            playCue("open");
             // the flyout opens centred above this button
             const r = e.currentTarget.getBoundingClientRect();
             const scale = window.devicePixelRatio;
@@ -119,11 +125,10 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
           <button
             className="widget-chip widget-chip-button"
             title={`Battery ${status.battery.percent}%${status.battery.charging ? " (charging)" : ""} - click for power settings`}
-            onClick={() =>
-              ipc
-                .launch("ms-settings:batterysaver")
-                .catch(notify.on("Could not open power settings"))
-            }
+            onClick={() => {
+              playCue("open");
+              ipc.launch("ms-settings:batterysaver").catch(notify.on("Could not open power settings"));
+            }}
           >
             <BatteryGlyph percent={status.battery.percent} charging={status.battery.charging} />
           </button>
@@ -131,9 +136,10 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
         <button
           className="widget-chip widget-chip-button"
           title={`${status?.internet ? (status.link === "ethernet" ? "Connected by Ethernet" : "Connected") : "No internet"} - click for network settings`}
-          onClick={() =>
-            ipc.launch("ms-settings:network").catch(notify.on("Could not open network settings"))
-          }
+          onClick={() => {
+            playCue("open");
+            ipc.launch("ms-settings:network").catch(notify.on("Could not open network settings"));
+          }}
         >
           <NetworkGlyph online={status?.internet ?? false} link={status?.link} />
         </button>
@@ -142,11 +148,11 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
             className="widget-chip widget-chip-button"
             title={`Volume ${status.volume.level}%${status.volume.muted ? " (muted)" : ""} - scroll to adjust, click to mute`}
             onWheel={onVolumeWheel}
-            onClick={() =>
-              ipc
-                .setVolume(undefined, !status.volume.muted)
-                .catch(notify.on("Could not change the volume"))
-            }
+            onClick={() => {
+              // unmuting is a switch going on
+              playCue(status.volume.muted ? "on" : "off");
+              ipc.setVolume(undefined, !status.volume.muted).catch(notify.on("Could not change the volume"));
+            }}
           >
             <VolumeGlyph level={status.volume.level} muted={status.volume.muted} />
           </button>
@@ -154,9 +160,13 @@ export function WidgetCluster({ showClock = true, showStatus = true }: WidgetClu
         <button
           className="widget-chip widget-chip-button"
           title={`${binTooltip} - click to open, right-click to empty`}
-          onClick={() => ipc.openRecycleBin().catch(notify.on("Could not open the Recycle Bin"))}
+          onClick={() => {
+            playCue("open");
+            ipc.openRecycleBin().catch(notify.on("Could not open the Recycle Bin"));
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
+            playCue("unpin");
             ipc.emptyRecycleBin().catch(notify.on("Could not empty the Recycle Bin"));
           }}
         >

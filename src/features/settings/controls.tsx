@@ -12,6 +12,7 @@ import { useId, useLayoutEffect, useRef, useState } from "react";
 import { spring } from "../../engine/motion/tokens";
 import { useSubpixelBox } from "../../engine/motion/subpixelBox";
 import { useReduced } from "../../engine/accessibility/policy";
+import { playCue } from "../../engine/sound/ui";
 
 /** A row's label, and under it what the setting does (two lines at most; the whole of it on hover). */
 function Label({ label, hint, htmlFor }: { label: string; hint?: string; htmlFor?: string }) {
@@ -51,6 +52,8 @@ interface SliderProps {
 
 export function AeroSlider({ label, value, min, max, step = 0.01, format, onChange, hint, commitOnRelease = false }: SliderProps) {
   const id = useId();
+  // the value last heard: a notch as it moves a tenth of the way along, up or down (the throttle keeps a fast drag a trickle)
+  const heard = useRef(value);
   // the value being dragged to, until it is let go (commitOnRelease only)
   const [draft, setDraft] = useState<number | null>(null);
   const shown = draft ?? value;
@@ -76,6 +79,10 @@ export function AeroSlider({ label, value, min, max, step = 0.01, format, onChan
         style={{ "--fill": `${pct}%` } as React.CSSProperties}
         onChange={(e) => {
           const next = Number(e.target.value);
+          if (Math.abs(next - heard.current) >= (max - min) / 40) {
+            playCue("notch", next > heard.current ? 1 : -1);
+            heard.current = next;
+          }
           if (commitOnRelease) setDraft(next);
           else onChange(next);
         }}
@@ -104,7 +111,7 @@ export function AeroToggle({ label, checked, onChange, hint }: ToggleProps) {
   return (
     <div className="ctl-row ctl-row-toggle">
       <Label label={label} hint={hint} />
-      <button className="ctl-toggle" role="switch" aria-checked={checked} aria-label={label} data-on={checked} onClick={() => onChange(!checked)}>
+      <button className="ctl-toggle" role="switch" aria-checked={checked} aria-label={label} data-on={checked} onClick={() => { playCue(checked ? "off" : "on"); onChange(!checked); }}>
         <span className="ctl-toggle-thumb" />
       </button>
     </div>
@@ -173,7 +180,7 @@ export function AeroSegmented<T extends string>({ label, value, options, onChang
       <div ref={groupRef} className="ctl-segmented" role="radiogroup" aria-label={label}>
         <motion.span className="ctl-seg-thumb" aria-hidden style={{ ...box, opacity: shown }} />
         {options.map((opt) => (
-          <button key={opt.value} role="radio" aria-checked={opt.value === value} data-active={opt.value === value} onClick={() => onChange(opt.value)}>
+          <button key={opt.value} role="radio" aria-checked={opt.value === value} data-active={opt.value === value} onClick={() => { if (opt.value !== value) playCue("notch", 1); onChange(opt.value); }}>
             {opt.label}
           </button>
         ))}
