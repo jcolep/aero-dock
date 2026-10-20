@@ -120,7 +120,7 @@ export const GROUPS: GroupDef[] = [
         id: "widgets",
         title: "Desktop widgets",
         blurb: "Widgets that sit on the desktop",
-        keywords: "desktop widgets clock weather music system load notes layer edit position network",
+        keywords: "desktop widgets clock weather music system load notes layer edit position network picture gif image photo frame notes sticky checklist todo counter timer pomodoro stopwatch countdown world clocks time zones progress date flip moon phase quote dice coin calculator volume brightness battery corner radius frameless shadow",
         hue: 45,
       },
     ],

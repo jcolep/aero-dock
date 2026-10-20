@@ -19,6 +19,7 @@ import { useCallback, useMemo, useRef } from "react";
 import { glassBackdrop } from "../../engine/glass/displacement";
 import { ipc } from "../../ipc/commands";
 import type { WidgetInstance } from "../../ipc/types";
+import { opt } from "./kit";
 import { definitionFor } from "./registry";
 
 /** Corner radius of a widget, shared with the hit region so the clickable
@@ -54,6 +55,8 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), h
 export function WidgetFrame({ widget, allowNetwork, onGeometry, onDragState, editing }: Props) {
   const def = definitionFor(widget.kind);
   const mode = useRef<Mode | null>(null);
+  // how round this widget's glass is (a setting of its own; the clickable part follows it, see DesktopWidgets)
+  const radius = opt(widget, "radius", WIDGET_RADIUS);
 
   // The filter is keyed on size, so it is only rebuilt when the widget is
   // actually resized rather than on every render.
@@ -63,14 +66,14 @@ export function WidgetFrame({ widget, allowNetwork, onGeometry, onDragState, edi
       {
         width: Math.round(widget.width),
         height: Math.round(widget.height),
-        radius: WIDGET_RADIUS,
+        radius,
         depth: DEPTH,
         strength: STRENGTH,
         chromaticAberration: ABERRATION,
       },
       BLUR,
     );
-  }, [widget.surface, widget.width, widget.height]);
+  }, [widget.surface, widget.width, widget.height, radius]);
 
   const begin = useCallback(
     (e: React.PointerEvent, kind: "move" | "resize") => {
@@ -78,6 +81,8 @@ export function WidgetFrame({ widget, allowNetwork, onGeometry, onDragState, edi
       // and carry it off with the pointer, which is not what anyone means
       // by a right-click.
       if (e.button !== 0) return;
+      // a button, a field or a slider of the widget's own is used, not a handle to drag it by
+      if ((e.target as HTMLElement).closest("[data-nodrag]") && kind === "move") return;
       if (widget.locked) return;
       e.preventDefault();
       e.stopPropagation();
@@ -149,7 +154,10 @@ export function WidgetFrame({ widget, allowNetwork, onGeometry, onDragState, edi
       data-surface={widget.surface}
       data-editing={editing}
       data-locked={widget.locked}
+      data-frameless={opt(widget, "frameless", false) || undefined}
+      data-shadow={opt(widget, "shadow", false) || undefined}
       style={{
+        borderRadius: radius,
         left: widget.x,
         top: widget.y,
         width: widget.width,

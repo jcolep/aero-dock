@@ -284,7 +284,16 @@ export async function startHarness({ dist = join(projectRoot, "dist"), out: outF
           const last = String(args && args.target || "").split(String.fromCharCode(92)).pop().split("/").pop().replace(".exe", "");
           return last ? last.charAt(0).toUpperCase() + last.slice(1) : null;
         }
-        // commands with a real effect are acknowledged and recorded, never run
+        // a widget's own settings changed: kept, and announced as the real thing does (window.__saveDelay)
+        case "style_widget": {
+          const w = settings.widgets.widgets.find((x) => x.id === args.id);
+          if (w && args.style.options) w.options = args.style.options;
+          if (w && args.style.opacity !== undefined) w.opacity = args.style.opacity;
+          const copy = JSON.parse(JSON.stringify(settings));
+          setTimeout(() => window.__emit("settings://changed", copy), window.__saveDelay ?? 60);
+          return copy;
+        }
+        case "set_widget_hit_rects": case "set_widget_keyboard": case "set_widget_drag_mode": case "place_widget": return null;        // commands with a real effect are acknowledged and recorded, never run
         case "resize_menubar": case "resize_dock": case "set_menubar_menu_open": case "activate_window":
         case "set_dock_focusable": case "set_tray_icon": case "report_dock_bar": case "close_window": case "minimize_window": case "show_window_previews": case "hide_window_previews": case "toggle_mission": case "close_mission": case "toggle_window": case "set_memory_saver": case "set_volume": case "set_radio":
         case "connect_wifi": case "disconnect_wifi": case "set_brightness": case "launch": return null;

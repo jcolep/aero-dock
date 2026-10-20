@@ -415,3 +415,443 @@
     transition: none;
   }
 }
+
+
+/* ====================================================================
+   The newer widgets. Shared: the shape of the glass is a setting of each
+   (radius on the frame itself), they can go without glass or with a shadow,
+   and their own buttons and fields are not handles to drag them by.
+   ==================================================================== */
+
+.aero-widget[data-frameless] .aero-widget-glass {
+  background: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.aero-widget[data-frameless] .aero-widget-glass::before,
+.aero-widget[data-frameless] .aero-widget-glass::after,
+.aero-widget[data-frameless] .aero-widget-ambient {
+  display: none !important;
+}
+.aero-widget[data-shadow] {
+  filter: drop-shadow(0 8px 22px rgba(4, 26, 48, 0.45));
+}
+
+.aero-widget-body button,
+.aero-widget-body input,
+.aero-widget-body textarea {
+  font: inherit;
+  color: inherit;
+}
+.aero-widget-body [data-nodrag] {
+  cursor: default;
+}
+/* a small glass button, the one look for every widget's */
+.w-timer-buttons button,
+.w-counter-buttons button,
+.w-calc-keys button,
+.w-icon-btn {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: background var(--m-quick) var(--e-out), transform var(--m-quick) var(--e-out);
+}
+.w-timer-buttons button:hover,
+.w-counter-buttons button:hover,
+.w-calc-keys button:hover,
+button.w-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+.w-timer-buttons button:active,
+.w-counter-buttons button:active,
+.w-calc-keys button:active {
+  transform: scale(0.94);
+}
+.w-primary {
+  background: color-mix(in srgb, var(--aero-accent, #2f9de3) 60%, rgba(255, 255, 255, 0.2)) !important;
+}
+.w-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+.w-bar > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--aero-accent, #2f9de3);
+  transition: width 0.4s ease;
+}
+
+/* ---- picture ---- */
+.w-pic {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+}
+.w-pic-frame {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 14px;
+}
+.w-pic-frame[data-shape="square"] {
+  border-radius: 0;
+}
+.w-pic-frame[data-shape="circle"] {
+  flex: none;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+.w-pic-frame[data-glow] {
+  box-shadow: 0 0 26px color-mix(in srgb, var(--aero-accent, #2f9de3) 75%, transparent);
+}
+.w-pic-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform-origin: center;
+}
+.w-pic-caption {
+  flex: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- notes ---- */
+.w-notes {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: -4px -6px;
+  padding: 6px 8px;
+  border-radius: 12px;
+}
+.w-notes[data-paper="yellow"] { background: rgba(255, 224, 110, 0.32); }
+.w-notes[data-paper="pink"] { background: rgba(255, 150, 190, 0.3); }
+.w-notes[data-paper="blue"] { background: rgba(120, 190, 255, 0.3); }
+.w-notes[data-paper="green"] { background: rgba(140, 230, 150, 0.3); }
+.w-notes-title {
+  font-weight: 700;
+  font-size: 13px;
+  opacity: 0.95;
+}
+.w-notes-text {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  line-height: 1.4;
+  text-shadow: inherit;
+  user-select: text;
+  cursor: text;
+}
+.w-notes-text::placeholder {
+  color: inherit;
+  opacity: 0.55;
+}
+.w-notes-count {
+  font-size: 10px;
+  opacity: 0.6;
+  text-align: right;
+}
+
+/* ---- checklist ---- */
+.w-list {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.w-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+}
+.w-list-head span {
+  font-size: 11px;
+  opacity: 0.75;
+}
+.w-list-items {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.w-list-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 3px 0;
+}
+.w-list-row > span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.w-list-row[data-done="true"] { opacity: 0.6; }
+.w-list-row[data-done="true"][data-strike="true"] > span { text-decoration: line-through; }
+.w-check {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+.w-list-row[data-done="true"] .w-check {
+  background: var(--aero-accent, #2f9de3);
+  border-color: transparent;
+}
+.w-check svg { width: 11px; height: 11px; }
+.w-x {
+  flex: none;
+  border: 0;
+  background: none;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0;
+  cursor: pointer;
+}
+.w-list-row:hover .w-x { opacity: 0.7; }
+.w-list-add,
+.w-controls input {
+  border: 0;
+  border-radius: 9px;
+  padding: 6px 9px;
+  background: rgba(255, 255, 255, 0.18);
+  outline: 0;
+  font-size: 12px;
+}
+.w-list-add::placeholder { color: inherit; opacity: 0.6; }
+
+/* ---- counter ---- */
+.w-counter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.w-counter-ring {
+  position: relative;
+  width: min(100%, 120px);
+  aspect-ratio: 1;
+}
+.w-counter-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.w-counter-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+}
+.w-counter-center strong { font-size: 30px; }
+.w-counter-center small { font-size: 11px; opacity: 0.75; }
+.w-counter-icon { font-size: 16px; }
+.w-counter-label { font-size: 12px; opacity: 0.9; text-align: center; }
+.w-counter-buttons { display: flex; gap: 8px; }
+.w-counter-buttons button { width: 34px; height: 28px; font-size: 16px; }
+
+/* ---- timer ---- */
+.w-timer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.w-timer-dial {
+  position: relative;
+  width: min(100%, 130px);
+  aspect-ratio: 1;
+}
+.w-timer-dial svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.w-timer-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.w-timer-center strong { font-size: 26px; font-variant-numeric: tabular-nums; }
+.w-timer-center small { font-size: 11px; opacity: 0.8; }
+.w-timer[data-done] .w-timer-center strong { animation: w-pulse 0.8s ease-in-out infinite alternate; }
+@keyframes w-pulse { to { opacity: 0.45; } }
+.w-timer-buttons { display: flex; gap: 6px; }
+.w-timer-buttons button { padding: 5px 11px; font-size: 12px; }
+
+/* ---- countdown ---- */
+.w-countdown {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+}
+.w-countdown-icon { font-size: 26px; }
+.w-countdown-big { display: flex; align-items: baseline; gap: 6px; }
+.w-countdown-big strong { font-size: 46px; line-height: 1; }
+.w-countdown-big span { font-size: 14px; }
+.w-countdown-units { display: flex; gap: 10px; }
+.w-countdown-units div { display: flex; flex-direction: column; align-items: center; }
+.w-countdown-units strong { font-size: 26px; font-variant-numeric: tabular-nums; }
+.w-countdown-units small { font-size: 10px; opacity: 0.75; }
+.w-countdown-label { font-size: 12px; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+
+/* ---- world clocks ---- */
+.w-wc { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-around; gap: 4px; }
+.w-wc-row { display: flex; align-items: center; gap: 10px; }
+.w-wc-face { flex: none; width: 30px; height: 30px; }
+.w-wc-city { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; font-size: 13px; }
+.w-wc-city strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.w-wc-city small { font-size: 10px; opacity: 0.7; }
+.w-wc-time { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---- progress ---- */
+.w-progress { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-around; gap: 8px; }
+.w-progress[data-style="rings"] { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-around; }
+.w-progress-row > div:first-child { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
+.w-progress-ring { position: relative; width: 74px; display: flex; flex-direction: column; align-items: center; }
+.w-progress-ring svg { width: 56px; height: 56px; }
+.w-progress-ring strong { position: absolute; top: 18px; font-size: 12px; }
+.w-progress-ring small { font-size: 10px; opacity: 0.8; margin-top: 2px; }
+
+/* ---- date tile ---- */
+.w-date { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; line-height: 1.1; }
+.w-date-top { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #ff8a80; }
+.w-date-day { font-size: 72px; font-weight: 300; line-height: 1; }
+.w-date-bottom { font-size: 13px; opacity: 0.9; }
+.w-date-week { font-size: 11px; opacity: 0.65; margin-top: 4px; }
+
+/* ---- flip clock ---- */
+.w-flip { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.w-flip-pair { display: flex; gap: 3px; }
+.w-flip-card {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 58px;
+  border-radius: 8px;
+  font-size: 40px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.12));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 3px 8px rgba(4, 26, 48, 0.35);
+  overflow: hidden;
+}
+.w-flip[data-card="dark"] .w-flip-card { background: linear-gradient(#2b3340, #1a202a); color: #fff; }
+.w-flip-card > i { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(0, 0, 0, 0.35); }
+.w-flip-digit { animation: w-flip-in 0.42s cubic-bezier(0.3, 0.7, 0.3, 1); transform-origin: 50% 100%; }
+@keyframes w-flip-in { from { transform: perspective(160px) rotateX(-80deg); opacity: 0; } }
+.w-flip-ampm { align-self: flex-end; font-size: 12px; opacity: 0.8; margin-bottom: 8px; }
+
+/* ---- moon ---- */
+.w-moon { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-align: center; }
+.w-moon-disc { width: min(100%, 110px); aspect-ratio: 1; filter: drop-shadow(0 0 14px rgba(255, 251, 232, 0.35)); margin-bottom: 4px; }
+.w-moon strong { font-size: 14px; }
+.w-moon small { font-size: 11px; opacity: 0.8; }
+
+/* ---- quote ---- */
+.w-quote { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.w-quote blockquote { margin: 0; line-height: 1.3; }
+.w-quote cite { font-size: 12px; opacity: 0.8; font-style: normal; }
+
+/* ---- dice, coins, 8 ball ---- */
+.w-rand { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.w-rand-main {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+.w-rand-main:hover { background: rgba(255, 255, 255, 0.2); }
+.w-rand-main[data-rolling] .w-rand-result { opacity: 0.7; transform: scale(0.96); }
+.w-rand-result { font-size: 34px; font-weight: 600; text-align: center; padding: 0 8px; transition: transform 0.07s; }
+.w-rand-result[data-long] { font-size: 16px; line-height: 1.25; }
+.w-rand-main small { font-size: 11px; opacity: 0.75; }
+.w-rand-hint { opacity: 0.55 !important; }
+.w-rand-past { font-size: 11px; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+/* ---- calculator ---- */
+.w-calc { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.w-calc-display { min-height: 62px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; padding: 4px 6px; border-radius: 10px; background: rgba(0, 0, 0, 0.18); overflow: hidden; }
+.w-calc-display small { font-size: 10px; opacity: 0.6; }
+.w-calc-expr { font-size: 24px; line-height: 1.1; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; }
+.w-calc-live { font-size: 12px; opacity: 0.7; }
+.w-calc-keys { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.w-calc-keys button { font-size: 15px; padding: 0; }
+.w-calc-keys button[data-kind="op"] { background: rgba(255, 255, 255, 0.26); }
+.w-calc-keys button[data-kind="eq"] { background: color-mix(in srgb, var(--aero-accent, #2f9de3) 62%, rgba(255, 255, 255, 0.2)); }
+
+/* ---- volume and brightness ---- */
+.w-controls { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.w-controls-row { display: flex; align-items: center; gap: 10px; }
+.w-icon-btn { flex: none; width: 30px; height: 30px; display: grid; place-items: center; font-size: 15px; padding: 0; }
+.w-controls-slider { flex: 1; min-width: 0; }
+.w-controls-val { flex: none; width: 28px; text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; opacity: 0.85; }
+.w-controls-note { font-size: 10px; opacity: 0.65; }
+
+/* ---- battery ---- */
+.w-battery { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.w-battery-ring { position: relative; width: min(100%, 110px); aspect-ratio: 1; }
+.w-battery-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.w-battery-ring strong { position: absolute; inset: 0; display: grid; place-items: center; font-size: 24px; }
+.w-battery-bar { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.w-battery-bar strong { font-size: 30px; }
+.w-battery small { font-size: 12px; opacity: 0.85; }
+.w-battery[data-warn] strong { color: #ff9a90; }
+/* The glass fills the widget's frame (the ".glass" rule that loads later makes it position: relative, which left it
+   as tall as its content, and a widget with room to spare, a picture, was a pane the height of its caption). */
+.aero-widget > .aero-widget-glass {
+  position: absolute;
+  inset: 0;
+}

@@ -15,6 +15,7 @@ import { applyAppearance } from "../../engine/themes/applyTheme";
 import { ipc } from "../../ipc/commands";
 import type { HitRect, WidgetInstance } from "../../ipc/types";
 import { useSettings } from "../../state/settingsStore";
+import { opt } from "./kit";
 import { WIDGET_RADIUS, WidgetFrame } from "./WidgetFrame";
 import "./desktop.css";
 
@@ -69,7 +70,7 @@ export function DesktopWidgets() {
       y: Math.round(w.y * dpr),
       width: Math.round(w.width * dpr),
       height: Math.round(w.height * dpr),
-      radius: Math.round(WIDGET_RADIUS * dpr),
+      radius: Math.round(opt(w, "radius", WIDGET_RADIUS) * dpr),
     }));
     ipc.setWidgetHitRects(rects).catch((e) => console.warn("hit region failed", e));
   }, []);

@@ -221,7 +221,28 @@ export interface ModesSettings {
   restoreWorkspaceOnSwitch: boolean;
 }
 
-export type WidgetKind = "clock" | "calendar" | "weather" | "systemStats" | "music";
+export type WidgetKind =
+  | "clock"
+  | "calendar"
+  | "weather"
+  | "systemStats"
+  | "music"
+  | "picture"
+  | "notes"
+  | "checklist"
+  | "timer"
+  | "countdown"
+  | "worldClock"
+  | "progress"
+  | "moon"
+  | "quote"
+  | "counter"
+  | "dateTile"
+  | "flipClock"
+  | "calculator"
+  | "randomizer"
+  | "controls"
+  | "battery";
 
 /** Per-kind settings. Flat and optional so a kind can add one without a
  *  migration; each widget reads only the fields it cares about. */
@@ -233,6 +254,8 @@ export interface WidgetOptions {
   longitude: number | null;
   place: string | null;
   celsius: boolean;
+  /** What the newer widgets keep, each its own keys (the defaults are in desktop/registry.ts). */
+  extra: Record<string, unknown>;
 }
 
 /** One widget on the desktop. Position is CSS pixels inside the overlay,

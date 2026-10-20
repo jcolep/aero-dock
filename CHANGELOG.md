@@ -50,6 +50,26 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Sixteen new desktop widgets, with a Picture / GIF one (October 20)
+
+- **Picture / GIF**: your own picture or GIF in a pane of glass, chosen in Settings (kept in the data folder, so it
+  survives the file moving; up to 40 MB, GIF, PNG, JPG, WebP, APNG, AVIF, BMP). Settings: fit, size in the pane, shape
+  (rounded, circle, square), room round it, opacity, look (gray, sepia, invert), brightness, mirror, a glow in the
+  tint color, a caption and its size, and **play only while the pointer is on it** (a still of the first frame the rest
+  of the time, which also stops the page redrawing it).
+- **Notes** (paper colors, text size, typewriter font, spell check, word count), **Checklist**, **Counter** (a daily goal
+  with a ring), **Timer** (Pomodoro with long breaks, a countdown or a stopwatch, with a chime), **Countdown** (days, or
+  days to seconds, until or since a date), **World clocks** (up to six, with little faces), **Time progress** (day,
+  week, month, year, as bars or rings), **Date**, **Flip clock**, **Moon** (phase, how much is lit, the next full or
+  new moon, worked out on the machine), **Quote** (built in or yours, daily / hourly / every 10 minutes), **Dice and
+  coins** (dice, a coin, a number, the 8 ball), **Calculator**, **Volume and brightness**, **Battery**.
+- **Every widget** now has a corner radius (the clickable part follows it), an option for no glass behind it, and a soft
+  shadow. The Settings list of widgets to add is grouped (Pictures, Time, Notes, Fun, System, Desktop), and each
+  widget's own settings are drawn from its description in `desktop/registry.ts`.
+- **Fixed**: a widget's glass was only as tall as its content (a stylesheet that loads later made it
+  `position: relative`); it fills the widget's frame now.
+- A widget with a field to type in (Notes, Checklist) takes the keyboard while it has the focus (the overlay never
+  does otherwise). **This part is not yet tried on the real desktop.**
 ### Sounds for everything that should have one (October 20)
 
 - **Minimising has its own sound**: a sweep that falls into the icon and lands on a soft note; a window coming back, or

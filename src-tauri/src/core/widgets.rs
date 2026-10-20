@@ -13,7 +13,10 @@
 //! leftmost, topmost point of the desktop, so a monitor left of the
 //! primary is reached with a small offset rather than a negative one.
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use super::settings::SurfaceStyle;
 
@@ -37,6 +40,23 @@ pub enum WidgetKind {
     Weather,
     SystemStats,
     Music,
+    /// Your own picture or GIF in a glass frame.
+    Picture,
+    Notes,
+    Checklist,
+    Timer,
+    Countdown,
+    WorldClock,
+    Progress,
+    Moon,
+    Quote,
+    Counter,
+    DateTile,
+    FlipClock,
+    Calculator,
+    Randomizer,
+    Controls,
+    Battery,
 }
 
 impl WidgetKind {
@@ -48,6 +68,22 @@ impl WidgetKind {
             Self::Weather => (280, 190),
             Self::SystemStats => (260, 220),
             Self::Music => (340, 150),
+            Self::Picture => (260, 260),
+            Self::Notes => (260, 240),
+            Self::Checklist => (260, 280),
+            Self::Timer => (260, 240),
+            Self::Countdown => (260, 200),
+            Self::WorldClock => (300, 230),
+            Self::Progress => (270, 220),
+            Self::Moon => (220, 240),
+            Self::Quote => (320, 190),
+            Self::Counter => (210, 210),
+            Self::DateTile => (200, 200),
+            Self::FlipClock => (330, 170),
+            Self::Calculator => (240, 330),
+            Self::Randomizer => (230, 230),
+            Self::Controls => (290, 170),
+            Self::Battery => (200, 200),
         }
     }
 
@@ -64,6 +100,22 @@ impl WidgetKind {
             Self::Weather => "Weather",
             Self::SystemStats => "System stats",
             Self::Music => "Music",
+            Self::Picture => "Picture",
+            Self::Notes => "Notes",
+            Self::Checklist => "Checklist",
+            Self::Timer => "Timer",
+            Self::Countdown => "Countdown",
+            Self::WorldClock => "World clocks",
+            Self::Progress => "Time progress",
+            Self::Moon => "Moon",
+            Self::Quote => "Quote",
+            Self::Counter => "Counter",
+            Self::DateTile => "Date",
+            Self::FlipClock => "Flip clock",
+            Self::Calculator => "Calculator",
+            Self::Randomizer => "Dice and coins",
+            Self::Controls => "Volume and brightness",
+            Self::Battery => "Battery",
         }
     }
 }
@@ -87,6 +139,10 @@ pub struct WidgetOptions {
     pub place: Option<String>,
     /// Weather: Celsius when true, Fahrenheit when false.
     pub celsius: bool,
+    /// Everything the newer widgets keep: each reads its own keys (see src/features/desktop/registry.ts, which
+    /// has the defaults), so a widget can have settings of its own without a field here. Checked and capped by
+    /// [sanitize_extra].
+    pub extra: BTreeMap<String, Value>,
 }
 
 impl Default for WidgetOptions {
@@ -99,6 +155,7 @@ impl Default for WidgetOptions {
             longitude: None,
             place: None,
             celsius: true,
+            extra: BTreeMap::new(),
         }
     }
 }
@@ -226,6 +283,7 @@ impl WidgetsSettings {
                     w.accent = None;
                 }
             }
+            sanitize_extra(&mut w.options.extra);
         }
 
         // Nothing to show means the layer should not be holding a window
@@ -247,6 +305,48 @@ impl WidgetsSettings {
     }
 }
 
+/// The most keys, and the most text, one widget's own settings may hold: a hand-edited file cannot make one widget
+/// carry a megabyte, and a runaway note or list is cut rather than stored.
+pub const MAX_EXTRA_KEYS: usize = 48;
+pub const MAX_EXTRA_VALUE_BYTES: usize = 12_000;
+pub const MAX_EXTRA_BYTES: usize = 40_000;
+
+/// Keep a widget's free-form settings to plain names and values of a sane size.
+pub fn sanitize_extra(extra: &mut BTreeMap<String, Value>) {
+    extra.retain(|key, value| {
+        key.len() <= 48
+            && !key.is_empty()
+            && key.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
+            && !value.is_null()
+            && serde_json::to_string(value).map(|s| s.len() <= MAX_EXTRA_VALUE_BYTES).unwrap_or(false)
+    });
+    while extra.len() > MAX_EXTRA_KEYS {
+        extra.pop_last();
+    }
+    // over the total: the largest go first
+    loop {
+        let sizes: Vec<(usize, String)> = extra
+            .iter()
+            .map(|(k, v)| (serde_json::to_string(v).map(|s| s.len()).unwrap_or(0) + k.len(), k.clone()))
+            .collect();
+        if sizes.iter().map(|(n, _)| n).sum::<usize>() <= MAX_EXTRA_BYTES {
+            break;
+        }
+        match sizes.into_iter().max_by_key(|(n, _)| *n) {
+            Some((_, key)) => {
+                extra.remove(&key);
+            }
+            None => break,
+        }
+    }
+    // a corner radius is a number of pixels that fits a widget
+    if let Some(Value::Number(n)) = extra.get("radius") {
+        let r = n.as_f64().unwrap_or(20.0).clamp(0.0, 60.0);
+        extra.insert("radius".into(), Value::from(r.round() as i64));
+    } else {
+        extra.remove("radius");
+    }
+}
 /// `#rrggbb`, the only form the pickers produce.
 fn is_hex_color(value: &str) -> bool {
     let bytes = value.as_bytes();
@@ -435,6 +535,26 @@ mod tests {
             allow_weather_network: false,
         };
         assert_eq!(s.rects(), vec![(5, 6, 100, 120)]);
+    }
+
+    #[test]
+    fn a_widgets_own_settings_are_checked_and_capped() {
+        let mut extra: BTreeMap<String, Value> = BTreeMap::new();
+        extra.insert("text".into(), Value::from("hello"));
+        extra.insert("bad key!".into(), Value::from(1));
+        extra.insert("empty".into(), Value::Null);
+        extra.insert("huge".into(), Value::from("x".repeat(MAX_EXTRA_VALUE_BYTES + 1)));
+        extra.insert("radius".into(), Value::from(9000));
+        sanitize_extra(&mut extra);
+        assert_eq!(extra.get("text"), Some(&Value::from("hello")));
+        assert!(!extra.contains_key("bad key!") && !extra.contains_key("empty") && !extra.contains_key("huge"));
+        assert_eq!(extra.get("radius"), Some(&Value::from(60)), "a radius is clamped");
+        // too many keys, and too much in total
+        let mut many: BTreeMap<String, Value> = (0..200).map(|i| (format!("k{i:03}"), Value::from("y".repeat(2_000)))).collect();
+        sanitize_extra(&mut many);
+        assert!(many.len() <= MAX_EXTRA_KEYS);
+        let total: usize = many.iter().map(|(k, v)| k.len() + serde_json::to_string(v).unwrap().len()).sum();
+        assert!(total <= MAX_EXTRA_BYTES, "{total}");
     }
 
     #[test]

@@ -8,8 +8,10 @@
 
 import { humane } from "../../engine/errors/humane";
 import { SettingsSection } from "./SettingsSection";
-import { useState } from "react";
-import { WIDGETS } from "../desktop/registry";
+import { useRef, useState } from "react";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { WIDGETS, SHARED_FIELDS, type Field, type WidgetGroup } from "../desktop/registry";
+import { opt, saveExtra } from "../desktop/kit";
 import { ipc } from "../../ipc/commands";
 import type { Settings, SurfaceStyle, WidgetInstance, WidgetKind } from "../../ipc/types";
 import { AeroSegmented, AeroSlider, AeroToggle } from "./controls";
@@ -20,6 +22,85 @@ interface Props {
 }
 
 const DEFAULT_ACCENT = "#2f9de3";
+
+/** The text of a slider's value, in the unit its field names. */
+function formatFor(f: Extract<Field, { type: "slider" }>): (v: number) => string {
+  if (f.unit === "px") return (v) => `${Math.round(v)}px`;
+  if (f.unit === "%") return (v) => `${Math.round(v * 100)}%`;
+  if (f.unit === "x") return (v) => `${v.toFixed(2)}x`;
+  return (v) => `${Math.round(v * 100) / 100}${f.unit ?? ""}`;
+}
+
+/** One of a widget's own settings, drawn from its description in the registry. */
+function FieldRow({ widget, field }: { widget: WidgetInstance; field: Field }) {
+  const value = opt(widget, field.key, field.default as never) as unknown;
+  const save = (v: unknown, delay = 150) => saveExtra(widget.id, { [field.key]: v }, delay);
+  switch (field.type) {
+    case "toggle":
+      return <AeroToggle label={field.label} hint={field.hint} checked={value as boolean} onChange={(v) => save(v, 0)} />;
+    case "slider":
+      return <AeroSlider label={field.label} hint={field.hint} value={value as number} min={field.min} max={field.max} step={field.step} format={formatFor(field)} onChange={(v) => save(v)} />;
+    case "choice":
+      return <AeroSegmented<string> label={field.label} hint={field.hint} value={String(value)} options={field.options.map(([v, l]) => ({ value: v, label: l }))} onChange={(v) => save(v, 0)} />;
+    case "text":
+      return (
+        <label className="ctl-row">
+          <span className="ctl-label">{field.label}</span>
+          <input className="ctl-text" key={widget.id + field.key} defaultValue={value as string} placeholder={field.placeholder} maxLength={field.max ?? 200} onBlur={(e) => save(e.target.value, 0)} />
+        </label>
+      );
+    case "datetime":
+      return (
+        <label className="ctl-row">
+          <span className="ctl-label">{field.label}</span>
+          <input className="ctl-text" type="datetime-local" key={widget.id + field.key} defaultValue={value as string} onChange={(e) => e.target.value && save(e.target.value, 0)} />
+        </label>
+      );
+    case "textarea":
+      return (
+        <div className="ctl-row ctl-row-stacked">
+          <span className="ctl-label">{field.label}</span>
+          {field.hint && <span className="ctl-hint">{field.hint}</span>}
+          <textarea className="ctl-text ctl-textarea" key={widget.id + field.key} rows={field.rows ?? 3} defaultValue={value as string} placeholder={field.placeholder} maxLength={2000} onBlur={(e) => save(e.target.value, 0)} />
+        </div>
+      );
+  }
+}
+
+const MEDIA_EXT = /\.(gif|png|jpe?g|webp|apng|avif|bmp)$/i;
+
+/** Choosing the picture (or GIF) a Picture widget shows: kept in the data folder, so it survives the file moving. */
+function PictureChooser({ widget, onStatus }: { widget: WidgetInstance; onStatus: Props["onStatus"] }) {
+  const src = opt(widget, "src", "");
+  const name = opt(widget, "name", "");
+  const input = useRef<HTMLInputElement>(null);
+  const choose = async (file: File | undefined) => {
+    if (!file) return;
+    if (!MEDIA_EXT.test(file.name)) return onStatus("error", "That is not a picture this can show (GIF, PNG, JPG, WebP, APNG, AVIF or BMP).");
+    if (file.size > 40 * 1024 * 1024) return onStatus("error", "That file is over 40 MB.");
+    try {
+      await ipc.saveWidgetMedia(widget.id, file.name.split(".").pop()!.toLowerCase(), await file.arrayBuffer());
+      saveExtra(widget.id, { name: file.name }, 0);
+      onStatus("ok", `${file.name} is on the widget.`);
+    } catch (e) {
+      onStatus("error", `Could not use that file: ${humane(e)}`);
+    }
+  };
+  return (
+    <div className="ctl-row ctl-row-stacked">
+      <span className="ctl-label">Picture or GIF</span>
+      <div className="widget-picture">
+        {src ? <img src={convertFileSrc(src)} alt="" className="widget-picture-thumb" /> : <span className="widget-picture-thumb widget-picture-none">none</span>}
+        <span className="widget-picture-name">{name || (src ? "Chosen" : "Nothing chosen yet")}</span>
+        <input ref={input} type="file" accept=".gif,.png,.jpg,.jpeg,.webp,.apng,.avif,.bmp,image/*" hidden onChange={(e) => { void choose(e.target.files?.[0]); e.target.value = ""; }} />
+        <button className="aero-button" onClick={() => input.current?.click()}>{src ? "Replace…" : "Choose…"}</button>
+        {src && <button className="aero-button" onClick={() => void ipc.clearWidgetMedia(widget.id).catch((e) => onStatus("error", `Could not remove it: ${humane(e)}`))}>Remove</button>}
+      </div>
+    </div>
+  );
+}
+
+const GROUPS: WidgetGroup[] = ["Pictures", "Time", "Notes", "Fun", "System", "Desktop"];
 
 function WidgetRow({
   widget,
@@ -101,6 +182,11 @@ function WidgetRow({
             checked={widget.locked}
             onChange={(v) => void style({ locked: v })}
           />
+
+          {widget.kind === "picture" && <PictureChooser widget={widget} onStatus={onStatus} />}
+          {def?.fields?.filter((f) => !f.when || f.when(widget.options.extra ?? {})).map((f) => <FieldRow key={f.key} widget={widget} field={f} />)}
+          <p className="settings-note">The shape of the glass</p>
+          {SHARED_FIELDS.map((f) => <FieldRow key={f.key} widget={widget} field={f} />)}
 
           {widget.kind === "clock" && (
             <>
@@ -248,25 +334,31 @@ export function WidgetsCard({ settings, onStatus }: Props) {
 
           <div className="ctl-row ctl-row-stacked">
             <span className="ctl-label">Add a widget</span>
-            <div className="widget-add">
-              {WIDGETS.map((def) => (
-                <button
-                  key={def.kind}
-                  className="aero-button"
-                  title={def.description}
-                  onClick={() =>
-                    ipc
-                      .addWidget(def.kind as WidgetKind)
-                      .then(() => onStatus("ok", `Added the ${def.label}.`))
-                      .catch(fail("Could not add the widget"))
-                  }
-                >
-                  {def.label}
-                </button>
+            <div className="widget-groups">
+              {GROUPS.map((group) => (
+                <div key={group} className="widget-group">
+                  <span className="widget-group-name">{group}</span>
+                  <div className="widget-add">
+                    {WIDGETS.filter((d) => d.group === group).map((def) => (
+                      <button
+                        key={def.kind}
+                        className="aero-button"
+                        title={def.description}
+                        onClick={() =>
+                          ipc
+                            .addWidget(def.kind as WidgetKind)
+                            .then(() => onStatus("ok", `Added the ${def.label}.`))
+                            .catch(fail("Could not add the widget"))
+                        }
+                      >
+                        {def.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-
           <AeroToggle
             label="Let the weather widget use the network"
             checked={w.allowWeatherNetwork}

@@ -300,6 +300,8 @@ pub fn remove_widget(
     let settings = store.update(&app, |s| {
         s.widgets.widgets.retain(|w| w.id != id);
     })?;
+    // a picture it held goes with it
+    delete_media(&app, &id);
     // sanitize turns the layer off when the last one goes
     if !settings.widgets.enabled {
         close_widget_layer(app)?;
@@ -408,6 +410,104 @@ pub fn allow_weather_network(
     store.update(&app, |s| s.widgets.allow_weather_network = allowed)
 }
 
+// ---------------------------------------------------------------------
+// a picture of one's own, and typing
+// ---------------------------------------------------------------------
+
+/// The pictures a Picture widget was given are kept beside the settings (the file the user chose may move or go), one
+/// per widget, named by the widget's id.
+fn media_dir(app: &AppHandle) -> AeroResult<std::path::PathBuf> {
+    let dir = crate::core::paths::data_dir(app)?.join("widget-media");
+    std::fs::create_dir_all(&dir)?;
+    Ok(dir)
+}
+
+/// Remove what a widget was given (every file whose name starts with its id and a dash).
+fn delete_media(app: &AppHandle, id: &str) {
+    let Ok(dir) = media_dir(app) else { return };
+    let Ok(entries) = std::fs::read_dir(&dir) else { return };
+    let prefix = format!("{id}-");
+    for entry in entries.flatten() {
+        if entry.file_name().to_string_lossy().starts_with(&prefix) {
+            let _ = std::fs::remove_file(entry.path());
+        }
+    }
+}
+
+/// What a picture may be, and the most of it kept (a GIF is decoded whole, frame by frame, by the page).
+const MEDIA_TYPES: &[&str] = &["gif", "png", "jpg", "jpeg", "webp", "apng", "avif", "bmp"];
+const MAX_MEDIA_BYTES: usize = 40 * 1024 * 1024;
+
+/// The picture chosen for a Picture widget, sent as the raw body of the call (headers `x-widget-id` and `x-ext`): it
+/// is kept in the data folder, replaces any earlier one, and the widget's `src` is set to it.
+#[tauri::command]
+pub fn widget_save_media(
+    app: AppHandle,
+    store: State<'_, SettingsStore>,
+    request: tauri::ipc::Request<'_>,
+) -> AeroResult<Settings> {
+    let tauri::ipc::InvokeBody::Raw(bytes) = request.body() else {
+        return Err(AeroError::other("no picture was sent"));
+    };
+    let header = |name: &str| request.headers().get(name).and_then(|v| v.to_str().ok()).map(str::to_string);
+    let id = header("x-widget-id").ok_or_else(|| AeroError::other("no widget was named"))?;
+    let ext = header("x-ext").unwrap_or_default().trim_start_matches('.').to_ascii_lowercase();
+    if !MEDIA_TYPES.contains(&ext.as_str()) {
+        return Err(AeroError::other(format!("a .{ext} file is not a picture this can show (GIF, PNG, JPG, WebP, APNG, AVIF or BMP)")));
+    }
+    if bytes.is_empty() || bytes.len() > MAX_MEDIA_BYTES {
+        return Err(AeroError::other(format!("a picture must be under {} MB", MAX_MEDIA_BYTES / (1024 * 1024))));
+    }
+    if !store.get().widgets.widgets.iter().any(|w| w.id == id) {
+        return Err(AeroError::other("that widget is gone"));
+    }
+    // (the id is the app's own, but the file name is made of it: nothing that could name another place)
+    if !id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_') {
+        return Err(AeroError::other("that widget's id is not usable"));
+    }
+    delete_media(&app, &id);
+    let millis = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis()).unwrap_or(0);
+    let path = media_dir(&app)?.join(format!("{id}-{millis:x}.{ext}"));
+    std::fs::write(&path, bytes)?;
+    let shown = path.to_string_lossy().to_string();
+    store.update(&app, |s| {
+        if let Some(w) = s.widgets.widgets.iter_mut().find(|w| w.id == id) {
+            w.options.extra.insert("src".into(), serde_json::Value::from(shown.clone()));
+        }
+    })
+}
+
+/// Take the picture off a Picture widget (and delete the file).
+#[tauri::command]
+pub fn widget_clear_media(app: AppHandle, store: State<'_, SettingsStore>, id: String) -> AeroResult<Settings> {
+    delete_media(&app, &id);
+    store.update(&app, |s| {
+        if let Some(w) = s.widgets.widgets.iter_mut().find(|w| w.id == id) {
+            w.options.extra.remove("src");
+            w.options.extra.remove("name");
+        }
+    })
+}
+
+/// The overlay never takes the keyboard (a click on a widget must not pull the focus from what is being worked in),
+/// so a widget with something to type into asks for it while that has the focus, and gives it back after.
+#[tauri::command]
+pub fn set_widget_keyboard(app: AppHandle, on: bool) -> AeroResult<()> {
+    #[cfg(windows)]
+    {
+        let Some(w) = app.get_webview_window(WIDGETS_LABEL) else {
+            return Ok(());
+        };
+        let hwnd = windows::Win32::Foundation::HWND(w.hwnd()?.0);
+        crate::platform::windows::dock_window::set_no_activate(hwnd, !on)?;
+        if on {
+            w.set_focus()?;
+        }
+    }
+    #[cfg(not(windows))]
+    let _ = (app, on);
+    Ok(())
+}
 // ---------------------------------------------------------------------
 // live data
 // ---------------------------------------------------------------------

@@ -180,6 +180,12 @@ export const ipc = {
   allowWeatherNetwork: (allowed: boolean) =>
     invoke<Settings>("allow_weather_network", { allowed }),
   widgetSystemLoad: () => invoke<SystemLoad>("widget_system_load"),
+  /** The picture chosen for a Picture widget, sent as the raw body. */
+  saveWidgetMedia: (id: string, ext: string, bytes: ArrayBuffer) =>
+    invoke<Settings>("widget_save_media", bytes, { headers: { "x-widget-id": id, "x-ext": ext } }),
+  clearWidgetMedia: (id: string) => invoke<Settings>("widget_clear_media", { id }),
+  /** A widget with something to type into takes the keyboard while it has the focus. */
+  setWidgetKeyboard: (on: boolean) => invoke<void>("set_widget_keyboard", { on }),
   widgetNowPlaying: () => invoke<NowPlaying>("widget_now_playing"),
   widgetMediaControl: (action: MediaAction) =>
     invoke<boolean>("widget_media_control", { action }),
