@@ -66,11 +66,20 @@ export function StartSlot({ open, vertical, still, children }: { open: boolean; 
   const progress = useMotionValue(open ? 1 : 0);
   const size = useMotionValue(open ? -1 : 0);
   const [settled, setSettled] = useState(true);
-  const opacity = useTransform(progress, [0, 0.45, 1], [0, 0.5, 1]);
+  // The settle spring overshoots: shutting, it goes a little below 0 before coming to rest. Read unclamped, a size
+  // below 0 was taken for "its own size" (the -1 below), so the bar sprang back to its open width (the drop already
+  // faded) for those frames, then snapped shut. Everything here reads the progress held to 0..1.
+  const held = (p: number) => Math.min(1, Math.max(0, p));
+  const opacity = useTransform(progress, (p) => {
+    const c = held(p);
+    return c < 0.45 ? (c / 0.45) * 0.5 : 0.5 + ((c - 0.45) / 0.55) * 0.5;
+  });
+  const openness = useTransform(progress, held);
 
   const follow = (p: number) => {
-    size.set(p >= 0.999 ? -1 : p * natural.current);
-    setSettled(p >= 0.999 || p <= 0.001);
+    const c = held(p);
+    size.set(c >= 0.999 ? -1 : c * natural.current);
+    setSettled(c >= 0.999 || c <= 0.001);
   };
   useMotionValueEvent(progress, "change", follow);
 
@@ -105,9 +114,9 @@ export function StartSlot({ open, vertical, still, children }: { open: boolean; 
       data-open={open || undefined}
       style={{
         [vertical ? "height" : "width"]: dim,
-        overflow: settled ? (progress.get() > 0.5 ? "visible" : "hidden") : "hidden",
+        overflow: settled ? (held(progress.get()) > 0.5 ? "visible" : "hidden") : "hidden",
         opacity,
-        ["--open" as string]: progress,
+        ["--open" as string]: openness,
       }}
     >
       <div ref={inner} className="dock-start-inner">
@@ -173,7 +182,7 @@ export function LiquidockButton({
       }}
       onPointerEnter={() => play(effect, tune)}
     >
-      <Droplet size={100} className="dock-drop-mark" solid={look === "solid"} />
+      <Droplet size={100} className="dock-drop-mark" solid={look === "solid"} compact />
     </button>
   );
 }

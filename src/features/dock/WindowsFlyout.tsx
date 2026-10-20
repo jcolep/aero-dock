@@ -51,21 +51,26 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
   const active = kind === "windows" && item !== null && anchor !== null;
 
   // live view of this app's windows; flyout dissolves when they're gone
-  const windows = useMemo(() => {
+  const liveWindows = useMemo(() => {
     if (!item) return [];
     const key = targetKey(item.target);
     return allWindows.filter((w) => windowKey(w) === key);
   }, [item, allWindows]);
+  // While it waits to be sure they are gone (below), the shelf keeps showing what it last showed: emptied, it
+  // collapsed to a little pill of glass that sat over the dock until the wait was over.
+  const lastWindows = useRef(liveWindows);
+  if (liveWindows.length > 0 || !item) lastWindows.current = liveWindows;
+  const windows = liveWindows.length > 0 ? liveWindows : lastWindows.current;
 
   // A moment with no windows is not necessarily the end of them: the running
   // list is rebuilt as windows change state, and a snapshot taken half way
   // through can miss one. So the flyout waits a beat before going, and stays if
   // they come back.
   useEffect(() => {
-    if (!active || windows.length > 0) return;
+    if (!active || liveWindows.length > 0) return;
     const timer = setTimeout(close, 400);
     return () => clearTimeout(timer);
-  }, [active, windows.length, close]);
+  }, [active, liveWindows.length, close]);
 
   /**
    * Measure slot rects and hand them to DWM (physical px).
@@ -226,7 +231,11 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
                 <button
                   className="windows-flyout-close"
                   aria-label={`Close ${w.title || item.name}`}
-                  onClick={() => ipc.closeWindow(w.hwnd).catch(notify.on("Could not close that window"))}
+                  onClick={() => {
+                    ipc.closeWindow(w.hwnd).catch(notify.on("Could not close that window"));
+                    // the last one: the shelf goes now, with its exit, rather than waiting to see the window go
+                    if (liveWindows.length <= 1) close();
+                  }}
                 >
                   <svg viewBox="0 0 12 12" aria-hidden>
                     <path d="m3 3 6 6M9 3 3 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />

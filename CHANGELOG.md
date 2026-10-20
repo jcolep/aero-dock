@@ -50,6 +50,16 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Polish (October 19)
+
+- **The Liquidock button's drop is shaded for its size**: at icon size the foot's bright pool, glint and dark rim read
+  as a smudge; it now has one soft catch of light at the top and a faint glow at the foot (the large drops elsewhere
+  are unchanged).
+- **"Comes in near the start" shuts smoothly**: the dock no longer sprang back to its open width for a moment after
+  the drop had gone.
+- **Closing a window from its preview** takes the shelf away at once, gracefully, instead of leaving a little pill of
+  glass over the dock for a moment.
+
 ### The Liquidock button, in the dock (October 19)
 
 - **A solid coloured drop by default**, easy to find over a white window: the drop's body in your theme colour. Two

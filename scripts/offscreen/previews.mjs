@@ -74,6 +74,38 @@ try {
       shots[name] = await h.shot(Math.max(0, r.x), Math.max(0, r.y), r.w, r.h, 2);
     }
   }
+  // closing: "Close" on an app's only window takes the shelf away at once, with its exit, never shrunk to a sliver
+  await h.eval("window.__light = 0.1");
+  await h.move(5, 5);
+  await h.sleep(600);
+  {
+    const at = await iconOf("/slides/i");
+    await h.move(at.x, at.y);
+    await h.sleep(1300);
+    const before = await h.eval("Math.round(document.querySelector('.windows-flyout').getBoundingClientRect().height)");
+    const close = await h.rect(".windows-flyout-close");
+    await h.record("shelf", "(() => { const f = document.querySelector('.windows-flyout'); return f ? Math.round(f.getBoundingClientRect().height) : 0; })()");
+    await h.click(close.x, close.y);
+    await h.sleep(700);
+    const hs = (await h.recorded("shelf")).map((s) => s.v);
+    const sliver = hs.some((v) => v > 0 && v < before * 0.5 && v < 60);
+    check(!sliver && hs[hs.length - 1] === 0, `"Close" on the only window: the shelf goes at once, no sliver left (heights ${before} -> ${[...new Set(hs)].slice(0, 6).join(", ")})`);
+  }
+  // an app's last window gone from Windows' list: the shelf keeps what it showed while it makes sure, then goes
+  await h.move(5, 5);
+  await h.sleep(600);
+  {
+    const at = await iconOf("/mail/i");
+    await h.move(at.x, at.y);
+    await h.sleep(1300);
+    const before = await h.eval("Math.round(document.querySelector('.windows-flyout').getBoundingClientRect().height)");
+    await h.emit("apps://running-changed", { windows: windows.filter((w) => w.pid !== 2), focused: 1 });
+    await h.sleep(200);
+    const during = await h.eval("(() => { const f = document.querySelector('.windows-flyout'); return f ? Math.round(f.getBoundingClientRect().height) : 0; })()");
+    await h.sleep(900);
+    const after = await h.eval("!!document.querySelector('.windows-flyout')");
+    check(Math.abs(during - before) <= 2 && !after, `its windows gone: the shelf keeps its size while it waits (${before} -> ${during}), then goes`);
+  }
   check((await h.errors()).length === 0, "no errors in the page");
   console.log("sheet:", await h.sheet(shots, "previews", 700));
 } finally {

@@ -23,7 +23,27 @@ import { DROP_PATH } from "./dropletSvg";
  * frosting it: the dock's Liquidock button by default (picked from a comparison, October 2026), where a see-through
  * drop all but vanished over a white window.
  */
-export function Droplet({ size = 20, tint = "var(--aero-accent, #8fb3d9)", shadow = false, solid = false, className }: { size?: number; tint?: string; shadow?: boolean; solid?: boolean; className?: string }) {
+/**
+ * `compact` shades it for an icon's size (the dock's button, about 30px): the drawing above was made for the large
+ * marks (the settings window, the welcome), and at icon size its foot (the bright pool of light, the little glint
+ * beside it and the dark lower rim all within a few pixels) read as a smudge. Compact keeps one soft catch of light
+ * at the top, gives the foot only a faint reflected glow, and lightens the rim's lower half.
+ */
+export function Droplet({
+  size = 20,
+  tint = "var(--aero-accent, #8fb3d9)",
+  shadow = false,
+  solid = false,
+  compact = false,
+  className,
+}: {
+  size?: number;
+  tint?: string;
+  shadow?: boolean;
+  solid?: boolean;
+  compact?: boolean;
+  className?: string;
+}) {
   const id = `drop${useId().replace(/:/g, "")}`;
   const g = (name: string) => `${id}-${name}`;
   const mix = (pct: number, other: string) => `color-mix(in srgb, ${tint} ${pct}%, ${other})`;
@@ -77,11 +97,22 @@ export function Droplet({ size = 20, tint = "var(--aero-accent, #8fb3d9)", shado
         <clipPath id={g("clip")}>
           <path d={DROP_PATH} />
         </clipPath>
-        {/* the solid body: light at the top, the colour through the middle, deeper at the foot */}
-        <linearGradient id={g("solid")} x1="0.2" y1="0" x2="0.8" y2="1">
-          <stop offset="0" style={{ stopColor: mix(70, "#ffffff") }} />
-          <stop offset="0.6" style={{ stopColor: tint }} />
-          <stop offset="1" style={{ stopColor: mix(70, "#0b1626") }} />
+        {/* the solid body: light at the top, the colour through the middle, deeper at the foot (gentler for an icon) */}
+        <linearGradient id={g("solid")} x1="0.25" y1="0" x2="0.75" y2="1">
+          <stop offset="0" style={{ stopColor: mix(compact ? 58 : 70, "#ffffff") }} />
+          <stop offset="0.55" style={{ stopColor: tint }} />
+          <stop offset="1" style={{ stopColor: mix(compact ? 78 : 70, "#0b1626") }} />
+        </linearGradient>
+        {/* an icon's foot: light coming back up through the glass, faint and wide, not a bright pool */}
+        <radialGradient id={g("foot")} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" style={{ stopColor: "white", stopOpacity: solid ? 0.3 : 0.42 }} />
+          <stop offset="1" style={{ stopColor: "white", stopOpacity: 0 }} />
+        </radialGradient>
+        {/* an icon's rim: as bright at the top, but only a little darker than the body at the foot */}
+        <linearGradient id={g("rimSoft")} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style={{ stopColor: "white", stopOpacity: 0.75 }} />
+          <stop offset="0.65" style={{ stopColor: "white", stopOpacity: 0.3 }} />
+          <stop offset="1" style={{ stopColor: mix(70, "#0b1626"), stopOpacity: 0.55 }} />
         </linearGradient>
       </defs>
       {shadow && <ellipse cx="50" cy="95" rx="27" ry="4.2" fill={`url(#${g("shadow")})`} />}
@@ -92,12 +123,19 @@ export function Droplet({ size = 20, tint = "var(--aero-accent, #8fb3d9)", shado
           <path d={DROP_PATH} fill={`url(#${g("glow")})`} />
         </g>
       )}
-      <g clipPath={`url(#${g("clip")})`}>
-        <ellipse cx="51" cy="81" rx="21" ry="10" fill={`url(#${g("caustic")})`} />
-        <ellipse cx="38" cy="23" rx="4.2" ry="10.5" fill={`url(#${g("catch")})`} transform="rotate(-15 38 23)" />
-        <ellipse cx="37" cy="85.5" rx="3.6" ry="2.1" fill="white" fillOpacity="0.7" transform="rotate(-22 37 85.5)" />
-      </g>
-      <path d={DROP_PATH} fill="none" stroke={`url(#${g("rim")})`} strokeWidth="1.6" />
+      {compact ? (
+        <g clipPath={`url(#${g("clip")})`}>
+          <ellipse cx="53" cy="83" rx="24" ry="9" fill={`url(#${g("foot")})`} />
+          <ellipse cx="38" cy="30" rx="6.5" ry="15" fill={`url(#${g("catch")})`} transform="rotate(-18 38 30)" opacity={solid ? 0.85 : 1} />
+        </g>
+      ) : (
+        <g clipPath={`url(#${g("clip")})`}>
+          <ellipse cx="51" cy="81" rx="21" ry="10" fill={`url(#${g("caustic")})`} />
+          <ellipse cx="38" cy="23" rx="4.2" ry="10.5" fill={`url(#${g("catch")})`} transform="rotate(-15 38 23)" />
+          <ellipse cx="37" cy="85.5" rx="3.6" ry="2.1" fill="white" fillOpacity="0.7" transform="rotate(-22 37 85.5)" />
+        </g>
+      )}
+      <path d={DROP_PATH} fill="none" stroke={`url(#${g(compact ? "rimSoft" : "rim")})`} strokeWidth={compact ? 2 : 1.6} />
       <path
         d={DROP_PATH}
         fill="none"

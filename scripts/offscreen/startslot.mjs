@@ -21,9 +21,9 @@ const barShot = async (h) => {
   return h.shot(Math.max(0, r.x - 16), r.y - 16, Math.min(260, r.w + 32), r.h + 32, 2);
 };
 
-// the looks
+// the looks, at the owner's size and colour (26px icons, a grey theme), over white and close up
 for (const look of ["solid", "outline", "well"]) {
-  const h = await startHarness({ out, window: "dock", viewport: [900, 360], settings: (s) => { base(s); s.dock.startStyle = look; if (look === "well") s.dock.startWellColor = "#2a3b5a"; } });
+  const h = await startHarness({ out, window: "dock", viewport: [900, 360], settings: (s) => { base(s); s.dock.iconSize = 26; s.appearance.accent = "#b0b0b0"; s.dock.startStyle = look; if (look === "well") s.dock.startWellColor = "#2a3b5a"; } });
   try {
     await h.open(".dock-drop-btn");
     await h.desktop("#eef1f5");
@@ -31,6 +31,11 @@ for (const look of ["solid", "outline", "well"]) {
     const info = await h.eval("(() => { const b = document.querySelector('.dock-drop-btn'); const next = b.parentElement.querySelector('.dock-divider'); return { look: b.dataset.look, divider: !!next, solid: !!b.querySelector('path[fill^=\"url(\"]') }; })()");
     check(info.look === look && info.divider, `${look}: the button in its look, a divider after it (${JSON.stringify(info)})`);
     shots[`${look} over white`] = await barShot(h);
+    const d = await h.eval("(() => { const b = document.querySelector('.dock-drop-btn').getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; })()");
+    shots[`${look} close up, white`] = await h.shot(d.x - 6, d.y - 6, d.w + 12, d.h + 12, 6);
+    await h.desktop("#232a3a");
+    await h.sleep(300);
+    shots[`${look} close up, dark`] = await h.shot(d.x - 6, d.y - 6, d.w + 12, d.h + 12, 6);
     check((await h.errors()).length === 0, `${look}: no errors`);
   } finally {
     h.close();
@@ -71,9 +76,19 @@ for (const look of ["solid", "outline", "well"]) {
     await h.sleep(160);
     shots["clicked (halo)"] = await barShot(h);
     check((await q("window.__calls.map((c) => c.cmd)")).includes("toggle_start"), "a click opens Start");
-    // on along the dock, past the divider: it goes
+    // on along the dock, past the divider: it goes, the bar narrowing smoothly back, never springing out again on the
+    // way (the settle spring's overshoot below shut once read as "its own size" for a few frames)
+    await h.record("shut", "Math.round(document.querySelector('.dock-bar').getBoundingClientRect().width * 10) / 10");
     await h.move(btn.x + 200, btn.y);
     await h.sleep(900);
+    const widths = (await h.recorded("shut")).map((s) => s.v);
+    let peakAfterFall = 0;
+    let fell = false;
+    for (let i = 1; i < widths.length; i++) {
+      if (widths[i] < widths[i - 1] - 0.5) fell = true;
+      if (fell) peakAfterFall = Math.max(peakAfterFall, widths[i] - widths[i - 1]);
+    }
+    check(fell && peakAfterFall <= 1.5, `shutting, the bar only narrows (largest step back out ${peakAfterFall.toFixed(1)}px over ${widths.length} frames)`);
     const gone = await state();
     check(gone.slot <= 1 && Math.abs(gone.barW - shut.barW) <= 2, `moving on past it, it goes and the dock is as before (slot ${gone.slot}px, bar ${gone.barW})`);
     check((await h.errors()).length === 0, "no errors");
