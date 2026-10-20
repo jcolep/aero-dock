@@ -15,7 +15,8 @@ const check = (ok, what) => {
 };
 const shots = {};
 const ends = `(() => {
-  const bar = document.querySelector('.dock-bar').getBoundingClientRect();
+  // the glass as it is drawn (it grows past the bar's ends round swollen icons)
+  const bar = document.querySelector('.dock-bar > .dock-body').getBoundingClientRect();
   // what can be seen in the bar: anything with a size and not see-through, but not the bar's own layers
   // what is drawn: the drop's own shape (x 19..81 of its box; a well's edge is its box), an app's icon, the glyphs
   // and the clock's text, the gear
@@ -58,6 +59,44 @@ for (const [name, set] of [
     h.close();
   }
 }
+// the owner's way, magnification on: brought in near the start, then let go as the pointer moves on along the dock and
+// away; the ends are filmed as it goes back into the dock, and must match once it has
+for (const leave of ["along the dock", "off the dock"]) {
+  const h = await startHarness({ out, window: "dock", viewport: [1100, 360], settings: (s) => { s.dock.autoHide = false; s.dock.showSearchButton = true; s.dock.startReveal = "expand"; s.dock.revealControls = true; s.dock.showClock = false; s.dock.iconSize = 26; } });
+  try {
+    await h.open(".dock-bar");
+    await h.desktop("#5b6f8f");
+    await h.sleep(900);
+    const before = await h.eval(ends);
+    const r = await h.eval("(() => { const b = document.querySelector('.dock-bar').getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; })()");
+    await h.move(r.x + 40, r.y + r.h / 2);
+    await h.sleep(60);
+    await h.move(r.x + 14, r.y + r.h / 2);
+    await h.sleep(900);
+    await h.record("ends", ends);
+    if (leave === "along the dock") {
+      for (let x = r.x + 14; x < r.x + r.w + 60; x += 12) {
+        await h.move(x, r.y + r.h / 2);
+        await h.sleep(16);
+      }
+    } else {
+      await h.move(r.x + 14, r.y - 120);
+    }
+    await h.sleep(1200);
+    const film = (await h.recorded("ends")).map((s) => s.v);
+    const after = await h.eval(ends);
+    const worst = film.reduce((m, e) => Math.max(m, Math.abs(e.left - e.right)), 0);
+    console.log(`     ${leave}: start-end over ${film.length} frames:`, film.filter((_, i) => i % 6 === 0).map((e) => (e.left - e.right).toFixed(1)).join(" "));
+    // while it goes too: the drop once drifted in from the end as its slot narrowed (5 px), and the start kept a
+    // measure of the end taken while magnification had moved it (3.6 px)
+    check(worst <= 2 && Math.abs(after.left - after.right) <= 1 && Math.abs(after.left - before.left) <= 1,`brought in and let go ${leave}: back as it was, the ends matching (before ${JSON.stringify(before)}, after ${JSON.stringify(after)}; worst while going ${worst.toFixed(1)}px)`);
+    const r2 = await h.eval("(() => { const b = document.querySelector('.dock-bar').getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; })()");
+    shots[`let go ${leave}`] = await h.shot(Math.max(0, r2.x - 12), r2.y - 12, r2.w + 24, r2.h + 24, 1);
+  } finally {
+    h.close();
+  }
+}
+
 const h = await startHarness({ out, window: "dock", viewport: [400, 200] });
 try {
   await h.open("body");

@@ -7,6 +7,7 @@
 
 import { listen } from "@tauri-apps/api/event";
 import { useGlass } from "../../engine/backdrop/useGlass";
+import { layoutRect } from "./layoutRect";
 import { AnimatePresence, motion, Reorder, useMotionValue } from "motion/react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { animationsOf, PANEL_EXIT_MS, revealMotion } from "../../engine/animation/presets";
@@ -414,12 +415,24 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       );
       const last = kids[kids.length - 1];
       if (!last) return;
-      const marks = [...last.querySelectorAll("svg, img, .widget-clock")].map((m) => m.getBoundingClientRect()).filter((r) => r.width > 0);
-      const rects = marks.length ? marks : [last.getBoundingClientRect()];
-      const b = bar.getBoundingClientRect();
-      // measured in the bar's own size: it may be scaled as it arrives
-      const k = vertical ? b.height / Math.max(1, bar.offsetHeight) : b.width / Math.max(1, bar.offsetWidth);
-      const gap = vertical ? (b.bottom - Math.max(...rects.map((r) => r.bottom))) / k : (b.right - Math.max(...rects.map((r) => r.right))) / k;
+      // In layout, not as drawn: magnification moves what is at the end outward by transforms while the pointer is in
+      // the dock, and the bar resizes (the drop coming in) just then; measured as drawn, the end read 3.6 px short
+      // and the start kept that. Each mark's far edge is its box's (layout) less how far in its box it is drawn.
+      const marks = [...last.querySelectorAll("svg, img, .widget-clock")];
+      let end = -Infinity;
+      for (const m of marks.length ? marks : [last]) {
+        const host = m instanceof HTMLElement ? m : m.parentElement;
+        if (!host || host.offsetWidth === 0) continue;
+        const hb = layoutRect(host);
+        const hr = host.getBoundingClientRect();
+        const mr = m.getBoundingClientRect();
+        if (mr.width === 0) continue;
+        const s = (vertical ? hr.height / host.offsetHeight : hr.width / host.offsetWidth) || 1;
+        const far = vertical ? hb.top + hb.height - (hr.bottom - mr.bottom) / s : hb.left + hb.width - (hr.right - mr.right) / s;
+        end = Math.max(end, far);
+      }
+      const bb = layoutRect(bar);
+      const gap = vertical ? bb.top + bar.offsetHeight - end : bb.left + bar.offsetWidth - end;
       if (!Number.isFinite(gap) || gap < 0) return;
       const now = parseFloat(bar.style.getPropertyValue("--end-pad")) || 0;
       if (Math.abs(now - gap) > 0.25) bar.style.setProperty("--end-pad", `${gap.toFixed(2)}px`);

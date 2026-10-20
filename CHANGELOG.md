@@ -56,7 +56,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   scrolled, each gone at its own end.
 - **The dock's two ends are always even**: the empty glass before the first thing in the bar now matches the space
   after the last (the Recycle Bin, the clock or the gear), whether the Liquidock button is showing, out of sight, off,
-  in a well or resized. It was about 6 px narrower at the start when the button was hidden.
+  in a well or resized. It was about 6 px narrower at the start when the button was hidden. They stay even while the
+  button comes in and goes back into the dock too: the drop no longer drifts in from the end as it goes, and the start
+  no longer comes out a few px short after the pointer has brought the button in.
 
 ### The drop's size and colour; text left alone under the lens (October 19)
 
