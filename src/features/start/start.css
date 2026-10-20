@@ -321,7 +321,11 @@
     transform var(--m-standard) var(--e-overshoot);
 }
 
-.st-pill[data-lensed="true"] {
+/* its chevron swells under the lens; its text is left as it is */
+.st-pill :is(svg, img) {
+  transition: transform var(--m-standard) var(--e-overshoot);
+}
+.st-pill[data-lensed="true"] :is(svg, img) {
   transform: scale(var(--lens-scale, 1.07));
 }
 

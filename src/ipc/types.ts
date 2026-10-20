@@ -56,6 +56,10 @@ export interface DockSettings {
   startStyle: "solid" | "outline" | "well";
   /** The well's colour, `#rrggbb`, or "" for dark glass. */
   startWellColor: string;
+  /** The button's size, 0.6 to 1.6 times its size for the dock's icons. */
+  startSize: number;
+  /** The drop's own colour, `#rrggbb`, or "" to follow the theme's. */
+  startColor: string;
   /** Always in the bar, or out of sight until the pointer nears the bar's start end (the bar then grows to take it in). */
   startReveal: "static" | "expand";
   showSettingsButton: boolean;

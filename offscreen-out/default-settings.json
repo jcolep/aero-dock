@@ -8,6 +8,8 @@
     "iconSize": 48,
     "magnification": true,
     "magnificationScale": 1.45,
+    "magnificationLift": 0.12,
+    "magnificationReach": 2.6,
     "autoHide": false,
     "autoHideDelayMs": 1400,
     "floating": true,
@@ -19,14 +21,43 @@
     "statusIconSize": 16,
     "runningOrder": [],
     "revealControls": true,
+    "revealZone": 40,
     "reserveSpace": true,
     "showRunningApps": true,
     "showSearchButton": true,
+    "startShine": "shine",
+    "startShineTune": {
+      "speed": 1.0,
+      "opacity": 1.0,
+      "size": 1.0,
+      "color": ""
+    },
+    "startClick": "dimple",
+    "startClickTune": {
+      "speed": 1.0,
+      "opacity": 1.0,
+      "size": 1.0,
+      "color": ""
+    },
+    "startStyle": "solid",
+    "startWellColor": "",
+    "startReveal": "static",
     "showSettingsButton": true,
     "showClock": true,
     "showSystemStatus": true,
     "attentionBounce": true,
-    "minimizeEffect": "genie"
+    "minimizeEffect": "genie",
+    "middleClick": "endTask",
+    "menuAudioOutput": false,
+    "tint": 1.0,
+    "tintWithTheme": true,
+    "indicatorStyle": "dots",
+    "indicatorShape": "pill",
+    "markColor": "",
+    "focusMotion": "glide",
+    "ghostMotion": "glide",
+    "markStretch": 0.5,
+    "runningCue": "dots"
   },
   "appearance": {
     "theme": "aero",
@@ -40,11 +71,31 @@
     "scene": "dust",
     "animationSpeed": 1.0,
     "wallpaperSync": false,
-    "dockSurface": "aero",
-    "settingsSurface": "aero",
+    "dockSurface": "liquid",
     "realBlur": false,
     "pointerLight": true,
-    "glassGrain": true
+    "hoverEffect": "magnify",
+    "glassGrain": true,
+    "iconStyle": "glass",
+    "frost": {
+      "dock": {
+        "blur": 30.0,
+        "grain": 0.35,
+        "glass": null
+      },
+      "start": {
+        "blur": 34.0,
+        "grain": 0.35,
+        "glass": null
+      },
+      "menuBar": {
+        "blur": 28.0,
+        "grain": 0.35,
+        "glass": null
+      }
+    },
+    "frameOverlay": false,
+    "hardwareAcceleration": true
   },
   "pinned": [],
   "launchAtStartup": false,
@@ -68,6 +119,7 @@
     "takesOverDockStatus": true,
     "ambient": true,
     "showDate": true,
+    "showSeconds": false,
     "gap": 0,
     "cornerRadius": 12,
     "tint": 1.0,
@@ -81,7 +133,13 @@
     "lensWarp": 1.0,
     "closeOnLeave": true,
     "showPrivacy": true,
-    "showStats": true
+    "showStats": true,
+    "mediaTint": true,
+    "mediaSpectrum": true,
+    "mediaIsland": true,
+    "mediaIslandPinned": false,
+    "mediaPeek": true,
+    "hideForFullscreen": true
   },
   "accessibility": {
     "reduceMotion": "system",
@@ -95,13 +153,53 @@
     "flyout": "bloom",
     "dockReveal": "slide",
     "launch": "bounce",
-    "magnify": "soft"
+    "click": "dimple",
+    "magnify": "soft",
+    "start": "rise",
+    "island": "gloop",
+    "clickTune": {
+      "dimple": {
+        "speed": 1.0,
+        "opacity": 1.0,
+        "size": 1.0,
+        "color": ""
+      },
+      "halo": {
+        "speed": 1.0,
+        "opacity": 1.0,
+        "size": 1.0,
+        "color": ""
+      },
+      "shine": {
+        "speed": 1.0,
+        "opacity": 1.0,
+        "size": 1.0,
+        "color": ""
+      },
+      "bloom": {
+        "speed": 1.0,
+        "opacity": 1.0,
+        "size": 1.0,
+        "color": ""
+      }
+    }
   },
   "frame": {
     "enabled": false,
     "padding": 14,
     "cornerRadius": 18,
     "tint": 1.0,
-    "ambient": true
+    "ambient": true,
+    "glassBorder": false,
+    "borderWidth": 3
+  },
+  "start": {
+    "pinned": [],
+    "seeded": false,
+    "showRecommended": true,
+    "adaptiveTint": true,
+    "adaptiveTintStrength": 1.0,
+    "windowsKey": false,
+    "dockWhileOpen": "usable"
   }
 }

@@ -110,6 +110,10 @@ pub struct DockSettings {
     pub start_style: String,
     /// The groove's colour for `well`, `#rrggbb`, or empty for the dark glass default.
     pub start_well_color: String,
+    /// The button's size, 0.6 to 1.6 times the size it is drawn at for the dock's icon size.
+    pub start_size: f32,
+    /// The drop's own colour, `#rrggbb`, or empty to follow the theme's.
+    pub start_color: String,
     /// Where the button is: `static` (always in the bar, a divider between it and the apps) or `expand` (out of
     /// sight, the bar as if it had none, until the pointer comes within `reveal_zone` of the bar's start end; then the
     /// bar grows to take it and its divider in, and gives them up again when the pointer moves on past the divider).
@@ -190,6 +194,8 @@ impl Default for DockSettings {
             start_click_tune: ClickTune::default(),
             start_style: "solid".into(),
             start_well_color: String::new(),
+            start_size: 1.0,
+            start_color: String::new(),
             start_reveal: "static".into(),
             show_settings_button: true,
             show_clock: true,
@@ -965,6 +971,8 @@ impl Settings {
         self.dock.start_click_tune.sanitize();
         keep_known(&mut self.dock.start_style, &["solid", "outline", "well"], "solid");
         self.dock.start_well_color = normalize_hex(&self.dock.start_well_color);
+        self.dock.start_size = if self.dock.start_size.is_finite() { self.dock.start_size.clamp(0.6, 1.6) } else { 1.0 };
+        self.dock.start_color = normalize_hex(&self.dock.start_color);
         keep_known(&mut self.dock.start_reveal, &["static", "expand"], "static");
         self.dock.mark_color = normalize_hex(&self.dock.mark_color);
         keep_known(&mut self.appearance.icon_style, &["plain", "glass", "clear", "tinted"], "glass");

@@ -37,10 +37,13 @@
    useGlideHighlight.tsx), which travels from one to the next, and the one it is on swells a little. */
 .widget-clock-button,
 .widget-chip-button {
+  /* above the gliding glass, so its filter never touches the clock's text */
+  position: relative;
+  z-index: 1;
   transition: transform var(--m-standard) var(--e-overshoot);
 }
 
-.widget-clock-button[data-lensed="true"],
+/* the chips' symbols swell under it; the clock's text is left as it is */
 .widget-chip-button[data-lensed="true"] {
   transform: scale(var(--lens-scale, 1.07));
 }

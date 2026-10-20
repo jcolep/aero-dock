@@ -149,9 +149,17 @@ html[data-pointer-light="on"] .menubar:hover::before {
 
 /* The highlight under a button is not the button's own: it is the sliding lens
    (see Lens.tsx), one blob of glass that travels to whichever button is
-   hovered or open. The button under it is enlarged a little, as if seen
-   through it. */
-.mb-item[data-lensed="true"] {
+   hovered or open. A symbol on the button under it is enlarged a little, as if
+   seen through it; its text never is (scaled, and filtered by a lens over it,
+   text read as thinner and changed, October 2026). */
+.mb-item {
+  position: relative;
+  z-index: 3;
+}
+.mb-item :is(svg, img) {
+  transition: transform var(--m-standard) var(--mb-settle);
+}
+.mb-item[data-lensed="true"] :is(svg, img) {
   transform: scale(var(--mb-lens-scale, 1.07));
 }
 
@@ -166,7 +174,8 @@ html[data-pointer-light="on"] .menubar:hover::before {
    the button's symbol and its neighbours warp round the edge, as they do
    through a drop of water. The rim is a bright line that thickens at the upper
    left and thins at the lower right, which is how light sits on an edge. It is
-   above the buttons, not behind them, so it has them to bend, and takes no
+   behind the buttons (it was above them, bending their symbols, but that bent
+   and thinned their text too), so what it bends is the glass, and takes no
    clicks. */
 .mb-lens {
   position: absolute;

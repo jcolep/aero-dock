@@ -727,6 +727,22 @@ export function SettingsApp() {
                     ]}
                     onChange={(v) => set((d) => void (d.dock.startStyle = v))}
                   />
+                  <AeroSlider
+                    label="Size"
+                    value={dock.startSize ?? 1}
+                    min={0.6}
+                    max={1.6}
+                    step={0.05}
+                    format={pctFmt}
+                    onChange={(v) => set((d) => void (d.dock.startSize = v))}
+                  />
+                  <BubbleColor
+                    label="Drop colour"
+                    value={dock.startColor ?? ""}
+                    themeColor={themeColor}
+                    defaultName="Theme colour"
+                    onChange={(hex) => set((d) => void (d.dock.startColor = hex))}
+                  />
                   {dock.startStyle === "well" && (
                     <BubbleColor
                       label="Well colour"

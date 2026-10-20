@@ -181,6 +181,9 @@ html[data-window="settings"],
 }
 
 .sb-item {
+  /* above the gliding lens, so its filter never touches the text */
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 9px;

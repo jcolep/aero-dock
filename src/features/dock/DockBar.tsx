@@ -568,7 +568,9 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     // from outside it, in which case the window needs room at each end for
     // them instead, including the overshoot of their entrance
     // the Liquidock button now always sits in the bar, with a divider after it (StartSlot): its room, and the divider's
-    const startRoom = settings.dock.showSearchButton ? (revealMode ? START_SLOT_ROOM : START_DIVIDER_ROOM) : 0;
+    // a button sized up (startSize) takes that much more: up to 34px wide, 1.2 times that in a well
+    const startGrow = Math.max(0, (settings.dock.startSize ?? 1) - 1) * 42;
+    const startRoom = settings.dock.showSearchButton ? (revealMode ? START_SLOT_ROOM : START_DIVIDER_ROOM) + startGrow : 0;
     const controls = (revealMode ? 2 * SATELLITE_ROOM : CONTROLS_SPACE) + startRoom;
     const main =
       mainBase +
@@ -639,6 +641,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
     modesOpen,
     edgeGap,
     settings.dock.showSearchButton,
+    settings.dock.startSize,
   ]);
 
   // The room a flyout takes is given back only after its exit has played. A
@@ -1075,6 +1078,8 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
               clickTune={settings.dock.startClickTune}
               look={settings.dock.startStyle}
               wellColor={settings.dock.startWellColor}
+              scale={settings.dock.startSize ?? 1}
+              color={settings.dock.startColor ?? ""}
               onClick={() => ipc.toggleStart().catch(notify.on("Could not open the Start menu"))}
             />
             <span className="dock-divider" aria-hidden />

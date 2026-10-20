@@ -140,6 +140,8 @@ export function LiquidockButton({
   clickTune,
   look = "solid",
   wellColor = "",
+  scale = 1,
+  color = "",
 }: {
   onClick: () => void;
   effect: string;
@@ -148,7 +150,13 @@ export function LiquidockButton({
   clickTune?: Tune;
   look?: "solid" | "outline" | "well";
   wellColor?: string;
+  /** Its size, times the size it has for the dock's icons (Settings › Dock items › Size). */
+  scale?: number;
+  /** The drop's own colour, or "" for the theme's. */
+  color?: string;
 }) {
+  const style: Record<string, string | number> = { ["--drop-scale"]: scale };
+  if (look === "well" && wellColor) style["--well"] = wellColor;
   const ref = useRef<HTMLButtonElement>(null);
   const play = (which: string | undefined, how: Tune) => {
     const el = ref.current;
@@ -173,7 +181,7 @@ export function LiquidockButton({
       ref={ref}
       className="dock-drop-btn"
       data-look={look}
-      style={look === "well" && wellColor ? ({ ["--well" as string]: wellColor } as React.CSSProperties) : undefined}
+      style={style as React.CSSProperties}
       title="Start"
       aria-label="Start"
       onClick={() => {
@@ -182,7 +190,7 @@ export function LiquidockButton({
       }}
       onPointerEnter={() => play(effect, tune)}
     >
-      <Droplet size={100} className="dock-drop-mark" solid={look === "solid"} compact />
+      <Droplet size={100} className="dock-drop-mark" solid={look === "solid"} compact {...(color ? { tint: color } : {})} />
     </button>
   );
 }

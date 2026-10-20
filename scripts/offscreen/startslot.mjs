@@ -42,6 +42,23 @@ for (const look of ["solid", "outline", "well"]) {
   }
 }
 
+// its own size and colour: half again as big, and red over the grey theme
+{
+  const h = await startHarness({ out, window: "dock", viewport: [900, 360], settings: (s) => { base(s); s.dock.iconSize = 26; s.appearance.accent = "#b0b0b0"; s.dock.startSize = 1.5; s.dock.startColor = "#e0463c"; } });
+  try {
+    await h.open(".dock-drop-btn");
+    await h.desktop("#eef1f5");
+    await h.sleep(700);
+    const info = await h.eval("(() => { const b = document.querySelector('.dock-drop-btn'); const stop = b.querySelector('linearGradient[id$=\"-solid\"] stop:nth-child(2)'); return { w: Math.round(b.getBoundingClientRect().width), tint: stop ? getComputedStyle(stop).stopColor : null }; })()");
+    // 26px icons: 32px at 1x, so 48px at 1.5x
+    check(Math.abs(info.w - 48) <= 1 && info.tint === "rgb(224, 70, 60)", `sized 1.5x and coloured: the button 48px, the drop in its own colour (${JSON.stringify(info)})`);
+    shots["1.5x, red"] = await barShot(h);
+    check((await h.errors()).length === 0, "sized and coloured: no errors");
+  } finally {
+    h.close();
+  }
+}
+
 // comes in near the start
 {
   const h = await startHarness({ out, window: "dock", viewport: [900, 360], settings: (s) => { base(s); s.dock.startReveal = "expand"; s.dock.revealZone = 40; s.dock.startClick = "halo"; } });

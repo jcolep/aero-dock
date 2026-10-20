@@ -2,11 +2,12 @@
    It is clear, with only a faint sheen for a body; what makes it glass is that it
    bends what is under it (the backdrop filter set in the hook) and that its rim
    is a bright line, thick at the upper left and thin at the lower right, as light
-   sits on an edge. It is above the items it is on, and takes no clicks. */
+   sits on an edge. It is behind the items it is on (each user lifts its items above it), so text is never filtered
+   by it: over them, its backdrop filter thinned and recoloured the text it sat on. It takes no clicks. */
 
 .glide-highlight {
   position: absolute;
-  z-index: 2;
+  z-index: 0;
   pointer-events: none;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.07));
   box-shadow:

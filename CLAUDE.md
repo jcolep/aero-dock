@@ -746,6 +746,12 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   **Clamp the settle spring's progress to 0..1** (`held`): it overshoots below 0 when shutting, and the slot reads a
   negative size as "natural width", so the bar sprang open for a few frames. The button draws `Droplet compact`
   (shading for ~30 px: one soft top catch, a faint foot glow, `rimSoft`; the large marks keep the full drawing).
+  `dock.startSize` (0.6–1.6 → `--drop-scale` on `--control-size`; DockBar adds the room) and `dock.startColor`
+  (Droplet `tint`, "" = theme).
+- **Lenses sit BEHIND their items** (`.glide-highlight` z 0, `.mb-lens` z 2 under `.mb-item` z 3; each user lifts
+  its items: start.css panel children, `.sb-item`, widget buttons). Over them, the backdrop filter (`SOLID_ONLY`
+  alpha^4, brightness/saturate, displacement) thinned and recoloured text. `data-lensed` scales only icons/svg, never
+  text. Owner's rule: text under a lens must look identical.
 - **Liquidock button hover** = a click effect via `effectsBus` `glint` (EffectsLayer), `dock.startShine` +
   `startShineTune`; the drop's outline is a white `DROP_PATH` image (`dropShapeImage`). `dropglint.mjs` films it.
   Shared `ClickTuneControls` (settings). Readability strength: `start.adaptiveTintStrength` → `veilFor(b, strength)`.

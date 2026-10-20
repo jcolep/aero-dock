@@ -11,9 +11,10 @@
  * visible part of a scrolling list, and rests where the pointer is, or on the
  * item chosen with the keys, and fades when the pointer leaves.
  *
- * Like the menu bar's lens it lies above the things it highlights, so it has
- * them to bend: its backdrop filter pushes the pixels near its rim inward, and the
- * item under it is enlarged a little (`data-lensed`), as if seen through the glass.
+ * Like the menu bar's lens it lies behind the things it highlights: its backdrop
+ * filter bends the glass under them, and the item's icon is enlarged a little
+ * (`data-lensed`), as if seen through it. It lay above them once, bending them,
+ * but that thinned and recoloured their text; text under it is never touched.
  */
 
 import { animate, motion, useMotionValue, useTransform } from "motion/react";

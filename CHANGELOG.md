@@ -50,6 +50,14 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The drop's size and colour; text left alone under the lens (October 19)
+
+- **Settings › Dock items › The Liquidock button**: a **Size** slider (60–160%) and a **Drop colour** that overrides
+  the theme's colour for the drop in the dock.
+- **Text under a lens looks exactly as it does without it**: the lens (menu bar, Start, the settings sidebar, the
+  dock's clock and chips) is now drawn behind the items, so its filter no longer thinned, recoloured or bent their
+  text, and only symbols swell under it, never text.
+
 ### Polish (October 19)
 
 - **The Liquidock button's drop is shaded for its size**: at icon size the foot's bright pool, glint and dark rim read

@@ -846,7 +846,8 @@
    The drop on its own: the button is a bare box the drop fills. What plays on it under the pointer is one of the click
    effects, drawn by the dock's effects layer (EffectsLayer, "glint"), not here. */
 .dock-drop-btn {
-  --control-size: clamp(20px, calc(var(--icon-size) + 6px), 34px);
+  /* --drop-scale: Settings › Dock items › Size */
+  --control-size: calc(clamp(20px, calc(var(--icon-size) + 6px), 34px) * var(--drop-scale, 1));
   position: relative;
   z-index: 3;
   flex: none;
