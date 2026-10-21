@@ -9,7 +9,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { create } from "zustand";
 import { accentForTheme, normalizeHex } from "../engine/themes/accent";
 import { ipc } from "../ipc/commands";
-import type { PinnedItem, StackView, WindowInfo } from "../ipc/types";
+import type { PinnedItem, Settings, StackView, WindowInfo } from "../ipc/types";
 import { appName, targetKey, windowsByExe } from "./runningStore";
 import { useSettings } from "./settingsStore";
 
@@ -17,6 +17,26 @@ import { useSettings } from "./settingsStore";
 export function iconLook(): { style: string; tint: string } {
   const a = useSettings.getState().settings?.appearance;
   return { style: a?.iconStyle ?? "plain", tint: normalizeHex(a?.accent ?? "") ?? accentForTheme(a?.theme ?? "aero") };
+}
+
+/** How big an icon is drawn in each window at most, in CSS px (the dock's is its icon size, swollen). */
+const SHOWN_AT: Record<string, number> = { start: 64, mission: 96, menubar: 48 };
+const window_ = new URLSearchParams(window.location.search).get("window");
+
+/**
+ * The size, in device px, icons are asked for in this window with High quality icons on: what the window draws them at
+ * (the dock's at the most the swell makes them), so each is made once at that size instead of the 256 px picture
+ * being shrunk as it is drawn. Null with the setting off, or when that is as big as the picture.
+ */
+export function iconPxFor(s: Settings | null): number | null {
+  if (!s?.appearance.highQualityIcons) return null;
+  const css = window_ === null || !(window_ in SHOWN_AT) ? s.dock.iconSize * (s.dock.magnification ? Math.max(1, s.dock.magnificationScale) : 1) : SHOWN_AT[window_];
+  const px = Math.ceil(css * (window.devicePixelRatio || 1));
+  return px < 256 ? px : null;
+}
+
+export function iconPx(): number | null {
+  return iconPxFor(useSettings.getState().settings);
 }
 
 export interface DockItemView {
@@ -70,7 +90,7 @@ export const useDockIcons = create<IconState>((set, get) => ({
     const epoch = get().epoch;
     try {
       const { style, tint } = iconLook();
-      const resolved = await ipc.resolveIcons(missing, style, tint);
+      const resolved = await ipc.resolveIcons(missing, style, tint, iconPx());
       // the look was changed while these were being made: they are of the old one
       if (get().epoch !== epoch) return;
       const urls: Record<string, string> = {};

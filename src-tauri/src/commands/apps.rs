@@ -52,11 +52,15 @@ pub async fn resolve_icons(
     targets: Vec<String>,
     style: Option<String>,
     tint: Option<String>,
+    px: Option<u32>,
 ) -> AeroResult<HashMap<String, String>> {
     let cache_dir = crate::core::paths::data_dir(&app)?.join("icons");
     // the look the icons are asked for in (none for plain), and the color of the tinted one
     let look = style.as_deref().and_then(crate::core::glassicon::Style::parse);
     let tint = tint.as_deref().and_then(crate::core::glassicon::parse_hex).unwrap_or([0x2f, 0x9d, 0xe3]);
+    // the size the window shows them at (high quality icons): rounded up to one of the sizes kept, so a few copies
+    // serve everything; none asked, or more than the largest kept, is the full picture
+    let px = px.and_then(crate::platform::windows::icons::sized_step);
     tauri::async_runtime::spawn_blocking(move || {
         let mut out = HashMap::with_capacity(targets.len());
         for target in targets {
@@ -67,6 +71,10 @@ pub async fn resolve_icons(
                     let shown = match look {
                         Some(style) => crate::core::glassicon::variant_path(&path, style, tint).unwrap_or(path),
                         None => path,
+                    };
+                    let shown = match px {
+                        Some(px) => crate::platform::windows::icons::sized_icon(&shown, px).unwrap_or(shown),
+                        None => shown,
                     };
                     out.insert(target, shown.to_string_lossy().to_string());
                 }

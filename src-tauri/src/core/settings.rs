@@ -279,6 +279,10 @@ pub struct AppearanceSettings {
     /// treatment is baked into a copy of the icon when it is first read (see
     /// `core::glassicon`), so it costs nothing to show.
     pub icon_style: String,
+    /// Draw each icon at the size it is shown (and a little over for the dock's swell) rather than shrinking the
+    /// 256 px image as it is drawn: made once with a Lanczos resample and kept (see `icons::sized_icon`). Sharper
+    /// small icons, and a smaller picture in memory for each.
+    pub high_quality_icons: bool,
     /// How the frosted glass is made on each surface (it only is while `real_blur` is on).
     pub frost: FrostSettings,
     /// A table of how smoothly each window draws, on each screen (see `commands::perf`). A diagnostic: timing
@@ -352,6 +356,7 @@ impl Default for AppearanceSettings {
             hover_effect: "magnify".into(),
             glass_grain: true,
             icon_style: "glass".into(),
+            high_quality_icons: false,
             frost: FrostSettings::default(),
             frame_overlay: false,
             hardware_acceleration: true,

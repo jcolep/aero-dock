@@ -132,6 +132,8 @@ export interface AppearanceSettings {
   glassGrain: boolean;
   /** What is done to every app's icon (baked into a copy of it). */
   iconStyle: IconStyle;
+  /** Icons drawn at the size they are shown, resampled once, rather than the 256 px picture shrunk as it is drawn. */
+  highQualityIcons: boolean;
   /** How frosted the glass is on each surface, while frosted glass is on. */
   frost: FrostSettings;
   /** A table of how smoothly each window draws, on each screen (a diagnostic). */

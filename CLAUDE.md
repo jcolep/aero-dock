@@ -780,6 +780,11 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   6.5% overshoot). Tests: `dockdrag.mjs` (pointer-to-icon 0 px, no jump, same element), `dockreveal.mjs`. The harness
   now mocks `pin_item`/`unpin_item`/`reorder_*` (changes settings, emits `settings://changed` after `__saveDelay`).
   `backdrop.mjs`'s two dock-label glass checks fail, and did before this work (not yet looked into).
+  **High quality icons** (`appearance.highQualityIcons`, default off): `resolve_icons` takes `px`; `iconPxFor` in
+  `dockStore.ts` works the size out per window (dock: iconSize x swell x dpr; Start 64, overview 96, menu bar 48 CSS px);
+  Rust rounds it up to 32/48/64/96/128/192 (`icons::sized_step`) and `sized_icon` makes `name-pN.png` beside the cached
+  picture with `resize_icon` (Lanczos3, premultiplied alpha, f32: **the image crate clamps float pixels to 0-1**).
+  `useIconLook` in `main.tsx` keys the reset on style + px. Test: `iconquality.mjs`, `cargo test icons`.
   **Reveal and hide, compositing**: the bar and `.dock-satellites` motion elements carry `onUpdate={noop}`: with an update
   handler Motion drives opacity frame by frame instead of WAAPI. WAAPI made each a layer while it ran and ~0.75 s in (the
   end of the fade; found by listing `document.getAnimations()` through the reveal, `revealpix.mjs` `PROBE=1`) the layers

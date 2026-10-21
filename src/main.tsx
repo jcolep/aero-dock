@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useEffect, useRef } from "react";
 import ReactDOM from "react-dom/client";
 import { accentForTheme, normalizeHex } from "./engine/themes/accent";
 import { trackScale } from "./engine/themes/scale";
-import { useDockIcons } from "./state/dockStore";
+import { iconPxFor, useDockIcons } from "./state/dockStore";
 import { useSettings } from "./state/settingsStore";
 import { useFrameMeter } from "./engine/perf/useFrameMeter";
 // Every stylesheet, here and in this order: the order the windows were always styled in, when they were one bundle. The
@@ -88,7 +88,9 @@ function useIconLook() {
   const look = useSettings((s) => {
     const a = s.settings?.appearance;
     if (!a) return null;
-    return a.iconStyle === "tinted" ? `tinted:${normalizeHex(a.accent) ?? accentForTheme(a.theme)}` : a.iconStyle;
+    const style = a.iconStyle === "tinted" ? `tinted:${normalizeHex(a.accent) ?? accentForTheme(a.theme)}` : a.iconStyle;
+    // High quality icons are made at the size this window shows them, so that is part of the look too
+    return `${style}|${iconPxFor(s.settings) ?? ""}`;
   });
   const before = useRef<string | null>(null);
   useEffect(() => {

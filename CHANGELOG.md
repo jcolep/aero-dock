@@ -50,6 +50,24 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### High quality icons (October 21)
+
+- **Settings › Appearance › High quality icons** (off by default). Every app icon is read at 256 px and was shrunk by the
+  browser as it was drawn (26 px in the dock, 40-odd in Start). On: each window asks for the icon at the size it shows
+  it, a copy made once with a Lanczos3 resample and kept beside the picture (`name-p48.png`), so the browser draws it
+  about 1:1. The dock's size is its icon size swollen by magnification, times the screen's scale (a 26 px dock at 1.3x
+  swell on a 1:1 screen asks for 34 px); Start 64, the overview 96, the menu bar's media card 48 (CSS px, times the
+  scale). Everywhere app icons are shown follows, as they all come through the same place (the dock, its flyouts, Start,
+  the overview, the media card). A copy is one of 32, 48, 64, 96, 128, 192 px, the nearest above what is wanted, so a
+  handful serve every dock size; wanting more than 192 uses the 256 px picture.
+- The resample weights colour by coverage (premultiplied alpha), so an icon's edge does not pick up a dark or pale
+  fringe from the transparent pixels round it, and works in floating point (the `image` crate clamps float pixels to
+  0-1; a test caught the first version scaling in 0-255). Also lighter in memory: a 48 px picture decodes to 9 KB, the
+  256 px one to 256 KB.
+- Changing the setting, the dock size or the magnification makes each window ask for its icons again (the same reset
+  the icon style uses). `iconquality.mjs` checks the sizes asked for (scales 1 and 1.5, no swell, too big, off);
+  `cargo test` covers the step rounding, the fringe and the cached copy.
+
 ### The dock settles without a shift, and its glass leaves with it (October 21)
 
 - **No more drop half a second after the dock arrives.** The dock's fade and move were handed to the browser's own

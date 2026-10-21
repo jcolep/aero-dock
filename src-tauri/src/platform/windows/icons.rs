@@ -42,6 +42,56 @@ pub fn ensure_icon(target: &str, cache_dir: &Path) -> AeroResult<PathBuf> {
     rgba.save_with_format(&png_path, image::ImageFormat::Png)?;
     Ok(png_path)
 }
+
+/// The sizes an icon is made at when high quality icons are on. A window asks for the nearest above what it shows, so
+/// a handful of copies per icon serve every surface and every dock size.
+pub const SIZED_STEPS: [u32; 6] = [32, 48, 64, 96, 128, 192];
+
+/// Round a wanted size up to the next of `SIZED_STEPS`; `None` when it is more than the largest (the 256 px picture
+/// is the one to use).
+pub fn sized_step(wanted: u32) -> Option<u32> {
+    SIZED_STEPS.iter().copied().find(|s| *s >= wanted)
+}
+
+/// Resize with the colour weighted by coverage. Scaling straight RGBA smears the colour of the transparent pixels
+/// round an icon's edge into it (a dark or pale fringe); scaling colour times alpha, and dividing it out after, does
+/// not. Lanczos3 for the filter: the sharpest that does not ring much.
+pub fn resize_icon(img: &image::RgbaImage, side: u32) -> image::RgbaImage {
+    let (w, h) = img.dimensions();
+    let mut premul = image::ImageBuffer::<image::Rgba<f32>, Vec<f32>>::new(w, h);
+    for (x, y, p) in img.enumerate_pixels() {
+        // 0 to 1 throughout: the resampler treats float pixels as that and clamps to it
+        let a = p.0[3] as f32 / 255.0;
+        premul.put_pixel(x, y, image::Rgba([p.0[0] as f32 / 255.0 * a, p.0[1] as f32 / 255.0 * a, p.0[2] as f32 / 255.0 * a, a]));
+    }
+    let small = image::imageops::resize(&premul, side, side, image::imageops::FilterType::Lanczos3);
+    let mut out = image::RgbaImage::new(side, side);
+    for (x, y, p) in small.enumerate_pixels() {
+        let a = p.0[3].clamp(0.0, 1.0);
+        let un = |c: f32| if a > 0.0 { (c / a * 255.0).round().clamp(0.0, 255.0) as u8 } else { 0 };
+        out.put_pixel(x, y, image::Rgba([un(p.0[0]), un(p.0[1]), un(p.0[2]), (a * 255.0).round() as u8]));
+    }
+    out
+}
+
+/// The icon at `px` pixels square, made from the cached picture at `path` and kept beside it (`name-p48.png`). The
+/// picture itself when `px` is not smaller than it is. Call from `spawn_blocking`.
+pub fn sized_icon(path: &Path, px: u32) -> AeroResult<PathBuf> {
+    let Some(stem) = path.file_stem().and_then(|s| s.to_str()) else {
+        return Ok(path.to_path_buf());
+    };
+    let sized = path.with_file_name(format!("{stem}-p{px}.png"));
+    if sized.exists() {
+        return Ok(sized);
+    }
+    let img = image::open(path)?.to_rgba8();
+    if px >= img.width() {
+        return Ok(path.to_path_buf());
+    }
+    resize_icon(&img, px).save_with_format(&sized, image::ImageFormat::Png)?;
+    Ok(sized)
+}
+
 fn extract_rgba(target: &str) -> AeroResult<image::RgbaImage> {
     let wide = to_wide(target);
     let factory: IShellItemImageFactory =
@@ -279,6 +329,49 @@ mod tests {
         let img = image::RgbaImage::from_pixel(48, 48, image::Rgba([0, 0, 0, 0]));
         let out = normalize_icon(img);
         assert_eq!(out.dimensions(), (48, 48));
+    }
+
+    #[test]
+    fn a_wanted_size_rounds_up_to_a_size_kept() {
+        assert_eq!(sized_step(26), Some(32));
+        assert_eq!(sized_step(34), Some(48));
+        assert_eq!(sized_step(48), Some(48));
+        assert_eq!(sized_step(150), Some(192));
+        assert_eq!(sized_step(193), None, "above the largest kept, the 256 px picture is used");
+    }
+
+    #[test]
+    fn resizing_keeps_the_colour_to_the_edge_with_no_fringe() {
+        // a red square on transparent black-ish pixels: straight RGBA scaling would darken its rim
+        let mut img = image::RgbaImage::from_pixel(256, 256, image::Rgba([0, 0, 0, 0]));
+        for y in 64..192 {
+            for x in 64..192 {
+                img.put_pixel(x, y, image::Rgba([255, 40, 40, 255]));
+            }
+        }
+        let out = resize_icon(&img, 48);
+        assert_eq!(out.dimensions(), (48, 48));
+        // every drawn pixel, partly covered ones included, is the square's red (not dragged towards black)
+        for p in out.pixels().filter(|p| p.0[3] > 20) {
+            assert!(p.0[0] >= 235 && p.0[1] <= 60, "fringe colour {:?}", p.0);
+        }
+        assert_eq!(out.get_pixel(24, 24).0[3], 255, "the middle is still solid");
+        assert_eq!(out.get_pixel(1, 1).0[3], 0, "and the padding clear");
+    }
+
+    #[test]
+    fn a_sized_copy_is_made_once_beside_the_picture() {
+        let dir = std::env::temp_dir().join("aero-icon-sized-test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let big = dir.join("probe-v2.png");
+        canvas(256, 32, 32, 192, 192).save(&big).unwrap();
+        let small = sized_icon(&big, 64).unwrap();
+        assert_eq!(small.file_name().unwrap(), "probe-v2-p64.png");
+        assert_eq!(image::open(&small).unwrap().width(), 64);
+        // again: the same file, not another
+        assert_eq!(sized_icon(&big, 64).unwrap(), small);
+        // asked for as big as the picture or bigger: the picture itself
+        assert_eq!(sized_icon(&big, 256).unwrap(), big);
     }
 
     #[test]

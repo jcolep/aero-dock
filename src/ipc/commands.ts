@@ -66,8 +66,8 @@ export const ipc = {
   /** How light the screen is behind a part of this window (CSS px), for a panel to keep its text readable. */
   backdropLight: (x: number, y: number, width: number, height: number, cols: number, rows: number) =>
     invoke<{ cols: number; rows: number; light: number[] } | null>("backdrop_light", { x, y, width, height, cols, rows }),
-  resolveIcons: (targets: string[], style?: string, tint?: string) =>
-    invoke<Record<string, string>>("resolve_icons", { targets, style: style ?? null, tint: tint ?? null }),
+  resolveIcons: (targets: string[], style?: string, tint?: string, px?: number | null) =>
+    invoke<Record<string, string>>("resolve_icons", { targets, style: style ?? null, tint: tint ?? null, px: px ?? null }),
   launch: (target: string, args?: string) =>
     invoke<void>("launch", { target, args: args || null }),
   launchAsAdmin: (target: string, args?: string) =>

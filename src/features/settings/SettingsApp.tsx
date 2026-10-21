@@ -277,6 +277,12 @@ export function SettingsApp() {
                 ]}
                 onChange={(v) => set((d) => void (d.appearance.iconStyle = v))}
               />
+              <AeroToggle
+                label="High quality icons"
+                hint="Each icon is made once at the size it is shown (the dock's, a little over for the swell; Start's; the overview's), resampled with Lanczos, instead of the full 256 px picture being shrunk as it is drawn. Sharper at small sizes, and lighter in memory"
+                checked={appearance.highQualityIcons}
+                onChange={(v) => set((d) => void (d.appearance.highQualityIcons = v))}
+              />
             </SettingsSection>
 
             <SettingsSection id="glass">
