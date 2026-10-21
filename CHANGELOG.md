@@ -50,6 +50,26 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Settings search finds settings, and a backup that carries the widget pictures (October 21)
+
+- **Search looks at the settings themselves.** Typing in the settings window's search box narrows the page to the rows
+  that answer it (every word in a row's label, hint, group heading or section title: "dock tint" finds Tint in the
+  dock's section), puts away groups and sections with none, marks the words found, lists only those sections in the
+  sidebar, and says "3 settings in 3 sections". A section named by the search whose rows say nothing more particular is
+  shown whole, as before. It works on what is on the page (`rowSearch.ts`), so a new setting is found without being added
+  to a list. `settingssearch.mjs`.
+- **Export saves the whole setup.** The file (`liquidock-setup-<date>.json`, in Downloads) now holds the settings and the
+  pictures the Picture widgets show (base64, `core::bundle`), which used to be left behind. Import reads that or an older
+  plain settings file, puts the pictures in this machine's media folder (names that could mean another place are
+  refused), points the widgets at them, and keeps what you had as `settings-before-import-<time>.json` beside the settings so
+  it can be taken back; the status line says what happened. The row says what it does ("Back up or share your setup").
+- **The glass heals itself.** Lock, unlock, resume from sleep, a display change and a compositor change (the machine
+  hears them through the hidden shell-hook window) re-place every glass window, now and again 1.5 s later (that one a
+  pixel wider for a moment), which is what a menu opening did by resizing the page's window; each event is written to
+  `trace.log` (turn it on with `trace.on` in the data folder) with how many windows were refreshed. Not yet seen to
+  cure the menu bar's glass going off, which was not reproduced here: lock the machine once with this build and read
+  the trace.
+
 ### High quality icons (October 21)
 
 - **Settings › Appearance › High quality icons** (off by default). Every app icon is read at 256 px and was shrunk by the

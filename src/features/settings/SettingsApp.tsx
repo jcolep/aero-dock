@@ -33,6 +33,7 @@ import { SettingsNoMatch, SettingsSection, SettingsSub } from "./SettingsSection
 import { SectionIcon } from "./SectionIcon";
 import { Droplet } from "../../engine/brand/droplet";
 import { ALL_SECTIONS, matches, sectionById } from "./sections";
+import { useRowSearch } from "./rowSearch";
 import { useSettingsUi, type SidebarMode } from "./useSettingsUi";
 import { forget as forgetLearned } from "../start/learned";
 import "./settings.css";
@@ -70,6 +71,9 @@ export function SettingsApp() {
   const [narrow, setNarrow] = useState(false);
   const active = useSettingsUi((s) => s.active);
   const query = useSettingsUi((s) => s.query);
+  const hits = useSettingsUi((s) => s.hits);
+  // narrows the page to the settings that answer the search (rowSearch.ts)
+  useRowSearch();
   const sidebar = useSettingsUi((s) => s.sidebar);
   const setSidebar = useSettingsUi((s) => s.setSidebar);
   const setSidebarOut = useSettingsUi((s) => s.setSidebarOut);
@@ -178,8 +182,9 @@ export function SettingsApp() {
   const doImport = async (file: File) => {
     try {
       const json = await file.text();
-      await ipc.importSettings(json);
-      setStatus({ tone: "ok", text: `Imported settings from ${file.name}.` });
+      const done = await ipc.importSettings(json);
+      const pictures = done.pictures > 0 ? ` and ${done.pictures} widget picture${done.pictures === 1 ? "" : "s"}` : "";
+      setStatus({ tone: "ok", text: `Imported the settings${pictures} from ${file.name}.${done.backup ? ` What you had is kept in ${done.backup}.` : ""}` });
     } catch (e) {
       console.error("import failed", e);
       setStatus({ tone: "error", text: `Could not import that file: ${humane(e)}` });
@@ -190,7 +195,9 @@ export function SettingsApp() {
   const onStatus = (tone: "ok" | "error", text: string) => setStatus({ tone, text });
 
   const shownSection = sectionById(active) ?? ALL_SECTIONS[0];
-  const found = query ? ALL_SECTIONS.filter((s) => matches(s, query)).length : 0;
+  // what the search found: settings and the sections they are in (once the page has been narrowed to it)
+  const foundSections = query ? (hits ? Object.values(hits).filter((n) => n > 0).length : ALL_SECTIONS.filter((s) => matches(s, query)).length) : 0;
+  const foundRows = hits ? Object.values(hits).reduce((a, n) => a + n, 0) : 0;
 
   return (
     <div className="settings-root" ref={rootRef} data-sliding={sliding}>
@@ -216,7 +223,11 @@ export function SettingsApp() {
           {query ? (
             <div className="pane-title">
               <h1>Search</h1>
-              <p>{found === 0 ? "No section matches" : `${found} section${found === 1 ? "" : "s"} for “${query}”`}</p>
+              <p>
+                {foundSections === 0
+                  ? "No setting matches"
+                  : `${hits ? `${foundRows} setting${foundRows === 1 ? "" : "s"} in ` : ""}${foundSections} section${foundSections === 1 ? "" : "s"} for “${query}”`}
+              </p>
             </div>
           ) : (
             <>
@@ -1329,7 +1340,15 @@ export function SettingsApp() {
 
               <SettingsSub>Your settings</SettingsSub>
               <div className="ctl-row">
-                <span className="ctl-label">Settings file</span>
+                <div className="ctl-text-block">
+                  <span className="ctl-label">Back up or share your setup</span>
+                  <span
+                    className="ctl-hint"
+                    title="Export saves one file to your Downloads folder: every setting, your pinned apps and widgets, and the pictures your Picture widgets show. Import reads that file (or an older settings file) and keeps what you had beside the settings, so it can be taken back"
+                  >
+                    Export saves every setting, your pins and widgets and their pictures as one file; Import reads it back (what you had is kept)
+                  </span>
+                </div>
                 <div className="ctl-actions">
                   <button
                     className="aero-button"

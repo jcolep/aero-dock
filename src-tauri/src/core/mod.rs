@@ -1,3 +1,4 @@
+pub mod bundle;
 pub mod error;
 pub mod glassicon;
 pub mod names;

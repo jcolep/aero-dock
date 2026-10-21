@@ -17,7 +17,8 @@ export function SettingsSection({ id, className, children }: { id: string; class
   const query = useSettingsUi((s) => s.query);
   const active = useSettingsUi((s) => s.active);
   if (!def) return <>{children}</>;
-  if (query ? !matches(def, query) : active !== id) return null;
+  // Searching, every section is drawn and `rowSearch.ts` puts away what does not answer, row by row.
+  if (!query && active !== id) return null;
   return (
     <section id={`section-${id}`} data-section={id} className={`settings-section${className ? ` ${className}` : ""}`} aria-label={def.title}>
       {query && (
@@ -40,7 +41,10 @@ export function SettingsSub({ children }: { children: ReactNode }) {
 export function SettingsNoMatch() {
   const query = useSettingsUi((s) => s.query);
   const setQuery = useSettingsUi((s) => s.setQuery);
-  if (!query || ALL_SECTIONS.some((s) => matches(s, query))) return null;
+  const hits = useSettingsUi((s) => s.hits);
+  // nothing answers once the page has been looked at and every section is empty (before that, the titles decide)
+  const none = hits ? Object.values(hits).every((n) => n === 0) : !ALL_SECTIONS.some((s) => matches(s, query));
+  if (!query || !none) return null;
   return (
     <p className="settings-nomatch">
       Nothing in the settings matches “{query}”.{" "}

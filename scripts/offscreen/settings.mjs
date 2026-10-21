@@ -58,14 +58,16 @@ const settings = (s) => {
     // search
     await typeInto(h, "lens");
     await h.sleep(500);
-    const found = await q("[...document.querySelectorAll('[data-section]')].map((e) => e.dataset.section)");
+    // (every section is drawn while searching and the ones with nothing that answers are put away: count what shows)
+    const shownSections = "[...document.querySelectorAll('[data-section]:not([data-search])')].map((e) => e.dataset.section)";
+    const found = await q(shownSections);
     check(found.includes("menubar") && found.length >= 1 && (await q("document.querySelector('.pane-title h1').textContent")) === "Search", `a search for "lens" shows the sections that answer it, each under its title (${found.join(", ")})`);
-    check((await q("document.querySelectorAll('.settings-section-title').length")) === found.length, "each found section has its title");
+    check((await q("document.querySelectorAll('.settings-section-title:not([data-search] *)').length")) === found.length, "each found section has its title");
     check((await q("document.querySelectorAll('.sb-item').length")) === found.length, "and the sidebar narrows to them");
     shots.search = await h.shot(0, 0, 1100, 760);
     await typeInto(h, "magnification");
     await h.sleep(300);
-    const mag = await q("[...document.querySelectorAll('[data-section]')].map((e) => e.dataset.section)");
+    const mag = await q(shownSections);
     check(mag.includes("dock") && mag.includes("animations"), `"magnification" finds the dock and the animations (${mag.join(", ")})`);
     await typeInto(h, "zzzzqq");
     await h.sleep(300);

@@ -994,6 +994,17 @@ html[data-window="settings"],
   }
 }
 
+/* ---- searching the settings (rowSearch.ts) ----
+   A row, group heading, footnote or whole section that does not answer the search is put away; the words found
+   are marked with the text highlight. */
+[data-search="hide"] {
+  display: none !important;
+}
+::highlight(settings-find) {
+  background-color: color-mix(in srgb, var(--lit, #6cb8ff) 38%, transparent);
+  color: inherit;
+}
+
 /* ---- nothing found ---- */
 
 .settings-nomatch {

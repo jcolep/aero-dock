@@ -45,7 +45,7 @@ export const ipc = {
     invoke<Settings>("first_run_import", { items }),
   exportSettings: () => invoke<string>("export_settings"),
   exportSettingsFile: () => invoke<string>("export_settings_file"),
-  importSettings: (json: string) => invoke<Settings>("import_settings", { json }),
+  importSettings: (json: string) => invoke<{ settings: Settings; pictures: number; backup: string | null }>("import_settings", { json }),
   openSettings: () => invoke<void>("open_settings"),
   storageInfo: () => invoke<StorageInfo>("storage_info"),
   quitApp: () => invoke<void>("quit_app"),

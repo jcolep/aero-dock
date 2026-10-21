@@ -195,18 +195,43 @@ pub fn export_settings(store: State<'_, SettingsStore>) -> AeroResult<String> {
     store.export_json()
 }
 
-/// Write settings JSON to the user's Downloads folder; returns the path.
+fn now_secs() -> u64 {
+    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
+}
+
+/// The folder the Picture widgets' own pictures are kept in (see `commands::widgets`).
+fn media_folder(app: &AppHandle) -> AeroResult<std::path::PathBuf> {
+    Ok(crate::core::paths::data_dir(app)?.join("widget-media"))
+}
+
+/// Write the whole setup (the settings and the widgets' pictures, `core::bundle`) to the user's Downloads folder as
+/// `liquidock-setup-<date>.json` (a number added if there is one already); returns the path.
 #[tauri::command]
 pub fn export_settings_file(app: AppHandle, store: State<'_, SettingsStore>) -> AeroResult<String> {
     use tauri::Manager;
     let dir = app.path().download_dir()?;
-    let stamp = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(0);
-    let path = dir.join(format!("aero-dock-settings-{stamp}.json"));
-    std::fs::write(&path, store.export_json()?)?;
+    let day = crate::core::bundle::date_of(now_secs());
+    let text = crate::core::bundle::export(&store.get(), &media_folder(&app)?, &day)?;
+    let mut path = dir.join(format!("liquidock-setup-{day}.json"));
+    for n in 2..1000 {
+        if !path.exists() {
+            break;
+        }
+        path = dir.join(format!("liquidock-setup-{day}-{n}.json"));
+    }
+    std::fs::write(&path, text)?;
     Ok(path.to_string_lossy().to_string())
+}
+
+/// What an import did, for the page to say.
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportReport {
+    pub settings: Settings,
+    /// How many widget pictures came with the file.
+    pub pictures: usize,
+    /// Where what was there before was kept, to go back to.
+    pub backup: Option<String>,
 }
 
 /// Where this copy keeps its files, and whether it is running portable.
@@ -286,8 +311,16 @@ pub fn import_settings(
     app: AppHandle,
     store: State<'_, SettingsStore>,
     json: String,
-) -> AeroResult<Settings> {
-    let result = store.import_json(&app, &json)?;
+) -> AeroResult<ImportReport> {
+    // a setup file, or a plain settings file: read first (its pictures are put in the media folder), so a file that
+    // cannot be read changes nothing
+    let imported = crate::core::bundle::import(&json, &media_folder(&app)?)?;
+    // what is there now is kept beside the settings, so an import can be taken back
+    let backup = crate::core::paths::config_dir(&app).ok().and_then(|dir| {
+        let path = dir.join(format!("settings-before-import-{}.json", now_secs()));
+        store.export_json().ok().and_then(|text| std::fs::write(&path, text).ok()).map(|_| path.to_string_lossy().to_string())
+    });
+    let settings = store.replace(&app, imported.settings)?;
     if let Err(e) = crate::commands::dock::position_dock(&app) {
         log::warn!("reposition after import failed: {e}");
     }
@@ -296,7 +329,7 @@ pub fn import_settings(
         crate::commands::dock::sync_docks(&docks).await;
         crate::commands::menubar::sync_menubar(&docks).await;
     });
-    Ok(result)
+    Ok(ImportReport { settings, pictures: imported.pictures, backup })
 }
 
 /// The browser arguments the dock window was configured with.

@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef } from "react";
-import { GROUPS, matches } from "./sections";
+import { GROUPS, matches, type SectionDef } from "./sections";
 import { SectionIcon } from "./SectionIcon";
 import { Droplet } from "../../engine/brand/droplet";
 import { goToSection, useSettingsUi } from "./useSettingsUi";
@@ -92,7 +92,11 @@ export function SettingsNav({ sliding }: { sliding: boolean }) {
     return () => window.removeEventListener("pointermove", move);
   }, [sliding, setOut]);
 
-  const anyShown = GROUPS.some((g) => g.sections.some((s) => matches(s, query)));
+  // a section is listed while searching if some setting in it answers (once the page has been looked at), or else if
+  // its title and keywords do
+  const hits = useSettingsUi((s) => s.hits);
+  const listed = (s: SectionDef) => (query && hits ? (hits[s.id] ?? 0) > 0 : matches(s, query));
+  const anyShown = GROUPS.some((g) => g.sections.some(listed));
   return (
     <>
       <aside
@@ -131,7 +135,7 @@ export function SettingsNav({ sliding }: { sliding: boolean }) {
         >
           {lens.Highlight}
           {GROUPS.map((group) => {
-            const items = group.sections.filter((s) => matches(s, query));
+            const items = group.sections.filter(listed);
             if (items.length === 0) return null;
             return (
               <div key={group.id} className="sb-group">

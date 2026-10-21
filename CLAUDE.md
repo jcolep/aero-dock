@@ -780,6 +780,16 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   6.5% overshoot). Tests: `dockdrag.mjs` (pointer-to-icon 0 px, no jump, same element), `dockreveal.mjs`. The harness
   now mocks `pin_item`/`unpin_item`/`reorder_*` (changes settings, emits `settings://changed` after `__saveDelay`).
   `backdrop.mjs`'s two dock-label glass checks fail, and did before this work (not yet looked into).
+  **Glass self-heal**: `running.rs`'s hidden shell-hook window also hears `WM_WTSSESSION_CHANGE` (registered with
+  `WTSRegisterSessionNotification`), `WM_POWERBROADCAST` resumes, `WM_DWMCOMPOSITIONCHANGED`, `WM_THEMECHANGED` and
+  `WM_DISPLAYCHANGE`: `system_event()` (pure, tested) names them and says if the glass wants refreshing; the hook in
+  `lib.rs` traces each and calls `glass::refresh_all` on the main thread now and 1.5 s later (`jiggle` = a pixel wider).
+  **Settings search** is row-level and DOM-based (`rowSearch.ts`: all sections render while a query is typed; rows are
+  a section's direct children, a group starts at `.settings-sub`, `.settings-note` is its footer; `data-search="hide"`
+  puts away; `CSS.highlights` marks; `hits` in `useSettingsUi` feeds the sidebar and header). **Export/import**:
+  `core/bundle.rs` (`liquidock-setup` JSON: settings + base64 widget pictures; import also takes a plain settings file,
+  validates picture names, rewrites each widget's `src`; `import_settings` returns `ImportReport` and keeps a
+  `settings-before-import-<secs>.json`). Tests: `cargo test bundle`, `settingssearch.mjs`.
   **High quality icons** (`appearance.highQualityIcons`, default off): `resolve_icons` takes `px`; `iconPxFor` in
   `dockStore.ts` works the size out per window (dock: iconSize x swell x dpr; Start 64, overview 96, menu bar 48 CSS px);
   Rust rounds it up to 32/48/64/96/128/192 (`icons::sized_step`) and `sized_icon` makes `name-pN.png` beside the cached
