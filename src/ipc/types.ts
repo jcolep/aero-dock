@@ -29,6 +29,8 @@ export interface DockSettings {
   indicatorGap: number;
   /** Horizontal gap between apps in the dock, in logical px. */
   iconSpacing: number;
+  /** How wide each window's live preview is, in px (its height follows). */
+  previewWidth: number;
   /** Corner radius of the dock bar in px; null = the material's own. */
   cornerRadius: number | null;
   /** Size of the network, volume, battery and Recycle Bin glyphs, in px. */

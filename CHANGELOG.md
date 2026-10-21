@@ -50,6 +50,19 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Window previews keep each window's shape, with a size setting (October 21)
+
+- The dock already showed live previews (Windows draws a live miniature of each window into the dock, so they move as the
+  windows do). Each was stretched to fill a fixed 200 x 120 box, so a tall window was squashed and an ultra-wide one
+  stretched. Each picture is now **fitted into its box at the window's own proportions**, centred, and never drawn
+  larger than the window is (`thumbnails::fit_in`, from the size Windows reports for the window's live picture, so it is
+  exactly what is drawn; `cargo test thumbnails`).
+- **Settings > Dock > Window preview size** (140 to 360 px, 200 as before; the height follows at 3:5). The rectangles
+  handed to Windows follow it (`previewsize.mjs`).
+- **A middle press on a preview closes that window**, as on the taskbar.
+- Only a real window shows the fitting (it needs Windows' own picture of one), so it is covered by the arithmetic's tests
+  and not by an off-screen scenario.
+
 ### Start: quick answers, keys for what a result can do, and richer right-click menus (October 21)
 
 - **Quick answers**, first in the results and copied by Enter, made from the typed text and the clock alone (`quick.ts`,

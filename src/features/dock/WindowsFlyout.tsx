@@ -14,14 +14,15 @@ import { ipc } from "../../ipc/commands";
 import { notify } from "../feedback/toastStore";
 import type { Settings } from "../../ipc/types";
 import { targetKey, useRunning, windowKey } from "../../state/runningStore";
+import { useSettings } from "../../state/settingsStore";
 import { useReadableVeil } from "./useReadableVeil";
 import { flyoutStyle, useMenu } from "./menuStore";
 import { usePanelMotion } from "./usePanelMotion";
 import "./windowsflyout.css";
 
-const SLOT_W = 200;
-const SLOT_H = 120;
 const COLS_MAX = 2;
+/** The height of a preview, from its width (the picture inside keeps its window's own proportions). */
+const slotHeight = (width: number) => Math.round(width * 0.6);
 
 
 interface WindowsFlyoutProps {
@@ -30,6 +31,9 @@ interface WindowsFlyoutProps {
 
 export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
   const dockGlass = useGlass("dock");
+  // how wide each preview is (Settings > Dock > Window preview size)
+  const SLOT_W = useSettings((s) => s.settings?.dock.previewWidth) ?? 200;
+  const SLOT_H = slotHeight(SLOT_W);
   const { kind, item, anchor, close } = useMenu();
   const allWindows = useRunning((s) => s.windows);
   const focused = useRunning((s) => s.focused);
@@ -226,6 +230,14 @@ export function WindowsFlyout({ edge }: WindowsFlyoutProps) {
                   onClick={() => {
                     ipc.activateWindow(w.hwnd).catch(notify.on("Could not focus that window"));
                     close();
+                  }}
+                  // a middle press closes that window, as on the taskbar (no autoscroll cursor in between)
+                  onMouseDown={(e) => e.button === 1 && e.preventDefault()}
+                  onAuxClick={(e) => {
+                    if (e.button !== 1) return;
+                    e.preventDefault();
+                    ipc.closeWindow(w.hwnd).catch(notify.on("Could not close that window"));
+                    if (liveWindows.length <= 1) close();
                   }}
                 />
                 <button

@@ -597,6 +597,16 @@ export function SettingsApp() {
               <AeroSlider label="Icon size" value={dock.iconSize} min={16} max={80} step={2} format={pxFmt} onChange={(v) => set((d) => void (d.dock.iconSize = v))} />
               <AeroSlider label="Icon spacing" value={dock.iconSpacing} min={0} max={32} step={1} format={pxFmt} onChange={(v) => set((d) => void (d.dock.iconSpacing = v))} />
               <AeroSlider label="Dock padding" value={dock.padding} min={2} max={24} step={1} format={pxFmt} onChange={(v) => set((d) => void (d.dock.padding = v))} />
+              <AeroSlider
+                label="Window preview size"
+                hint="The live pictures that rise over an app with open windows: each window is drawn at its own proportions inside this width. Middle-click one to close that window"
+                value={dock.previewWidth ?? 200}
+                min={140}
+                max={360}
+                step={10}
+                format={pxFmt}
+                onChange={(v) => set((d) => void (d.dock.previewWidth = v))}
+              />
               <AeroToggle label="Magnification" checked={dock.magnification} hint="Icons swell under the pointer" onChange={(v) => set((d) => void (d.dock.magnification = v))} />
               {dock.magnification && (
                 <>

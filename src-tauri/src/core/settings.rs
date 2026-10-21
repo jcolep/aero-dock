@@ -70,6 +70,9 @@ pub struct DockSettings {
     pub indicator_gap: u32,
     /// Horizontal gap between apps in the dock (logical px).
     pub icon_spacing: u32,
+    /// How wide each window's live preview is, in px (its height follows at 3:5; the picture is fitted in at the
+    /// window's own proportions).
+    pub preview_width: u32,
     /// Corner radius of the dock bar (logical px). `None` uses the radius
     /// that belongs to the current material.
     pub corner_radius: Option<u32>,
@@ -180,6 +183,7 @@ impl Default for DockSettings {
             padding: 10,
             indicator_gap: 4,
             icon_spacing: 6,
+            preview_width: 200,
             corner_radius: None,
             status_icon_size: 16,
             running_order: Vec::new(),
@@ -954,6 +958,7 @@ impl Settings {
         d.padding = d.padding.clamp(2, 24);
         d.indicator_gap = d.indicator_gap.min(16);
         d.icon_spacing = d.icon_spacing.min(32);
+        d.preview_width = d.preview_width.clamp(120, 400);
         d.corner_radius = d.corner_radius.map(|r| r.min(48));
         d.status_icon_size = d.status_icon_size.clamp(10, 32);
         d.reveal_zone = d.reveal_zone.clamp(16, 120);
