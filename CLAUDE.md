@@ -780,6 +780,16 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   6.5% overshoot). Tests: `dockdrag.mjs` (pointer-to-icon 0 px, no jump, same element), `dockreveal.mjs`. The harness
   now mocks `pin_item`/`unpin_item`/`reorder_*` (changes settings, emits `settings://changed` after `__saveDelay`).
   `backdrop.mjs`'s two dock-label glass checks fail, and did before this work (not yet looked into).
+  **Reveal and hide, compositing**: the bar and `.dock-satellites` motion elements carry `onUpdate={noop}`: with an update
+  handler Motion drives opacity frame by frame instead of WAAPI. WAAPI made each a layer while it ran and ~0.75 s in (the
+  end of the fade; found by listing `document.getAnimations()` through the reveal, `revealpix.mjs` `PROBE=1`) the layers
+  were redrawn: icons re-snapped to whole device pixels, each by its own fraction (the bin could stay put while the app
+  and status icons seemed to drop). `revealMotion` gives the shown spring `restDelta: 0.0005, restSpeed: 0.005` (Motion
+  stops a hair short and jumps the rest, 1% of scale about the screen edge = ~0.3px at the top of the bar).
+  `will-change: opacity` and a resting `translateZ(0)` were tried and showed no effect (removed). The dock's glass
+  (`BackdropLayer` in `.dock-body`, `track="follow"`) is active until `windowShrunk`, not `slidAway`: it follows the
+  bar's rect and the ancestors' opacity every frame, so it leaves with the bar (`dockhideglass.mjs`, every preset).
+  Same for `data-asleep` (the sheen's pause). `revealpix.mjs` only reports: its centroid also moves with the glass tint.
 - **Lenses sit BEHIND their items** (`.glide-highlight` z 0, `.mb-lens` z 2 under `.mb-item` z 3; each user lifts
   its items: start.css panel children, `.sb-item`, widget buttons). Over them, the backdrop filter (`SOLID_ONLY`
   alpha^4, brightness/saturate, displacement) thinned and recoloured text. `data-lensed` scales only icons/svg, never

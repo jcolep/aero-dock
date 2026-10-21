@@ -63,6 +63,11 @@ const CLOCK_SPACE = 76; // the clock and date
 const CONTROLS_SPACE = 76; // Search and Settings buttons, when they sit in the bar
 // the Liquidock button's slot in the bar when Settings is revealed from outside it (the button, a well's width, its
 // divider and the gaps), and the divider alone when both buttons sit in the bar (CONTROLS_SPACE has the button)
+/** A handler on a motion element, only so that it has one: with an update handler the fade and the move are driven
+ *  frame by frame here, not handed to the browser's own animation engine. That engine puts the element on a layer
+ *  of its own while it plays (the bar and the layer of satellites over it), and when it ended, about 0.75 s after the
+ *  dock came in, the layers were redrawn and the icons landed a fraction of a pixel from where they had been. */
+const noop = () => {};
 const START_SLOT_ROOM = 64;
 const START_DIVIDER_ROOM = 18;
 // room each end needs for a revealed control: 8px gap, a 30px button that
@@ -1235,7 +1240,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
       data-kbd={kbd}
       onKeyDown={onKeyDown}
       data-edge={edge}
-      data-asleep={asleep || slidAway}
+      data-asleep={asleep || windowShrunk}
       // which appearing animation, and whether the dock is in or out: the
       // cascade's icons are timed from these (see dock.css)
       data-anim={animations.dockReveal}
@@ -1290,6 +1295,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         // auto-hide, in the way chosen under Settings > Animations
         initial={reveal.initial}
         animate={hidden ? reveal.hidden : reveal.shown}
+        onUpdate={noop}
         onMouseMove={handleMove}
         onPointerMove={(e) => bodyRef.current && pointerLight({ clientX: e.clientX, clientY: e.clientY, currentTarget: bodyRef.current })}
         onMouseLeave={handleLeave}
@@ -1301,7 +1307,9 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
           className="dock-body glass glass-open"
           style={settings.dock.tintWithTheme === false ? NEUTRAL_GLASS : undefined}
         >
-          <BackdropLayer active={dockGlass.active && !slidAway} blur={dockGlass.blur} grain={dockGlass.grain} track="follow" />
+          {/* on until the dock has finished leaving (the window shrinks then), not from the moment it starts: the glass
+              follows the bar's shape and fade as it goes, as it does coming in, instead of being taken first */}
+          <BackdropLayer active={dockGlass.active && !windowShrunk} blur={dockGlass.blur} grain={dockGlass.grain} track="follow" />
           {/* the bar can't clip itself (tooltips float above it), so the
               ambient sweep gets its own clipping layer */}
           <span className="glass-sweep" aria-hidden />
@@ -1382,6 +1390,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
           style={{ transformOrigin: reveal.origin }}
           initial={reveal.initial}
           animate={hidden ? reveal.hidden : reveal.shown}
+          onUpdate={noop}
         >
           <AnimatePresence>
             {settings.dock.showSettingsButton && revealRight && (

@@ -328,6 +328,12 @@ export function revealMotion(
   speed = 1,
 ): RevealMotion {
   const m = revealCore(preset, edge, vertical, speed);
+  // A spring is called finished while it is still a hair off its target (a hundredth of a scale) and then jumps the
+  // rest of the way. The bar is scaled about the screen edge, so that last hundredth moves an icon by a third of a
+  // pixel, and each one by a different amount: they all seemed to drop a little half a second after arriving.
+  // Run to the end, the jump is too small to see.
+  const shownTransition = (m.shown as { transition?: { type?: string } }).transition;
+  if (shownTransition?.type === "spring") Object.assign(shownTransition, { restDelta: 0.0005, restSpeed: 0.005 });
   // where the dock first appears from: the hidden pose, and where a list of
   // keyframes ends up is the pose it was heading for
   const initial: Record<string, unknown> = {};

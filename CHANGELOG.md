@@ -50,6 +50,26 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The dock settles without a shift, and its glass leaves with it (October 21)
+
+- **No more drop half a second after the dock arrives.** The dock's fade and move were handed to the browser's own
+  animation engine (the bar, and the layer of satellite buttons over it), which makes each a layer of its own while it
+  plays; when they ended, about 0.75 s in, the layers were redrawn and every icon landed on a whole pixel a few tenths
+  from where it had been drawn. Each item rounds its own way, which is why the Recycle Bin could stay put while the
+  app icons and status icons seemed to drop. Both are now driven frame by frame (an `onUpdate` handler on the motion
+  element is all it takes), so nothing is rebuilt when they finish. The reveal spring also runs on to its end instead
+  of stopping a hair short and jumping the rest, which was a few tenths of a pixel at the top of the bar.
+- **The frosted glass hides with the dock.** It used to be taken at the first frame of going, leaving the bar bare and
+  looking different as it left. It now stays until the dock has gone (the window shrinks then), following the bar's
+  shape and fade exactly as it does coming in. The glass sheen keeps going until then too.
+- `dockhideglass.mjs` checks, for every preset, that in the first 250 ms of going the glass is there, on the bar's
+  shape, and fading with it, and gone at the end. `revealpix.mjs` films an icon, a status icon and the bin through a
+  reveal (display scaling, magnification and the preset can be set) and reports any step; it only reports, because its
+  figure also moves with the glass tint.
+- Not fully certain: the film shows the steps smaller and the browser animations gone from the window where they
+  happened, but fractions of a pixel are at the edge of what screenshots from the off-screen page can show. If a
+  shift is still seen, say which item and at what display scaling.
+
 ### Snapping for desktop widgets (October 20)
 
 - **Optional snapping** while a widget is moved or resized (Settings › Widgets, off until asked for). To a **grid** (its top
