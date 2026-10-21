@@ -156,6 +156,9 @@ export interface FrameRow {
   late: number;
   frames: number;
   dpr: number;
+  /** Frames Windows' own composition drew late for this window, and dropped, in the last ten seconds (null: unknown). */
+  dwmLate: number | null;
+  dwmDropped: number | null;
 }
 
 export type PinKind = "app" | "file" | "folder" | "stack";

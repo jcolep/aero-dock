@@ -59,3 +59,10 @@ body,
 .perf tr[data-grade="idle"] td {
   color: rgba(232, 238, 252, 0.45);
 }
+/* Windows' own counts: quiet at nothing, amber for late frames, red for dropped ones, whatever the page's frames did */
+.perf td[data-win="late"] {
+  color: #f3cf6a !important;
+}
+.perf td[data-win="drop"] {
+  color: #ff8a80 !important;
+}

@@ -2,7 +2,7 @@
  * The table of frame timings: a small window at the top left of the main screen, out of the way of the pointer.
  * One line to a window: which, the screen it is on and that screen's rate, frames a second, the average gap, the
  * slowest 5%, the worst in ten seconds, and the late frames. A line is green when the slowest 5% are within a
- * quarter of a frame of the screen's own gap, amber within 60%, and red past that.
+ * quarter of a frame of the screen's own gap, amber within 60%, and red past that. The last two columns are Windows' own\n * count of this window's frames it drew late and dropped, which the page cannot see: a window can make every frame on\n * time and still be shown badly.
  */
 
 import { useEffect, useState } from "react";
@@ -46,6 +46,8 @@ export function PerfApp() {
             <th>p95</th>
             <th>worst</th>
             <th>late</th>
+            <th title="Frames Windows itself drew late for this window in the last ten seconds: the ones between the page and the screen">win late</th>
+            <th title="Frames Windows dropped for this window in the last ten seconds">win drop</th>
           </tr>
         </thead>
         <tbody>
@@ -59,11 +61,13 @@ export function PerfApp() {
               <td>{ms(r.p95Ms)}</td>
               <td>{ms(r.worstMs)}</td>
               <td>{r.late}</td>
+              <td data-win={r.dwmLate ? "late" : undefined}>{r.dwmLate ?? "?"}</td>
+              <td data-win={r.dwmDropped ? "drop" : undefined}>{r.dwmDropped ?? "?"}</td>
             </tr>
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan={8}>waiting for the windows to say how they are drawing…</td>
+              <td colSpan={10}>waiting for the windows to say how they are drawing…</td>
             </tr>
           )}
         </tbody>

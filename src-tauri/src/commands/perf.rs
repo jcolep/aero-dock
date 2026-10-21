@@ -50,6 +50,10 @@ pub struct FrameRow {
     pub late: u32,
     pub frames: u32,
     pub dpr: f64,
+    /// Frames Windows itself drew late for this window in the last ten seconds, and frames it dropped (`None`: it
+    /// would not say). The page counts the frames it makes; these are the ones between it and the screen.
+    pub dwm_late: Option<u64>,
+    pub dwm_dropped: Option<u64>,
 }
 
 struct Kept {
@@ -58,6 +62,46 @@ struct Kept {
 }
 
 static ROWS: Mutex<Option<HashMap<String, Kept>>> = Mutex::new(None);
+
+/// What Windows' composition had counted for a window at some moment (the counts only ever grow).
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct Count {
+    at: Instant,
+    late: u64,
+    dropped: u64,
+}
+
+/// A window's counts over the last while, newest last.
+static COUNTS: Mutex<Option<HashMap<String, std::collections::VecDeque<Count>>>> = Mutex::new(None);
+
+/// How far back the table's Windows counts reach.
+const WINDOW: Duration = Duration::from_secs(10);
+
+/// How many late and dropped frames there were between the oldest count within `window` of the newest and the newest.
+/// Counts older than that are let go (one just beyond it is kept, so a quiet window still has a start to measure from).
+fn over(samples: &mut std::collections::VecDeque<Count>, window: Duration) -> (u64, u64) {
+    let Some(newest) = samples.back().copied() else { return (0, 0) };
+    while samples.len() > 1 && newest.at.duration_since(samples[1].at) >= window {
+        samples.pop_front();
+    }
+    let oldest = samples.front().copied().unwrap_or(newest);
+    (newest.late.saturating_sub(oldest.late), newest.dropped.saturating_sub(oldest.dropped))
+}
+
+/// The counts Windows' composition has for a window: frames it presented late, and frames it dropped.
+#[cfg(windows)]
+fn dwm_counts(window: &WebviewWindow) -> Option<(u64, u64)> {
+    use windows::Win32::Foundation::HWND;
+    use windows::Win32::Graphics::Dwm::{DwmGetCompositionTimingInfo, DWM_TIMING_INFO};
+    let hwnd = HWND(window.hwnd().ok()?.0);
+    let mut info = DWM_TIMING_INFO { cbSize: std::mem::size_of::<DWM_TIMING_INFO>() as u32, ..Default::default() };
+    unsafe { DwmGetCompositionTimingInfo(hwnd, &mut info) }.ok()?;
+    Some((info.cFramesLate, info.cFramesDropped))
+}
+#[cfg(not(windows))]
+fn dwm_counts(_window: &WebviewWindow) -> Option<(u64, u64)> {
+    None
+}
 
 /// A window's line is dropped when it has not been updated for this long (it is hidden, or gone).
 const STALE: Duration = Duration::from_millis(3500);
@@ -77,6 +121,17 @@ fn screen_of(window: &WebviewWindow) -> (String, u32) {
 pub fn report_frame_stats(window: WebviewWindow, stats: FrameStats) {
     let label = window.label().to_string();
     let (monitor, refresh_hz) = screen_of(&window);
+    // what Windows itself says about this window's frames, over the last ten seconds
+    let (dwm_late, dwm_dropped) = match dwm_counts(&window) {
+        Some((late, dropped)) => {
+            let mut all = COUNTS.lock();
+            let samples = all.get_or_insert_with(HashMap::new).entry(label.clone()).or_default();
+            samples.push_back(Count { at: Instant::now(), late, dropped });
+            let (l, d) = over(samples, WINDOW);
+            (Some(l), Some(d))
+        }
+        None => (None, None),
+    };
     let row = FrameRow {
         label: label.clone(),
         monitor,
@@ -88,6 +143,8 @@ pub fn report_frame_stats(window: WebviewWindow, stats: FrameStats) {
         late: stats.late,
         frames: stats.frames,
         dpr: stats.dpr,
+        dwm_late,
+        dwm_dropped,
     };
     ROWS.lock().get_or_insert_with(HashMap::new).insert(label, Kept { at: Instant::now(), row });
 }
@@ -106,10 +163,11 @@ pub fn frame_stats() -> Vec<FrameRow> {
 /// The table, written to `frame-report.txt` in the data folder, and returned.
 #[tauri::command]
 pub fn frame_report(app: AppHandle) -> AeroResult<String> {
-    let mut lines = vec![format!("{:<18} {:<14} {:>5} {:>6} {:>7} {:>7} {:>7} {:>5}", "window", "screen", "Hz", "fps", "avg ms", "p95 ms", "worst", "late")];
+    let mut lines = vec![format!("{:<18} {:<14} {:>5} {:>6} {:>7} {:>7} {:>7} {:>5} {:>9} {:>9}", "window", "screen", "Hz", "fps", "avg ms", "p95 ms", "worst", "late", "win late", "win drop")];
+    let said = |v: Option<u64>| v.map_or("?".to_string(), |n| n.to_string());
     for r in frame_stats() {
         lines.push(format!(
-            "{:<18} {:<14} {:>5} {:>6.1} {:>7.1} {:>7.1} {:>7.1} {:>5}",
+            "{:<18} {:<14} {:>5} {:>6.1} {:>7.1} {:>7.1} {:>7.1} {:>5} {:>9} {:>9}",
             r.label,
             r.monitor.trim_start_matches("\\\\.\\"),
             r.refresh_hz,
@@ -117,7 +175,9 @@ pub fn frame_report(app: AppHandle) -> AeroResult<String> {
             r.avg_ms,
             r.p95_ms,
             r.worst_ms,
-            r.late
+            r.late,
+            said(r.dwm_late),
+            said(r.dwm_dropped)
         ));
     }
     let text = lines.join("\n");
@@ -204,4 +264,50 @@ pub async fn sync(app: &AppHandle) {
     })
     .await;
     let _ = window;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::VecDeque;
+
+    fn at(start: Instant, secs: u64, late: u64, dropped: u64) -> Count {
+        Count { at: start + Duration::from_secs(secs), late, dropped }
+    }
+
+    #[test]
+    fn the_counts_are_what_grew_in_the_window() {
+        let t0 = Instant::now();
+        let mut s: VecDeque<Count> = VecDeque::new();
+        for (secs, late, dropped) in [(0, 5, 2), (3, 9, 2), (6, 12, 7), (9, 12, 7), (12, 20, 9)] {
+            s.push_back(at(t0, secs, late, dropped));
+        }
+        // ten seconds back from the 12th is the 2nd (at 2 s, between the counts at 0 and 3): the count at 0 s is the
+        // one just beyond it, and is the start, so the span is a little over the ten seconds
+        assert_eq!(over(&mut s, Duration::from_secs(10)), (20 - 5, 9 - 2));
+        // and once the one at 0 s is more than ten seconds older than the next, it goes and the next is the start
+        s.push_back(at(t0, 14, 25, 9));
+        assert_eq!(over(&mut s, Duration::from_secs(10)), (25 - 9, 9 - 2));
+    }
+
+    #[test]
+    fn counts_older_than_the_window_are_let_go_but_one_start_is_kept() {
+        let t0 = Instant::now();
+        let mut s: VecDeque<Count> = VecDeque::new();
+        for secs in 0..40u64 {
+            s.push_back(at(t0, secs, secs, 0));
+            over(&mut s, Duration::from_secs(10));
+        }
+        assert!(s.len() <= 12, "kept {}", s.len());
+        // a window that has been quiet for twenty seconds still has a start: nothing grew
+        s.push_back(at(t0, 60, 39, 0));
+        assert_eq!(over(&mut s, Duration::from_secs(10)), (0, 0));
+    }
+
+    #[test]
+    fn nothing_known_is_nothing_counted() {
+        assert_eq!(over(&mut VecDeque::new(), Duration::from_secs(10)), (0, 0));
+        let mut one = VecDeque::from([at(Instant::now(), 0, 4, 1)]);
+        assert_eq!(over(&mut one, Duration::from_secs(10)), (0, 0));
+    }
 }

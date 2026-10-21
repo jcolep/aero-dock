@@ -861,11 +861,20 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   only solid text and icons are bent. `startveil.mjs` reproduces it (sends `start://open` with a light `backdrop`).
   The settings sidebar uses `useGlideHighlight` with `axis: "y"`, `stretch: 14`, `grow: 0` and magnifies only the icon
   (`settingslens.mjs`); the menu bar's reach and squeeze are wrong for full-width rows.
-- **Work machine's monitors**: the Dell (DISPLAY2, primary, 75 Hz) is driven by the **Intel UHD 770**, the Samsung
-  (DISPLAY1, 165 Hz) by the **NVIDIA RTX 5000**. The frame overlay shows **every** web view at 75 fps, the Samsung's
-  too (Chromium paces from the primary display), and the Start menu on the Dell at a clean 75 with 0 late frames, real
-  blur on or off. So "low fps on the Dell" is not the page; suspect the cross-adapter copy to the Intel-driven monitor,
-  which the frame meter cannot see. Unresolved (October 19).
+- **Work machine's monitors (corrected October 21)**: the Dell (DISPLAY2, primary, 74.97 Hz) and the Samsung
+  (DISPLAY1, 165 Hz) are **both** drawn by and plugged into the **NVIDIA RTX 5000**; the Intel UHD 770 drives no screen.
+  (The earlier note here, that the Dell was on the Intel, came from `Win32_VideoController`, which is misleading; it is
+  refuted by DXGI `EnumOutputs`, `EnumDisplayDevices` and, definitively, `QueryDisplayConfig`: source adapter and target
+  adapter are the NVIDIA's LUID for both paths.) The browser draws on the NVIDIA too (`SystemInfo.getInfo` over the debug
+  port: `ANGLE (NVIDIA RTX 5000 Ada ...)`). So there is **no cross-adapter copy anywhere**, and an adapter-choosing
+  setting was built, found harmful here (it would draw on the Intel and make Windows copy every frame back to the
+  NVIDIA's desktop) and **removed**. Chromium's `--use-adapter-luid=<high>,<low>` (decimal) does select the adapter
+  (`--force-low-power-gpu` does nothing, hex LUIDs disable the GPU) if it is ever wanted. The frame overlay shows every
+  web view at 75 fps (Chromium paces from the primary display, so the Samsung's windows are held to 75 too), and Start
+  opens with no frame gap over 17 ms and no long task with 400 apps in the list (`startopen.mjs`), so the page is not
+  what stutters. "Low fps on the Dell" is **not explained**: the frame timings table now has Windows' own late and
+  dropped frame counts per window (`win late`, `win drop`, from `DwmGetCompositionTimingInfo`), to show whether Windows
+  drops frames for Start on the Dell while the page's are clean.
 - **The Liquidock button** (`LiquidockButton`, DockControls; was the search button, still `dock.showSearchButton`):
   `.dock-drop-btn`, deliberately not `.dock-control-btn` (no glass circle, no icon-look filter); a `Droplet` plus an
   overlay svg clipped to `DROP_PATH` with the shine `dock.startShine` (`sweep` | `caustic` | `rim`). The shines are

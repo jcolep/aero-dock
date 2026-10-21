@@ -50,6 +50,20 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Start's frame rate on the Dell: what it is not, and a way to see what it is (October 21)
+
+- The earlier suspicion, a copy between graphics adapters, is **wrong** for this PC: Windows says the Dell and the
+  Samsung are both drawn by and plugged into the NVIDIA card, the Intel drives no screen, and the browser draws on the
+  NVIDIA too (checked three ways, the last `QueryDisplayConfig`). A setting to choose the adapter was built and taken out
+  again, because here it could only make things worse; the note in CLAUDE.md that said otherwise is corrected.
+- The page is not what stutters either: with 400 apps in the list Start opens with no gap between frames over 17 ms and
+  no long task in the first 600 ms (`startopen.mjs`).
+- **The frame timings table** (Settings > Animations > Show frame timings) has two new columns, **win late** and **win drop**:
+  how many frames Windows' own composition drew late and dropped for each window in the last ten seconds
+  (`DwmGetCompositionTimingInfo`, amber and red when not zero). They are what the page's own timing cannot see, so
+  with the table on, open Start on the Dell: if Windows drops frames for it while the page's are clean, that is where to
+  look next. `frame-report.txt` has them too.
+
 ### Window previews keep each window's shape, with a size setting (October 21)
 
 - The dock already showed live previews (Windows draws a live miniature of each window into the dock, so they move as the
