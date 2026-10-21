@@ -697,6 +697,16 @@ export function SettingsApp() {
                     format={(v) => (v === 0 ? "Off" : `${Math.round(v * 100)}%`)}
                     onChange={(v) => set((d) => void (d.dock.markStretch = v))}
                   />
+                  <AeroSlider
+                    label="Ghost delay"
+                    hint="How long the pointer rests on an app before the ghost moves to it. Swept quickly across the dock, the ghost stays where it was instead of hopping from app to app, then glides to where you stop"
+                    value={dock.ghostDelayMs ?? 60}
+                    min={0}
+                    max={300}
+                    step={10}
+                    format={(v) => (v === 0 ? "At once" : `${v} ms`)}
+                    onChange={(v) => set((d) => void (d.dock.ghostDelayMs = v))}
+                  />
                 </>
               )}
               <AeroSlider label="Gap under the icons" value={dock.indicatorGap} min={0} max={16} step={1} format={pxFmt} onChange={(v) => set((d) => void (d.dock.indicatorGap = v))} />

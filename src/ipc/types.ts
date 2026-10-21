@@ -93,6 +93,8 @@ export interface DockSettings {
   ghostMotion: MarkMotion;
   /** How much the mark and its ghost stretch with their speed as they travel, 0 to 1. */
   markStretch: number;
+  /** How long (ms, 0 to 300) the pointer rests on an app before the ghost moves to it. */
+  ghostDelayMs: number;
   /** With the focus mark, how the other running apps show it: faint glowing marks, a halo, the idle apps dimmed, or nothing. */
   runningCue: "dots" | "halo" | "dim" | "none";
 }

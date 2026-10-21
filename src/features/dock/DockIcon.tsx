@@ -7,6 +7,7 @@ import { Roll } from "../../engine/type/Roll";
 import { useGlass } from "../../engine/backdrop/useGlass";
 import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { FocusMarks } from "./FocusMarks";
+import { ghostEnter, ghostLeave, useGhost } from "./ghostStore";
 import type { MagnifyField } from "./magnifyField";
 import {
   AnimatePresence,
@@ -129,6 +130,9 @@ export function DockIcon({
   const focusMotion = useSettings((s) => s.settings?.dock.focusMotion ?? "glide");
   const ghostMotion = useSettings((s) => s.settings?.dock.ghostMotion ?? "glide");
   const markStretch = useSettings((s) => s.settings?.dock.markStretch ?? 0.5);
+  // the ghost is under one app at a time, for the whole dock, and moves to an icon the pointer has rested on (ghostStore.ts)
+  const ghostDelay = useSettings((s) => s.settings?.dock.ghostDelayMs ?? 60);
+  const ghostHere = useGhost((g) => g.target === item.id);
   const runningCue = useSettings((s) => s.settings?.dock.runningCue ?? "dots");
   const dwellTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // While the volume is being adjusted the window previews stay out of the
@@ -361,6 +365,7 @@ export function DockIcon({
       }}
       onMouseEnter={(e) => {
         setHovered(true);
+        ghostEnter(item.id, ghostDelay);
         // a note for each icon the pointer crosses
         playCue("hover", index);
         // its Jump List read ahead, so a right-click opens the menu with it already in it
@@ -379,6 +384,7 @@ export function DockIcon({
       }}
       onMouseLeave={() => {
         setHovered(false);
+        ghostLeave(item.id, ghostDelay);
         clearTimeout(dwellTimer.current);
         // leaving the icon that owns the open preview: dismiss it soon
         // unless the cursor lands on the flyout itself
@@ -394,8 +400,14 @@ export function DockIcon({
           : "") +
         (attention && attentionBounce ? ", needs attention" : "")
       }
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
+      onFocus={() => {
+        setHovered(true);
+        ghostEnter(item.id, 0);
+      }}
+      onBlur={() => {
+        setHovered(false);
+        ghostLeave(item.id, 0);
+      }}
     >
       {/* the label fades as it goes (it does not just vanish), so its glass fades with it rather than standing alone
           for a frame or two after it */}
@@ -494,7 +506,7 @@ export function DockIcon({
           {runningCue === "dots" && item.windows.length > 0 && <span className="dock-mark-trace" data-shape={markShape} aria-hidden />}
           <FocusMarks
             focused={item.focused && item.windows.length > 0}
-            hovered={hovered && !dragging}
+            hovered={ghostHere && !dragging}
             shape={markShape}
             focusMotion={focusMotion}
             ghostMotion={ghostMotion}

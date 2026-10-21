@@ -50,6 +50,18 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### The ghost no longer hops about as the pointer sweeps the dock (October 21)
+
+- **Settings > Dock > Running apps > Ghost delay** (0 to 300 ms, 60 ms by default, 0 is "At once", as before). The ghost used
+  to be drawn under whichever icon the pointer was on, so a quick sweep made one for each icon crossed and carried it
+  from each to the next. Now the dock has one place for it (`ghostStore.ts`), which moves to an app only when the pointer
+  has rested on it for the delay: swept quickly, the ghost stays where it was and then glides to where the pointer stops.
+- Leaving an app (or the dock) leaves it a moment longer than it takes to land on the next (the delay plus 140 ms), so it
+  can travel to the next app instead of going and coming back, and then it fades. The keyboard's focus moves it at once.
+- `ghostdelay.mjs` sweeps the pointer across five apps and records which holds the ghost each frame: with no delay all
+  five, with 120 ms none on the way and only the app stopped on; it stays through a sweep from one resting place to the
+  next, needs the delay to move, and goes a moment after the pointer leaves.
+
 ### Start's frame rate on the Dell: what it is not, and a way to see what it is (October 21)
 
 - The earlier suspicion, a copy between graphics adapters, is **wrong** for this PC: Windows says the Dell and the
