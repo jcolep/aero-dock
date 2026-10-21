@@ -806,6 +806,14 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   (`BackdropLayer` in `.dock-body`, `track="follow"`) is active until `windowShrunk`, not `slidAway`: it follows the
   bar's rect and the ancestors' opacity every frame, so it leaves with the bar (`dockhideglass.mjs`, every preset).
   Same for `data-asleep` (the sheen's pause). `revealpix.mjs` only reports: its centroid also moves with the glass tint.
+  **Menu bar glass "off until hovering an item" (reported Oct 21, not reproduced)**: measured on the real screen
+  (`scripts/native/barprobe.ps1`, `evalpage.mjs`): the bar's pane is posted once at startup and works at idle in every
+  fresh start (8 of 8; bar brightness 87.6 with the pane, 39.4 with it removed through `set_glass_pane`, 87.7 put back);
+  hovering the System load item brightens the bar near the pointer by ~3.7 (the pointer light; the far end of the bar does
+  not change) and opens a tooltip pane + `resize_menubar: 96`. The REACH specks' opacity (0.01-0.2) and size (1-6 px)
+  make no difference to the bar's look. Untested lead: a stale host backdrop that any re-place of the glass window
+  refreshes (the tooltip's window resize re-places it, `follow` in glass.rs); what would make it stale after a long run
+  (sleep, lock, display change) is unknown. `trace.on` in the data folder turns on `trace.log`, which logs every pane.
 - **Lenses sit BEHIND their items** (`.glide-highlight` z 0, `.mb-lens` z 2 under `.mb-item` z 3; each user lifts
   its items: start.css panel children, `.sb-item`, widget buttons). Over them, the backdrop filter (`SOLID_ONLY`
   alpha^4, brightness/saturate, displacement) thinned and recoloured text. `data-lensed` scales only icons/svg, never
