@@ -26,7 +26,7 @@ use windows::Win32::System::WinRT::Composition::ICompositorDesktopInterop;
 use windows::Win32::System::WinRT::{CreateDispatcherQueueController, DispatcherQueueOptions, DQTAT_COM_STA, DQTYPE_THREAD_CURRENT};
 use windows::Win32::UI::Shell::{DefSubclassProc, RemoveWindowSubclass, SetWindowSubclass};
 use windows::Win32::UI::WindowsAndMessaging::{
-    CreateWindowExW, DefWindowProcW, DestroyWindow, GetWindow, GetWindowLongPtrW, GetWindowRect, GW_HWNDNEXT, IsWindowVisible, RegisterClassW,
+    CreateWindowExW, DefWindowProcW, DestroyWindow, GetWindow, GetWindowLongPtrW, GetWindowRect, GW_HWNDNEXT, IsWindow, IsWindowVisible, RegisterClassW,
     SetLayeredWindowAttributes, SetWindowPos, ShowWindow, GWL_EXSTYLE, HWND_TOPMOST, LWA_ALPHA, SWP_NOACTIVATE,
     SWP_SHOWWINDOW, SW_HIDE, WINDOW_EX_STYLE, WM_DESTROY, WM_SHOWWINDOW, WM_WINDOWPOSCHANGED, WNDCLASSW, WS_EX_LAYERED,
     WS_EX_NOACTIVATE, WS_EX_NOREDIRECTIONBITMAP, WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_EX_TRANSPARENT, WS_POPUP,
@@ -327,6 +327,44 @@ fn commit() {
             let _ = glass.compositor.RequestCommitAsync();
         }
     })
+}
+
+/// Re-place every glass window where its page's window is, even though it already is there.
+///
+/// The compositor refreshes a window's blur when the window is placed (see `follow`, which for that reason does not
+/// place a window that is already right). After the machine locks, sleeps or changes its displays the blur can be left
+/// stale, and then the glass looks off until something places its window again: a menu opening did, by resizing the
+/// page's window, which is how the menu bar's glass seemed to switch on when an item was hovered. `jiggle` also makes
+/// each glass window a pixel wider for a moment, which a window placed where it already was might not be enough for.
+/// Returns how many glass windows were placed. Main thread only.
+pub fn refresh_all(jiggle: bool) -> usize {
+    let placed = GLASS.with(|cell| {
+        let Ok(slot) = cell.try_borrow() else { return 0 };
+        let Some(glass) = slot.as_ref() else { return 0 };
+        let mut placed = 0;
+        for (key, host) in &glass.hosts {
+            let page = HWND(*key as *mut _);
+            unsafe {
+                if !IsWindow(Some(page)).as_bool() || !IsWindowVisible(page).as_bool() {
+                    continue;
+                }
+                let mut r = RECT::default();
+                if GetWindowRect(page, &mut r).is_err() {
+                    continue;
+                }
+                let (w, h) = (r.right - r.left, r.bottom - r.top);
+                let flags = SWP_NOACTIVATE | SWP_SHOWWINDOW;
+                if jiggle {
+                    let _ = SetWindowPos(host.window, Some(page), r.left, r.top, w + 1, h, flags);
+                }
+                let _ = SetWindowPos(host.window, Some(page), r.left, r.top, w, h, flags);
+            }
+            placed += 1;
+        }
+        placed
+    });
+    commit();
+    placed
 }
 
 /// The page's window is closing: its glass goes with it. Main thread only.

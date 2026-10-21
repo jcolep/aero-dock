@@ -18,6 +18,7 @@ use windows::Win32::Graphics::Dwm::{DwmGetWindowAttribute, DWMWA_CLOAKED};
 use windows::Win32::Graphics::Gdi::{
     GetMonitorInfoW, MonitorFromWindow, MONITORINFO, MONITORINFOEXW, MONITOR_DEFAULTTONEAREST,
 };
+use windows::Win32::System::RemoteDesktop::{WTSRegisterSessionNotification, NOTIFY_FOR_THIS_SESSION};
 use windows::Win32::System::SystemInformation::GetTickCount;
 use windows::Win32::System::Threading::{
     OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
@@ -173,6 +174,67 @@ pub fn set_display_hook(hook: impl Fn() + Send + Sync + 'static) {
     let _ = DISPLAY_HOOK.set(Box::new(hook));
 }
 
+const WM_WTSSESSION_CHANGE: u32 = 0x02B1;
+const WM_POWERBROADCAST: u32 = 0x0218;
+const WM_DWMCOMPOSITIONCHANGED: u32 = 0x031E;
+const WM_THEMECHANGED: u32 = 0x031A;
+
+/// What happened to the machine or the session, which can leave the compositor's blur stale: its name for the trace,
+/// and whether the glass should be refreshed for it. `None` for a message that is not one of these.
+pub fn system_event(msg: u32, wparam: usize) -> Option<(&'static str, bool)> {
+    match msg {
+        WM_WTSSESSION_CHANGE => Some(match wparam {
+            1 => ("session: console connect", true),
+            2 => ("session: console disconnect", false),
+            3 => ("session: remote connect", true),
+            4 => ("session: remote disconnect", false),
+            5 => ("session: logon", true),
+            6 => ("session: logoff", false),
+            7 => ("session: locked", false),
+            8 => ("session: unlocked", true),
+            _ => ("session: other change", false),
+        }),
+        WM_POWERBROADCAST => match wparam {
+            0x4 => Some(("power: suspending", false)),
+            0x7 => Some(("power: resumed by the user", true)),
+            0x12 => Some(("power: resumed automatically", true)),
+            _ => None,
+        },
+        WM_DWMCOMPOSITIONCHANGED => Some(("the compositor changed", true)),
+        WM_THEMECHANGED => Some(("the theme changed", true)),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+mod system_event_tests {
+    use super::*;
+
+    #[test]
+    fn an_unlock_or_a_resume_refreshes_the_glass_and_a_lock_does_not() {
+        assert_eq!(system_event(WM_WTSSESSION_CHANGE, 8), Some(("session: unlocked", true)));
+        assert_eq!(system_event(WM_WTSSESSION_CHANGE, 7), Some(("session: locked", false)));
+        assert_eq!(system_event(WM_POWERBROADCAST, 0x12), Some(("power: resumed automatically", true)));
+        assert_eq!(system_event(WM_POWERBROADCAST, 0x7), Some(("power: resumed by the user", true)));
+        assert_eq!(system_event(WM_POWERBROADCAST, 0x4), Some(("power: suspending", false)));
+        assert_eq!(system_event(WM_DWMCOMPOSITIONCHANGED, 0), Some(("the compositor changed", true)));
+    }
+
+    #[test]
+    fn other_messages_and_power_events_are_not_ours() {
+        assert_eq!(system_event(WM_POWERBROADCAST, 0xA), None, "a power status change is not one");
+        assert_eq!(system_event(0x0001, 0), None);
+        assert_eq!(system_event(WM_TIMER, 1), None);
+    }
+}
+
+/// Told of each of those events (with its name and whether the glass wants refreshing). Set once at startup.
+static SYSTEM_HOOK: OnceLock<Box<dyn Fn(&'static str, bool) + Send + Sync>> = OnceLock::new();
+
+pub fn set_system_hook(hook: impl Fn(&'static str, bool) + Send + Sync + 'static) {
+    let _ = SYSTEM_HOOK.set(Box::new(hook));
+}
+
 /// Current snapshot for the initial frontend hydrate.
 pub fn snapshot() -> RunningSnapshot {
     refresh_monitors();
@@ -263,6 +325,12 @@ fn run_message_loop(app: AppHandle) {
 
         HOOK_HWND.store(hwnd.0 as isize, Ordering::SeqCst);
 
+        // told when the session is locked, unlocked or moves to another console, which can leave the glass's blur stale
+        // (see `glass::refresh_all`)
+        if let Err(e) = WTSRegisterSessionNotification(hwnd, NOTIFY_FOR_THIS_SESSION) {
+            log::warn!("could not ask to hear of session changes: {e}");
+        }
+
         // A window dragged to another monitor sends the shell hook nothing.
         // This tick notices it, but only does any work while several docks
         // are each listing their own screen's windows (see `watch_monitors`);
@@ -307,7 +375,17 @@ unsafe extern "system" fn wnd_proc(
         if let Some(hook) = DISPLAY_HOOK.get() {
             hook();
         }
+        if let Some(hook) = SYSTEM_HOOK.get() {
+            hook("the displays changed", true);
+        }
         return LRESULT(0);
+    }
+    if let Some((what, refresh)) = system_event(msg, wparam.0) {
+        if let Some(hook) = SYSTEM_HOOK.get() {
+            hook(what, refresh);
+        }
+        // (power messages want TRUE back; the others ignore it)
+        return unsafe { DefWindowProcW(hwnd, msg, wparam, lparam) };
     }
     if Some(&msg) == SHELL_MSG.get() {
         let target = HWND(lparam.0 as *mut _);

@@ -197,6 +197,32 @@ pub fn run() {
                 });
             }
 
+            // Lock, unlock, sleep, a display or the compositor changing can leave the frosted glass's blur stale, so it
+            // is put back in place: at once, and again a moment later when the screens have settled (that one makes
+            // each glass window a pixel wider for a moment too). Every event is in the trace, to see what happened.
+            #[cfg(windows)]
+            {
+                let handle = handle.clone();
+                platform::windows::running::set_system_hook(move |what, refresh| {
+                    crate::trace!("system: {what}{}", if refresh { " (refreshing the glass)" } else { "" });
+                    if !refresh {
+                        return;
+                    }
+                    let _ = handle.run_on_main_thread(move || {
+                        let n = platform::windows::glass::refresh_all(false);
+                        crate::trace!("glass: refreshed {n} window(s) for: {what}");
+                    });
+                    let later = handle.clone();
+                    std::thread::spawn(move || {
+                        std::thread::sleep(std::time::Duration::from_millis(1500));
+                        let _ = later.clone().run_on_main_thread(move || {
+                            let n = platform::windows::glass::refresh_all(true);
+                            crate::trace!("glass: refreshed {n} window(s) again, a moment after: {what}");
+                        });
+                    });
+                });
+            }
+
             #[cfg(windows)]
             platform::windows::running::start(handle.clone());
             commands::system_cmd::start_poller(handle.clone());
