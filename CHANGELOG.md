@@ -66,9 +66,21 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   shape, and fading with it, and gone at the end. `revealpix.mjs` films an icon, a status icon and the bin through a
   reveal (display scaling, magnification and the preset can be set) and reports any step; it only reports, because its
   figure also moves with the glass tint.
-- Not fully certain: the film shows the steps smaller and the browser animations gone from the window where they
-  happened, but fractions of a pixel are at the edge of what screenshots from the off-screen page can show. If a
-  shift is still seen, say which item and at what display scaling.
+- **The bar's transform now always carries a scale of 1.0001** (`keepScale`, a Motion `transformTemplate`): that is what
+  stopped the shift on the real display, tried live first. Motion drops the scale term when the spring finishes, and
+  the bar, drawn at a scale a hair under 1 until then, was redrawn at exactly 1, every icon and edge landing on its own
+  whole pixel (a diff of frames either side showed outlines on everything at once, about 500 ms after the reveal
+  began). Kept at a scale 0.0001 off, it is drawn the same before and after (0.06 px over the bar).
+- **Also: the Pop's overshoot.** Filmed on the Dell
+  (`scripts/native/dockfilm.ps1`, which moves the real pointer over the dock's edge and grabs the screen every few
+  ms; `dockrec.mjs` records the page's own geometry alongside, `inject.mjs` tries a stylesheet on the live page): the
+  page's layout, window and animations were all still from 380 ms on, but the bar's top read 611.71 at 240 ms and
+  settled at 612.24 by 450 ms. The reveal spring overshot its size by ~1.5% (scale about the screen edge, so the top
+  of the bar rose half a pixel and sank back), and on a 1:1 display a slow half-pixel settle is drawn as one sudden
+  1 px drop when it crosses a rounding boundary, about half a second in. The icons and status icons near the top of
+  the bar cross it, the Recycle Bin low in it does not. `character.reveal` is now just over critically damped
+  (damping 32), so it springs in and stops at its size. (A permanent compositor layer on the bar, `will-change:
+  transform`, hid some of it and a resting `translateZ(0)` did nothing; neither is kept.)
 
 ### Snapping for desktop widgets (October 20)
 

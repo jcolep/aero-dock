@@ -68,6 +68,12 @@ const CONTROLS_SPACE = 76; // Search and Settings buttons, when they sit in the 
  *  of its own while it plays (the bar and the layer of satellites over it), and when it ended, about 0.75 s after the
  *  dock came in, the layers were redrawn and the icons landed a fraction of a pixel from where they had been. */
 const noop = () => {};
+/** The bar's transform always carries a scale, a hair off 1. As the reveal spring finishes Motion drops the scale term
+ *  (and then the whole transform), and the bar, rendered at a scale a little under 1 until then, was redrawn at
+ *  exactly 1: every icon and edge landed on its own whole pixel and the dock seemed to drop a pixel about half a
+ *  second after arriving. Found by filming the real display; a transform with a tiny scale kept at rest draws it the
+ *  same way before and after (0.0001 of 600 px is 0.06 px). */
+const keepScale = (_: unknown, generated: string) => (generated && generated !== "none" ? (/scale/.test(generated) ? generated : `${generated} scale(1.0001)`) : "scale(1.0001)");
 const START_SLOT_ROOM = 64;
 const START_DIVIDER_ROOM = 18;
 // room each end needs for a revealed control: 8px gap, a 30px button that
@@ -1296,6 +1302,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
         initial={reveal.initial}
         animate={hidden ? reveal.hidden : reveal.shown}
         onUpdate={noop}
+        transformTemplate={keepScale}
         onMouseMove={handleMove}
         onPointerMove={(e) => bodyRef.current && pointerLight({ clientX: e.clientX, clientY: e.clientY, currentTarget: bodyRef.current })}
         onMouseLeave={handleLeave}
@@ -1391,6 +1398,7 @@ export function DockBar({ settings, items, onLaunch, primary }: DockBarProps) {
           initial={reveal.initial}
           animate={hidden ? reveal.hidden : reveal.shown}
           onUpdate={noop}
+          transformTemplate={keepScale}
         >
           <AnimatePresence>
             {settings.dock.showSettingsButton && revealRight && (

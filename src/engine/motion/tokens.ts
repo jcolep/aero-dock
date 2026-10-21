@@ -41,9 +41,11 @@ export const character = {
   pop: { type: "spring", stiffness: 560, damping: 26, mass: 0.55 },
   jelly: { type: "spring", stiffness: 380, damping: 12, mass: 0.6 },
   bounce: { type: "spring", stiffness: 320, damping: 13, mass: 0.6 },
-  // The dock's Pop: springs out, but only just past its size (damping ratio ~0.8, ~1.5% over). At 17 it went 6.5% over,
-  // from the screen edge, so the icons rode up ~4 px and then sank back a moment after they had seemed to arrive.
-  reveal: { type: "spring", stiffness: 330, damping: 25, mass: 0.75 },
+  // The dock's Pop: springs out and stops at its size, never past it (damping just over critical, 2*sqrt(330*0.75) =
+  // 31.5). Any overshoot is scale about the screen edge, so the top of the bar rides up and sinks back: 6.5% at 17
+  // damping was ~4 px, and 1.5% at 25 was still half a pixel, which on a 1:1 display is drawn as one sudden 1 px drop
+  // half a second after the dock arrived (filmed on the real display, scripts/native/dockfilm.ps1).
+  reveal: { type: "spring", stiffness: 330, damping: 32, mass: 0.75 },
 } as const;
 
 /** The gliding lens: its leading edge runs ahead, the trailing edge follows, and it settles. */

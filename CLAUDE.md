@@ -786,7 +786,18 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   were redrawn: icons re-snapped to whole device pixels, each by its own fraction (the bin could stay put while the app
   and status icons seemed to drop). `revealMotion` gives the shown spring `restDelta: 0.0005, restSpeed: 0.005` (Motion
   stops a hair short and jumps the rest, 1% of scale about the screen edge = ~0.3px at the top of the bar).
-  `will-change: opacity` and a resting `translateZ(0)` were tried and showed no effect (removed). The dock's glass
+  **The visible post-reveal drop**: Motion drops the bar's `scale(...)` when the spring finishes (~+500 ms) and the bar
+  is redrawn at exactly 1 (every icon and edge re-snaps; diff of frames either side shows outlines everywhere), so the
+  bar and satellites carry `transformTemplate={keepScale}` (`scale(1.0001)` at rest). The Pop's overshoot (below) was
+  also real and is removed. Found only by filming the real display
+  (`scripts/native/dockfilm.ps1` moves the real pointer in steps over the dock's edge and diffs screen grabs against the
+  settled frame; a pointer *teleported* onto the dock does not reveal it; `dockrec.mjs start|dump` logs layout,
+  window and animations per frame in the live page, `inject.mjs css|js` tries a style or script on it; start the app with
+  `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9444`): everything in the page was still from 380 ms on
+  while the bar's top crept 0.5 px (spring overshoot about the screen edge) which 1:1 pixels draw as one 1 px drop.
+  `character.reveal` damping is 32 (critical is 31.5): never overshoot a scale about the screen edge. The Dell is the
+  primary 1920x1080, the Samsung the 2560x1440 (`-Monitor 1`).
+  `will-change: opacity`/`transform` and a resting `translateZ(0)` were tried and are not the fix (removed). The dock's glass
   (`BackdropLayer` in `.dock-body`, `track="follow"`) is active until `windowShrunk`, not `slidAway`: it follows the
   bar's rect and the ancestors' opacity every frame, so it leaves with the bar (`dockhideglass.mjs`, every preset).
   Same for `data-asleep` (the sheen's pause). `revealpix.mjs` only reports: its centroid also moves with the glass tint.
