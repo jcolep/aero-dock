@@ -845,8 +845,70 @@
 }
 
 .st-pop button:hover,
-.st-menu button:hover {
+.st-menu button:hover,
+.st-menu button[data-focus] {
   background: rgba(255, 255, 255, 0.18);
+}
+
+/* an app's or result's menu: grouped by lines and headings, with the key that does a thing said at the right of it */
+.st-menu {
+  min-width: 232px;
+  max-height: 420px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.st-menu-sep {
+  flex: none;
+  height: 1px;
+  margin: 4px 8px;
+  background: rgba(255, 255, 255, 0.16);
+}
+.st-menu-heading {
+  padding: 6px 11px 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.58);
+}
+.st-menu button {
+  white-space: nowrap;
+}
+.st-menu button[data-danger] {
+  color: #ffb4a8;
+}
+.st-menu-hint {
+  margin-left: auto;
+  padding-left: 18px;
+  font: inherit;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* under the results: what the keys do with the one chosen */
+.st-hints {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 7px 20px 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+.st-hints kbd {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  font: inherit;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.86);
+}
+.st-icon-swatch {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+    0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 .st-pop svg {

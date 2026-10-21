@@ -1113,6 +1113,12 @@ export function SettingsApp() {
                 onChange={(v) => set((d) => void (d.start.searchTypos = v))}
               />
               <AeroToggle
+                label="Quick answers"
+                checked={settings.start.searchQuickAnswers ?? true}
+                hint="Type 5 km in miles, 72 f to c, time in tokyo, 3pm est in pst, days until dec 25, #ff8800, 255 in hex, 15% of 80 or flip a coin and the answer is the first result; Enter copies it"
+                onChange={(v) => set((d) => void (d.start.searchQuickAnswers = v))}
+              />
+              <AeroToggle
                 label="“Search Windows” at the end"
                 checked={settings.start.searchWindowsRow ?? true}
                 hint="The last result hands what you typed to Windows' own search, for anything this one does not find"

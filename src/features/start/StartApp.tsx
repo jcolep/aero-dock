@@ -25,22 +25,23 @@ import { BackdropLayer } from "../../engine/backdrop/BackdropLayer";
 import { turnBack, type Turning } from "../menubar/interrupt";
 import { GlassTips } from "../../engine/tooltip/GlassTips";
 import { ipc } from "../../ipc/commands";
-import type { AppEntry, Download, FoundFile, PinnedItem, Profile, RecentFile, StartPin } from "../../ipc/types";
+import type { AppEntry, Download, FoundFile, JumpSection, PinnedItem, Profile, RecentFile, StartPin } from "../../ipc/types";
 import { useDockIcons } from "../../state/dockStore";
 import { useSettings } from "../../state/settingsStore";
 import { veilFor, type Backdrop, type Veil } from "./readability";
 import { notify } from "../feedback/toastStore";
 import { calculate, formatResult } from "./calc";
+import { quickAnswers } from "./quick";
 import { sizeText, timeAgo } from "./format";
 import { matchSettings } from "./settingsPages";
 import { scoreApp } from "./searchMatch";
-import { boost, reload as reloadLearned, remember } from "./learned";
+import { boost, forget as forgetLearned, reload as reloadLearned, remember } from "./learned";
 import { usePinDrag } from "./usePinDrag";
 import { motion, useSpring, useTransform, useVelocity } from "motion/react";
 import { spring } from "../../engine/motion/tokens";
 import "./start.css";
 
-type Kind = "app" | "file" | "folder" | "setting" | "calc" | "windows";
+type Kind = "app" | "file" | "folder" | "setting" | "calc" | "quick" | "windows";
 
 /** Anything the menu can show and open. */
 interface Item {
@@ -53,6 +54,20 @@ interface Item {
   args?: string;
   /** For a sum: the answer. */
   value?: number;
+  /** For a quick answer: what Enter copies, and a color to show beside it. */
+  copy?: string;
+  swatch?: string;
+}
+
+/** One line of a menu: an action, a heading over what follows, or a line between groups. */
+interface MenuEntry {
+  label?: string;
+  run?: () => void;
+  /** The key that does it from the keyboard, said at the right. */
+  hint?: string;
+  heading?: string;
+  separator?: boolean;
+  danger?: boolean;
 }
 
 interface Opening {
@@ -239,7 +254,10 @@ function ItemIcon({ item, big }: { item: Item; big?: boolean }) {
       </span>
     );
   }
-  if (item.kind === "calc") {
+  if (item.kind === "quick" && item.swatch) {
+    return <span className="st-icon st-icon-glyph st-icon-swatch" style={{ background: item.swatch }} />;
+  }
+  if (item.kind === "calc" || item.kind === "quick") {
     return (
       <span className="st-icon st-icon-glyph">
         <Glyph name="calc" />
@@ -266,7 +284,8 @@ function ItemIcon({ item, big }: { item: Item; big?: boolean }) {
 interface MenuState {
   x: number;
   y: number;
-  item: Item;
+  /** What it is the menu of; none for the panel itself (the empty places of the home view). */
+  item: Item | null;
 }
 
 /** Placeholders for a list that has not arrived: rows of the size of the real ones, resting softly. */
@@ -318,6 +337,13 @@ export function StartApp() {
   const [files, setFiles] = useState<FoundFile[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [menu, setMenu] = useState<MenuState | null>(null);
+  // the line of the menu the keyboard is on, the recent files of the app it is the menu of (read when it opens), how
+  // far a menu that would run off the panel is lifted, and what was last copied (its row says so for a moment)
+  const [menuIndex, setMenuIndex] = useState(0);
+  const [appJump, setAppJump] = useState<JumpSection[] | null>(null);
+  const [menuLift, setMenuLift] = useState(0);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const menuEl = useRef<HTMLDivElement>(null);
   const [pop, setPop] = useState<"user" | "power" | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const allList = useRef<HTMLDivElement>(null);
@@ -583,6 +609,7 @@ export function StartApp() {
   const searchLearn = settings?.start.searchLearn ?? true;
   const searchTypos = settings?.start.searchTypos ?? true;
   const searchWindowsRow = settings?.start.searchWindowsRow ?? true;
+  const searchQuick = settings?.start.searchQuickAnswers ?? true;
   // files: asked of Windows' index a moment after typing stops
   useEffect(() => {
     if (q.length < 2) {
@@ -611,6 +638,16 @@ export function StartApp() {
         title: "Calculator",
         items: [{ key: "calc", kind: "calc", name: formatResult(sum), detail: `${q} =  ·  Enter copies the answer`, target: "", value: sum }],
       });
+    }
+    // Questions with an answer (quick.ts): a conversion, the time in a city, days until a date, a color, a percentage
+    if (searchQuick) {
+      const answers = quickAnswers(q, new Date(), { locale: navigator.language || "en-US" });
+      if (answers.length) {
+        out.push({
+          title: answers[0].label,
+          items: answers.map((a) => ({ key: a.key, kind: "quick" as const, name: a.answer, detail: a.detail, target: "", copy: a.copy, swatch: a.swatch })),
+        });
+      }
     }
     // Apps, the way Windows' search finds them (searchMatch.ts: initials, word starts, the program's name, slips),
     // with what was opened before for these letters lifted (learned.ts); one picked before for exactly these letters
@@ -653,7 +690,7 @@ export function StartApp() {
       });
     }
     return out;
-  }, [q, uniqueApps, files, searchLearn, searchTypos, searchWindowsRow]);
+  }, [q, uniqueApps, files, searchLearn, searchTypos, searchWindowsRow, searchQuick]);
   const flat = useMemo(() => sections.flatMap((s) => s.items), [sections]);
   useEffect(() => setSelected(0), [q]);
   useEffect(() => setSelected((i) => Math.min(i, Math.max(0, flat.length - 1))), [flat.length]);
@@ -688,10 +725,21 @@ export function StartApp() {
   }, [phase, view, uniqueApps, resolveIcons, iconEpoch]);
 
   // ---- doing things ----
+  /** Put text on the clipboard, and say so in the row it came from for a moment. */
+  const copyFor = useCallback((item: Item, text: string) => {
+    void navigator.clipboard?.writeText(text).catch(() => undefined);
+    playCue("notice");
+    setCopiedKey(item.key);
+    window.setTimeout(() => setCopiedKey((k) => (k === item.key ? null : k)), 1400);
+  }, []);
   const launch = useCallback(
     (item: Item) => {
       if (item.kind === "calc") {
-        void navigator.clipboard?.writeText(String(item.value ?? "")).catch(() => undefined);
+        copyFor(item, String(item.value ?? ""));
+        return;
+      }
+      if (item.kind === "quick") {
+        copyFor(item, item.copy ?? item.name);
         return;
       }
       if (item.kind === "windows") {
@@ -707,8 +755,35 @@ export function StartApp() {
       ipc.launch(item.target, item.args || undefined).catch(notify.on(`Could not open ${item.name}`));
       close(false);
     },
-    [close, q, searchLearn],
+    [close, q, searchLearn, copyFor],
   );
+
+  // an app's menu: its recent files and tasks are read when the menu opens (they can take a moment the first time) and
+  // added under the rest, which does not move
+  useEffect(() => {
+    setAppJump(null);
+    const item = menu?.item;
+    if (!item || item.kind !== "app" || !onDisk(item)) return;
+    let live = true;
+    const exe = item.target.toLowerCase().endsWith(".exe") ? item.target : "";
+    ipc
+      .jumpList(item.target, exe, [], [])
+      .then((list) => live && setAppJump(list?.sections.filter((s) => s.items.length > 0) ?? null))
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menu?.item?.key]);
+  // a menu that would run off the bottom of the panel (a long one, or one that grew as the recent files arrived) is lifted
+  useEffect(() => {
+    const el = menuEl.current;
+    const panel = el?.closest(".st-panel")?.getBoundingClientRect();
+    if (!el || !panel) return;
+    const over = el.getBoundingClientRect().bottom + menuLift - (panel.bottom - 8);
+    const next = over > 0 ? Math.min(over, el.offsetTop + menuLift - 6) : 0;
+    if (Math.abs(next - menuLift) > 0.5) setMenuLift(next);
+  }, [menu, appJump, menuLift]);
 
   const apply = (mutate: (s: NonNullable<typeof settings>) => void) => void useSettings.getState().apply(mutate);
   const isPinned = (item: Item) => (pins ?? []).some((p) => sameApp(p, item));
@@ -739,14 +814,69 @@ export function StartApp() {
       d.start.pinned.splice(to, 0, moved);
     });
 
-  const menuItems = (item: Item): { label: string; run: () => void; danger?: boolean }[] => {
-    const out: { label: string; run: () => void }[] = [{ label: "Open", run: () => launch(item) }];
+  // ---- what can be done with a result: from the keys, and from its menu ----
+  /** Whether an item is a program or file with a place on disk (not a `shell:` or `ms-settings:` address). */
+  const onDisk = (item: Item) => (item.kind === "app" || item.kind === "file" || item.kind === "folder") && !/^[a-z-]+:(?!\\|\/)/i.test(item.target);
+  const runAsAdmin = (item: Item) => {
+    if (item.kind !== "app" || !onDisk(item)) return;
+    ipc.launchAsAdmin(item.target, item.args).catch(notify.on(`Could not run ${item.name} as administrator`));
+    close(false);
+  };
+  const showInFolder = (item: Item) => {
+    if (!onDisk(item)) return;
+    void ipc.openFileLocation(item.target).catch(notify.on("Could not open its folder"));
+    close(false);
+  };
+  /** What Ctrl+C copies of a result: its answer, or where it is. */
+  const copyOf = (item: Item): string | null => (item.kind === "quick" ? (item.copy ?? item.name) : item.kind === "calc" ? String(item.value ?? "") : onDisk(item) ? item.target : item.kind === "setting" ? item.target : null);
+  const openInTerminal = (item: Item) => {
+    // Windows Terminal where there is one, else PowerShell, either of them in that folder
+    ipc.launch("wt.exe", `-d "${item.target}"`).catch(() =>
+      ipc.launch("powershell.exe", `-NoExit -Command "Set-Location -LiteralPath '${item.target.replace(/'/g, "''")}'"`).catch(notify.on("Could not open a terminal there")),
+    );
+    close(false);
+  };
+  const openStartSettings = () => {
+    try {
+      // the settings window opens on the section it was left on (the pages share their storage)
+      localStorage.setItem("liquidock.settings.pane", "start");
+    } catch {
+      // opening on the section it was left on is a convenience
+    }
+    ipc.openSettings().catch(notify.on("Could not open settings"));
+    close(false);
+  };
+
+  /** The lines of a menu: for a result, or (no item) for the panel's own empty places. */
+  const menuItems = (item: Item | null): MenuEntry[] => {
+    const out: MenuEntry[] = [];
+    const sep = () => {
+      if (out.length && !out[out.length - 1].separator) out.push({ separator: true });
+    };
+    if (!item) {
+      const recommended = settings?.start.showRecommended ?? true;
+      out.push({ label: recommended ? "Hide Recommended" : "Show Recommended", run: () => apply((d) => void (d.start.showRecommended = !recommended)) });
+      if ((pins ?? []).length > 1) {
+        out.push({ label: "Sort pinned A to Z", run: () => apply((d) => void d.start.pinned.sort((a, b) => a.name.localeCompare(b.name))) });
+      }
+      sep();
+      out.push({ label: "Forget what search has learned", run: () => forgetLearned() });
+      out.push({ label: "Start menu settings…", run: openStartSettings });
+      return out;
+    }
+    if (item.kind === "windows") return out;
+    if (item.kind === "calc" || item.kind === "quick") {
+      const text = copyOf(item) ?? item.name;
+      out.push({ label: "Copy the answer", hint: "Enter", run: () => copyFor(item, text) });
+      out.push({ label: "Copy as a line", run: () => copyFor(item, `${q} = ${item.name}`) });
+      return out;
+    }
+    out.push({ label: "Open", hint: "Enter", run: () => launch(item) });
     if (item.kind === "app") {
+      if (onDisk(item)) out.push({ label: "Run as administrator", hint: "Ctrl+Enter", run: () => runAsAdmin(item) });
+      sep();
       const at = (pins ?? []).findIndex((p) => sameApp(p, item));
       out.push(isPinned(item) ? { label: "Unpin from Start", run: () => unpin(item) } : { label: "Pin to Start", run: () => pin(item) });
-      if (at > 0) out.push({ label: "Move to front", run: () => toFront(item) });
-      if (at > 0) out.push({ label: "Move left", run: () => nudge(item, -1) });
-      if (at >= 0 && at < (pins ?? []).length - 1) out.push({ label: "Move right", run: () => nudge(item, 1) });
       out.push({
         label: "Pin to dock",
         run: () =>
@@ -754,32 +884,66 @@ export function StartApp() {
             .pinItem({ id: crypto.randomUUID(), kind: "app", path: item.target, name: item.name, icon: null, children: [] })
             .catch(notify.on("Could not pin it to the dock")),
       });
-      if (!/^shell:/i.test(item.target)) {
-        out.push({
-          label: "Run as administrator",
-          run: () => {
-            ipc.launchAsAdmin(item.target, item.args).catch(notify.on(`Could not run ${item.name} as administrator`));
-            close(false);
-          },
-        });
-        out.push({ label: "Open file location", run: () => void ipc.openFileLocation(item.target).catch(notify.on("Could not open its folder")) });
+      if (at > 0) out.push({ label: "Move to front", run: () => toFront(item) });
+      if (at > 0) out.push({ label: "Move left", run: () => nudge(item, -1) });
+      if (at >= 0 && at < (pins ?? []).length - 1) out.push({ label: "Move right", run: () => nudge(item, 1) });
+      if (onDisk(item)) {
+        sep();
+        out.push({ label: "Open file location", hint: "Alt+Enter", run: () => showInFolder(item) });
+        out.push({ label: "Copy path", hint: "Ctrl+C", run: () => copyFor(item, item.target) });
       }
-      out.push({ label: "Uninstall", run: () => ipc.launch("ms-settings:appsfeatures").catch(notify.on("Could not open Installed apps")) });
+      // the app's own recent files and tasks, read when the menu opened: under the rest, so nothing above moves as they arrive
+      const exe = item.target.toLowerCase().endsWith(".exe") ? item.target : "";
+      for (const section of appJump ?? []) {
+        sep();
+        out.push({ heading: section.title });
+        for (const entry of section.items.slice(0, 4)) {
+          out.push({
+            label: entry.title,
+            run: () => {
+              ipc.jumpOpen(entry, exe).catch(notify.on(`Could not open ${entry.title}`));
+              close(false);
+            },
+          });
+        }
+      }
+      sep();
+      out.push({ label: "Uninstall", danger: true, run: () => ipc.launch("ms-settings:appsfeatures").catch(notify.on("Could not open Installed apps")) });
     } else if (item.kind === "file" || item.kind === "folder") {
-      out.push({ label: "Open file location", run: () => void ipc.openFileLocation(item.target).catch(notify.on("Could not open its folder")) });
-      out.push({ label: "Copy path", run: () => void navigator.clipboard?.writeText(item.target).catch(() => undefined) });
+      if (item.kind === "folder") out.push({ label: "Open in Terminal", run: () => openInTerminal(item) });
+      sep();
+      out.push({ label: "Open file location", hint: "Alt+Enter", run: () => showInFolder(item) });
+      out.push({ label: "Copy path", hint: "Ctrl+C", run: () => copyFor(item, item.target) });
+      out.push({ label: "Copy name", run: () => copyFor(item, item.name) });
+    } else if (item.kind === "setting") {
+      out.push({ label: "Copy link", hint: "Ctrl+C", run: () => copyFor(item, item.target) });
     }
     return out;
   };
+  const menuList = menu ? menuItems(menu.item) : [];
+  const runnable = (e: MenuEntry) => !!e.run;
 
-  const onContext = (e: React.MouseEvent, item: Item) => {
-    if (item.kind === "calc" || item.kind === "setting" || item.kind === "windows") return;
-    e.preventDefault();
-    const panel = (e.currentTarget as HTMLElement).closest(".st-panel")?.getBoundingClientRect();
-    const x = Math.min(e.clientX, (panel?.right ?? window.innerWidth) - 190);
-    const y = Math.min(e.clientY, (panel?.bottom ?? window.innerHeight) - 230);
+  const openMenuAt = (x: number, y: number, item: Item | null, panel: DOMRect | undefined) => {
     setPop(null);
-    setMenu({ x, y, item });
+    setMenuLift(0);
+    setMenuIndex(0);
+    setMenu({ x: Math.max(6, Math.min(x, (panel?.right ?? window.innerWidth) - 232)), y: Math.max(6, Math.min(y, (panel?.bottom ?? window.innerHeight) - 120)), item });
+  };
+
+  /** A right-click on a result, a pin or a recent file. */
+  const onContext = (e: React.MouseEvent, item: Item) => {
+    // (always the menu of the thing under the pointer, never also the panel's: that one is for the empty places)
+    e.preventDefault();
+    e.stopPropagation();
+    if (item.kind === "windows") return;
+    const panel = (e.currentTarget as HTMLElement).closest(".st-panel")?.getBoundingClientRect();
+    openMenuAt(e.clientX, e.clientY, item, panel);
+  };
+  /** A right-click on the panel itself: the home view, off any result or tile (not the search box, which has its own). */
+  const onPanelContext = (e: React.MouseEvent) => {
+    if (e.defaultPrevented || q || (e.target as HTMLElement).closest("input, button, .st-menu, .st-pop")) return;
+    e.preventDefault();
+    openMenuAt(e.clientX, e.clientY, null, e.currentTarget.getBoundingClientRect());
   };
 
   // ---- keys ----
@@ -800,10 +964,71 @@ export function StartApp() {
       }
       return;
     }
+    // an open menu has the keys: up and down between its lines, Enter does one, left or Escape puts it away
+    if (menu) {
+      const lines = menuList.map((m, i) => (runnable(m) ? i : -1)).filter((i) => i >= 0);
+      const at = lines.indexOf(menuIndex);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Home" || e.key === "End") {
+        e.preventDefault();
+        if (lines.length === 0) return;
+        const to = e.key === "Home" ? 0 : e.key === "End" ? lines.length - 1 : (at + (e.key === "ArrowDown" ? 1 : -1) + lines.length) % lines.length;
+        setMenuIndex(lines[to]);
+        return;
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const line = menuList[menuIndex];
+        if (line?.run) {
+          setMenu(null);
+          line.run();
+        }
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setMenu(null);
+        return;
+      }
+    }
     if (!q) {
       // typing anywhere starts a search; the box is always there to take it
       if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && document.activeElement !== input.current) input.current?.focus();
       return;
+    }
+    // what can be done with the result the keys are on, without the pointer
+    const chosen = flat[selected];
+    if (chosen && !menu) {
+      if (e.key === "Enter" && e.ctrlKey && chosen.kind === "app") {
+        e.preventDefault();
+        runAsAdmin(chosen);
+        return;
+      }
+      if (e.key === "Enter" && e.altKey && onDisk(chosen)) {
+        e.preventDefault();
+        showInFolder(chosen);
+        return;
+      }
+      // Ctrl+C with nothing selected in the box copies the result's answer or path (with something selected it is the box's own)
+      const box = input.current;
+      if ((e.key === "c" || e.key === "C") && e.ctrlKey && !e.shiftKey && box && box.selectionStart === box.selectionEnd) {
+        const text = copyOf(chosen);
+        if (text !== null) {
+          e.preventDefault();
+          copyFor(chosen, text);
+        }
+        return;
+      }
+      // the right arrow from the end of what is typed opens the result's menu, beside the row
+      if (e.key === "ArrowRight" && box && box.selectionStart === box.value.length && chosen.kind !== "windows") {
+        const row = document.querySelector<HTMLElement>(".st-row[data-selected='true']");
+        const panel = row?.closest(".st-panel")?.getBoundingClientRect();
+        if (row && panel) {
+          e.preventDefault();
+          const r = row.getBoundingClientRect();
+          openMenuAt(r.left + Math.min(r.width * 0.5, 180), r.top + r.height - 6, chosen, panel);
+          return;
+        }
+      }
     }
     if (e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey)) {
       e.preventDefault();
@@ -885,6 +1110,7 @@ export function StartApp() {
         // the lens rests while something is carried (it would chase every tile passed over)
         onPointerOver={(e) => !dragging && lens.handlers.onPointerOver(e)}
         data-dragging={dragging || undefined}
+        onContextMenu={onPanelContext}
         onMouseDown={(e) => {
           // a press that is not on a popup closes it
           if (!(e.target as HTMLElement).closest(".st-menu, .st-pop, .st-user, .st-power")) {
@@ -915,6 +1141,7 @@ export function StartApp() {
         </div>
 
         {q ? (
+          <>
           <div className="st-results" data-lens-clip role="listbox" aria-label="Search results">
             {sections.length === 0 && <div className="st-none">Nothing found for “{q}”. Try a shorter word, or fewer letters.</div>}
             {sections.map((section) => (
@@ -937,7 +1164,7 @@ export function StartApp() {
                       <ItemIcon item={item} />
                       <span className="st-row-text">
                         <strong>{item.name}</strong>
-                        {item.detail && <small>{item.detail}</small>}
+                        {(copiedKey === item.key || item.detail) && <small>{copiedKey === item.key ? "Copied" : item.detail}</small>}
                       </span>
                     </button>
                   );
@@ -945,6 +1172,16 @@ export function StartApp() {
               </div>
             ))}
           </div>
+          {flat[selected] && (
+            <div className="st-hints" aria-hidden>
+              {hintsFor(flat[selected]).map(([key, what]) => (
+                <span key={key}>
+                  <kbd>{key}</kbd> {what}
+                </span>
+              ))}
+            </div>
+          )}
+          </>
         ) : view === "home" ? (
           <>
             <div className="st-bar">
@@ -1165,25 +1402,56 @@ export function StartApp() {
           </motion.div>
         )}
 
-        {menu && (
-          <div className="st-menu" role="menu" style={{ left: menu.x, top: menu.y }}>
+        {menu && menuList.length > 0 && (
+          <div ref={menuEl} className="st-menu" role="menu" style={{ left: menu.x, top: menu.y - menuLift }}>
           <BackdropLayer active={startGlass.active} blur={startGlass.blur} grain={startGlass.grain} tint="own" />
-            {menuItems(menu.item).map((m) => (
+            {menuList.map((m, i) =>
+              m.separator ? (
+                <div key={`sep${i}`} className="st-menu-sep" role="separator" />
+              ) : m.heading ? (
+                <div key={`head${i}`} className="st-menu-heading">
+                  {m.heading}
+                </div>
+              ) : (
               <button
-                key={m.label}
+                key={`${i}:${m.label}`}
                 type="button"
                 role="menuitem"
+                data-focus={menuIndex === i || undefined}
+                data-danger={m.danger || undefined}
+                onMouseEnter={() => setMenuIndex(i)}
                 onClick={() => {
                   setMenu(null);
-                  m.run();
+                  m.run?.();
                 }}
               >
                 {m.label}
+                {m.hint && <kbd className="st-menu-hint">{m.hint}</kbd>}
               </button>
-            ))}
+              ),
+            )}
           </div>
         )}
       </div>
     </div>
   );
 }
+
+/** The keys that do something with a result, said under the list for the one the keys are on. */
+function hintsFor(item: Item): [string, string][] {
+  switch (item.kind) {
+    case "app":
+      return [["Enter", "Open"], ["Ctrl+Enter", "Run as administrator"], ["Alt+Enter", "File location"], ["→", "More"]];
+    case "file":
+    case "folder":
+      return [["Enter", "Open"], ["Alt+Enter", "File location"], ["Ctrl+C", "Copy path"], ["→", "More"]];
+    case "setting":
+      return [["Enter", "Open"], ["Ctrl+C", "Copy link"], ["→", "More"]];
+    case "calc":
+    case "quick":
+      return [["Enter", "Copy the answer"], ["→", "More"]];
+    default:
+      return [["Enter", "Search Windows"]];
+  }
+}
+

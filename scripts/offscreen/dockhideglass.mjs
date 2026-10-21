@@ -1,4 +1,4 @@
-﻿// The frosted glass under the dock going away with it: while the bar is still visibly leaving, its glass is still there,
+// The frosted glass under the dock going away with it: while the bar is still visibly leaving, its glass is still there,
 // on the bar's shape and fading with it (it used to be taken at the first frame, leaving the bar bare as it went), and
 // it is gone once the dock has gone.
 //

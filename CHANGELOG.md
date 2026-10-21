@@ -50,6 +50,30 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   is typed — the default view (pinned tiles, Recommended) has no keyboard navigation at all. Both are plausibly
   intentional, not obviously bugs, so left for a real decision rather than changed on a guess.
 
+### Start: quick answers, keys for what a result can do, and richer right-click menus (October 21)
+
+- **Quick answers**, first in the results and copied by Enter, made from the typed text and the clock alone (`quick.ts`,
+  nothing sent anywhere): units (length, mass, volume, speed, area, data with KB and KiB told apart, time, temperature:
+  `5 km in miles`, `72 f to c`, `1 gib in mib`), the time in a city or a zone (`time in tokyo`, `tokyo time`, `what time is
+  it in london`) and a clock time across zones (`3pm est in pst`, `9am to tokyo`, with "next day" noted), dates (`days until
+  dec 25`, `days since 2026-10-01`, `what day is dec 25 2026`, `in 90 days`, `2 weeks ago`, `date` with the week and day of
+  the year; holidays and weekdays understood), colors (`#ff8800`, `rgb(...)`, `hsl(...)` with a swatch and the other forms),
+  number bases (`255 in hex`, `0xff`), percentages (`15% of 80`, `20% off 50`, `tip 18% on 64.50`), and chance (`flip a
+  coin`, `roll a die`, `random number 1-100`). No currency (it needs a rate from the network). Words that are not a
+  question give nothing, so the search box stays a search box. Settings › Start › Quick answers turns it off.
+- **Keys for a result**, said in a line under the list for the one chosen: **Ctrl+Enter** runs an app as administrator,
+  **Alt+Enter** shows it in its folder, **Ctrl+C** (with nothing selected in the box) copies its path, answer or link, and
+  the **right arrow** from the end of what is typed opens the result's menu beside its row. A copy says "Copied" in the row
+  for a moment. Run as administrator and the folder close Start, as opening does.
+- **The right-click menu** is grouped (open and run as administrator; pin, move; file location and path; the app's own
+  recent files and tasks from its Jump List, read when it opens and added under the rest so nothing above moves; Uninstall
+  last), says the key beside the lines that have one, and works from the keyboard (up, down, Home, End, Enter, left or
+  Escape). A folder's can open a terminal there and copy its name; a setting's copies its link; an answer's copies it as a
+  line. The panel's own empty places have one too: hide Recommended, sort pinned A to Z, forget what search has learned,
+  and Start menu settings (which opens settings on the Start section). A menu that would run off the bottom is lifted.
+- Tests: `scripts/unit/quick.mjs` (the answers, with a fixed clock and zone; the module is transpiled with the project's
+  TypeScript, since there is no test runner) and `startquick.mjs`.
+
 ### Settings search finds settings, and a backup that carries the widget pictures (October 21)
 
 - **Search looks at the settings themselves.** Typing in the settings window's search box narrows the page to the rows

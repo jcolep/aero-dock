@@ -780,6 +780,16 @@ margin over each, so the app looks rounded. Nothing is done to the app's window.
   6.5% overshoot). Tests: `dockdrag.mjs` (pointer-to-icon 0 px, no jump, same element), `dockreveal.mjs`. The harness
   now mocks `pin_item`/`unpin_item`/`reorder_*` (changes settings, emits `settings://changed` after `__saveDelay`).
   `backdrop.mjs`'s two dock-label glass checks fail, and did before this work (not yet looked into).
+  **Start quick answers / actions / menus**: `quick.ts` is pure and import-free (so `scripts/unit/quick.mjs` can
+  transpile it with the project's TypeScript and test it with a fixed clock: `node scripts/unit/quick.mjs`); it returns
+  `QuickAnswer`s that StartApp turns into `kind: "quick"` items (copy via `copyFor`, which says "Copied" in the row).
+  `menuItems(item | null)` builds `MenuEntry`s (`separator`, `heading`, `hint`); `item: null` is the panel's own menu
+  (`onPanelContext`, skipped while searching and for anything `defaultPrevented`); an app's Jump List is read into
+  `appJump` when its menu opens and appended under the rest; keys live in `onKeyDown` (menu first, then Ctrl+Enter,
+  Alt+Enter, Ctrl+C, ArrowRight at the end of the box). **Do not edit TS/TSX with PowerShell `Get-Content`/`Set-Content`**:
+  PS 5.1 reads UTF-8 without a BOM as ANSI and writes it back double-encoded (every `→ · “ …` turned to mojibake in
+  StartApp.tsx; repaired byte-for-byte). Use the Edit tool, or `[IO.File]::ReadAllText/WriteAllText` with a UTF-8
+  encoding with no BOM.
   **Glass self-heal**: `running.rs`'s hidden shell-hook window also hears `WM_WTSSESSION_CHANGE` (registered with
   `WTSRegisterSessionNotification`), `WM_POWERBROADCAST` resumes, `WM_DWMCOMPOSITIONCHANGED`, `WM_THEMECHANGED` and
   `WM_DISPLAYCHANGE`: `system_event()` (pure, tested) names them and says if the glass wants refreshing; the hook in

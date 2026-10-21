@@ -584,6 +584,8 @@ export interface StartSettings {
   searchTypos: boolean;
   /** The last result hands what was typed to Windows' own search. */
   searchWindowsRow: boolean;
+  /** Answers in the search: conversions, the time in a city, days until a date, colors, percentages. */
+  searchQuickAnswers: boolean;
 }
 
 /** How frosted one surface's glass is. */

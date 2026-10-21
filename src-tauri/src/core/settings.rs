@@ -828,6 +828,9 @@ pub struct StartSettings {
     pub search_typos: bool,
     /// The last result hands what was typed to Windows' own search (`commands::start::windows_search`).
     pub search_windows_row: bool,
+    /// Answers in the search: unit conversions, the time in a city, days until a date, colors, number bases,
+    /// percentages and the like (`features/start/quick.ts`), made from the text alone.
+    pub search_quick_answers: bool,
 }
 
 impl Default for StartSettings {
@@ -843,6 +846,7 @@ impl Default for StartSettings {
             search_learn: true,
             search_typos: true,
             search_windows_row: true,
+            search_quick_answers: true,
         }
     }
 }

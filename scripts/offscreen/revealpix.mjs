@@ -1,4 +1,4 @@
-﻿// What the eye sees as the dock comes in: the vertical centre of what is drawn at an app icon, a status chip and the
+// What the eye sees as the dock comes in: the vertical centre of what is drawn at an app icon, a status chip and the
 // Recycle Bin, measured from screenshots (zoomed 4x, so a fraction of a pixel shows) every ~45 ms through a reveal.
 // A step half a second after it arrived is the "shift down" that was seen. Prints each series and the biggest step
 // (env: SCALE=1.5 for display scaling, MAG=0 magnification off, SERIES=1 the raw series, PROBE=1 layout and animations,
